@@ -1,4 +1,3 @@
 export enum Secrets {
   CLERK_WEBHOOK_SECRET = "CLERK_WEBHOOK_SECRET",
-  CLERK_API_KEY = "CLERK_API_KEY",
 }
