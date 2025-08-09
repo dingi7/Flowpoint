@@ -1,0 +1,25 @@
+import z from "zod";
+import { baseEntitySchema } from "./base";
+import { DayOfWeekEnum } from "./calendar";
+
+export const OrganizationSettingsSchema = z.object({
+  timezone: z.string().default("UTC"),
+  workingDays: z
+    .array(DayOfWeekEnum)
+    .default(["monday", "tuesday", "wednesday", "thursday", "friday"]),
+  defaultBufferTime: z.number().int().min(0).default(0), // minutes
+  appointmentCancellationPolicyHours: z.number().int().min(0).default(24),
+});
+
+export const oraganizationDataSchema = z.object({
+  name: z.string(),
+  image: z.string().optional(),
+  industry: z.string().optional(),
+  settings: OrganizationSettingsSchema,
+});
+
+export type OrganizationData = z.infer<typeof oraganizationDataSchema>;
+export const organizationSchema = baseEntitySchema.merge(
+  oraganizationDataSchema,
+);
+export type Organization = z.infer<typeof organizationSchema>;
