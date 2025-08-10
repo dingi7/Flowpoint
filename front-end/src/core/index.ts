@@ -1,9 +1,11 @@
 // Entities
 export * from "./entities/base";
 export * from "./entities/user";
+export * from "./entities/customer";
 
 //Repositories
 export * from "./ports/repositories/user-repository";
+export * from "./ports/repositories/customer-repository";
 
 //Repository Host
 export * from "./ports/repositories/repository-host";
