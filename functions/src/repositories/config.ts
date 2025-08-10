@@ -1,4 +1,10 @@
 export enum DatabaseCollection {
   USERS = "users",
-  CUSTOMERS = "customers"
+  APPOINTMENTS = "appointments",
+  CALENDARS = "calendars",
+  MEMBERS = "members",
+  ORGANIZATIONS = "organizations",
+  ROLES = "roles",
+  SERVICES = "services",
+  CUSTOMERS = "customers",
 }

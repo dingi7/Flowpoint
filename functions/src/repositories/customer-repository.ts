@@ -1,4 +1,9 @@
-import type { DatabaseService, Customer, CustomerData, CustomerRepository } from "../core";
+import {
+  Customer,
+  CustomerData,
+  CustomerRepository,
+  DatabaseService,
+} from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";
 

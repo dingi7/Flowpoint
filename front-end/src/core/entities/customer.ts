@@ -19,11 +19,13 @@ export const CustomerFieldConfigSchema = z.object({
   isRequired: z.boolean().default(false),
   placeholder: z.string().optional(),
   options: z.array(z.string()).optional(),
-  validation: z.object({
-    minLength: z.number().optional(),
-    maxLength: z.number().optional(),
-    pattern: z.string().optional(),
-  }).optional(),
+  validation: z
+    .object({
+      minLength: z.number().optional(),
+      maxLength: z.number().optional(),
+      pattern: z.string().optional(),
+    })
+    .optional(),
 });
 export type CustomerFieldConfig = z.infer<typeof CustomerFieldConfigSchema>;
 
@@ -39,6 +41,7 @@ export type Customer = z.infer<typeof customerSchema>;
 
 export type CustomerFieldValue = string | number | boolean | Date | null;
 
-export interface ValidatedCustomerData extends Omit<CustomerData, 'customFields'> {
+export interface ValidatedCustomerData
+  extends Omit<CustomerData, "customFields"> {
   customFields: Record<string, CustomerFieldValue>;
 }

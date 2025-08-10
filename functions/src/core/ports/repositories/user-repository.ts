@@ -1,4 +1,3 @@
-import { User, UserData } from "../../entities/user";
-import { GenericRepository } from "./generic-repository";
+import { GenericRepository, User, UserData } from "@/core";
 
 export type UserRepository = GenericRepository<User, UserData>;

@@ -10,10 +10,11 @@
     "downlevelIteration": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
-  },
-  "paths": {
-    "@/*": ["./src/*"]
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "compileOnSave": true,
   "include": ["./src"],

@@ -4,7 +4,6 @@ import { baseEntitySchema } from "./base";
 export const appointmentDataSchema = z.object({
   memberId: z.string(),
   calendarId: z.string(),
-  // references Customer.id
   customerId: z.string(),
   title: z.string(),
   description: z.string(),

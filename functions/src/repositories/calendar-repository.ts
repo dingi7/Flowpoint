@@ -1,17 +1,17 @@
 import {
-  Customer,
-  CustomerData,
-  CustomerRepository,
+  Calendar,
+  CalendarData,
+  CalendarRepository,
   DatabaseService,
 } from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";
 
-export function getCustomerRepository(
+export function getCalendarRepository(
   databaseService: DatabaseService,
-): CustomerRepository {
-  return getGenericRepository<Customer, CustomerData>(
-    () => DatabaseCollection.CUSTOMERS,
+): CalendarRepository {
+  return getGenericRepository<Calendar, CalendarData>(
+    () => DatabaseCollection.CALENDARS,
     databaseService,
   );
 }
