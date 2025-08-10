@@ -1,10 +1,10 @@
 import { onMessagePublished } from "firebase-functions/v2/pubsub";
 
-import { removeClerkUserFromFirebase } from "../../app/clerk/remove-clerk-user-from-firebase";
-import { PUB_SUB_TOPICS } from "../../config/pub-sub";
-import { ClerkUser } from "../../core";
-import { repositoryHost } from "../../repositories";
-import { serviceHost } from "../../services";
+import { removeClerkUserFromFirebase } from "@/app/clerk/remove-clerk-user-from-firebase";
+import { PUB_SUB_TOPICS } from "@/config/pub-sub";
+import { ClerkUser } from "@/core";
+import { repositoryHost } from "@/repositories";
+import { serviceHost } from "@/services";
 
 const authenticationService = serviceHost.getAuthenticationService();
 const clerkService = serviceHost.getClerkService();

@@ -3,7 +3,7 @@ import {
   ClerkUser,
   LoggerService,
   UserRepository,
-} from "../../core";
+} from "@/core";
 
 interface Payload {
   clerkUser: ClerkUser;

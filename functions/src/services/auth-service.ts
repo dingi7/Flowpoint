@@ -1,5 +1,5 @@
-import { AuthenticationService, AuthUser } from "../core";
-import { auth } from "../infrastructure/firebase";
+import { AuthenticationService, AuthUser } from "@/core";
+import { auth } from "@/infrastructure/firebase";
 
 export const authService: AuthenticationService = {
   async createUser(payload): Promise<void> {

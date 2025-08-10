@@ -1,7 +1,7 @@
 import { createClerkClient, WebhookEvent } from "@clerk/backend";
 import { Webhook } from "svix";
 
-import { ClerkService, USER_EVENT } from "../core";
+import { ClerkService, USER_EVENT } from "@/core";
 
 export const clerkService: ClerkService = {
   async validateWebhookSignature(payload) {

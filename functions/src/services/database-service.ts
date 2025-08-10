@@ -7,7 +7,7 @@ import {
   OrderByOptions,
   PaginationOptions,
   QueryConstraint,
-} from "../core";
+} from "@/core";
 import DocumentData = firestore.DocumentData;
 import Timestamp = firestore.Timestamp;
 import DocumentSnapshot = firestore.DocumentSnapshot;

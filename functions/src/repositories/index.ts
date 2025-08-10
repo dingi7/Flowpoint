@@ -1,4 +1,4 @@
-import { DatabaseService, RepositoryHost } from "../core";
+import { DatabaseService, RepositoryHost } from "@/core";
 import { getAppointmentRepository } from "./appointment-repository";
 import { getCalendarRepository } from "./calendar-repository";
 import { getCustomerRepository } from "./customer-repository";

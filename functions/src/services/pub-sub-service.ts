@@ -1,6 +1,6 @@
 import { PubSub } from "@google-cloud/pubsub";
 
-import { PubSubService } from "../core";
+import { PubSubService } from "@/core";
 
 export const pubSubService: PubSubService = {
   publish: async (topic, message) => {

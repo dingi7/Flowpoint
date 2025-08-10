@@ -1,6 +1,6 @@
 import * as logger from "firebase-functions/logger";
 
-import { LoggerService } from "../core";
+import { LoggerService } from "@/core";
 
 export const loggerService: LoggerService = {
   info(...args: any[]) {

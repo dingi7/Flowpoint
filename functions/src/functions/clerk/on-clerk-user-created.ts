@@ -1,10 +1,10 @@
 import { onMessagePublished } from "firebase-functions/v2/pubsub";
 
-import { createClerkUserInFirebase } from "../../app/clerk/create-clerk-user-in-firebase";
-import { PUB_SUB_TOPICS } from "../../config/pub-sub";
-import { ClerkUser } from "../../core";
-import { repositoryHost } from "../../repositories";
-import { serviceHost } from "../../services";
+import { createClerkUserInFirebase } from "@/app/clerk/create-clerk-user-in-firebase";
+import { PUB_SUB_TOPICS } from "@/config/pub-sub";
+import { ClerkUser } from "@/core";
+import { repositoryHost } from "@/repositories";
+import { serviceHost } from "@/services";
 
 const authenticationService = serviceHost.getAuthenticationService();
 const loggerService = serviceHost.getLoggerService();

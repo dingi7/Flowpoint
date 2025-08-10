@@ -1,9 +1,9 @@
-import { firestore } from "firebase-admin";
-import { DatabaseService } from "../core";
 import {
+  DatabaseService,
   EmptyPayloadExtender,
   GenericRepository,
-} from "../core/ports/repositories/generic-repository";
+} from "@/core";
+import { firestore } from "firebase-admin";
 import FieldPath = firestore.FieldPath;
 
 export const getGenericRepository = <

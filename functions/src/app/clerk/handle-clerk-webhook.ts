@@ -1,10 +1,5 @@
+import { ClerkService, LoggerService, PubSubService, USER_EVENT } from "@/core";
 import { PUB_SUB_TOPICS } from "../../config/pub-sub";
-import {
-  ClerkService,
-  LoggerService,
-  PubSubService,
-  USER_EVENT,
-} from "../../core";
 
 interface Payload {
   svixID: string;

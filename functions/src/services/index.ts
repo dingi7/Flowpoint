@@ -1,4 +1,4 @@
-import type { ServiceHost } from "../core";
+import type { ServiceHost } from "@/core";
 import { authService } from "./auth-service";
 import { clerkService } from "./clerk-service";
 import { databaseService } from "./database-service";

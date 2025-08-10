@@ -1,8 +1,8 @@
 import {
+  DatabaseService,
   EmptyPayloadExtender,
   GenericRepository,
-} from "../core/ports/repositories/generic-repository";
-import { DatabaseService } from "../core/ports/services/database-service";
+} from "@/core";
 
 export const getGenericRepository = <
   TEntity,
