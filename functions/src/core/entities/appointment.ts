@@ -9,7 +9,7 @@ export const appointmentDataSchema = z.object({
   calendarId: z.string(),
   customerId: z.string(),
   serviceId: z.string(),
-  
+
   title: z.string(),
   description: z.string(),
   organizationId: z.string(),

@@ -1,6 +1,7 @@
-import { Appointment, AppointmentData, GenericRepository } from "@/core";
+import { Appointment, AppointmentData, GenericRepository, OrganizationIDPayload } from "@/core";
 
 export type AppointmentRepository = GenericRepository<
   Appointment,
-  AppointmentData
+  AppointmentData,
+  OrganizationIDPayload
 >;

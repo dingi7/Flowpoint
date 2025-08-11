@@ -6,6 +6,7 @@ import { getMemberRepository } from "./member-repository";
 import { getOrganizationRepository } from "./organization-repository";
 import { getRoleRepository } from "./role-repository";
 import { getServiceRepository } from "./service-repository";
+import { getTimeOffRepository } from "./time-off-repository";
 import { getUserRepository } from "./user-repository";
 
 export const repositoryHost: RepositoryHost = {
@@ -25,4 +26,6 @@ export const repositoryHost: RepositoryHost = {
     getCalendarRepository(databaseService),
   getMemberRepository: (databaseService: DatabaseService) =>
     getMemberRepository(databaseService),
+  getTimeOffRepository: (databaseService: DatabaseService) =>
+    getTimeOffRepository(databaseService),
 };

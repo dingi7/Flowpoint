@@ -7,4 +7,5 @@ export enum DatabaseCollection {
   ROLES = "roles",
   SERVICES = "services",
   CUSTOMERS = "customers",
+  TIME_OFF = "time-off",
 }

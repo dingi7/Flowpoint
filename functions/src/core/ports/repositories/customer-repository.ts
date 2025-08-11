@@ -1,3 +1,12 @@
-import { Customer, CustomerData, GenericRepository } from "@/core";
+import {
+  Customer,
+  CustomerData,
+  GenericRepository,
+  OrganizationIDPayload,
+} from "@/core";
 
-export type CustomerRepository = GenericRepository<Customer, CustomerData>;
+export type CustomerRepository = GenericRepository<
+  Customer,
+  CustomerData,
+  OrganizationIDPayload
+>;

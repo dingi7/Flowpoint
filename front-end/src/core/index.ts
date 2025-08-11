@@ -8,6 +8,7 @@ export * from "./entities/organization";
 export * from "./entities/role";
 export * from "./entities/service";
 export * from "./entities/user";
+export * from "./entities/time-off";
 
 //Repositories
 export * from "./ports/repositories/appointment-repository";
@@ -19,6 +20,7 @@ export * from "./ports/repositories/organization-repository";
 export * from "./ports/repositories/role-repository";
 export * from "./ports/repositories/service-repository";
 export * from "./ports/repositories/user-repository";
+export * from "./ports/repositories/time-off-repository";
 
 //Repository Host
 export * from "./ports/repositories/repository-host";

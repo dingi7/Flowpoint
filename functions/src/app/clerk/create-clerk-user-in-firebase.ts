@@ -119,6 +119,7 @@ export async function createClerkUserInFirebase(
     id: clerkUser.id,
     data: {
       email: clerkUserEmail,
+      organizationIds: [],
       roles: roles ?? [],
     },
   });

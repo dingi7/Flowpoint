@@ -3,6 +3,7 @@ import {
   AppointmentData,
   AppointmentRepository,
   DatabaseService,
+  OrganizationIDPayload,
 } from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";
@@ -10,8 +11,13 @@ import { getGenericRepository } from "./generic-repository";
 export function getAppointmentRepository(
   databaseService: DatabaseService,
 ): AppointmentRepository {
-  return getGenericRepository<Appointment, AppointmentData>(
-    () => DatabaseCollection.APPOINTMENTS,
+  return getGenericRepository<
+    Appointment,
+    AppointmentData,
+    OrganizationIDPayload
+  >(
+    (payload) =>
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.APPOINTMENTS}`,
     databaseService,
   );
 }

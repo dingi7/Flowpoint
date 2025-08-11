@@ -7,6 +7,7 @@ import {
   OrganizationRepository,
   RoleRepository,
   ServiceRepository,
+  TimeOffRepository,
   UserRepository,
 } from "@/core";
 
@@ -23,4 +24,5 @@ export interface RepositoryHost {
   getAppointmentRepository(
     databaseService: DatabaseService,
   ): AppointmentRepository;
+  getTimeOffRepository(databaseService: DatabaseService): TimeOffRepository;
 }
