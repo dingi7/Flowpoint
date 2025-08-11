@@ -3,6 +3,7 @@ import { baseEntitySchema } from "./base";
 
 export const userDataSchema = z.object({
   email: z.string().email(),
+  organizationIds: z.array(z.string()).default([]),
   roles: z.array(z.string()),
 });
 

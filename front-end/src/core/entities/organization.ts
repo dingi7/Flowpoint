@@ -17,6 +17,7 @@ export const oraganizationDataSchema = z.object({
   name: z.string(),
   image: z.string().optional(),
   industry: z.string().optional(),
+  currency: z.string().default("EUR"),
   settings: OrganizationSettingsSchema,
 });
 

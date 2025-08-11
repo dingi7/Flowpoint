@@ -4,7 +4,7 @@ import { baseEntitySchema } from "./base";
 export const memberDataSchema = z.object({
   name: z.string(),
   organizationId: z.string(),
-  roleId: z.string(),
+  roleIds: z.array(z.string()),
 });
 
 export type MemberData = z.infer<typeof memberDataSchema>;

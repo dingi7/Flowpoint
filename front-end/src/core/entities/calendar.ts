@@ -1,6 +1,8 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
 
+export const OwnerTypeEnum = z.enum(["member", "organization"]);
+
 // Day of week enum
 export const DayOfWeekEnum = z.enum([
   "monday",
@@ -37,7 +39,8 @@ export type WorkingHours = z.infer<typeof WorkingHoursSchema>;
 
 // Calendar schema
 export const calendarDataSchema = z.object({
-  memberId: z.string(),
+  ownerType: OwnerTypeEnum,
+  ownerId: z.string(),
   name: z.string(),
   workingHours: WorkingHoursSchema,
   bufferTime: z.number().int().min(0).default(0),

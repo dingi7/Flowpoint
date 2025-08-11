@@ -2,6 +2,8 @@ import z from "zod";
 import { baseEntitySchema } from "./base";
 
 export const serviceDataSchema = z.object({
+  organizationId: z.string(),
+
   name: z.string(),
   description: z.string().optional(),
   price: z.number(),
