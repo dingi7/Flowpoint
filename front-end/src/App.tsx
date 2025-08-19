@@ -11,6 +11,9 @@ import { AppLayout } from "./components/layout";
 import SignInPage from "./pages/auth/sign-in-page";
 import SignUpPage from "./pages/auth/sign-up-page";
 import DashboardPage from "./pages/dashboard-page";
+import CustomersPage from "./pages/customers/customers-page";
+import AppointmentsPage from "./pages/appointments/appointments-page";
+import ServicesPage from "./pages/services/services-page";
 import { FirebaseTokenProvider } from "./utils/firebase-token-provider";
 
 const queryClient = new QueryClient();
@@ -52,6 +55,36 @@ function App() {
                     <SignedIn>
                       <AppLayout>
                         <DashboardPage />
+                      </AppLayout>
+                    </SignedIn>
+                  }
+                />
+                <Route
+                  path="/customers"
+                  element={
+                    <SignedIn>
+                      <AppLayout>
+                        <CustomersPage />
+                      </AppLayout>
+                    </SignedIn>
+                  }
+                />
+                <Route
+                  path="/appointments"
+                  element={
+                    <SignedIn>
+                      <AppLayout>
+                        <AppointmentsPage />
+                      </AppLayout>
+                    </SignedIn>
+                  }
+                />
+                <Route
+                  path="/services"
+                  element={
+                    <SignedIn>
+                      <AppLayout>
+                        <ServicesPage />
                       </AppLayout>
                     </SignedIn>
                   }
