@@ -18,7 +18,7 @@ const serviceRepository = repositoryHost.getServiceRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
 const appointmentRepository = repositoryHost.getAppointmentRepository(databaseService);
 
-export const getAvalibleTimeslots = onCall<Payload>(
+export const getAvailableTimeslots = onCall<Payload>(
   {
     invoker: "public", // Allow public access (authentication handled internally)
     ingressSettings: "ALLOW_ALL", // Allow all ingress traffic

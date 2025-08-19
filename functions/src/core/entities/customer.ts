@@ -2,13 +2,13 @@ import z from "zod";
 import { baseEntitySchema } from "./base";
 
 export enum CUSTOMER_FIELD_TYPE {
-  Text = "text",
-  Email = "email",
-  Phone = "phone",
-  Date = "date",
-  Number = "number",
-  Boolean = "boolean",
-  Select = "select",
+  TEXT = "text",
+  EMAIL = "email",
+  PHONE = "phone",
+  DATE = "date",
+  NUMBER = "number",
+  BOOLEAN = "boolean",
+  SELECT = "select",
 }
 
 export const CustomerFieldConfigSchema = z.object({

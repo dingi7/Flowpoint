@@ -2,19 +2,19 @@ import z from "zod";
 import { baseEntitySchema } from "./base";
 
 export enum OWNER_TYPE {
-  Member = "member",
-  Organization = "organization",
+  MEMBER = "member",
+  ORGANIZATION = "organization",
 }
 
 // Day of week enum
 export enum DAY_OF_WEEK {
-  Monday = "monday",
-  Tuesday = "tuesday",
-  Wednesday = "wednesday",
-  Thursday = "thursday",
-  Friday = "friday",
-  Saturday = "saturday",
-  Sunday = "sunday",
+  MONDAY = "monday",
+  TUESDAY = "tuesday",
+  WEDNESDAY = "wednesday",
+  THURSDAY = "thursday",
+  FRIDAY = "friday",
+  SATURDAY = "saturday",
+  SUNDAY = "sunday",
 }
 
 // HH:MM format validator

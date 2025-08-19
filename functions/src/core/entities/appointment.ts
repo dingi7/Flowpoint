@@ -2,8 +2,8 @@ import z from "zod";
 import { baseEntitySchema } from "./base";
 
 export enum ASSIGNEE_TYPE {
-  Member = "member",
-  Organization = "organization",
+  MEMBER = "member",
+  ORGANIZATION = "organization",
 }
 
 export const appointmentDataSchema = z.object({

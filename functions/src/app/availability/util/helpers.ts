@@ -5,13 +5,13 @@ import { DAY_OF_WEEK } from "@/core";
  */
 export function getDayOfWeek(date: Date): DAY_OF_WEEK {
   const days: DAY_OF_WEEK[] = [
-    DAY_OF_WEEK.Sunday,
-    DAY_OF_WEEK.Monday,
-    DAY_OF_WEEK.Tuesday,
-    DAY_OF_WEEK.Wednesday,
-    DAY_OF_WEEK.Thursday,
-    DAY_OF_WEEK.Friday,
-    DAY_OF_WEEK.Saturday,
+    DAY_OF_WEEK.SATURDAY,
+    DAY_OF_WEEK.SUNDAY,
+    DAY_OF_WEEK.MONDAY,
+    DAY_OF_WEEK.TUESDAY,
+    DAY_OF_WEEK.WEDNESDAY,
+    DAY_OF_WEEK.THURSDAY,
+    DAY_OF_WEEK.FRIDAY,
   ];
   return days[date.getDay()];
 }
