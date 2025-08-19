@@ -1,12 +1,12 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
-import { DayOfWeekEnum } from "./calendar";
+import { DAY_OF_WEEK } from "./calendar";
 import { CustomerFieldConfigSchema } from "./customer";
 
 export const OrganizationSettingsSchema = z.object({
   timezone: z.string().default("UTC"),
   workingDays: z
-    .array(DayOfWeekEnum)
+    .array(DAY_OF_WEEK)
     .default(["monday", "tuesday", "wednesday", "thursday", "friday"]),
   defaultBufferTime: z.number().int().min(0).default(0), // minutes
   appointmentCancellationPolicyHours: z.number().int().min(0).default(24),

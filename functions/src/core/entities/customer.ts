@@ -1,21 +1,20 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
 
-export const CustomerFieldTypeEnum = z.enum([
-  "text",
-  "email",
-  "phone",
-  "date",
-  "number",
-  "boolean",
-  "select",
-]);
-export type CustomerFieldType = z.infer<typeof CustomerFieldTypeEnum>;
+export enum CUSTOMER_FIELD_TYPE {
+  Text = "text",
+  Email = "email",
+  Phone = "phone",
+  Date = "date",
+  Number = "number",
+  Boolean = "boolean",
+  Select = "select",
+}
 
 export const CustomerFieldConfigSchema = z.object({
   id: z.string(),
   name: z.string(),
-  type: CustomerFieldTypeEnum,
+  type: z.nativeEnum(CUSTOMER_FIELD_TYPE),
   isRequired: z.boolean().default(false),
   placeholder: z.string().optional(),
   options: z.array(z.string()).optional(),

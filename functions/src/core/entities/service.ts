@@ -1,9 +1,10 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
-import { OwnerTypeEnum } from "./calendar";
+import { OWNER_TYPE } from "./calendar";
 
 export const serviceDataSchema = z.object({
-  ownerType: OwnerTypeEnum,
+  ownerType: z.nativeEnum(OWNER_TYPE),
+  ownerId: z.string(),
   name: z.string(),
   description: z.string().optional(),
   price: z.number(),

@@ -1,9 +1,9 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
-import { OwnerTypeEnum } from "./calendar";
+import { OWNER_TYPE } from "./calendar";
 
 export const timeOffDataSchema = z.object({
-  ownerType: OwnerTypeEnum,
+  ownerType: z.nativeEnum(OWNER_TYPE),
   ownerId: z.string(),
   startAt: z.string(),
   endAt: z.string(),

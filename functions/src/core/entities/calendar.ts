@@ -1,19 +1,21 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
 
-export const OwnerTypeEnum = z.enum(["member", "organization"]);
+export enum OWNER_TYPE {
+  Member = "member",
+  Organization = "organization",
+}
 
 // Day of week enum
-export const DayOfWeekEnum = z.enum([
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
-]);
-export type DayOfWeek = z.infer<typeof DayOfWeekEnum>;
+export enum DAY_OF_WEEK {
+  Monday = "monday",
+  Tuesday = "tuesday",
+  Wednesday = "wednesday",
+  Thursday = "thursday",
+  Friday = "friday",
+  Saturday = "saturday",
+  Sunday = "sunday",
+}
 
 // HH:MM format validator
 export const TimeStringSchema = z
@@ -26,7 +28,7 @@ export type TimeString = z.infer<typeof TimeStringSchema>;
 
 // Working hours schema
 export const WorkingHoursSchema = z.record(
-  DayOfWeekEnum,
+  z.nativeEnum(DAY_OF_WEEK),
   z.array(
     z.object({
       start: TimeStringSchema, // start of availability
@@ -39,7 +41,7 @@ export type WorkingHours = z.infer<typeof WorkingHoursSchema>;
 
 // Calendar schema
 export const calendarDataSchema = z.object({
-  ownerType: OwnerTypeEnum,
+  ownerType: z.nativeEnum(OWNER_TYPE),
   ownerId: z.string(),
   name: z.string(),
   workingHours: WorkingHoursSchema,
