@@ -1,8 +1,7 @@
 import {
-    AppointmentRepository,
+  AppointmentRepository,
   CalendarRepository,
   LoggerService,
-  OrganizationRepository,
   ServiceRepository,
   TimeOffRepository,
 } from "@/core";
@@ -18,7 +17,6 @@ interface Dependencies {
   serviceRepository: ServiceRepository;
   calendarRepository: CalendarRepository;
   loggerService: LoggerService;
-  organizationRepository: OrganizationRepository;
   timeOffRepository: TimeOffRepository;
   appointmentRepository: AppointmentRepository;
 }
@@ -36,7 +34,13 @@ export async function getAvailableTimeslotsFn(
   dependencies: Dependencies,
 ) {
   const { serviceId, date, organizationId } = payload;
-  const { serviceRepository, calendarRepository, loggerService, timeOffRepository, appointmentRepository } = dependencies;
+  const {
+    serviceRepository,
+    calendarRepository,
+    loggerService,
+    timeOffRepository,
+    appointmentRepository,
+  } = dependencies;
 
   const service = await serviceRepository.get({
     id: serviceId,
@@ -82,4 +86,6 @@ export async function getAvailableTimeslotsFn(
     existingAppointments,
     timeOffs,
   });
+
+  return timeslots;
 }

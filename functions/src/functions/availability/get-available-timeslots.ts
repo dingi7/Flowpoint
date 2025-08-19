@@ -15,6 +15,8 @@ const loggerService = serviceHost.getLoggerService();
 const calendarRepository =
   repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
+const appointmentRepository = repositoryHost.getAppointmentRepository(databaseService);
 
 export const getAvalibleTimeslots = onCall<Payload>(
   {
@@ -37,6 +39,8 @@ export const getAvalibleTimeslots = onCall<Payload>(
           calendarRepository,
           serviceRepository,
           loggerService,
+          timeOffRepository,
+          appointmentRepository,
         },
       );
       return result;

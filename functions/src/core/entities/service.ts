@@ -3,6 +3,7 @@ import { baseEntitySchema } from "./base";
 import { OWNER_TYPE } from "./calendar";
 
 export const serviceDataSchema = z.object({
+  organizationId: z.string(),
   ownerType: z.nativeEnum(OWNER_TYPE),
   ownerId: z.string(),
   name: z.string(),
