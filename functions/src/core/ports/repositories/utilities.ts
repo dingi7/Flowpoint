@@ -14,7 +14,7 @@ export type UnsubscribeFn = () => void;
 export type CallbackFn<T> = (data: T | null) => void;
 
 export type OrganizationIDPayload = {
-  organizationID: string;
+  organizationId: string;
 };
 
 export type WithOrganizationID<T> = OrganizationIDPayload & T;

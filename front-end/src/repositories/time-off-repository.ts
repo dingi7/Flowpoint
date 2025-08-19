@@ -1,5 +1,5 @@
 import {
-  DatabaseService, OrganizationIDPayload,
+  DatabaseService, OrganizationIdPayload,
   TimeOffRepository,
   TimeOff,
   TimeOffData
@@ -10,9 +10,9 @@ import { getGenericRepository } from "./generic-repository";
 export function getTimeOffRepository(
   databaseService: DatabaseService,
 ): TimeOffRepository {
-  return getGenericRepository<TimeOff, TimeOffData, OrganizationIDPayload>(
+  return getGenericRepository<TimeOff, TimeOffData, OrganizationIdPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.TIME_OFF}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.TIME_OFF}`,
     databaseService,
   );
 }

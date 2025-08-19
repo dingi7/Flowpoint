@@ -13,7 +13,7 @@ export function getCalendarRepository(
 ): CalendarRepository {
   return getGenericRepository<Calendar, CalendarData, OrganizationIDPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.CALENDARS}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.CALENDARS}`,
     databaseService,
   );
 }

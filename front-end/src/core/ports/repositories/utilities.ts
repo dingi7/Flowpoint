@@ -13,17 +13,17 @@ export interface GetOptions {
 export type UnsubscribeFn = () => void;
 export type CallbackFn<T> = (data: T | null) => void;
 
-export type OrganizationIDPayload = {
-  organizationID: string;
+export type OrganizationIdPayload = {
+  organizationId: string;
 };
 
-export type WithOrganizationID<T> = OrganizationIDPayload & T;
+export type WithOrganizationId<T> = OrganizationIdPayload & T;
 
 export type GetPayload = {
   id: string;
 };
 
-export type IDOnlyPayload = {
+export type IdOnlyPayload = {
   id: string;
 };
 

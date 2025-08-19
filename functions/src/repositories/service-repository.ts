@@ -13,7 +13,7 @@ export function getServiceRepository(
 ): ServiceRepository {
   return getGenericRepository<Service, ServiceData, OrganizationIDPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.SERVICES}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.SERVICES}`,
     databaseService,
   );
 }

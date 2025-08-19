@@ -2,7 +2,7 @@ import {
   AddToSetPayload,
   CreatePayload,
   GetOptions,
-  IDOnlyPayload,
+  IdOnlyPayload,
   IncrementFieldsPayload,
   RemoveFromSetPayload,
   SetPayload,
@@ -16,11 +16,11 @@ export interface GenericRepository<
   TEntityData,
   TPayloadExtender = EmptyPayloadExtender,
 > {
-  get: (payload: IDOnlyPayload & TPayloadExtender) => Promise<TEntity | null>;
+  get: (payload: IdOnlyPayload & TPayloadExtender) => Promise<TEntity | null>;
   getAll: (payload: GetOptions & TPayloadExtender) => Promise<TEntity[]>;
   getAllGroup(payload: GetOptions & TPayloadExtender): Promise<TEntity[]>;
   getAllGroupByID: (
-    payload: IDOnlyPayload & TPayloadExtender,
+    payload: IdOnlyPayload & TPayloadExtender,
   ) => Promise<TEntity[]>;
   create: (
     payload: CreatePayload<TEntityData> & TPayloadExtender,
@@ -32,7 +32,7 @@ export interface GenericRepository<
   update: (
     payload: UpdatePayload<TEntityData> & TPayloadExtender,
   ) => Promise<void>;
-  delete: (payload: IDOnlyPayload & TPayloadExtender) => Promise<void>;
+  delete: (payload: IdOnlyPayload & TPayloadExtender) => Promise<void>;
   increment(
     payload: IncrementFieldsPayload<TEntity> & TPayloadExtender,
   ): Promise<void>;

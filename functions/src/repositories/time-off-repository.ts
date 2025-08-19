@@ -13,7 +13,7 @@ export function getTimeOffRepository(
 ): TimeOffRepository {
   return getGenericRepository<TimeOff, TimeOffData, OrganizationIDPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.TIME_OFF}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.TIME_OFF}`,
     databaseService,
   );
 }

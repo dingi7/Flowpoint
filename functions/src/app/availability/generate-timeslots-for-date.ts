@@ -1,11 +1,8 @@
 import { Appointment, TimeOff } from "@/core";
 import { Timeslot } from "@/core/dtos/timeslot";
 import { Calendar } from "@/core/entities/calendar";
-import {
-  getDayOfWeek,
-  timeRangesOverlap,
-  timeStringToMinutes,
-} from "./util/helpers";
+import { hasTimeslotOverlap } from "./util/appointment-overlap";
+import { getDayOfWeek, timeStringToMinutes } from "./util/helpers";
 
 interface Payload {
   date: Date;
@@ -30,7 +27,6 @@ export function generateTimeslotsForDate(payload: Payload): Timeslot[] {
   }
 
   const timeslots: Timeslot[] = [];
-  const bufferTime = calendar.bufferTime || 0;
 
   // Process each working hour block
   for (const workingBlock of workingHours) {
@@ -54,34 +50,16 @@ export function generateTimeslotsForDate(payload: Payload): Timeslot[] {
       const slotEnd = new Date(slotStart);
       slotEnd.setMinutes(slotEnd.getMinutes() + serviceDuration);
 
-      // Check if this timeslot conflicts with existing appointments
-      const hasAppointmentConflict = existingAppointments.some(
-        (appointment) => {
-          const appointmentStart = new Date(appointment.startTime);
-          const appointmentEnd = new Date(appointmentStart);
-          appointmentEnd.setMinutes(
-            appointmentEnd.getMinutes() + appointment.duration + bufferTime,
-          );
-
-          return timeRangesOverlap(
-            slotStart,
-            slotEnd,
-            appointmentStart,
-            appointmentEnd,
-          );
-        },
-      );
-
-      // Check if this timeslot conflicts with time-offs
-      const hasTimeOffConflict = timeOffs.some((timeOff) => {
-        const timeOffStart = new Date(timeOff.startAt);
-        const timeOffEnd = new Date(timeOff.endAt);
-
-        return timeRangesOverlap(slotStart, slotEnd, timeOffStart, timeOffEnd);
+      const hasOverlap = hasTimeslotOverlap({
+        slotStart,
+        slotEnd,
+        existingAppointments,
+        timeOffs,
+        bufferTime: calendar.bufferTime || 0,
       });
 
       // If no conflicts, add this timeslot
-      if (!hasAppointmentConflict && !hasTimeOffConflict) {
+      if (!hasOverlap) {
         timeslots.push({
           start: slotStart.toISOString(),
           end: slotEnd.toISOString(),

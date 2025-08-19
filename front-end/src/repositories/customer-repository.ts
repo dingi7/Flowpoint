@@ -3,7 +3,7 @@ import {
   CustomerData,
   CustomerRepository,
   DatabaseService,
-  OrganizationIDPayload,
+  OrganizationIdPayload,
 } from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";
@@ -11,9 +11,9 @@ import { getGenericRepository } from "./generic-repository";
 export function getCustomerRepository(
   databaseService: DatabaseService,
 ): CustomerRepository {
-  return getGenericRepository<Customer, CustomerData, OrganizationIDPayload>(
+  return getGenericRepository<Customer, CustomerData, OrganizationIdPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.CUSTOMERS}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.CUSTOMERS}`,
     databaseService,
   );
 }

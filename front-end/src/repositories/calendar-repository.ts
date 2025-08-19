@@ -3,7 +3,7 @@ import {
   CalendarData,
   CalendarRepository,
   DatabaseService,
-  OrganizationIDPayload,
+  OrganizationIdPayload,
 } from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";
@@ -11,9 +11,9 @@ import { getGenericRepository } from "./generic-repository";
 export function getCalendarRepository(
   databaseService: DatabaseService,
 ): CalendarRepository {
-  return getGenericRepository<Calendar, CalendarData, OrganizationIDPayload>(
+  return getGenericRepository<Calendar, CalendarData, OrganizationIdPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.CALENDARS}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.CALENDARS}`,
     databaseService,
   );
 }

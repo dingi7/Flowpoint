@@ -3,7 +3,7 @@ import {
   Member,
   MemberData,
   MemberRepository,
-  OrganizationIDPayload,
+  OrganizationIdPayload,
 } from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";
@@ -11,9 +11,9 @@ import { getGenericRepository } from "./generic-repository";
 export function getMemberRepository(
   databaseService: DatabaseService,
 ): MemberRepository {
-  return getGenericRepository<Member, MemberData, OrganizationIDPayload>(
+  return getGenericRepository<Member, MemberData, OrganizationIdPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.MEMBERS}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.MEMBERS}`,
     databaseService,
   );
 }

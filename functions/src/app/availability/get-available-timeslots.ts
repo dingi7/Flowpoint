@@ -44,7 +44,7 @@ export async function getAvailableTimeslotsFn(
 
   const service = await serviceRepository.get({
     id: serviceId,
-    organizationID: organizationId,
+    organizationId,
   });
   if (!service) {
     loggerService.error("Service not found", { serviceId });
@@ -55,7 +55,7 @@ export async function getAvailableTimeslotsFn(
     queryConstraints: [
       { field: "ownerId", operator: "==", value: service.ownerId },
     ],
-    organizationID: organizationId,
+    organizationId,
   });
   if (!calendars || calendars.length === 0) {
     loggerService.error("Calendar not found", {
@@ -69,14 +69,14 @@ export async function getAvailableTimeslotsFn(
     queryConstraints: [
       { field: "ownerId", operator: "==", value: service.ownerId },
     ],
-    organizationID: organizationId,
+    organizationId,
   });
 
   const existingAppointments = await appointmentRepository.getAll({
     queryConstraints: [
       { field: "calendarId", operator: "==", value: calendar.id },
     ],
-    organizationID: organizationId,
+    organizationId,
   });
 
   const timeslots = generateTimeslotsForDate({

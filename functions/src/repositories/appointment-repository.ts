@@ -17,7 +17,7 @@ export function getAppointmentRepository(
     OrganizationIDPayload
   >(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.APPOINTMENTS}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.APPOINTMENTS}`,
     databaseService,
   );
 }

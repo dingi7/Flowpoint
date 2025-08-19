@@ -13,7 +13,7 @@ export function getRoleRepository(
 ): RoleRepository {
   return getGenericRepository<Role, RoleData, OrganizationIDPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.ROLES}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.ROLES}`,
     databaseService,
   );
 }

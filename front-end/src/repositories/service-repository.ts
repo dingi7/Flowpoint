@@ -1,6 +1,6 @@
 import {
   DatabaseService,
-  OrganizationIDPayload,
+  OrganizationIdPayload,
   Service,
   ServiceData,
   ServiceRepository,
@@ -11,9 +11,9 @@ import { getGenericRepository } from "./generic-repository";
 export function getServiceRepository(
   databaseService: DatabaseService,
 ): ServiceRepository {
-  return getGenericRepository<Service, ServiceData, OrganizationIDPayload>(
+  return getGenericRepository<Service, ServiceData, OrganizationIdPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.SERVICES}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.SERVICES}`,
     databaseService,
   );
 }

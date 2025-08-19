@@ -13,7 +13,7 @@ export function getMemberRepository(
 ): MemberRepository {
   return getGenericRepository<Member, MemberData, OrganizationIDPayload>(
     (payload) =>
-      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationID}/${DatabaseCollection.MEMBERS}`,
+      `${DatabaseCollection.ORGANIZATIONS}/${payload.organizationId}/${DatabaseCollection.MEMBERS}`,
     databaseService,
   );
 }

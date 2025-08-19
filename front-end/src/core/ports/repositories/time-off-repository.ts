@@ -1,7 +1,7 @@
-import { TimeOff, TimeOffData, GenericRepository, OrganizationIDPayload } from "@/core";
+import { TimeOff, TimeOffData, GenericRepository, OrganizationIdPayload } from "@/core";
 
 export type TimeOffRepository = GenericRepository<
   TimeOff,
   TimeOffData,
-  OrganizationIDPayload
+  OrganizationIdPayload
 >;
