@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth, UserButton } from "@clerk/clerk-react";
-import { Bell, Calendar, Coins, LayoutDashboard, Users } from "lucide-react";
+import { Bell, Calendar, LayoutDashboard, Users, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -20,10 +20,34 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { User } from "@/core";
 import { useUser } from "@/hooks";
 import { ModeToggle } from "../ui/mode-toggle";
-import { useTheme } from "../ui/theme-provider";
+
+// Mock organizations - in real app this would come from user data
+const mockOrganizations = [
+  { 
+    id: "org_1", 
+    name: "My Organization", 
+    image: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=32&h=32&fit=crop&crop=center" 
+  },
+  { 
+    id: "org_2", 
+    name: "Tech Solutions Inc", 
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=32&h=32&fit=crop&crop=center" 
+  },
+  { 
+    id: "org_3", 
+    name: "Creative Agency", 
+    image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=32&h=32&fit=crop&crop=center" 
+  },
+];
 
 const data = {
   user: {
@@ -50,7 +74,7 @@ const data = {
     {
       title: "Services",
       url: "/services",
-      icon: Coins,
+      icon: Users,
     }
   ],
   notifications: [
@@ -211,7 +235,7 @@ function NavUser({ user }: { user: User }) {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { userId } = useAuth();
   const user = useUser(userId as string);
-  const { theme } = useTheme();
+  const [selectedOrganization, setSelectedOrganization] = React.useState(mockOrganizations[0]);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -221,13 +245,60 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5 h-full w-fit"
             >
-              <Link to="/dashboard">
-                {theme == "light" ? (
-                  <Coins color={"black"} />
-                ) : (
-                  <Coins color={"white"} />
-                )}
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center gap-3 cursor-pointer hover:bg-accent/50 rounded-lg p-3 transition-all duration-200 group">
+                    <div className="relative">
+                      <img 
+                        src={selectedOrganization.image} 
+                        alt={selectedOrganization.name}
+                        className="w-10 h-10 rounded-xl object-cover shadow-sm"
+                      />
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="font-medium text-base text-foreground block truncate">
+                        {selectedOrganization.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Organization</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-72 p-2 shadow-lg border-0 bg-background/95 backdrop-blur-sm">
+                  <div className="space-y-1">
+                    {mockOrganizations.map((org) => (
+                      <DropdownMenuItem
+                        key={org.id}
+                        onClick={() => setSelectedOrganization(org)}
+                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-0 ${
+                          selectedOrganization.id === org.id 
+                            ? "bg-primary/10 shadow-sm" 
+                            : "hover:bg-accent/50"
+                        }`}
+                      >
+                        <div className="relative">
+                          <img 
+                            src={org.image} 
+                            alt={org.name}
+                            className="w-10 h-10 rounded-xl object-cover shadow-sm"
+                          />
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-sm text-foreground block truncate">
+                            {org.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">Switch to this organization</span>
+                        </div>
+                        {selectedOrganization.id === org.id && (
+                          <div className="w-2 h-2 bg-primary rounded-full shadow-sm" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

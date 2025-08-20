@@ -34,7 +34,7 @@ const mockAppointments = [
     startTime: "2024-01-25T10:00:00Z",
     duration: 60,
     fee: 85,
-    status: "confirmed" as const,
+    status: APPOINTMENT_STATUS.PENDING,
     createdAt: new Date("2024-01-20T00:00:00Z"),
     updatedAt: new Date("2024-01-20T00:00:00Z"),
   },
@@ -82,7 +82,7 @@ const mockAppointments = [
     startTime: "2024-01-26T16:30:00Z",
     duration: 75,
     fee: 100,
-    status: "confirmed" as const,
+    status: APPOINTMENT_STATUS.PENDING,
     createdAt: new Date("2024-01-23T00:00:00Z"),
     updatedAt: new Date("2024-01-23T00:00:00Z"),
   },
@@ -316,7 +316,7 @@ export function AppointmentList({ searchQuery, statusFilter, dateFilter }: Appoi
                             Confirm
                           </DropdownMenuItem>
                         )}
-                        {appointment.status === "confirmed" && (
+                        {appointment.status === APPOINTMENT_STATUS.PENDING && (
                           <DropdownMenuItem onClick={() => handleStatusChange(appointment.id, APPOINTMENT_STATUS.COMPLETED)}>
                             <CheckCircle className="h-4 w-4 mr-2" />
                             Mark Complete
