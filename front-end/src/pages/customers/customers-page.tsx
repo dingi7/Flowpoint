@@ -1,24 +1,60 @@
-import { Users } from "lucide-react";
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Plus, Search } from "lucide-react"
+import { CustomerForm } from "@/components/customer/CustomerForm"
+import { CustomerList } from "@/components/customer/CustomerList"
 
 export default function CustomersPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false)
+
   return (
-    <main className="flex-1 overflow-y-auto p-6">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <Users className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground font-sans">Customers</h1>
-        </div>
-        <p className="text-muted-foreground">Manage your customer relationships and information.</p>
-      </div>
-      
-      <div className="space-y-6">
-        {/* Customer content will go here */}
-        <div className="text-center py-12">
-          <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Customer Management</h3>
-          <p className="text-muted-foreground">Your customer management features will be implemented here.</p>
-        </div>
-      </div>
-    </main>
-  );
+        <main className="flex-1 overflow-y-auto p-6">
+          {/* Page Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground font-sans">Customer Management</h2>
+              <p className="text-muted-foreground">Manage your customer relationships and information</p>
+            </div>
+
+            <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Customer
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="min-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Customer</DialogTitle>
+                </DialogHeader>
+                <CustomerForm onSuccess={() => setIsAddCustomerOpen(false)} />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Filters and Search */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search customers by name, email, or phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+
+          </div>
+
+          {/* Customer List */}
+          <CustomerList searchQuery={searchQuery} />
+        </main>
+  )
 }
