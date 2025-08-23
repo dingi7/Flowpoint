@@ -2,7 +2,6 @@
 
 import type React from "react"
 
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Save, X } from "lucide-react"
 import { Customer } from "@/core"
+import { useCustomerForm } from "@/hooks/forms/use-customer-form"
 
 interface CustomerFormProps {
   customer?: Customer
@@ -17,27 +17,14 @@ interface CustomerFormProps {
 }
 
 export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
-  const [formData, setFormData] = useState({
-    name: customer?.name || "",
-    email: customer?.email || "",
-    phone: customer?.phone || "",
-    address: customer?.address || "",
-    notes: customer?.notes || "",
-    birthday: customer?.customFields?.birthday || "",
-    referredBy: customer?.customFields?.referredBy || "",
-    preferences: customer?.customFields?.preferences || "",
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useCustomerForm({
+    customer,
+    onSubmit: async (data) => {
+      // In real app, this would make an API call
+      console.log("Saving customer:", data)
+      onSuccess()
+    },
   })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In real app, this would make an API call
-    console.log("Saving customer:", formData)
-    onSuccess()
-  }
-
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -52,22 +39,24 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
               <Label htmlFor="name">Full Name *</Label>
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
+                {...register("name")}
                 placeholder="Enter customer name"
-                required
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
-                value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
+                {...register("email")}
                 placeholder="customer@example.com"
-                required
               />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
             </div>
           </div>
 
@@ -75,8 +64,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             <Label htmlFor="phone">Phone Number</Label>
             <Input
               id="phone"
-              value={formData.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
+              {...register("phone")}
               placeholder="+1 (555) 123-4567"
             />
           </div>
@@ -85,8 +73,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             <Label htmlFor="address">Address</Label>
             <Input
               id="address"
-              value={formData.address}
-              onChange={(e) => handleChange("address", e.target.value)}
+              {...register("address")}
               placeholder="123 Main St, City, State, ZIP"
             />
           </div>
@@ -103,8 +90,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
-              value={formData.notes}
-              onChange={(e) => handleChange("notes", e.target.value)}
+              {...register("notes")}
               placeholder="Additional notes about the customer..."
               rows={3}
             />
@@ -118,9 +104,9 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
           <X className="h-4 w-4 mr-2" />
           Cancel
         </Button>
-        <Button type="submit">
+        <Button type="submit" disabled={isSubmitting}>
           <Save className="h-4 w-4 mr-2" />
-          {customer ? "Update Customer" : "Add Customer"}
+          {isSubmitting ? "Saving..." : customer ? "Update Customer" : "Add Customer"}
         </Button>
       </div>
     </form>

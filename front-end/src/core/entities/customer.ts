@@ -28,7 +28,7 @@ export const CustomerFieldConfigSchema = z.object({
 });
 export type CustomerFieldConfig = z.infer<typeof CustomerFieldConfigSchema>;
 
-export const customerDataSchema = z.object({
+const customerDataBaseSchema = z.object({
   organizationId: z.string(),
   email: z.string(),
   name: z.string(),
@@ -40,8 +40,120 @@ export const customerDataSchema = z.object({
   customFields: z.record(z.string(), z.unknown()),
 });
 
+export const customerDataSchema = customerDataBaseSchema.refine(
+  (data) => {
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(data.email);
+  },
+  {
+    message: "Invalid email format",
+    path: ["email"],
+  }
+).refine(
+  (data) => {
+    // Validate phone number format if provided
+    if (!data.phone) return true;
+    const phoneRegex = /^[+]?[1-9][\d\s\-()]{7,15}$/;
+    return phoneRegex.test(data.phone.replace(/\s/g, ''));
+  },
+  {
+    message: "Invalid phone number format",
+    path: ["phone"],
+  }
+).refine(
+  (data) => {
+    // Validate name is not empty and has reasonable length
+    return data.name.trim().length >= 2 && data.name.trim().length <= 100;
+  },
+  {
+    message: "Name must be between 2 and 100 characters",
+    path: ["name"],
+  }
+).refine(
+  (data) => {
+    // Validate totalSpent is not negative if provided
+    if (data.totalSpent === undefined) return true;
+    return data.totalSpent >= 0;
+  },
+  {
+    message: "Total spent cannot be negative",
+    path: ["totalSpent"],
+  }
+).refine(
+  (data) => {
+    // Validate lastVisit is a valid ISO date string if provided
+    if (!data.lastVisit) return true;
+    try {
+      const date = new Date(data.lastVisit);
+      return !isNaN(date.getTime()) && date <= new Date();
+    } catch {
+      return false;
+    }
+  },
+  {
+    message: "Last visit must be a valid date and not in the future",
+    path: ["lastVisit"],
+  }
+);
+
 export type CustomerData = z.infer<typeof customerDataSchema>;
-export const customerSchema = baseEntitySchema.merge(customerDataSchema);
+export const customerSchema = baseEntitySchema.merge(customerDataBaseSchema).refine(
+  (data) => {
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(data.email);
+  },
+  {
+    message: "Invalid email format",
+    path: ["email"],
+  }
+).refine(
+  (data) => {
+    // Validate phone number format if provided
+    if (!data.phone) return true;
+    const phoneRegex = /^[+]?[1-9][\d\s\-()]{7,15}$/;
+    return phoneRegex.test(data.phone.replace(/\s/g, ''));
+  },
+  {
+    message: "Invalid phone number format",
+    path: ["phone"],
+  }
+).refine(
+  (data) => {
+    // Validate name is not empty and has reasonable length
+    return data.name.trim().length >= 2 && data.name.trim().length <= 100;
+  },
+  {
+    message: "Name must be between 2 and 100 characters",
+    path: ["name"],
+  }
+).refine(
+  (data) => {
+    // Validate totalSpent is not negative if provided
+    if (data.totalSpent === undefined) return true;
+    return data.totalSpent >= 0;
+  },
+  {
+    message: "Total spent cannot be negative",
+    path: ["totalSpent"],
+  }
+).refine(
+  (data) => {
+    // Validate lastVisit is a valid ISO date string if provided
+    if (!data.lastVisit) return true;
+    try {
+      const date = new Date(data.lastVisit);
+      return !isNaN(date.getTime()) && date <= new Date();
+    } catch {
+      return false;
+    }
+  },
+  {
+    message: "Last visit must be a valid date and not in the future",
+    path: ["lastVisit"],
+  }
+)
 export type Customer = z.infer<typeof customerSchema>;
 
 export type CustomerFieldValue = string | number | boolean | Date | null;

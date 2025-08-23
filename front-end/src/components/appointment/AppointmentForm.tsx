@@ -12,7 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Save, X, Search, Clock, DollarSign, User, Calendar } from "lucide-react"
-import { APPOINTMENT_STATUS } from "@/core"
+import { APPOINTMENT_STATUS, AppointmentData, Appointment } from "@/core"
+import { useAppointmentForm } from "@/hooks/forms/use-appointment-form"
 
 // Mock data for customers and services
 const mockCustomers = [
@@ -32,26 +33,25 @@ const mockServices = [
 ]
 
 interface AppointmentFormProps {
-  appointment?: {
-    id: string
-    customerId: string
-    serviceId: string
-    startTime: string
-    status: string
-    description?: string
-  }
+  appointment?: Appointment
   onSuccess: () => void
+  onSubmit: (data: AppointmentData) => void | Promise<void>
 }
 
-export function AppointmentForm({ appointment, onSuccess }: AppointmentFormProps) {
-  const [formData, setFormData] = useState({
-    customerId: appointment?.customerId || "",
-    serviceId: appointment?.serviceId || "",
-    date: appointment?.startTime ? appointment.startTime.split("T")[0] : "",
-    time: appointment?.startTime ? appointment.startTime.split("T")[1]?.substring(0, 5) : "",
-    status: appointment?.status || APPOINTMENT_STATUS.PENDING,
-    notes: appointment?.description || "",
+export function AppointmentForm({ appointment, onSuccess, onSubmit }: AppointmentFormProps) {
+  const { handleSubmit: formHandleSubmit, setValue, watch, formState: { isSubmitting } } = useAppointmentForm({
+    appointment,
+    onSubmit,
   })
+
+  const formData = {
+    customerId: watch('customerId') || "",
+    serviceId: watch('serviceId') || "",
+    date: watch('startTime') ? watch('startTime').split("T")[0] : "",
+    time: watch('startTime') ? watch('startTime').split("T")[1]?.substring(0, 5) : "",
+    status: watch('status') || APPOINTMENT_STATUS.PENDING,
+    notes: watch('description') || "",
+  }
 
   const [selectedCustomer, setSelectedCustomer] = useState(
     appointment?.customerId ? mockCustomers.find(c => c.id === appointment.customerId) || null : null
@@ -60,19 +60,27 @@ export function AppointmentForm({ appointment, onSuccess }: AppointmentFormProps
     appointment?.serviceId ? mockServices.find(s => s.id === appointment.serviceId) || null : null
   )
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In real app, this would make an API call
-    console.log("Saving appointment:", {
-      ...formData,
-      customer: selectedCustomer,
-      service: selectedService,
-    })
-    onSuccess()
-  }
-
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (field === 'date' || field === 'time') {
+      // Combine date and time into startTime
+      const currentDate = watch('startTime') ? watch('startTime').split('T')[0] : formData.date
+      const currentTime = watch('startTime') ? watch('startTime').split('T')[1]?.substring(0, 5) : formData.time
+      
+      const newDate = field === 'date' ? value : currentDate
+      const newTime = field === 'time' ? value : currentTime
+      
+      if (newDate && newTime) {
+        setValue('startTime', `${newDate}T${newTime}:00`)
+      }
+    } else if (field === 'customerId') {
+      setValue('customerId', value)
+    } else if (field === 'serviceId') {
+      setValue('serviceId', value)
+    } else if (field === 'status') {
+       setValue('status', value as APPOINTMENT_STATUS)
+     } else if (field === 'notes') {
+      setValue('description', value)
+    }
   }
 
   const handleCustomerSelect = (customerId: string) => {
@@ -98,7 +106,7 @@ export function AppointmentForm({ appointment, onSuccess }: AppointmentFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={formHandleSubmit} className="space-y-6">
       {/* Customer Selection */}
       <Card>
         <CardHeader>
@@ -300,10 +308,10 @@ export function AppointmentForm({ appointment, onSuccess }: AppointmentFormProps
         </Button>
         <Button
           type="submit"
-          disabled={!formData.customerId || !formData.serviceId || !formData.date || !formData.time}
+          disabled={!formData.customerId || !formData.serviceId || !formData.date || !formData.time || isSubmitting}
         >
           <Save className="h-4 w-4 mr-2" />
-          {appointment ? "Update Appointment" : "Book Appointment"}
+          {isSubmitting ? "Saving..." : appointment ? "Update Appointment" : "Book Appointment"}
         </Button>
       </div>
     </form>

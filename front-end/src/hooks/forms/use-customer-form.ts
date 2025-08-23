@@ -1,0 +1,43 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Customer, CustomerData, customerDataSchema } from "@/core";
+
+interface UseCustomerFormProps {
+  customer?: Customer;
+  onSubmit: (data: CustomerData) => void | Promise<void>;
+}
+
+export function useCustomerForm({ customer, onSubmit }: UseCustomerFormProps) {
+  const form = useForm<CustomerData>({
+    resolver: zodResolver(customerDataSchema),
+    defaultValues: {
+      organizationId: customer?.organizationId || "",
+      name: customer?.name || "",
+      email: customer?.email || "",
+      phone: customer?.phone || "",
+      address: customer?.address || "",
+      notes: customer?.notes || "",
+      lastVisit: customer?.lastVisit || undefined,
+      totalSpent: customer?.totalSpent || undefined,
+      customFields: customer?.customFields || {},
+    },
+    mode: "onChange",
+  });
+
+  const handleSubmit = form.handleSubmit(async (data) => {
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // You can add toast notifications here if needed
+    }
+  });
+
+  return {
+    ...form,
+    handleSubmit,
+    isSubmitting: form.formState.isSubmitting,
+    isValid: form.formState.isValid,
+    errors: form.formState.errors,
+  };
+}
