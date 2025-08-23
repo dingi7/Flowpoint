@@ -34,13 +34,13 @@ const mockServices = [
 interface AppointmentFormProps {
   appointment?: Appointment
   onSuccess: () => void
-  onSubmit: (data: AppointmentData) => void | Promise<void>
+  onSubmit?: (data: AppointmentData) => void | Promise<void>
 }
 
 export function AppointmentForm({ appointment, onSuccess, onSubmit }: AppointmentFormProps) {
   const { handleSubmit: formHandleSubmit, setValue, watch, formState: { isSubmitting } } = useAppointmentForm({
     appointment,
-    onSubmit,
+    onSubmit: onSubmit || (() => {}),
   })
 
   const formData = {
