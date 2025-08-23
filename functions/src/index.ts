@@ -13,3 +13,6 @@ export { onClerkUserDeleted } from "./functions/clerk/on-clerk-user-deleted";
 
 // <-- Available Timeslots -->
 export { getAvailableTimeslots } from "./functions/availability/get-available-timeslots";
+
+// <-- Appointment Booking -->
+export { bookAppointment } from "./functions/appointment/book-appointment";

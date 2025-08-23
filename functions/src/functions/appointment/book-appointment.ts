@@ -1,23 +1,29 @@
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { onCall } from "firebase-functions/https";
-
-interface Payload {
-  appointmentId: string;
-  customerId: string;
-  startTime: string;
-  duration: number;
-}
+import { bookAppointmentFn } from "@/app/appointment/book-appointment";
+import { ASSIGNEE_TYPE } from "@/core";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
 
-const calendarRepository =
-  repositoryHost.getCalendarRepository(databaseService);
+const calendarRepository = repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const customerRepository = repositoryHost.getCustomerRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
-const appointmentRepository =
-  repositoryHost.getAppointmentRepository(databaseService);
+const appointmentRepository = repositoryHost.getAppointmentRepository(databaseService);
+
+interface Payload {
+    serviceId: string;
+    customerId: string;
+    organizationId: string;
+    startTime: string;
+    assigneeId: string;
+    assigneeType: ASSIGNEE_TYPE;
+    fee?: number;
+    title?: string;
+    description?: string;
+}
 
 export const bookAppointment = onCall<Payload>(
   {
@@ -25,18 +31,36 @@ export const bookAppointment = onCall<Payload>(
     ingressSettings: "ALLOW_ALL",
   },
   async (request) => {
-    loggerService.info("getAvalibleTimeslots request");
-
-    const { data } = request;
-
-    loggerService.info("getAvalibleTimeslots request.data", data);
+    loggerService.info("Book appointment request received", {
+      data: request.data
+    });
 
     try {
-      const result = ''
-      return result;
+      const result = await bookAppointmentFn(
+        request.data,
+        {
+          appointmentRepository,
+          serviceRepository,
+          customerRepository,
+          calendarRepository,
+          timeOffRepository,
+          loggerService
+        }
+      );
+
+      loggerService.info("Appointment booked successfully", {
+        appointmentId: result.appointmentId
+      });
+
+      return {
+        success: true,
+        appointmentId: result.appointmentId,
+        confirmationDetails: result.confirmationDetails
+      };
+
     } catch (error) {
-      loggerService.error("getAvalibleTimeslots error", error);
-      throw new Error("Error getting available timeslots");
+      loggerService.error("Book appointment error", error);
+      throw new Error(`Booking failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   },
 );
