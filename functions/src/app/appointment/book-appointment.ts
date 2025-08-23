@@ -1,21 +1,19 @@
-import { getAvailableTimeslotsFn } from "@/app/availability/get-available-timeslots";
 import {
   APPOINTMENT_STATUS,
   AppointmentRepository,
   ASSIGNEE_TYPE,
-  CalendarRepository,
-  Customer,
-  CustomerRepository,
+  CalendarRepository, CustomerRepository,
   LoggerService,
+  OrganizationRepository,
   Service,
   ServiceRepository,
-  TimeOffRepository,
+  TimeOffRepository
 } from "@/core";
 import { validateBookingRequest } from "./validation/booking-validation";
 
 interface Payload {
   serviceId: string;
-  customerId: string;
+  customerEmail: string;
   organizationId: string;
   startTime: string;
   assigneeId: string;
@@ -23,6 +21,13 @@ interface Payload {
   fee?: number;
   title?: string;
   description?: string;
+  customerData?: {
+    name?: string;
+    phone?: string;
+    address?: string;
+    notes?: string;
+    customFields?: Record<string, unknown>;
+  };
 }
 
 interface Dependencies {
@@ -32,13 +37,14 @@ interface Dependencies {
   calendarRepository: CalendarRepository;
   timeOffRepository: TimeOffRepository;
   loggerService: LoggerService;
+  organizationRepository: OrganizationRepository;
 }
 
 interface BookingResult {
   appointmentId: string;
   confirmationDetails: {
     service: Service;
-    customer: Customer;
+    customerId: string;
     startTime: string;
     endTime: string;
     duration: number;
@@ -60,11 +66,12 @@ export async function bookAppointmentFn(
     calendarRepository,
     timeOffRepository,
     loggerService,
+    organizationRepository
   } = dependencies;
 
   loggerService.info("Starting appointment booking process", {
     serviceId: payload.serviceId,
-    customerId: payload.customerId,
+    customerEmail: payload.customerEmail,
     startTime: payload.startTime,
   });
 
@@ -75,42 +82,18 @@ export async function bookAppointmentFn(
     calendarRepository,
     appointmentRepository,
     timeOffRepository,
+    loggerService,
+    organizationRepository,
   });
 
-  const { validatedPayload, service, customer, calendar, startTime, endTime } =
+  const { validatedPayload, service, customerId, calendar, startTime, endTime } =
     validationResult;
 
-  // 2. Double-check availability using existing utility
-  const availableSlots = await getAvailableTimeslotsFn(
-    {
-      serviceId: validatedPayload.serviceId,
-      date: startTime.toISOString().split("T")[0],
-      organizationId: validatedPayload.organizationId,
-    },
-    {
-      serviceRepository,
-      calendarRepository,
-      loggerService,
-      timeOffRepository,
-      appointmentRepository,
-    },
-  );
-
-  // Check if requested time is in available slots
-  const requestedSlot = availableSlots.find((slot) => {
-    const slotStart = new Date(slot.start);
-    return Math.abs(slotStart.getTime() - startTime.getTime()) < 60000; // Within 1 minute
-  });
-
-  if (!requestedSlot) {
-    throw new Error("Requested time slot is no longer available");
-  }
-
-  // 3. Create appointment
+  // 2. Create appointment
   const appointmentData = {
     assigneeType: validatedPayload.assigneeType,
     assigneeId: validatedPayload.assigneeId,
-    customerId: validatedPayload.customerId,
+    customerId,
     serviceId: validatedPayload.serviceId,
     calendarId: calendar.id,
     title: validatedPayload.title || service.name,
@@ -130,14 +113,14 @@ export async function bookAppointmentFn(
 
   loggerService.info("Appointment created successfully", {
     appointmentId,
-    customerId: customer.id,
+    customerId,
     serviceId: service.id,
   });
 
   // 4. Prepare confirmation details
   const confirmationDetails = {
     service,
-    customer,
+    customerId,
     startTime: startTime.toISOString(),
     endTime: endTime.toISOString(),
     duration: service.duration,

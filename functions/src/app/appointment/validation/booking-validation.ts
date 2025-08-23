@@ -3,17 +3,19 @@ import {
   APPOINTMENT_STATUS,
   ASSIGNEE_TYPE,
   AppointmentRepository,
-  CalendarRepository,
-  CustomerRepository,
+  CalendarRepository, CustomerRepository,
+  LoggerService,
+  OrganizationRepository,
   ServiceRepository,
-  TimeOffRepository,
+  TimeOffRepository
 } from "@/core";
+import { createCustomerWithFields } from "@/utils/customer-utils";
 import z from "zod";
 
 // Validation schemas
 const bookAppointmentPayloadSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
-  customerId: z.string().min(1, "Customer ID is required"),
+  customerEmail: z.string().min(1, "Customer EMAIL is required"),
   organizationId: z.string().min(1, "Organization ID is required"),
   startTime: z.string().datetime("Invalid start time format"),
   assigneeId: z.string().min(1, "Assignee ID is required"),
@@ -21,6 +23,7 @@ const bookAppointmentPayloadSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   fee: z.number().min(0).optional(),
+    additionalCustomerFields: z.record(z.string(), z.unknown()).optional(),
 });
 
 type BookAppointmentPayload = z.infer<
@@ -33,6 +36,8 @@ interface Dependencies {
   calendarRepository: CalendarRepository;
   appointmentRepository: AppointmentRepository;
   timeOffRepository: TimeOffRepository;
+  loggerService: LoggerService;
+  organizationRepository: OrganizationRepository;
 }
 
 /**
@@ -48,10 +53,23 @@ export async function validateBookingRequest(
     calendarRepository,
     appointmentRepository,
     timeOffRepository,
+    loggerService,
+    organizationRepository,
   } = dependencies;
 
   // 1. Input validation
   const validatedPayload = bookAppointmentPayloadSchema.parse(payload);
+
+  // Organization validation
+  const organization = await organizationRepository.get({
+    id: validatedPayload.organizationId,
+  });
+
+  if (!organization) {
+    throw new Error(
+      `Organization not found: ${validatedPayload.organizationId}`,
+    );
+  }
 
   // 2. Service validation
   const service = await serviceRepository.get({
@@ -66,15 +84,37 @@ export async function validateBookingRequest(
   }
 
   // 3. Customer validation
-  const customer = await customerRepository.get({
-    id: validatedPayload.customerId,
+  let customerId: string;
+
+  const customers = await customerRepository.getAll({
+    queryConstraints: [
+      { field: "email", operator: "==", value: validatedPayload.customerEmail },
+    ],
     organizationId: validatedPayload.organizationId,
   });
 
-  if (!customer) {
-    throw new Error(
-      `Customer not found: ${validatedPayload.customerId}`
+  if (!customers || customers.length === 0) {
+    loggerService.info("Customer does not exist, creating...", {
+      email: validatedPayload.customerEmail,
+      organizationId: validatedPayload.organizationId,
+    });
+
+    // Create customer data with validation
+    const customerData = createCustomerWithFields(
+      {
+        organizationId: validatedPayload.organizationId,
+        email: validatedPayload.customerEmail,
+      },
+      validatedPayload.additionalCustomerFields || {},
+      organization
     );
+
+    customerId = await customerRepository.create({
+      data: customerData,
+      organizationId: validatedPayload.organizationId,
+    });
+  } else {
+    customerId = customers[0].id;
   }
 
   // 4. Calendar validation
@@ -158,7 +198,7 @@ export async function validateBookingRequest(
   return {
     validatedPayload,
     service,
-    customer,
+    customerId,
     calendar,
     startTime,
     endTime,
