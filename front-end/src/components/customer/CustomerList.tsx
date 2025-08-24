@@ -1,11 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +18,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { MoreHorizontal, Eye, Edit, Trash2, Phone, Mail, MapPin } from "lucide-react"
-import { CustomerDetails } from "./CustomerDetails"
-import { CustomerForm } from "./CustomerForm"
-import { Customer } from "@/core"
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Customer } from "@/core";
+import {
+  Edit,
+  Eye,
+  Mail,
+  MapPin,
+  MoreHorizontal,
+  Phone,
+  Trash2,
+} from "lucide-react";
+import { CustomerDetails } from "./CustomerDetails";
+import { CustomerForm } from "./CustomerForm";
 
 // Mock data - in real app this would come from API
 const mockCustomers = [
@@ -112,45 +132,47 @@ const mockCustomers = [
       preferences: "Latest trends and styles",
     },
   },
-]
+];
 
 interface CustomerListProps {
-  searchQuery: string
+  searchQuery: string;
 }
 
 export function CustomerList({ searchQuery }: CustomerListProps) {
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   // Filter customers based on search
   const filteredCustomers = mockCustomers.filter((customer) => {
     const matchesSearch =
       customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.phone.includes(searchQuery)
+      customer.phone.includes(searchQuery);
 
-    return matchesSearch
-  })
-
-
+    return matchesSearch;
+  });
 
   const handleViewDetails = (customer: Customer) => {
-    setSelectedCustomer(customer)
-    setIsDetailsOpen(true)
-  }
+    setSelectedCustomer(customer);
+    setIsDetailsOpen(true);
+  };
 
   const handleEdit = (customer: Customer) => {
-    setEditingCustomer(customer)
-    setIsEditOpen(true)
-  }
+    setEditingCustomer(customer);
+    setIsEditOpen(true);
+  };
 
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="font-sans">Customers ({filteredCustomers.length})</CardTitle>
+          <CardTitle className="font-sans">
+            Customers ({filteredCustomers.length})
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -169,7 +191,9 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={`/abstract-geometric-shapes.png?height=40&width=40&query=${customer.name}`} />
+                        <AvatarImage
+                          src={`/abstract-geometric-shapes.png?height=40&width=40&query=${customer.name}`}
+                        />
                         <AvatarFallback>
                           {customer.name
                             .split(" ")
@@ -199,7 +223,9 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                     </div>
                   </TableCell>
 
-                  <TableCell>{new Date(customer.lastVisit).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(customer.lastVisit).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>${customer.totalSpent.toLocaleString()}</TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -211,7 +237,9 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleViewDetails(customer)}>
+                        <DropdownMenuItem
+                          onClick={() => handleViewDetails(customer)}
+                        >
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
@@ -234,7 +262,9 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
 
           {filteredCustomers.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No customers found matching your criteria.</p>
+              <p className="text-muted-foreground">
+                No customers found matching your criteria.
+              </p>
             </div>
           )}
         </CardContent>
@@ -250,8 +280,8 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
             <CustomerDetails
               customer={selectedCustomer}
               onEdit={() => {
-                setIsDetailsOpen(false)
-                handleEdit(selectedCustomer)
+                setIsDetailsOpen(false);
+                handleEdit(selectedCustomer);
               }}
             />
           )}
@@ -264,9 +294,14 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
           <DialogHeader>
             <DialogTitle>Edit Customer</DialogTitle>
           </DialogHeader>
-          {editingCustomer && <CustomerForm customer={editingCustomer} onSuccess={() => setIsEditOpen(false)} />}
+          {editingCustomer && (
+            <CustomerForm
+              customer={editingCustomer}
+              onSuccess={() => setIsEditOpen(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

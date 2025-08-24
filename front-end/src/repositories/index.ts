@@ -2,12 +2,13 @@ import { DatabaseService, RepositoryHost } from "@/core";
 import { getAppointmentRepository } from "./appointment-repository";
 import { getCalendarRepository } from "./calendar-repository";
 import { getCustomerRepository } from "./customer-repository";
+import { getInviteRepository } from "./invite-repository";
 import { getMemberRepository } from "./member-repository";
 import { getOrganizationRepository } from "./organization-repository";
 import { getRoleRepository } from "./role-repository";
 import { getServiceRepository } from "./service-repository";
-import { getUserRepository } from "./user-repository";
 import { getTimeOffRepository } from "./time-off-repository";
+import { getUserRepository } from "./user-repository";
 
 export const repositoryHost: RepositoryHost = {
   getUserRepository: (databaseService: DatabaseService) =>
@@ -28,4 +29,6 @@ export const repositoryHost: RepositoryHost = {
     getMemberRepository(databaseService),
   getTimeOffRepository: (databaseService: DatabaseService) =>
     getTimeOffRepository(databaseService),
+  getInviteRepository: (databaseService: DatabaseService) =>
+    getInviteRepository(databaseService),
 };

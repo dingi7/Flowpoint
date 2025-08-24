@@ -1,8 +1,9 @@
 import {
-  DatabaseService, OrganizationIdPayload,
-  TimeOffRepository,
+  DatabaseService,
+  OrganizationIdPayload,
   TimeOff,
-  TimeOffData
+  TimeOffData,
+  TimeOffRepository,
 } from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";

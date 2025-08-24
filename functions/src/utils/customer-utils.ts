@@ -1,9 +1,9 @@
 import {
+  CUSTOMER_FIELD_TYPE,
   CustomerFieldConfig,
   CustomerFieldValue,
-  CUSTOMER_FIELD_TYPE,
-  ValidatedCustomerData,
   Organization,
+  ValidatedCustomerData,
 } from "@/core";
 
 /**
@@ -11,7 +11,7 @@ import {
  */
 function validateCustomFieldValue(
   value: unknown,
-  config: CustomerFieldConfig
+  config: CustomerFieldConfig,
 ): CustomerFieldValue {
   if (value === null || value === undefined) {
     if (config.isRequired) {
@@ -26,14 +26,29 @@ function validateCustomFieldValue(
       if (typeof value !== "string") {
         throw new Error(`Field '${config.name}' must be a string`);
       }
-      if (config.validation?.minLength && value.length < config.validation.minLength) {
-        throw new Error(`Field '${config.name}' must be at least ${config.validation.minLength} characters`);
+      if (
+        config.validation?.minLength &&
+        value.length < config.validation.minLength
+      ) {
+        throw new Error(
+          `Field '${config.name}' must be at least ${config.validation.minLength} characters`,
+        );
       }
-      if (config.validation?.maxLength && value.length > config.validation.maxLength) {
-        throw new Error(`Field '${config.name}' must be at most ${config.validation.maxLength} characters`);
+      if (
+        config.validation?.maxLength &&
+        value.length > config.validation.maxLength
+      ) {
+        throw new Error(
+          `Field '${config.name}' must be at most ${config.validation.maxLength} characters`,
+        );
       }
-      if (config.validation?.pattern && !new RegExp(config.validation.pattern).test(value)) {
-        throw new Error(`Field '${config.name}' does not match required pattern`);
+      if (
+        config.validation?.pattern &&
+        !new RegExp(config.validation.pattern).test(value)
+      ) {
+        throw new Error(
+          `Field '${config.name}' does not match required pattern`,
+        );
       }
       return value;
 
@@ -72,7 +87,9 @@ function validateCustomFieldValue(
         throw new Error(`Field '${config.name}' must be a string`);
       }
       if (config.options && !config.options.includes(value)) {
-        throw new Error(`Field '${config.name}' must be one of: ${config.options.join(", ")}`);
+        throw new Error(
+          `Field '${config.name}' must be one of: ${config.options.join(", ")}`,
+        );
       }
       return value;
 
@@ -90,14 +107,14 @@ export function createCustomerWithFields(
     email: string;
   },
   customFields: Record<string, unknown> = {},
-  organization: Organization
+  organization: Organization,
 ): ValidatedCustomerData {
   const customerFieldConfigs = organization.settings.customerFields || [];
   const validatedCustomFields: Record<string, CustomerFieldValue> = {};
 
   // Validate provided custom fields
   for (const [fieldId, value] of Object.entries(customFields)) {
-    const config = customerFieldConfigs.find(c => c.id === fieldId);
+    const config = customerFieldConfigs.find((c) => c.id === fieldId);
     if (!config) {
       // Skip unknown fields
       continue;

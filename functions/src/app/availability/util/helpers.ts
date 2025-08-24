@@ -20,7 +20,7 @@ export function getDayOfWeek(date: Date): DAY_OF_WEEK {
  * Helper function to convert time string (HH:MM) to minutes
  */
 export function timeStringToMinutes(timeString: string): number {
-  const [hours, minutes] = timeString.split(':').map(Number);
+  const [hours, minutes] = timeString.split(":").map(Number);
   return hours * 60 + minutes;
 }
 
@@ -31,7 +31,7 @@ export function timeRangesOverlap(
   start1: Date,
   end1: Date,
   start2: Date,
-  end2: Date
+  end2: Date,
 ): boolean {
   return start1 < end2 && start2 < end1;
 }

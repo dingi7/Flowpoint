@@ -1,4 +1,10 @@
-import { DatabaseService, OrganizationIdPayload, Role, RoleData, RoleRepository } from "@/core";
+import {
+  DatabaseService,
+  OrganizationIdPayload,
+  Role,
+  RoleData,
+  RoleRepository,
+} from "@/core";
 import { DatabaseCollection } from "./config";
 import { getGenericRepository } from "./generic-repository";
 

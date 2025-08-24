@@ -3,6 +3,7 @@ import {
   CalendarRepository,
   CustomerRepository,
   DatabaseService,
+  InviteRepository,
   MemberRepository,
   OrganizationRepository,
   RoleRepository,
@@ -25,4 +26,5 @@ export interface RepositoryHost {
     databaseService: DatabaseService,
   ): AppointmentRepository;
   getTimeOffRepository(databaseService: DatabaseService): TimeOffRepository;
+  getInviteRepository(databaseService: DatabaseService): InviteRepository;
 }

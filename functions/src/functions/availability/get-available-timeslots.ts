@@ -16,12 +16,13 @@ const calendarRepository =
   repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
-const appointmentRepository = repositoryHost.getAppointmentRepository(databaseService);
+const appointmentRepository =
+  repositoryHost.getAppointmentRepository(databaseService);
 
 export const getAvailableTimeslots = onCall<Payload>(
   {
-    invoker: "public", 
-    ingressSettings: "ALLOW_ALL", 
+    invoker: "public",
+    ingressSettings: "ALLOW_ALL",
   },
   async (request) => {
     loggerService.info("getAvalibleTimeslots request");
@@ -33,7 +34,7 @@ export const getAvailableTimeslots = onCall<Payload>(
     try {
       const result = await getAvailableTimeslotsFn(
         {
-          ...data
+          ...data,
         },
         {
           calendarRepository,

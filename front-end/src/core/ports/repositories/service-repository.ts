@@ -1,3 +1,12 @@
-import { GenericRepository, Service, ServiceData, OrganizationIdPayload } from "@/core";
+import {
+  GenericRepository,
+  OrganizationIdPayload,
+  Service,
+  ServiceData,
+} from "@/core";
 
-export type ServiceRepository = GenericRepository<Service, ServiceData, OrganizationIdPayload>;
+export type ServiceRepository = GenericRepository<
+  Service,
+  ServiceData,
+  OrganizationIdPayload
+>;

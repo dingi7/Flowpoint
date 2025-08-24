@@ -1,14 +1,22 @@
-import { useForm } from "react-hook-form";
+import {
+  Appointment,
+  APPOINTMENT_STATUS,
+  AppointmentData,
+  appointmentDataSchema,
+  ASSIGNEE_TYPE,
+} from "@/core";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Appointment, ASSIGNEE_TYPE, APPOINTMENT_STATUS, appointmentDataSchema, AppointmentData } from "@/core";
-
+import { useForm } from "react-hook-form";
 
 interface UseAppointmentFormProps {
   appointment?: Appointment;
   onSubmit: (data: AppointmentData) => void | Promise<void>;
 }
 
-export function useAppointmentForm({ appointment, onSubmit }: UseAppointmentFormProps) {
+export function useAppointmentForm({
+  appointment,
+  onSubmit,
+}: UseAppointmentFormProps) {
   const form = useForm<AppointmentData>({
     resolver: zodResolver(appointmentDataSchema),
     defaultValues: {

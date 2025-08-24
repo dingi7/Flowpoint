@@ -2,12 +2,13 @@ import {
   APPOINTMENT_STATUS,
   AppointmentRepository,
   ASSIGNEE_TYPE,
-  CalendarRepository, CustomerRepository,
+  CalendarRepository,
+  CustomerRepository,
   LoggerService,
   OrganizationRepository,
   Service,
   ServiceRepository,
-  TimeOffRepository
+  TimeOffRepository,
 } from "@/core";
 import { validateBookingRequest } from "./validation/booking-validation";
 
@@ -66,7 +67,7 @@ export async function bookAppointmentFn(
     calendarRepository,
     timeOffRepository,
     loggerService,
-    organizationRepository
+    organizationRepository,
   } = dependencies;
 
   loggerService.info("Starting appointment booking process", {
@@ -86,8 +87,14 @@ export async function bookAppointmentFn(
     organizationRepository,
   });
 
-  const { validatedPayload, service, customerId, calendar, startTime, endTime } =
-    validationResult;
+  const {
+    validatedPayload,
+    service,
+    customerId,
+    calendar,
+    startTime,
+    endTime,
+  } = validationResult;
 
   // 2. Create appointment
   const appointmentData = {

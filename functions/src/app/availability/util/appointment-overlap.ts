@@ -15,7 +15,13 @@ interface Payload {
  * @returns true if there is an overlap, false otherwise
  */
 export function hasTimeslotOverlap(payload: Payload): boolean {
-  const { slotStart, slotEnd, existingAppointments, timeOffs, bufferTime = 0 } = payload;
+  const {
+    slotStart,
+    slotEnd,
+    existingAppointments,
+    timeOffs,
+    bufferTime = 0,
+  } = payload;
 
   // Check if this timeslot conflicts with existing appointments
   const hasAppointmentConflict = existingAppointments.some((appointment) => {
@@ -25,7 +31,12 @@ export function hasTimeslotOverlap(payload: Payload): boolean {
       appointmentEnd.getMinutes() + appointment.duration + bufferTime,
     );
 
-    return timeRangesOverlap(slotStart, slotEnd, appointmentStart, appointmentEnd);
+    return timeRangesOverlap(
+      slotStart,
+      slotEnd,
+      appointmentStart,
+      appointmentEnd,
+    );
   });
 
   // Check if this timeslot conflicts with time-offs

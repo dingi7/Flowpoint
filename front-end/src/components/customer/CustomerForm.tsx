@@ -1,28 +1,32 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Save, X } from "lucide-react"
-import { Customer } from "@/core"
-import { useCustomerForm } from "@/hooks/forms/use-customer-form"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Customer } from "@/core";
+import { useCustomerForm } from "@/hooks/forms/use-customer-form";
+import { Save, X } from "lucide-react";
 
 interface CustomerFormProps {
-  customer?: Customer
-  onSuccess: () => void
+  customer?: Customer;
+  onSuccess: () => void;
 }
 
 export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useCustomerForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useCustomerForm({
     customer,
     onSubmit: async (data) => {
       // In real app, this would make an API call
-      console.log("Saving customer:", data)
-      onSuccess()
+      console.log("Saving customer:", data);
+      onSuccess();
     },
-  })
+  });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -81,7 +85,9 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       {/* Custom Fields */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-sans">Additional Information</CardTitle>
+          <CardTitle className="text-lg font-sans">
+            Additional Information
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -104,9 +110,13 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           <Save className="h-4 w-4 mr-2" />
-          {isSubmitting ? "Saving..." : customer ? "Update Customer" : "Add Customer"}
+          {isSubmitting
+            ? "Saving..."
+            : customer
+              ? "Update Customer"
+              : "Add Customer"}
         </Button>
       </div>
     </form>
-  )
+  );
 }

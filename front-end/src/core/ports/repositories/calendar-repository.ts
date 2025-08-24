@@ -1,3 +1,12 @@
-import { Calendar, CalendarData, GenericRepository, OrganizationIdPayload } from "@/core";
+import {
+  Calendar,
+  CalendarData,
+  GenericRepository,
+  OrganizationIdPayload,
+} from "@/core";
 
-export type CalendarRepository = GenericRepository<Calendar, CalendarData, OrganizationIdPayload>;
+export type CalendarRepository = GenericRepository<
+  Calendar,
+  CalendarData,
+  OrganizationIdPayload
+>;

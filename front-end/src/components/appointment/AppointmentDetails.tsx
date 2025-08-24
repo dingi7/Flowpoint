@@ -1,57 +1,84 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { Mail, Phone, Calendar, Clock, DollarSign, Edit, CheckCircle, X, User, Briefcase, FileText } from "lucide-react"
-import { Appointment, APPOINTMENT_STATUS } from "@/core"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Appointment, APPOINTMENT_STATUS } from "@/core";
+import {
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Edit,
+  FileText,
+  Mail,
+  Phone,
+  User,
+  X,
+} from "lucide-react";
 
 interface AppointmentDetailsProps {
-  appointment: Appointment
-  onEdit: () => void
-  onStatusChange: (appointmentId: string, newStatus: string) => void
+  appointment: Appointment;
+  onEdit: () => void;
+  onStatusChange: (appointmentId: string, newStatus: string) => void;
 }
 
-export function AppointmentDetails({ appointment, onEdit, onStatusChange }: AppointmentDetailsProps) {
+export function AppointmentDetails({
+  appointment,
+  onEdit,
+  onStatusChange,
+}: AppointmentDetailsProps) {
   // Mock data for customer, service, and assignee
   const mockCustomer = {
     id: appointment.customerId,
     name: "John Smith",
     email: "john.smith@email.com",
     phone: "+1 (555) 123-4567",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john"
-  }
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
+  };
 
   const mockService = {
     id: appointment.serviceId,
     name: appointment.title || "Professional Consultation",
     duration: appointment.duration || 60,
-    price: appointment.fee || 150
-  }
+    price: appointment.fee || 150,
+  };
 
   // Mock appointment date and time (derived from startTime)
-  const mockDate = appointment.startTime ? new Date(appointment.startTime).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-  const mockTime = appointment.startTime ? new Date(appointment.startTime).toTimeString().slice(0, 5) : "10:00"
-  const mockNotes = appointment.description || null
+  const mockDate = appointment.startTime
+    ? new Date(appointment.startTime).toISOString().split("T")[0]
+    : new Date().toISOString().split("T")[0];
+  const mockTime = appointment.startTime
+    ? new Date(appointment.startTime).toTimeString().slice(0, 5)
+    : "10:00";
+  const mockNotes = appointment.description || null;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case APPOINTMENT_STATUS.PENDING:
         return (
-          <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+          <Badge
+            variant="outline"
+            className="border-yellow-500 text-yellow-600"
+          >
             Pending
           </Badge>
-        )
+        );
       case APPOINTMENT_STATUS.COMPLETED:
-        return <Badge className="bg-primary text-primary-foreground">Completed</Badge>
+        return (
+          <Badge className="bg-primary text-primary-foreground">
+            Completed
+          </Badge>
+        );
       case APPOINTMENT_STATUS.CANCELLED:
-        return <Badge variant="destructive">Cancelled</Badge>
+        return <Badge variant="destructive">Cancelled</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -59,16 +86,16 @@ export function AppointmentDetails({ appointment, onEdit, onStatusChange }: Appo
       year: "numeric",
       month: "long",
       day: "numeric",
-    })
-  }
+    });
+  };
 
   const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(":")
-    const hour = Number.parseInt(hours)
-    const ampm = hour >= 12 ? "PM" : "AM"
-    const displayHour = hour % 12 || 12
-    return `${displayHour}:${minutes} ${ampm}`
-  }
+    const [hours, minutes] = time.split(":");
+    const hour = Number.parseInt(hours);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -91,18 +118,22 @@ export function AppointmentDetails({ appointment, onEdit, onStatusChange }: Appo
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onStatusChange(appointment.id, APPOINTMENT_STATUS.COMPLETED)}
+              onClick={() =>
+                onStatusChange(appointment.id, APPOINTMENT_STATUS.COMPLETED)
+              }
               className="bg-transparent"
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Complete
             </Button>
           )}
-          {(appointment.status === APPOINTMENT_STATUS.PENDING) && (
+          {appointment.status === APPOINTMENT_STATUS.PENDING && (
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onStatusChange(appointment.id, APPOINTMENT_STATUS.CANCELLED)}
+              onClick={() =>
+                onStatusChange(appointment.id, APPOINTMENT_STATUS.CANCELLED)
+              }
               className="bg-transparent text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
               <X className="h-4 w-4 mr-2" />
@@ -151,14 +182,18 @@ export function AppointmentDetails({ appointment, onEdit, onStatusChange }: Appo
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Email</p>
-                  <p className="text-sm text-muted-foreground">{mockCustomer.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {mockCustomer.email}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Phone</p>
-                  <p className="text-sm text-muted-foreground">{mockCustomer.phone}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {mockCustomer.phone}
+                  </p>
                 </div>
               </div>
             </div>
@@ -176,7 +211,9 @@ export function AppointmentDetails({ appointment, onEdit, onStatusChange }: Appo
           <CardContent className="space-y-4">
             <div>
               <h4 className="font-semibold">{mockService.name}</h4>
-              <p className="text-sm text-muted-foreground">Professional service</p>
+              <p className="text-sm text-muted-foreground">
+                Professional service
+              </p>
             </div>
 
             <Separator />
@@ -186,7 +223,9 @@ export function AppointmentDetails({ appointment, onEdit, onStatusChange }: Appo
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Duration</p>
-                  <p className="text-sm text-muted-foreground">{mockService.duration} minutes</p>
+                  <p className="text-sm text-muted-foreground">
+                    {mockService.duration} minutes
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -215,32 +254,47 @@ export function AppointmentDetails({ appointment, onEdit, onStatusChange }: Appo
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Date</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Date
+                </p>
                 <p className="text-lg font-semibold">{formatDate(mockDate)}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Time</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Time
+                </p>
                 <p className="text-lg font-semibold">{formatTime(mockTime)}</p>
               </div>
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Duration</p>
-                <p className="text-lg font-semibold">{mockService.duration} minutes</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Duration
+                </p>
+                <p className="text-lg font-semibold">
+                  {mockService.duration} minutes
+                </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">End Time</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  End Time
+                </p>
                 <p className="text-lg font-semibold">
                   {(() => {
-                    const [hours, minutes] = mockTime.split(":")
-                    const startTime = new Date()
-                    startTime.setHours(Number.parseInt(hours), Number.parseInt(minutes))
-                    const endTime = new Date(startTime.getTime() + mockService.duration * 60000)
+                    const [hours, minutes] = mockTime.split(":");
+                    const startTime = new Date();
+                    startTime.setHours(
+                      Number.parseInt(hours),
+                      Number.parseInt(minutes),
+                    );
+                    const endTime = new Date(
+                      startTime.getTime() + mockService.duration * 60000,
+                    );
                     return formatTime(
                       `${endTime.getHours().toString().padStart(2, "0")}:${endTime.getMinutes().toString().padStart(2, "0")}`,
-                    )
-                  })()
-                }</p>
+                    );
+                  })()}
+                </p>
               </div>
             </div>
           </div>
@@ -262,5 +316,5 @@ export function AppointmentDetails({ appointment, onEdit, onStatusChange }: Appo
         </Card>
       )}
     </div>
-  )
+  );
 }

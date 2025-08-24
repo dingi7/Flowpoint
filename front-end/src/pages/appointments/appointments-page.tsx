@@ -1,22 +1,42 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Search, Filter, Calendar, Clock, Users, CheckCircle } from "lucide-react"
-import { APPOINTMENT_STATUS } from "@/core"
-import { AppointmentForm } from "@/components/appointment/AppointmentForm"
-import { AppointmentList } from "@/components/appointment/AppointmentList"
+import { AppointmentForm } from "@/components/appointment/AppointmentForm";
+import { AppointmentList } from "@/components/appointment/AppointmentList";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { APPOINTMENT_STATUS } from "@/core";
+import {
+  Calendar,
+  CheckCircle,
+  Clock,
+  Filter,
+  Plus,
+  Search,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
 
 export default function AppointmentsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [dateFilter, setDateFilter] = useState("today")
-  const [isBookAppointmentOpen, setIsBookAppointmentOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("today");
+  const [isBookAppointmentOpen, setIsBookAppointmentOpen] = useState(false);
 
   // Mock stats data
   const stats = {
@@ -24,18 +44,25 @@ export default function AppointmentsPage() {
     thisWeek: 32,
     pending: 5,
     completed: 156,
-  }
+  };
 
   return (
     <main className="flex-1 overflow-y-auto p-6">
       {/* Page Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground font-sans">Appointment Management</h2>
-          <p className="text-muted-foreground">Schedule and manage customer appointments</p>
+          <h2 className="text-2xl font-bold text-foreground font-sans">
+            Appointment Management
+          </h2>
+          <p className="text-muted-foreground">
+            Schedule and manage customer appointments
+          </p>
         </div>
 
-        <Dialog open={isBookAppointmentOpen} onOpenChange={setIsBookAppointmentOpen}>
+        <Dialog
+          open={isBookAppointmentOpen}
+          onOpenChange={setIsBookAppointmentOpen}
+        >
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
@@ -46,7 +73,9 @@ export default function AppointmentsPage() {
             <DialogHeader>
               <DialogTitle>Book New Appointment</DialogTitle>
             </DialogHeader>
-            <AppointmentForm onSuccess={() => setIsBookAppointmentOpen(false)} />
+            <AppointmentForm
+              onSuccess={() => setIsBookAppointmentOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -55,12 +84,16 @@ export default function AppointmentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Today's Appointments
+            </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.today}</div>
-            <p className="text-xs text-muted-foreground">3 completed, 5 upcoming</p>
+            <p className="text-xs text-muted-foreground">
+              3 completed, 5 upcoming
+            </p>
           </CardContent>
         </Card>
 
@@ -77,7 +110,9 @@ export default function AppointmentsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Confirmation</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Confirmation
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -88,7 +123,9 @@ export default function AppointmentsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Completed</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Completed
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -119,8 +156,12 @@ export default function AppointmentsPage() {
             <SelectItem value="all">All Appointments</SelectItem>
             <SelectItem value={APPOINTMENT_STATUS.PENDING}>Pending</SelectItem>
             <SelectItem value="confirmed">Confirmed</SelectItem>
-            <SelectItem value={APPOINTMENT_STATUS.COMPLETED}>Completed</SelectItem>
-            <SelectItem value={APPOINTMENT_STATUS.CANCELLED}>Cancelled</SelectItem>
+            <SelectItem value={APPOINTMENT_STATUS.COMPLETED}>
+              Completed
+            </SelectItem>
+            <SelectItem value={APPOINTMENT_STATUS.CANCELLED}>
+              Cancelled
+            </SelectItem>
           </SelectContent>
         </Select>
 
@@ -149,18 +190,34 @@ export default function AppointmentsPage() {
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
-          <AppointmentList searchQuery={searchQuery} statusFilter={statusFilter} dateFilter={dateFilter} />
+          <AppointmentList
+            searchQuery={searchQuery}
+            statusFilter={statusFilter}
+            dateFilter={dateFilter}
+          />
         </TabsContent>
         <TabsContent value="today" className="mt-6">
-          <AppointmentList searchQuery={searchQuery} statusFilter={statusFilter} dateFilter="today" />
+          <AppointmentList
+            searchQuery={searchQuery}
+            statusFilter={statusFilter}
+            dateFilter="today"
+          />
         </TabsContent>
         <TabsContent value="upcoming" className="mt-6">
-          <AppointmentList searchQuery={searchQuery} statusFilter="confirmed" dateFilter="upcoming" />
+          <AppointmentList
+            searchQuery={searchQuery}
+            statusFilter="confirmed"
+            dateFilter="upcoming"
+          />
         </TabsContent>
         <TabsContent value="pending" className="mt-6">
-          <AppointmentList searchQuery={searchQuery} statusFilter={APPOINTMENT_STATUS.PENDING} dateFilter={dateFilter} />
+          <AppointmentList
+            searchQuery={searchQuery}
+            statusFilter={APPOINTMENT_STATUS.PENDING}
+            dateFilter={dateFilter}
+          />
         </TabsContent>
       </Tabs>
     </main>
-  )
+  );
 }

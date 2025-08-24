@@ -8,4 +8,5 @@ export enum DatabaseCollection {
   SERVICES = "services",
   CUSTOMERS = "customers",
   TIME_OFF = "time-off",
+  INVITES = "invites",
 }

@@ -3,11 +3,12 @@ import {
   APPOINTMENT_STATUS,
   ASSIGNEE_TYPE,
   AppointmentRepository,
-  CalendarRepository, CustomerRepository,
+  CalendarRepository,
+  CustomerRepository,
   LoggerService,
   OrganizationRepository,
   ServiceRepository,
-  TimeOffRepository
+  TimeOffRepository,
 } from "@/core";
 import { createCustomerWithFields } from "@/utils/customer-utils";
 import z from "zod";
@@ -23,12 +24,10 @@ const bookAppointmentPayloadSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   fee: z.number().min(0).optional(),
-    additionalCustomerFields: z.record(z.string(), z.unknown()).optional(),
+  additionalCustomerFields: z.record(z.string(), z.unknown()).optional(),
 });
 
-type BookAppointmentPayload = z.infer<
-  typeof bookAppointmentPayloadSchema
->;
+type BookAppointmentPayload = z.infer<typeof bookAppointmentPayloadSchema>;
 
 interface Dependencies {
   serviceRepository: ServiceRepository;
@@ -78,9 +77,7 @@ export async function validateBookingRequest(
   });
 
   if (!service) {
-    throw new Error(
-      `Service not found: ${validatedPayload.serviceId}`,
-    );
+    throw new Error(`Service not found: ${validatedPayload.serviceId}`);
   }
 
   // 3. Customer validation
@@ -106,7 +103,7 @@ export async function validateBookingRequest(
         email: validatedPayload.customerEmail,
       },
       validatedPayload.additionalCustomerFields || {},
-      organization
+      organization,
     );
 
     customerId = await customerRepository.create({
@@ -127,9 +124,7 @@ export async function validateBookingRequest(
   });
 
   if (!calendars || calendars.length === 0) {
-    throw new Error(
-      `No calendar found for service owner: ${service.ownerId}`,
-    );
+    throw new Error(`No calendar found for service owner: ${service.ownerId}`);
   }
 
   const calendar = calendars[0];

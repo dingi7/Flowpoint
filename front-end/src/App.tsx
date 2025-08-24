@@ -8,11 +8,11 @@ import {
   Routes,
 } from "react-router-dom";
 import { AppLayout } from "./components/layout";
+import AppointmentsPage from "./pages/appointments/appointments-page";
 import SignInPage from "./pages/auth/sign-in-page";
 import SignUpPage from "./pages/auth/sign-up-page";
-import DashboardPage from "./pages/dashboard-page";
 import CustomersPage from "./pages/customers/customers-page";
-import AppointmentsPage from "./pages/appointments/appointments-page";
+import DashboardPage from "./pages/dashboard-page";
 import ServicesPage from "./pages/services/services-page";
 import { FirebaseTokenProvider } from "./utils/firebase-token-provider";
 
