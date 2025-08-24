@@ -1,10 +1,17 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
 
+export enum InviteStatus {
+  PENDING = "pending",
+  ACCEPTED = "accepted",
+  DECLINED = "declined",
+}
+
 export const inviteDataSchema = z.object({
   inviteeEmail: z.string().email(),
   organizationId: z.string(),
   roleIds: z.array(z.string()),
+  status: z.nativeEnum(InviteStatus),
 });
 
 export type InviteData = z.infer<typeof inviteDataSchema>;
