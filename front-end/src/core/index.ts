@@ -34,6 +34,7 @@ export * from "./ports/repositories/utilities";
 export * from "./ports/services/authentication-service";
 export * from "./ports/services/database-service";
 export * from "./ports/services/functions-service";
+export * from "./ports/services/file-upload-service";
 
 //Service Host
 export * from "./ports/services/service-host";

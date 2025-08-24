@@ -2,6 +2,7 @@ import { ServiceHost } from "@/core";
 import { authenticationService } from "./authentication/authentication-service";
 import { databaseService } from "./database/database-service";
 import { functionsService } from "./functions/functions-service";
+import { fileUploadService } from "./file-upload/file-upload-service";
 
 /**
  * Service Host
@@ -23,5 +24,8 @@ export const serviceHost: ServiceHost = {
   },
   getAuthenticationService() {
     return authenticationService;
+  },
+  getFileUploadService() {
+    return fileUploadService;
   },
 };
