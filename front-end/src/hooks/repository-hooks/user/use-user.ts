@@ -1,9 +1,11 @@
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const databaseService = serviceHost.getDatabaseService();
 const userRepository = repositoryHost.getUserRepository(databaseService);
+
+type UpdateUserParams = Parameters<typeof userRepository.update>[0];
 
 export const useUser = (id: string) => {
   return useQuery({
@@ -34,5 +36,20 @@ export const usePaginatedUsers = (page: number = 1, limit: number = 10) => {
           direction: "desc",
         },
       }),
+  });
+};
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, UpdateUserParams>({
+    mutationKey: ["user", "update"],
+    mutationFn: async (params: UpdateUserParams) => {
+      return userRepository.update(params);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["user", "id", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
   });
 };

@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { OrganizationForm } from "@/components/organization/OrganizationForm";
 import { OrganizationData } from "@/core";
 import { useCreateOrganization } from "@/hooks/repository-hooks/organization/use-organization";
+import { useUpdateUser, useUser } from "@/hooks/repository-hooks/user/use-user";
+import { useAuth } from "@clerk/clerk-react";
 
 interface CreateOrganizationModalProps {
   open: boolean;
@@ -22,13 +24,30 @@ export function CreateOrganizationModal({
 }: CreateOrganizationModalProps) {
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const createOrganizationMutation = useCreateOrganization()
+  const { userId } = useAuth();
+  const { data: userData } = useUser(userId || "");
+  const createOrganizationMutation = useCreateOrganization();
+  const updateUserMutation = useUpdateUser();
 
   const handleSubmit = async (data: OrganizationData) => {
     try {
       setIsLoading(true);
-      console.log(data)
-      await createOrganizationMutation.mutateAsync({ data });
+      console.log(data);
+      
+      // Create the organization
+      const organizationId = await createOrganizationMutation.mutateAsync({ data });
+      
+      // Update user's organizationIds array
+      if (userId && userData) {
+        const updatedOrganizationIds = [...(userData.organizationIds || []), organizationId];
+        await updateUserMutation.mutateAsync({
+          id: userId,
+          data: {
+            organizationIds: updatedOrganizationIds,
+          },
+        });
+      }
+      
       // Reset form state and close modal on success
       setShowForm(false);
       onOpenChange(false);
