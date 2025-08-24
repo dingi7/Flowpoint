@@ -65,3 +65,7 @@ export type RemoveFromSetPayload<T> = {
   fieldName: keyof T;
   value: T[keyof T];
 };
+
+export type GetManyPayload = {
+  ids: string[];
+};

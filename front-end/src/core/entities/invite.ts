@@ -12,6 +12,7 @@ export const inviteDataSchema = z.object({
   organizationId: z.string(),
   roleIds: z.array(z.string()),
   status: z.nativeEnum(InviteStatus),
+  validFor: z.number().positive().optional().default(7),
 });
 
 export type InviteData = z.infer<typeof inviteDataSchema>;

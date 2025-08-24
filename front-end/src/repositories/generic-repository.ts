@@ -20,6 +20,39 @@ export const getGenericRepository = <
       );
     },
 
+    async getMany(payload) {
+      if (payload.ids.length === 0) {
+        return [];
+      }
+      
+      // Firestore 'in' operator supports up to 10 values
+      if (payload.ids.length <= 10) {
+        return databaseService.getPaginated<TEntity>(
+          getDatabaseCollection(payload),
+          [{ field: "id", operator: "in", value: payload.ids }],
+          {},
+        );
+      }
+      
+      // For more than 10 IDs, split into chunks
+      const chunks = [];
+      for (let i = 0; i < payload.ids.length; i += 10) {
+        chunks.push(payload.ids.slice(i, i + 10));
+      }
+      
+      const results = await Promise.all(
+        chunks.map(chunk =>
+          databaseService.getPaginated<TEntity>(
+            getDatabaseCollection(payload),
+            [{ field: "id", operator: "in", value: chunk }],
+            {},
+          )
+        )
+      );
+      
+      return results.flat();
+    },
+
     async getAll(payload) {
       return databaseService.getPaginated<TEntity>(
         getDatabaseCollection(payload),

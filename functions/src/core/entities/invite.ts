@@ -8,10 +8,12 @@ export enum InviteStatus {
 }
 
 export const inviteDataSchema = z.object({
+  inviterId: z.string(),
   inviteeEmail: z.string().email(),
   organizationId: z.string(),
   roleIds: z.array(z.string()),
   status: z.nativeEnum(InviteStatus),
+  validFor: z.number().default(7).optional(),
 });
 
 export type InviteData = z.infer<typeof inviteDataSchema>;

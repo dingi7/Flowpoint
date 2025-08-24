@@ -3,6 +3,7 @@ import {
   AddToSetPayload,
   BatchSetPayload,
   CreatePayload,
+  GetManyPayload,
   GetOptions,
   IDOnlyPayload,
   IncrementFieldsPayload,
@@ -19,6 +20,7 @@ export interface GenericRepository<
   TPayloadExtender = EmptyPayloadExtender,
 > {
   get: (payload: IDOnlyPayload & TPayloadExtender) => Promise<TEntity | null>;
+  getMany: (payload: GetManyPayload & TPayloadExtender) => Promise<TEntity[]>;
   getAll: (payload: GetOptions & TPayloadExtender) => Promise<TEntity[]>;
   getAllGroup(payload: GetOptions & TPayloadExtender): Promise<TEntity[]>;
   getAllGroupByID: (
