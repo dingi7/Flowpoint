@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Customer } from "@/core";
+import { useCreateCustomer, useUpdateCustomer } from "@/hooks";
 import { useCustomerForm } from "@/hooks/forms/use-customer-form";
+import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
 
 interface CustomerFormProps {
@@ -15,6 +17,9 @@ interface CustomerFormProps {
 }
 
 export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
+  const createCustomerMutation = useCreateCustomer();
+  const updateCustomerMutation = useUpdateCustomer();
+  const currentOrganizationId = useCurrentOrganizationId();
   const {
     register,
     handleSubmit,
@@ -22,12 +27,41 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
   } = useCustomerForm({
     customer,
     onSubmit: async (data) => {
-      // In real app, this would make an API call
-      console.log("Saving customer:", data);
-      onSuccess();
+      try {
+        if (!currentOrganizationId) {
+          throw new Error("No organization selected");
+        }
+
+        if (customer) {
+          // Update existing customer
+          await updateCustomerMutation.mutateAsync({
+            id: customer.id,
+            data: {
+              ...data,
+              organizationId: currentOrganizationId,
+              customFields: data.customFields || {},
+            },
+            organizationId: currentOrganizationId,
+          });
+        } else {
+          // Create new customer
+            await createCustomerMutation.mutateAsync({
+              data: {
+                ...data,
+                organizationId: currentOrganizationId,
+                customFields: data.customFields || {},
+              },
+              organizationId: currentOrganizationId,
+            });
+        }
+        
+        onSuccess();
+      } catch (error) {
+        console.error("Failed to save customer:", error);
+        // You can add toast notifications here if needed
+      }
     },
   });
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}

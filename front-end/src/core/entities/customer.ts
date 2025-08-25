@@ -34,8 +34,6 @@ const customerDataBaseSchema = z.object({
   name: z.string(),
   phone: z.string().optional(),
   address: z.string().optional(),
-  lastVisit: z.string().optional(),
-  totalSpent: z.number().optional(),
   notes: z.string().optional(),
   customFields: z.record(z.string(), z.unknown()),
 });
@@ -74,33 +72,6 @@ export const customerDataSchema = customerDataBaseSchema
       path: ["name"],
     },
   )
-  .refine(
-    (data) => {
-      // Validate totalSpent is not negative if provided
-      if (data.totalSpent === undefined) return true;
-      return data.totalSpent >= 0;
-    },
-    {
-      message: "Total spent cannot be negative",
-      path: ["totalSpent"],
-    },
-  )
-  .refine(
-    (data) => {
-      // Validate lastVisit is a valid ISO date string if provided
-      if (!data.lastVisit) return true;
-      try {
-        const date = new Date(data.lastVisit);
-        return !isNaN(date.getTime()) && date <= new Date();
-      } catch {
-        return false;
-      }
-    },
-    {
-      message: "Last visit must be a valid date and not in the future",
-      path: ["lastVisit"],
-    },
-  );
 
 export type CustomerData = z.infer<typeof customerDataSchema>;
 export const customerSchema = baseEntitySchema
@@ -138,33 +109,7 @@ export const customerSchema = baseEntitySchema
       path: ["name"],
     },
   )
-  .refine(
-    (data) => {
-      // Validate totalSpent is not negative if provided
-      if (data.totalSpent === undefined) return true;
-      return data.totalSpent >= 0;
-    },
-    {
-      message: "Total spent cannot be negative",
-      path: ["totalSpent"],
-    },
-  )
-  .refine(
-    (data) => {
-      // Validate lastVisit is a valid ISO date string if provided
-      if (!data.lastVisit) return true;
-      try {
-        const date = new Date(data.lastVisit);
-        return !isNaN(date.getTime()) && date <= new Date();
-      } catch {
-        return false;
-      }
-    },
-    {
-      message: "Last visit must be a valid date and not in the future",
-      path: ["lastVisit"],
-    },
-  );
+ 
 export type Customer = z.infer<typeof customerSchema>;
 
 export type CustomerFieldValue = string | number | boolean | Date | null;

@@ -38,7 +38,7 @@ export const useGetOrganizationsByIds = (organizationIds: string[]) => {
     queryKey: ["organizations", "getMany", organizationIds],
     queryFn: async () => 
       organizationRepository.getMany({ids: organizationIds}),
-    enabled: true,
+    enabled: !!organizationIds.length,
   });
 }
 

@@ -17,8 +17,6 @@ export function useCustomerForm({ customer, onSubmit }: UseCustomerFormProps) {
       phone: customer?.phone || "",
       address: customer?.address || "",
       notes: customer?.notes || "",
-      lastVisit: customer?.lastVisit || undefined,
-      totalSpent: customer?.totalSpent || undefined,
       customFields: customer?.customFields || {},
     },
     mode: "onChange",

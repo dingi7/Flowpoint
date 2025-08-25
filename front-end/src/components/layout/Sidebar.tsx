@@ -43,6 +43,7 @@ import { useUser } from "@/hooks";
 import { ModeToggle } from "../ui/mode-toggle";
 import { useOrganizations, useSelectedOrganization, useOrganizationActions } from "@/stores";
 import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
+import { useEffect } from "react";
 
 const data = {
   user: {
@@ -164,9 +165,8 @@ function NotificationsDropdown() {
                     {data.notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-3 rounded-lg mb-2 border transition-colors hover:bg-accent ${
-                          !notification.read ? "bg-muted/50" : ""
-                        }`}
+                        className={`p-3 rounded-lg mb-2 border transition-colors hover:bg-accent ${!notification.read ? "bg-muted/50" : ""
+                          }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -234,11 +234,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUser(userId as string);
   const organizations = useOrganizations();
   const selectedOrganization = useSelectedOrganization();
-  const { setSelectedOrganization } = useOrganizationActions();
+  const { setSelectedOrganization, setCurrentOrganizationId } = useOrganizationActions();
   const [showCreateModal, setShowCreateModal] = React.useState(false);
-  
+
   // Set default selected organization if none is selected and organizations are available
-  React.useEffect(() => {
+  useEffect(() => {
     if (!selectedOrganization && organizations.length > 0) {
       setSelectedOrganization(organizations[0]);
     }
@@ -282,12 +282,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {organizations.map((org) => (
                       <DropdownMenuItem
                         key={org.id}
-                        onClick={() => setSelectedOrganization(org)}
-                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-0 ${
-                          selectedOrganization?.id === org.id
-                            ? "bg-primary/10 shadow-sm"
-                            : "hover:bg-accent/50"
-                        }`}
+                        onClick={() => { 
+                          setSelectedOrganization(org); 
+                          setCurrentOrganizationId(org.id) 
+                        }}
+                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-0 ${selectedOrganization?.id === org.id
+                          ? "bg-primary/10 shadow-sm"
+                          : "hover:bg-accent/50"
+                          }`}
                       >
                         <div className="relative">
                           <img

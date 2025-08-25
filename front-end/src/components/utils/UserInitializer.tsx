@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useUser } from "@/hooks/repository-hooks/user/use-user";
 import { useUserActions } from "@/stores/user-store";
 import { useGetOrganizationsByIds } from "@/hooks/repository-hooks/organization/use-organization";
-import { useOrganizationActions } from "@/stores/organization-store";
+import { useOrganizationActions, useCurrentOrganizationId } from "@/stores/organization-store";
 
 /**
  * UserInitializer component that fetches and initializes user data in the store
@@ -14,7 +14,8 @@ export function UserInitializer({ children }: { children: React.ReactNode }) {
   const { userId, isLoaded } = useAuth();
   const { data: userData, isLoading, error } = useUser(userId || "");
   const { setUser, setLoading, setError, setInitialized, clearError } = useUserActions();
-  const { setOrganizations, setLoading: setOrgLoading, setError: setOrgError, clearError: clearOrgError } = useOrganizationActions();
+  const { setOrganizations, setLoading: setOrgLoading, setError: setOrgError, clearError: clearOrgError, setCurrentOrganizationId } = useOrganizationActions();
+  const currentOrganizationId = useCurrentOrganizationId();
   
   // Get organization IDs from user data
   const organizationIds = userData?.organizationIds || [];
@@ -75,8 +76,13 @@ export function UserInitializer({ children }: { children: React.ReactNode }) {
     if (!organizationsLoading && organizations && organizations.length > 0) {
       setOrganizations(organizations);
       clearOrgError();
+      
+      // Automatically set the first organization as current if none is selected
+      if (!currentOrganizationId) {
+        setCurrentOrganizationId(organizations[0].id);
+      }
     }
-  }, [userData, organizations, organizationsLoading, organizationsError, setOrganizations, setOrgLoading, setOrgError, clearOrgError, organizationIds.length]);
+  }, [userData, organizations, organizationsLoading, organizationsError, setOrganizations, setOrgLoading, setOrgError, clearOrgError, organizationIds.length, currentOrganizationId, setCurrentOrganizationId]);
 
   return <>{children}</>;
 }
