@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Customer } from "@/core";
 import {
-  Calendar,
   Clock,
-  DollarSign,
   Edit,
   Gift,
   Mail,
@@ -64,14 +62,6 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
           </Avatar>
           <div>
             <h3 className="text-2xl font-bold font-sans">{customer.name}</h3>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm text-muted-foreground">
-                Customer since{" "}
-                {new Date(
-                  customer.lastVisit || customer.createdAt,
-                ).getFullYear()}
-              </span>
-            </div>
           </div>
         </div>
         <Button onClick={onEdit} className="gap-2">
@@ -125,26 +115,6 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
             <CardTitle className="text-lg font-sans">Customer Stats</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Total Spent</p>
-                <p className="text-lg font-bold text-primary">
-                  ${customer.totalSpent?.toLocaleString() || "0"}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Last Visit</p>
-                <p className="text-sm text-muted-foreground">
-                  {customer.lastVisit
-                    ? new Date(customer.lastVisit).toLocaleDateString()
-                    : "N/A"}
-                </p>
-              </div>
-            </div>
             <div className="flex items-center gap-3">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <div>
