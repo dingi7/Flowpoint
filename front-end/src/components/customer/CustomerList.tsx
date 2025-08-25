@@ -56,13 +56,19 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   // Fetch customers using the hook
-  const { data } = useCustomers({
+  const { data, error } = useCustomers({
     pagination: { limit: 50 },
     queryConstraints: searchQuery ? [
       { field: "name", operator: ">=", value: searchQuery },
-      { field: "name", operator: "<", value: searchQuery + "\uf8ff" }
-    ] : []
+      { field: "name", operator: "<=", value: searchQuery + '\uf8ff' }
+    ] : [],
+    orderBy: {
+        field: searchQuery.trim() ? "name" : "updatedAt",
+        direction: "desc",
+      },
   });
+
+  console.log(error)
 
   // Flatten the infinite query data
   const customers = data?.pages.flatMap(page => page) || [];
