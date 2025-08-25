@@ -1,4 +1,4 @@
-import { ClerkProvider, SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
@@ -9,8 +9,6 @@ import {
 } from "react-router-dom";
 
 import { AppLayout } from "./components/layout";
-import { CreateOrganizationModal } from "./components/organization/CreateOrganizationModal";
-import { useUser } from "./hooks/repository-hooks/user/use-user";
 import AppointmentsPage from "./pages/appointments/appointments-page";
 import SignInPage from "./pages/auth/sign-in-page";
 import SignUpPage from "./pages/auth/sign-up-page";
@@ -18,6 +16,7 @@ import CustomersPage from "./pages/customers/customers-page";
 import DashboardPage from "./pages/dashboard-page";
 import ServicesPage from "./pages/services/services-page";
 import { FirebaseTokenProvider } from "./utils/firebase-token-provider";
+import UserInitializer from "./components/utils/UserInitializer";
 
 const queryClient = new QueryClient();
 
@@ -29,13 +28,8 @@ if (!PUBLISHABLE_KEY) {
 }
 
 function AppContent() {
-  const { userId } = useAuth()
-  const { data: userData } = useUser(userId || "");
-  
-  const shouldShowModal = Boolean(userId && userData && (!userData.organizationIds || userData.organizationIds.length === 0));
 
   return (
-    <>
       <Router>
         <div className="min-h-screen bg-background">
           <Routes>
@@ -112,11 +106,6 @@ function AppContent() {
           </Routes>
         </div>
       </Router>
-      <CreateOrganizationModal
-        open={shouldShowModal}
-        onOpenChange={() => {}}
-      />
-    </>
   );
 }
 
@@ -125,7 +114,9 @@ function App() {
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <QueryClientProvider client={queryClient}>
         <FirebaseTokenProvider>
-          <AppContent />
+          <UserInitializer>
+            <AppContent />
+          </UserInitializer>
         </FirebaseTokenProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

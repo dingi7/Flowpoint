@@ -6,6 +6,7 @@ import {
   Calendar,
   ChevronDown,
   LayoutDashboard,
+  Plus,
   Users,
 } from "lucide-react";
 import * as React from "react";
@@ -16,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -39,28 +41,8 @@ import {
 import { User } from "@/core";
 import { useUser } from "@/hooks";
 import { ModeToggle } from "../ui/mode-toggle";
-
-// Mock organizations - in real app this would come from user data
-const mockOrganizations = [
-  {
-    id: "org_1",
-    name: "My Organization",
-    image:
-      "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=32&h=32&fit=crop&crop=center",
-  },
-  {
-    id: "org_2",
-    name: "Tech Solutions Inc",
-    image:
-      "https://images.unsplash.com/photo-1551434678-e076c223a692?w=32&h=32&fit=crop&crop=center",
-  },
-  {
-    id: "org_3",
-    name: "Creative Agency",
-    image:
-      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=32&h=32&fit=crop&crop=center",
-  },
-];
+import { useOrganizations, useSelectedOrganization, useOrganizationActions } from "@/stores";
+import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
 
 const data = {
   user: {
@@ -250,9 +232,17 @@ function NavUser({ user }: { user: User }) {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { userId } = useAuth();
   const user = useUser(userId as string);
-  const [selectedOrganization, setSelectedOrganization] = React.useState(
-    mockOrganizations[0],
-  );
+  const organizations = useOrganizations();
+  const selectedOrganization = useSelectedOrganization();
+  const { setSelectedOrganization } = useOrganizationActions();
+  const [showCreateModal, setShowCreateModal] = React.useState(false);
+  
+  // Set default selected organization if none is selected and organizations are available
+  React.useEffect(() => {
+    if (!selectedOrganization && organizations.length > 0) {
+      setSelectedOrganization(organizations[0]);
+    }
+  }, [selectedOrganization, organizations, setSelectedOrganization]);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -267,15 +257,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="flex items-center gap-3 cursor-pointer hover:bg-accent/50 rounded-lg p-3 transition-all duration-200 group">
                     <div className="relative">
                       <img
-                        src={selectedOrganization.image}
-                        alt={selectedOrganization.name}
+                        src={selectedOrganization?.image || "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=32&h=32&fit=crop&crop=center"}
+                        alt={selectedOrganization?.name || "Organization"}
                         className="w-10 h-10 rounded-xl object-cover shadow-sm"
                       />
                       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="font-medium text-base text-foreground block truncate">
-                        {selectedOrganization.name}
+                        {selectedOrganization?.name || "No Organization"}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         Organization
@@ -289,19 +279,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="w-72 p-2 shadow-lg border-0 bg-background/95 backdrop-blur-sm"
                 >
                   <div className="space-y-1">
-                    {mockOrganizations.map((org) => (
+                    {organizations.map((org) => (
                       <DropdownMenuItem
                         key={org.id}
                         onClick={() => setSelectedOrganization(org)}
                         className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-0 ${
-                          selectedOrganization.id === org.id
+                          selectedOrganization?.id === org.id
                             ? "bg-primary/10 shadow-sm"
                             : "hover:bg-accent/50"
                         }`}
                       >
                         <div className="relative">
                           <img
-                            src={org.image}
+                            src={org.image || "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=32&h=32&fit=crop&crop=center"}
                             alt={org.name}
                             className="w-10 h-10 rounded-xl object-cover shadow-sm"
                           />
@@ -315,11 +305,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             Switch to this organization
                           </span>
                         </div>
-                        {selectedOrganization.id === org.id && (
+                        {selectedOrganization?.id === org.id && (
                           <div className="w-2 h-2 bg-primary rounded-full shadow-sm" />
                         )}
                       </DropdownMenuItem>
                     ))}
+                    <DropdownMenuSeparator className="my-2" />
+                    <DropdownMenuItem
+                      onClick={() => setShowCreateModal(true)}
+                      className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-0 hover:bg-accent/50"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Plus className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium text-sm text-foreground block truncate">
+                          Create Organization
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          Add a new organization
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -335,6 +342,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {user.data && <NavUser user={user.data} />}
         <ModeToggle />
       </SidebarFooter>
+      <CreateOrganizationModal
+        open={showCreateModal}
+        onOpenChange={setShowCreateModal}
+      />
     </Sidebar>
   );
 }

@@ -1,6 +1,7 @@
 import { Organization } from "@/core";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { useMemo } from "react";
 
 interface OrganizationStore {
   // State
@@ -136,16 +137,31 @@ export const useOrganizationError = () =>
   useOrganizationStore((state) => state.error);
 
 // Action hooks
-export const useOrganizationActions = () =>
-  useOrganizationStore((state) => ({
-    setOrganizations: state.setOrganizations,
-    addOrganization: state.addOrganization,
-    updateOrganization: state.updateOrganization,
-    removeOrganization: state.removeOrganization,
-    setSelectedOrganization: state.setSelectedOrganization,
-    setCurrentOrganizationId: state.setCurrentOrganizationId,
-    setLoading: state.setLoading,
-    setError: state.setError,
-    clearError: state.clearError,
-    reset: state.reset,
-  }));
+export const useOrganizationActions = () => {
+  const setOrganizations = useOrganizationStore((state) => state.setOrganizations);
+  const addOrganization = useOrganizationStore((state) => state.addOrganization);
+  const updateOrganization = useOrganizationStore((state) => state.updateOrganization);
+  const removeOrganization = useOrganizationStore((state) => state.removeOrganization);
+  const setSelectedOrganization = useOrganizationStore((state) => state.setSelectedOrganization);
+  const setCurrentOrganizationId = useOrganizationStore((state) => state.setCurrentOrganizationId);
+  const setLoading = useOrganizationStore((state) => state.setLoading);
+  const setError = useOrganizationStore((state) => state.setError);
+  const clearError = useOrganizationStore((state) => state.clearError);
+  const reset = useOrganizationStore((state) => state.reset);
+
+  return useMemo(
+    () => ({
+      setOrganizations,
+      addOrganization,
+      updateOrganization,
+      removeOrganization,
+      setSelectedOrganization,
+      setCurrentOrganizationId,
+      setLoading,
+      setError,
+      clearError,
+      reset,
+    }),
+    [setOrganizations, addOrganization, updateOrganization, removeOrganization, setSelectedOrganization, setCurrentOrganizationId, setLoading, setError, clearError, reset]
+  );
+};

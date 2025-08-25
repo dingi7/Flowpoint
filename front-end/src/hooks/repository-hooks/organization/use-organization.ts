@@ -33,6 +33,15 @@ export const useGetOrganizationById = (organizationId: string) => {
   });
 }
 
+export const useGetOrganizationsByIds = (organizationIds: string[]) => {
+  return useQuery({
+    queryKey: ["organizations", "getMany", organizationIds],
+    queryFn: async () => 
+      organizationRepository.getMany({ids: organizationIds}),
+    enabled: true,
+  });
+}
+
 export const useUpdateOrganization = () => {
   const queryClient = useQueryClient();
 

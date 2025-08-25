@@ -67,14 +67,11 @@ export function CreateOrganizationModal({
     setShowForm(true);
   };
 
-  const handleLogout = () => {
-    // TODO: Implement logout functionality
-    console.log("Logout clicked");
-  };
+
 
   return (
-    <Dialog open={open}>
-      <DialogContent className="sm:max-w-[500px]" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Create Your Organization</DialogTitle>
           <DialogDescription>
@@ -84,15 +81,10 @@ export function CreateOrganizationModal({
         </DialogHeader>
         {!showForm ? (
           <div className="flex flex-col gap-4 p-6">
-            <p className="text-sm text-muted-foreground">
-              You need to create an organization to continue using the application.
-            </p>
+            
             <div className="flex gap-3">
-              <Button onClick={handleCreateClick} className="flex-1">
+              <Button onClick={handleCreateClick} className="w-full">
                 Create Organization
-              </Button>
-              <Button variant="outline" onClick={handleLogout} className="flex-1">
-                Logout
               </Button>
             </div>
           </div>

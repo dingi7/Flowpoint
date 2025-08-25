@@ -29,7 +29,7 @@ export const getGenericRepository = <
       if (payload.ids.length <= 10) {
         return databaseService.getPaginated<TEntity>(
           getDatabaseCollection(payload),
-          [{ field: "id", operator: "in", value: payload.ids }],
+          [{ field: "__name__", operator: "in", value: payload.ids }],
           {},
         );
       }
