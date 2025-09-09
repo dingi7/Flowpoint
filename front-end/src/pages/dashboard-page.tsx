@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import {
   ArrowUpRight,
+  Building,
   Calendar,
   CheckCircle,
   Clock,
@@ -17,8 +18,41 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useOrganizations } from "@/stores";
+import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
+import * as React from "react";
 
 export default function DashboardPage() {
+  const organizations = useOrganizations();
+  const [showCreateModal, setShowCreateModal] = React.useState(false);
+
+  // If no organizations, show the no organizations message
+  if (organizations.length === 0) {
+    return (
+      <main className="flex-1 overflow-y-auto p-6">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-6">
+            <Building className="h-12 w-12 text-muted-foreground" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            No Organizations Found
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-md">
+            You don't have any organizations yet. Create your first organization to get started with managing your business.
+          </p>
+          <Button onClick={() => setShowCreateModal(true)} size="lg">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Organization
+          </Button>
+        </div>
+        <CreateOrganizationModal
+          open={showCreateModal}
+          onOpenChange={setShowCreateModal}
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="flex-1 overflow-y-auto p-6">
       {/* Welcome Section */}

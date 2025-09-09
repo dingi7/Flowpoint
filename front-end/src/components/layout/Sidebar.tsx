@@ -3,6 +3,7 @@
 import { useAuth, UserButton } from "@clerk/clerk-react";
 import {
   Bell,
+  Building,
   Calendar,
   ChevronDown,
   LayoutDashboard,
@@ -252,6 +253,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5 h-full w-fit"
             >
+              {organizations.length > 0 ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center gap-3 cursor-pointer hover:bg-accent/50 rounded-lg p-3 transition-all duration-200 group">
@@ -332,13 +334,56 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="flex items-center gap-3 cursor-pointer hover:bg-accent/50 rounded-lg p-3 transition-all duration-200 group">
+                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                        <Building className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium text-base text-foreground block truncate">
+                          No Organization
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          Create one to get started
+                        </span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="w-72 p-2 shadow-lg border-0 bg-background/95 backdrop-blur-sm"
+                  >
+                    <div className="space-y-1">
+                      <DropdownMenuItem
+                        onClick={() => setShowCreateModal(true)}
+                        className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-0 hover:bg-accent/50"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Plus className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium text-sm text-foreground block truncate">
+                            Create Organization
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Add a new organization
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NotificationsDropdown />
+        <NavMain items={organizations.length > 0 ? data.navMain : [data.navMain[0]]} />
+        {organizations.length > 0 && <NotificationsDropdown />}
       </SidebarContent>
       <SidebarFooter className="flex items-center justify-between flex-row">
         {user.data && <NavUser user={user.data} />}
