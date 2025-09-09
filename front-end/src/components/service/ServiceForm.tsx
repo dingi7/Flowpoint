@@ -17,6 +17,7 @@ import { useCreateService, useUpdateService } from "@/hooks";
 import { useServiceForm } from "@/hooks/forms/use-service-form";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
+import { useUserStore } from "@/stores";
 
 interface ServiceFormProps {
   service?: Service;
@@ -28,6 +29,8 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
   const createServiceMutation = useCreateService();
   const updateServiceMutation = useUpdateService();
   const currentOrganizationId = useCurrentOrganizationId();
+  const {user} = useUserStore()
+  
   const {
     register,
     handleSubmit,
@@ -41,6 +44,10 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
         if (!currentOrganizationId) {
           throw new Error("No organization selected");
         }
+        
+        if (!user) {
+          throw new Error("User not authenticated");
+        }
 
         if (service) {
           // Update existing service
@@ -49,6 +56,7 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
             data: {
               ...data,
               organizationId: currentOrganizationId,
+              ownerId: user.id,
             },
             organizationId: currentOrganizationId,
           });
@@ -58,6 +66,7 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
             data: {
               ...data,
               organizationId: currentOrganizationId,
+              ownerId: user.id,
             },
             organizationId: currentOrganizationId,
           });
@@ -70,6 +79,10 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
       }
     },
   });
+  
+  if (!user) {
+    return null;
+  }
 
   const ownerType = watch("ownerType");
 
