@@ -16,3 +16,6 @@ export { getAvailableTimeslots } from "./functions/availability/get-available-ti
 
 // <-- Appointment Booking -->
 export { bookAppointment } from "./functions/appointment/book-appointment";
+
+// <-- Organization Member Managment -->
+export { createOrganizationInvite } from "./functions/invite/create-organization-invite";

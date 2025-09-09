@@ -26,7 +26,7 @@ export const getGenericRepository = <
       if (payload.ids.length === 0) {
         return [];
       }
-      
+
       // Firestore 'in' operator supports up to 10 values
       if (payload.ids.length <= 10) {
         return databaseService.getAllByFields<TEntity>(
@@ -35,23 +35,23 @@ export const getGenericRepository = <
           {},
         );
       }
-      
+
       // For more than 10 IDs, split into chunks
       const chunks = [];
       for (let i = 0; i < payload.ids.length; i += 10) {
         chunks.push(payload.ids.slice(i, i + 10));
       }
-      
+
       const results = await Promise.all(
-        chunks.map(chunk =>
+        chunks.map((chunk) =>
           databaseService.getAllByFields<TEntity>(
             getDatabaseCollection(payload),
             [{ field: "id", operator: "in", value: chunk }],
             {},
-          )
-        )
+          ),
+        ),
       );
-      
+
       return results.flat();
     },
     async getAll(payload) {
