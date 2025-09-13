@@ -12,7 +12,7 @@ import { ServiceForm } from "@/components/service/ServiceForm";
 import { ServiceList } from "@/components/service/ServiceList";
 import { ServiceDetails } from "@/components/service/ServiceDetails";
 import { Service } from "@/core";
-import { Coins, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { useServices, useDeleteService } from "@/hooks/repository-hooks/service/use-service";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
@@ -92,7 +92,6 @@ export default function ServicesPage() {
       {/* Page Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Coins className="h-8 w-8 text-primary" />
           <h1 className="text-3xl font-bold font-sans">Services</h1>
         </div>
         <p className="text-muted-foreground text-lg">

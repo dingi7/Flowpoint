@@ -4,7 +4,7 @@ import { DAY_OF_WEEK } from "./calendar";
 import { CustomerFieldConfigSchema } from "./customer";
 
 export const OrganizationSettingsSchema = z.object({
-  timezone: z.string().default("UTC"),
+  timezone: z.string().min(1, "Timezone is required").default("UTC"),
   workingDays: z
     .array(z.nativeEnum(DAY_OF_WEEK))
     .default([
@@ -20,10 +20,10 @@ export const OrganizationSettingsSchema = z.object({
 });
 
 export const organizationDataSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1, "Organization name is required"),
   image: z.string().optional(),
   industry: z.string().optional(),
-  currency: z.string().default("EUR"),
+  currency: z.enum(["EUR", "USD", "GBP", "CAD", "AUD"]).default("EUR"),
   settings: OrganizationSettingsSchema,
 });
 

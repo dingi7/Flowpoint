@@ -15,6 +15,7 @@ import {
   Calendar,
   FileText
 } from "lucide-react";
+import { useUser } from "@/hooks";
 
 interface ServiceDetailsProps {
   service: Service;
@@ -63,6 +64,7 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
     };
   };
 
+  const serviceOwner = useUser(service.ownerId);
   const ownerInfo = getOwnerTypeInfo(service.ownerType);
   const OwnerIcon = ownerInfo.icon;
 
@@ -72,9 +74,6 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold font-sans">{service.name}</h2>
-          <p className="text-muted-foreground mt-1">
-            Service ID: {service.id}
-          </p>
         </div>
         <div className="flex gap-2">
           {onEdit && (
@@ -93,7 +92,7 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
       </div>
 
       {/* Service Information */}
-      <Card>
+      <Card className="border-none">
         <CardHeader>
           <CardTitle className="text-lg font-sans flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -144,14 +143,14 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
             </label>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant={ownerInfo.variant}>{ownerInfo.label}</Badge>
-              <span className="text-sm text-muted-foreground">ID: {service.ownerId}</span>
+              <span className="text-sm text-muted-foreground">{serviceOwner.data?.email}</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Metadata */}
-      <Card>
+      <Card className="border-none">
         <CardHeader>
           <CardTitle className="text-lg font-sans flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -171,10 +170,6 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
             </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">Organization ID</label>
-            <p className="text-base font-mono text-sm">{service.organizationId}</p>
-          </div>
         </CardContent>
       </Card>
 

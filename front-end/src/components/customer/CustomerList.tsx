@@ -203,7 +203,7 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
 
       {/* Customer Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="min-w-4xl">
+        <DialogContent className="min-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Customer Details</DialogTitle>
           </DialogHeader>

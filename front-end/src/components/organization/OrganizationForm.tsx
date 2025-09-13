@@ -72,7 +72,7 @@ export function OrganizationForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="image">Organization Logo</Label>
+        <Label htmlFor="image">Organization Logo (Optional)</Label>
         <div className="space-y-2">
           {currentImage && (
             <div className="flex items-center space-x-2">

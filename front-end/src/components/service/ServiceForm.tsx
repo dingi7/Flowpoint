@@ -89,7 +89,7 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}
-      <Card>
+      <Card className="border-none">
         <CardHeader>
           <CardTitle className="text-lg font-sans">Service Information</CardTitle>
         </CardHeader>

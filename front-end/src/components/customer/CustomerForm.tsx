@@ -65,7 +65,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}
-      <Card>
+      <Card className="border-none">
         <CardHeader>
           <CardTitle className="text-lg font-sans">Basic Information</CardTitle>
         </CardHeader>
@@ -117,7 +117,7 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       </Card>
 
       {/* Custom Fields */}
-      <Card>
+      <Card className="border-none">
         <CardHeader>
           <CardTitle className="text-lg font-sans">
             Additional Information

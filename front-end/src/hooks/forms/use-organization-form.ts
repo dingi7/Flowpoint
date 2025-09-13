@@ -34,7 +34,11 @@ export function useOrganizationForm({ organization, onSubmit }: UseOrganizationF
 
   const handleSubmit = form.handleSubmit(async (data: FieldValues) => {
     try {
-      await onSubmit(data as OrganizationData);
+      const { image, ...rest } = data as OrganizationData;
+      const sanitized = image && typeof image === "string" && image.trim() !== ""
+        ? ({ ...rest, image } as OrganizationData)
+        : (rest as OrganizationData);
+      await onSubmit(sanitized);
     } catch (error) {
       console.error("Form submission error:", error);
       // You can add toast notifications here if needed

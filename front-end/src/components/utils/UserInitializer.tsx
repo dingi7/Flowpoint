@@ -21,11 +21,8 @@ export function UserInitializer({ children }: { children: React.ReactNode }) {
   const organizationIds = userData?.organizationIds || [];
   
   // Fetch organizations using useGetOrganizationsByIds
-  console.log(organizationIds)
   const { data: organizations, isLoading: organizationsLoading, error: organizationsError } = useGetOrganizationsByIds(organizationIds);
   
-  console.log(userData)
-
   useEffect(() => {
     if (!isLoaded) {
       return;
