@@ -26,17 +26,18 @@ export function OrganizationForm({
   onCancel,
   isLoading = false,
 }: OrganizationFormProps) {
-  const { handleSubmit, register, setValue, watch, formState } = useOrganizationForm({
-    organization,
-    onSubmit,
-  });
+  const { handleSubmit, register, setValue, watch, formState } =
+    useOrganizationForm({
+      organization,
+      onSubmit,
+    });
 
-  const { 
-    isLoading: isUploading, 
-    uploadFile, 
-    url, 
-    error: uploadError, 
-    isComplete: isUploadComplete, 
+  const {
+    isLoading: isUploading,
+    uploadFile,
+    url,
+    error: uploadError,
+    isComplete: isUploadComplete,
   } = useOrganizationImageUpload();
 
   const currency = watch("currency");
@@ -67,7 +68,9 @@ export function OrganizationForm({
           disabled={isLoading}
         />
         {formState.errors.name && (
-          <p className="text-sm text-red-500">{formState.errors.name.message}</p>
+          <p className="text-sm text-red-500">
+            {formState.errors.name.message}
+          </p>
         )}
       </div>
 
@@ -76,9 +79,9 @@ export function OrganizationForm({
         <div className="space-y-2">
           {currentImage && (
             <div className="flex items-center space-x-2">
-              <img 
-                src={currentImage} 
-                alt="Organization logo" 
+              <img
+                src={currentImage}
+                alt="Organization logo"
                 className="w-16 h-16 object-cover rounded-md border"
               />
               <Button
@@ -103,7 +106,9 @@ export function OrganizationForm({
             <p className="text-sm text-blue-500">Uploading image...</p>
           )}
           {uploadError && (
-            <p className="text-sm text-red-500">Upload failed: {uploadError.message}</p>
+            <p className="text-sm text-red-500">
+              Upload failed: {uploadError.message}
+            </p>
           )}
         </div>
       </div>
@@ -117,7 +122,9 @@ export function OrganizationForm({
           disabled={isLoading}
         />
         {formState.errors.industry && (
-          <p className="text-sm text-red-500">{formState.errors.industry.message}</p>
+          <p className="text-sm text-red-500">
+            {formState.errors.industry.message}
+          </p>
         )}
       </div>
 
@@ -125,7 +132,9 @@ export function OrganizationForm({
         <Label htmlFor="currency">Currency</Label>
         <Select
           value={currency}
-          onValueChange={(value) => setValue("currency", value)}
+          onValueChange={(value) =>
+            setValue("currency", value as "EUR" | "USD" | "GBP" | "CAD" | "AUD")
+          }
           disabled={isLoading}
         >
           <SelectTrigger>
@@ -140,7 +149,9 @@ export function OrganizationForm({
           </SelectContent>
         </Select>
         {formState.errors.currency && (
-          <p className="text-sm text-red-500">{formState.errors.currency.message}</p>
+          <p className="text-sm text-red-500">
+            {formState.errors.currency.message}
+          </p>
         )}
       </div>
 
@@ -160,13 +171,17 @@ export function OrganizationForm({
             <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
             <SelectItem value="Europe/Berlin">Europe/Berlin</SelectItem>
             <SelectItem value="America/New_York">America/New_York</SelectItem>
-            <SelectItem value="America/Los_Angeles">America/Los_Angeles</SelectItem>
+            <SelectItem value="America/Los_Angeles">
+              America/Los_Angeles
+            </SelectItem>
             <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
             <SelectItem value="Australia/Sydney">Australia/Sydney</SelectItem>
           </SelectContent>
         </Select>
         {formState.errors.settings?.timezone && (
-          <p className="text-sm text-red-500">{formState.errors.settings.timezone.message}</p>
+          <p className="text-sm text-red-500">
+            {formState.errors.settings.timezone.message}
+          </p>
         )}
       </div>
 
@@ -176,13 +191,14 @@ export function OrganizationForm({
             type="button"
             variant="outline"
             onClick={onCancel}
-            disabled={isLoading}
+            disabled={isLoading || isUploading}
           >
             Cancel
           </Button>
         )}
-        <Button type="submit" disabled={isLoading || !formState.isValid}>
-          {isLoading ? "Saving..." : organization ? "Update" : "Create"} Organization
+        <Button type="submit" disabled={isLoading || !formState.isValid || isUploading}>
+          {isLoading ? "Saving..." : organization ? "Update" : "Create"}{" "}
+          Organization
         </Button>
       </div>
     </form>

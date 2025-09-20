@@ -1,4 +1,5 @@
-import { createOrganizationInviteFn } from "@/app/invite/create-organization-invite";
+import { createOrganizationFn } from "@/app/organization/create-organization";
+import { OrganizationSettingsData } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { CallableRequest, onCall } from "firebase-functions/https";
@@ -6,17 +7,20 @@ import { CallableRequest, onCall } from "firebase-functions/https";
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
 
-const inviteRepository = repositoryHost.getInviteRepository(databaseService);
+const organizationRepository =
+  repositoryHost.getOrganizationRepository(databaseService);
 const roleRepository = repositoryHost.getRoleRepository(databaseService);
 const memberRepository = repositoryHost.getMemberRepository(databaseService);
 
 interface Payload {
-  organizationId: string;
-  inviteeEmail: string;
-  inviteeRoleIds: string[];
+  name: string;
+  image?: string;
+  industry?: string;
+  currency: string;
+  settings: OrganizationSettingsData;
 }
 
-export const createOrganizationInvite = onCall<Payload>(
+export const createOrganization = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
@@ -28,30 +32,30 @@ export const createOrganizationInvite = onCall<Payload>(
 
     const { data } = request;
 
-    loggerService.info("Create invite request received", {
+    loggerService.info("Create organization request received", {
       data,
     });
 
     try {
-      const invite = await createOrganizationInviteFn(
-        { inviterId: request.auth.uid, ...data },
+      const organizationId = await createOrganizationFn(
+        { userId: request.auth.uid, organizationData: data },
         {
           loggerService,
-          inviteRepository,
+          organizationRepository,
           memberRepository,
           roleRepository,
         },
       );
 
-      loggerService.info("Invite created successfully", {
-        invite: invite,
+      loggerService.info("Organization created successfully", {
+        organizationId,
       });
 
-      return invite;
+      return organizationId;
     } catch (error) {
-      loggerService.error("Invite creation error", error);
+      loggerService.error("Organization creation error", error);
       throw new Error(
-        `Invite creation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Organization creation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   },

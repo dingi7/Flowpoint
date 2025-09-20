@@ -1,7 +1,7 @@
 {
   "name": "functions",
   "scripts": {
-    "build": "rm -rf ./lib && tsc --project ./tsconfig.json",
+    "build": "rm -rf ./lib && tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
     "build:watch": "rm -rf ./lib && tsc --project ./tsconfig.json --watch",
     "serve": "yarn run build && firebase emulators:start --only functions",
     "shell": "yarn run build && firebase functions:shell",
@@ -21,7 +21,7 @@
     "@clerk/backend": "^2.4.0",
     "@google-cloud/pubsub": "^5.1.0",
     "firebase-admin": "^13.4.0",
-    "firebase-functions": "^6.3.2",
+    "firebase-functions": "^6.4.0",
     "jest": "^30.0.5",
     "prettier": "^3.6.2",
     "svix": "^1.68.0",
@@ -38,6 +38,7 @@
     "eslint-plugin-jsdoc": "^51.4.1",
     "firebase-functions-test": "^3.4.1",
     "prettier-plugin-organize-imports": "^4.1.0",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3"
   },
   "private": true

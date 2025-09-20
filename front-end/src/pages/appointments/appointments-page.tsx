@@ -1,5 +1,3 @@
-"use client";
-
 import { AppointmentForm } from "@/components/appointment/AppointmentForm";
 import { AppointmentList } from "@/components/appointment/AppointmentList";
 import { Button } from "@/components/ui/button";

@@ -6,23 +6,8 @@ const databaseService = serviceHost.getDatabaseService();
 
 const organizationRepository = repositoryHost.getOrganizationRepository(databaseService);
 
-type CreateOrganizationParams = Parameters<typeof organizationRepository.create>[0];
 type UpdateOrganizationParams = Parameters<typeof organizationRepository.update>[0];
 type DeleteOrganizationParams = Parameters<typeof organizationRepository.delete>[0];
-
-export const useCreateOrganization = () => {
-    const queryClient = useQueryClient();
-  
-  return useMutation<string, Error, CreateOrganizationParams>({
-    mutationKey: ["organization", "create"],
-    mutationFn: async (params: CreateOrganizationParams) => {
-      return organizationRepository.create(params);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["organizations", "get"] });
-    },
-  });
-}
 
 export const useGetOrganizationById = (organizationId: string) => {
   return useQuery({

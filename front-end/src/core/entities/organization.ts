@@ -19,6 +19,8 @@ export const OrganizationSettingsSchema = z.object({
   customerFields: z.array(CustomerFieldConfigSchema).default([]),
 });
 
+export type OrganizationSettingsData = z.infer<typeof OrganizationSettingsSchema>;
+
 export const organizationDataSchema = z.object({
   name: z.string().min(1, "Organization name is required"),
   image: z.string().optional(),

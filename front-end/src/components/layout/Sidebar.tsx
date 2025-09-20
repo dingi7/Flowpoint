@@ -6,9 +6,10 @@ import {
   Building,
   Calendar,
   ChevronDown,
+  Code,
   LayoutDashboard,
-  Plus,
-  Users,
+  Plus, UserRound,
+  Users
 } from "lucide-react";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -47,11 +48,6 @@ import { CreateOrganizationModal } from "@/components/organization/CreateOrganiz
 import { useEffect } from "react";
 
 const data = {
-  user: {
-    name: "Trading User",
-    email: "user@starting-point.app",
-    avatar: "/avatars/admin.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -59,9 +55,14 @@ const data = {
       icon: LayoutDashboard,
     },
     {
+      title: "Team",
+      url: "/team",
+      icon: Users,
+    },
+    {
       title: "Customers",
       url: "/customers",
-      icon: Users,
+      icon: UserRound,
     },
     {
       title: "Appointments",
@@ -71,7 +72,7 @@ const data = {
     {
       title: "Services",
       url: "/services",
-      icon: Users,
+      icon:  Code,
     },
   ],
   notifications: [

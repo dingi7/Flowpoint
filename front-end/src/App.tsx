@@ -17,6 +17,7 @@ import DashboardPage from "./pages/dashboard-page";
 import ServicesPage from "./pages/services/services-page";
 import { FirebaseTokenProvider } from "./utils/firebase-token-provider";
 import UserInitializer from "./components/utils/UserInitializer";
+import TeamPage from "./pages/team/team-page";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,16 @@ function AppContent() {
                 <SignedIn>
                   <AppLayout>
                     <CustomersPage />
+                  </AppLayout>
+                </SignedIn>
+              }
+            />
+            <Route
+              path="/team"
+              element={
+                <SignedIn>
+                  <AppLayout>
+                    <TeamPage />
                   </AppLayout>
                 </SignedIn>
               }

@@ -1,4 +1,4 @@
-import { createOrganizationInviteFn } from "@/app/invite/create-organization-invite";
+import { acceptOrganizationInviteFn } from "@/app/invite/accept-organization-invite";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { CallableRequest, onCall } from "firebase-functions/https";
@@ -7,16 +7,17 @@ const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
 
 const inviteRepository = repositoryHost.getInviteRepository(databaseService);
-const roleRepository = repositoryHost.getRoleRepository(databaseService);
+const userRepository = repositoryHost.getUserRepository(databaseService);
 const memberRepository = repositoryHost.getMemberRepository(databaseService);
 
 interface Payload {
-  organizationId: string;
-  inviteeEmail: string;
-  inviteeRoleIds: string[];
+  inviteId: string;
+  name: string;
+  image?: string;
+  description?: string;
 }
 
-export const createOrganizationInvite = onCall<Payload>(
+export const acceptOrganizationInvite = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
@@ -28,30 +29,26 @@ export const createOrganizationInvite = onCall<Payload>(
 
     const { data } = request;
 
-    loggerService.info("Create invite request received", {
+    loggerService.info("Accept invite request received", {
       data,
     });
 
     try {
-      const invite = await createOrganizationInviteFn(
-        { inviterId: request.auth.uid, ...data },
+      await acceptOrganizationInviteFn(
+        { userId: request.auth.uid, ...data },
         {
           loggerService,
           inviteRepository,
           memberRepository,
-          roleRepository,
+          userRepository,
         },
       );
 
-      loggerService.info("Invite created successfully", {
-        invite: invite,
-      });
-
-      return invite;
+      return;
     } catch (error) {
-      loggerService.error("Invite creation error", error);
+      loggerService.error("Invite accept error", error);
       throw new Error(
-        `Invite creation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Invite accept failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   },
