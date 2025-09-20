@@ -64,9 +64,9 @@ export default function ServicesPage() {
       Math.round((allServices.reduce((sum: number, service: any) => sum + (service.price || 0), 0) / allServices.length)) : 0,
   };
 
-  const handleAddService = () => {
-    setIsAddDialogOpen(true);
-  };
+  // const handleAddService = () => {
+  //   setIsAddDialogOpen(true);
+  // };
 
   const handleEditService = (service: Service) => {
     setSelectedService(service);

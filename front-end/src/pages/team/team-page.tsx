@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMembers, useCreateMember } from "@/hooks/repository-hooks/member/use-member";
+import { useMembers } from "@/hooks/repository-hooks/member/use-member";
 import { useRoles, useCreateRole } from "@/hooks/repository-hooks/role/use-role";
 import {
   Plus,
@@ -36,7 +36,7 @@ export default function TeamPage() {
     orderBy: { field: "updatedAt", direction: "desc" },
   });
 
-  const { mutateAsync: createMember, isPending: isCreatingMember } = useCreateMember();
+
   const { mutateAsync: createRole, isPending: isCreatingRole } = useCreateRole();
 
   const { data: rolesData } = useRoles({
@@ -79,23 +79,16 @@ export default function TeamPage() {
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <Plus className="h-4 w-4" />
-                Add Member
+                Invite Member
               </Button>
             </DialogTrigger>
             <DialogContent className="min-w-2xl">
               <DialogHeader>
-                <DialogTitle>Add New Member</DialogTitle>
+                <DialogTitle>Invite New Member</DialogTitle>
               </DialogHeader>
               <MemberForm
-                onSubmit={async (data) => {
-                  await createMember({
-                    data,
-                    organizationId: data.organizationId,
-                  });
-                  setIsAddMemberOpen(false);
-                }}
+                onSuccess={() => setIsAddMemberOpen(false)}
                 onCancel={() => setIsAddMemberOpen(false)}
-                isLoading={isCreatingMember}
               />
             </DialogContent>
           </Dialog>

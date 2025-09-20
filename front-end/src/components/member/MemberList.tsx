@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { useMembers, useUpdateMember } from "@/hooks/repository-hooks/member/use-member";
 import { useRoles } from "@/hooks/repository-hooks/role/use-role";
+import { useUser } from "@/stores/user-store";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -39,7 +40,7 @@ import {
   Users,
 } from "lucide-react";
 import { MemberDetails } from "./MemberDetails";
-import { MemberForm } from "./MemberForm";
+import { MemberEditForm } from "./MemberEditForm";
 
 interface MemberListProps {
   searchQuery: string;
@@ -47,6 +48,7 @@ interface MemberListProps {
 
 export function MemberList({ searchQuery }: MemberListProps) {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const currentUser = useUser();
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -105,7 +107,8 @@ export function MemberList({ searchQuery }: MemberListProps) {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="font-sans">
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
             Members ({filteredMembers.length})
           </CardTitle>
         </CardHeader>
@@ -140,7 +143,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
                         <p className="font-medium">{member.name}</p>
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          Team Member
+                          Team Member{member.id === currentUser?.id && " (You)"}
                         </p>
                       </div>
                     </div>
@@ -231,13 +234,13 @@ export function MemberList({ searchQuery }: MemberListProps) {
             <DialogTitle>Edit Member</DialogTitle>
           </DialogHeader>
           {editingMember && (
-            <MemberForm
+            <MemberEditForm
               member={editingMember}
               onSubmit={async (data) => {
                 await updateMember({
                   id: editingMember.id,
                   data,
-                  organizationId: data.organizationId,
+                  organizationId: editingMember.organizationId,
                 });
                 setIsEditOpen(false);
               }}
