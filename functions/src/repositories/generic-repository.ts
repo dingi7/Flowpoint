@@ -31,7 +31,7 @@ export const getGenericRepository = <
       if (payload.ids.length <= 10) {
         return databaseService.getAllByFields<TEntity>(
           getDatabaseCollection(payload),
-          [{ field: "id", operator: "in", value: payload.ids }],
+          [{ field: "__name__", operator: "in", value: payload.ids }],
           {},
         );
       }
@@ -46,7 +46,7 @@ export const getGenericRepository = <
         chunks.map((chunk) =>
           databaseService.getAllByFields<TEntity>(
             getDatabaseCollection(payload),
-            [{ field: "id", operator: "in", value: chunk }],
+            [{ field: "__name__", operator: "in", value: chunk }],
             {},
           ),
         ),

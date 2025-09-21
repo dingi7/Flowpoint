@@ -70,6 +70,8 @@ export async function acceptOrganizationInviteFn(
     throw new Error("Invite email does not match user email");
   }
 
+  await userRepository.update({id: userId, data: {organizationIds: [invite.organizationId, ...user.organizationIds]}})
+
   await memberRepository.set({
     organizationId: invite.organizationId,
     id: userId,

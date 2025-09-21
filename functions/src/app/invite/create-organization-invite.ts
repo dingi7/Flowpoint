@@ -43,9 +43,22 @@ export async function createOrganizationInviteFn(
   loggerService.info("Inviter found", { inviter });
 
   // 2. Check if the inviter has the necessary roles
+  loggerService.info("About to query roles", { 
+    organizationId, 
+    inviterRoleIds: inviter.roleIds,
+    roleIdsType: typeof inviter.roleIds,
+    roleIdsLength: inviter.roleIds?.length 
+  });
+
   const inviterRoles = await roleRepository.getMany({
     organizationId,
     ids: inviter.roleIds,
+  });
+
+  loggerService.info("Inviter roles query result", { 
+    inviterRoles,
+    rolesCount: inviterRoles.length,
+    queryParams: { organizationId, ids: inviter.roleIds }
   });
 
   if (inviterRoles.length === 0) {

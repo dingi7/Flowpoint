@@ -5,6 +5,7 @@ export * from "./repository-hooks/member/use-member";
 export * from "./repository-hooks/organization/use-organization";
 export * from "./repository-hooks/service/use-service";
 export * from "./repository-hooks/role/use-role";
+export * from "./repository-hooks/invite/use-invite";
 
 // Form hooks
 export * from "./forms/use-member-form";
@@ -12,4 +13,5 @@ export * from "./forms/use-service-form";
 
 // Service hooks
 export * from "./service-hooks/auth/use-auth";
+export * from "./service-hooks/invite/use-accept-invite";
 

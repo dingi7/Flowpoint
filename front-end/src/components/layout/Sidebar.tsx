@@ -14,7 +14,6 @@ import {
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +26,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sidebar,
   SidebarContent,
@@ -45,6 +43,7 @@ import { useUser } from "@/hooks";
 import { ModeToggle } from "../ui/mode-toggle";
 import { useOrganizations, useSelectedOrganization, useOrganizationActions } from "@/stores";
 import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
+import { InvitationNotifications } from "@/components/invitation/InvitationNotifications";
 import { useEffect } from "react";
 
 const data = {
@@ -132,8 +131,6 @@ function NavMain({ items }: { items: typeof data.navMain }) {
 }
 
 function NotificationsDropdown() {
-  const unreadCount = data.notifications.filter((n) => !n.read).length;
-
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Notifications</SidebarGroupLabel>
@@ -144,52 +141,17 @@ function NotificationsDropdown() {
               <PopoverTrigger asChild>
                 <SidebarMenuButton className="relative">
                   <Bell className="h-4 w-4" />
-                  <span>Notifications</span>
-                  {unreadCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute top-1.5 right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-                    >
-                      {unreadCount}
-                    </Badge>
-                  )}
+                  <span>Invitations</span>
                 </SidebarMenuButton>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-0" side="right" align="start">
+              <PopoverContent className="w-100 p-0" side="right" align="start">
                 <div className="p-4 border-b">
-                  <h4 className="font-semibold">Notifications</h4>
+                  <h4 className="font-semibold">Organization Invitations</h4>
                   <p className="text-sm text-muted-foreground">
-                    You have {unreadCount} unread notifications
+                    Manage your organization invitations
                   </p>
                 </div>
-                <ScrollArea className="h-80">
-                  <div className="p-2">
-                    {data.notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-3 rounded-lg mb-2 border transition-colors hover:bg-accent ${!notification.read ? "bg-muted/50" : ""
-                          }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h5 className="font-medium text-sm">
-                              {notification.title}
-                            </h5>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-2">
-                              {notification.time}
-                            </p>
-                          </div>
-                          {!notification.read && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-1 ml-2" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
+                <InvitationNotifications />
               </PopoverContent>
             </Popover>
           </SidebarMenuItem>
