@@ -1,11 +1,14 @@
 import { addDays } from 'date-fns';
 import {
+  CalendarRepository,
   InviteRepository,
   InviteStatus,
   LoggerService,
   MemberRepository,
+  OrganizationRepository,
   UserRepository,
 } from "@/core";
+import { createMemberFn } from "../member/create-member";
 
 interface Payload {
   inviteId: string;
@@ -20,6 +23,8 @@ interface Dependencies {
   inviteRepository: InviteRepository;
   memberRepository: MemberRepository;
   userRepository: UserRepository;
+  calendarRepository: CalendarRepository;
+  organizationRepository: OrganizationRepository;
 }
 
 export async function acceptOrganizationInviteFn(
@@ -27,7 +32,7 @@ export async function acceptOrganizationInviteFn(
   dependencies: Dependencies,
 ) {
   const { inviteId, userId, image, description, name } = payload;
-  const { loggerService, inviteRepository, memberRepository, userRepository } =
+  const { loggerService, inviteRepository, memberRepository, userRepository, calendarRepository, organizationRepository } =
     dependencies;
 
   // 1. Check if the invite exists
@@ -76,19 +81,24 @@ export async function acceptOrganizationInviteFn(
     throw new Error("Invite email does not match user email");
   }
 
-  await userRepository.update({id: userId, data: {organizationIds: [invite.organizationId, ...user.organizationIds]}})
-
-  await memberRepository.set({
-    organizationId: invite.organizationId,
-    id: userId,
-    data: {
+  // Use the centralized createMember function
+  await createMemberFn(
+    {
+      userId,
       organizationId: invite.organizationId,
-      roleIds: invite.roleIds,
       name,
+      roleIds: invite.roleIds,
       image,
       description,
     },
-  });
+    {
+      memberRepository,
+      userRepository,
+      calendarRepository,
+      loggerService,
+      organizationRepository,
+    }
+  );
 
   // 5. Update the invite status
   await inviteRepository.update({

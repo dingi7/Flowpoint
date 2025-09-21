@@ -11,6 +11,8 @@ const organizationRepository =
   repositoryHost.getOrganizationRepository(databaseService);
 const roleRepository = repositoryHost.getRoleRepository(databaseService);
 const memberRepository = repositoryHost.getMemberRepository(databaseService);
+const userRepository = repositoryHost.getUserRepository(databaseService);
+const calendarRepository = repositoryHost.getCalendarRepository(databaseService);
 
 interface Payload {
   name: string;
@@ -44,6 +46,8 @@ export const createOrganization = onCall<Payload>(
           organizationRepository,
           memberRepository,
           roleRepository,
+          userRepository,
+          calendarRepository,
         },
       );
 

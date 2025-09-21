@@ -14,6 +14,10 @@ export const OrganizationSettingsSchema = z.object({
       DAY_OF_WEEK.THURSDAY,
       DAY_OF_WEEK.FRIDAY,
     ]),
+  workingHours: z.object({
+    start: z.string().default("09:00"),
+    end: z.string().default("18:00"),
+  }),
   defaultBufferTime: z.number().int().min(0).default(0), // minutes
   appointmentCancellationPolicyHours: z.number().int().min(0).default(24),
   customerFields: z.array(CustomerFieldConfigSchema).default([]),

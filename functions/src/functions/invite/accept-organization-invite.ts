@@ -9,6 +9,8 @@ const loggerService = serviceHost.getLoggerService();
 const inviteRepository = repositoryHost.getInviteRepository(databaseService);
 const userRepository = repositoryHost.getUserRepository(databaseService);
 const memberRepository = repositoryHost.getMemberRepository(databaseService);
+const calendarRepository = repositoryHost.getCalendarRepository(databaseService);
+const organizationRepository = repositoryHost.getOrganizationRepository(databaseService);
 
 interface Payload {
   inviteId: string;
@@ -41,6 +43,8 @@ export const acceptOrganizationInvite = onCall<Payload>(
           inviteRepository,
           memberRepository,
           userRepository,
+          calendarRepository,
+          organizationRepository,
         },
       );
 

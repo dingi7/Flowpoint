@@ -1,11 +1,14 @@
 import {
+    CalendarRepository,
     LoggerService,
     MemberRepository,
     OrganizationRepository,
     OrganizationSettingsData,
     PermissionKey,
     RoleRepository,
+    UserRepository,
 } from "../../core";
+import { createMemberFn } from "../member/create-member";
 
 interface Payload {
   organizationData: {
@@ -22,6 +25,8 @@ interface Dependencies {
   organizationRepository: OrganizationRepository;
   memberRepository: MemberRepository;
   roleRepository: RoleRepository;
+  userRepository: UserRepository;
+  calendarRepository: CalendarRepository;
   loggerService: LoggerService; 
 }
 
@@ -30,8 +35,14 @@ export async function createOrganizationFn(
   dependencies: Dependencies,
 ) {
   const { organizationData, userId } = payload;
-  const { organizationRepository, memberRepository, roleRepository, loggerService } =
-    dependencies;
+  const { 
+    organizationRepository, 
+    memberRepository, 
+    roleRepository, 
+    userRepository,
+    calendarRepository,
+    loggerService 
+  } = dependencies;
 
   const organizationId = await organizationRepository.create({
     data: organizationData,
@@ -55,17 +66,23 @@ export async function createOrganizationFn(
 
   loggerService.info(`Created role ${fullAccessRoleId}`);
 
-  await memberRepository.set({
-    organizationId,
-    id: userId,
-    data: {
+  // Use the centralized createMember function
+  await createMemberFn(
+    {
+      userId,
       organizationId,
-      roleIds: [fullAccessRoleId],
       name: `${organizationData.name} Owner`,
+      roleIds: [fullAccessRoleId],
+      timezone: organizationData.settings.timezone,
     },
-  });
-
-  loggerService.info(`Created member ${userId} for organization ${organizationId}`);
+    {
+      memberRepository,
+      userRepository,
+      calendarRepository,
+      loggerService,
+      organizationRepository
+    }
+  );
 
   return organizationId
 }
