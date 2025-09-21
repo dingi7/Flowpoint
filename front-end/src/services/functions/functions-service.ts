@@ -11,16 +11,14 @@ export const functionsService: FunctionsService = {
         organizationId: string;
       },
       {
-        timeslots: {
-          start: string;
-          end: string;
-        }[];
-      }
+        start: string;
+        end: string;
+      }[]
     >(
       firebase.functions,
       "getAvailableTimeslots",
     )(payload);
-    return result.data;
+    return { result: result.data };
   },
   async createOrganizationInvite(payload) {
     const result = await httpsCallable<

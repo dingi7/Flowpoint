@@ -3,10 +3,10 @@ import {
   DAY_OF_WEEK,
   LoggerService,
   MemberRepository,
+  OrganizationRepository,
   OWNER_TYPE,
   UserRepository,
 } from "@/core";
-import { OrganizationRepository } from "../../../../front-end/src/core/ports/repositories/organization-repository";
 
 interface CreateMemberPayload {
   userId: string;
@@ -89,8 +89,8 @@ export async function createMemberFn(
       organizationId,
       roleIds,
       name,
-      image,
-      description,
+      image: image || "",
+      description: description || "",
     },
   });
 

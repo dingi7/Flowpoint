@@ -7,7 +7,7 @@ import {
     PermissionKey,
     RoleRepository,
     UserRepository,
-} from "../../core";
+} from "@/core";
 import { createMemberFn } from "../member/create-member";
 
 interface Payload {

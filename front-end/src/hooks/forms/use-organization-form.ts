@@ -17,6 +17,10 @@ export function useOrganizationForm({ organization, onSubmit }: UseOrganizationF
       currency: organization?.currency || "EUR",
       settings: {
         timezone: organization?.settings?.timezone || "UTC",
+        workingHours: organization?.settings?.workingHours || {
+          start: "09:00",
+          end: "17:00",
+        },
         workingDays: organization?.settings?.workingDays || [
           DAY_OF_WEEK.MONDAY,
           DAY_OF_WEEK.TUESDAY, 

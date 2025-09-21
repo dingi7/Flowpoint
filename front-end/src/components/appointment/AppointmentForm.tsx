@@ -161,7 +161,7 @@ export function AppointmentForm({
   });
 
   // Convert timeslots to time strings for the dropdown
-  const timeSlots = timeslotsData?.timeslots?.map((slot) => {
+  const timeSlots = timeslotsData?.result?.map((slot) => {
     const startTime = new Date(slot.start);
     return startTime.toLocaleTimeString("en-US", {
       hour12: false,

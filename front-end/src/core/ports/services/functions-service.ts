@@ -11,7 +11,7 @@ export interface FunctionsService {
     date: string;
     organizationId: string;
   }): Promise<{
-    timeslots: {
+    result: {
       start: string;
       end: string;
     }[];

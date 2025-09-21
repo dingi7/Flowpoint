@@ -14,7 +14,7 @@ interface Timeslot {
 }
 
 interface AvailableTimeslotsResponse {
-  timeslots: Timeslot[];
+  result: Timeslot[];
 }
 
 export function useAvailableTimeslots({

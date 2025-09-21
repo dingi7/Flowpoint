@@ -63,6 +63,7 @@ export function OrganizationForm({
     // Clear the input value to allow re-uploading the same file
     event.target.value = '';
   };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
