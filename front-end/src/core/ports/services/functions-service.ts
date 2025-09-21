@@ -6,10 +6,21 @@ export interface DeleteResponse {
 }
 
 export interface FunctionsService {
+  getAvailableTimeslots(payload: {
+    serviceId: string;
+    date: string;
+    organizationId: string;
+  }): Promise<{
+    timeslots: {
+      start: string;
+      end: string;
+    }[];
+  }>;
   createOrganizationInvite(payload: {
     organizationId: string;
     inviteeEmail: string;
     inviteeRoleIds: string[];
+    validFor?: number;
   }): Promise<string>;
   acceptOrganizationInvite(payload: {
     inviteId: string;

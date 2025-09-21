@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Customer } from "@/core";
 import { useCreateCustomer, useUpdateCustomer } from "@/hooks";
-import { useCustomerForm } from "@/hooks/forms/use-customer-form";
+import { useCustomerForm } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
 

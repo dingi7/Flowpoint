@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Role, RoleData, PermissionKey } from "@/core";
-import { useRoleForm } from "@/hooks/forms/use-role-form";
+import { useRoleForm } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 
 interface RoleFormProps {
@@ -21,7 +21,7 @@ export function RoleForm({
 }: RoleFormProps) {
   const currentOrganizationId = useCurrentOrganizationId();
 
-  const { handleSubmit, register, setValue, watch, formState } = useRoleForm({
+  const { handleSubmit, register, setValue, watch, formState, touchedFields } = useRoleForm({
     role,
     onSubmit: async (data: RoleData) => {
       if (!currentOrganizationId) {
@@ -66,7 +66,7 @@ export function RoleForm({
           {...register("name")}
           disabled={isLoading}
         />
-        {formState.errors.name && (
+        {formState.errors.name && touchedFields.name && (
           <p className="text-sm text-red-500">
             {formState.errors.name.message}
           </p>

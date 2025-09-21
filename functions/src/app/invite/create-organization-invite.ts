@@ -1,4 +1,5 @@
 import {
+  InviteData,
   InviteRepository,
   InviteStatus,
   LoggerService,
@@ -12,6 +13,7 @@ interface Payload {
   organizationId: string;
   inviteeEmail: string;
   inviteeRoleIds: string[];
+  validFor?: number;
 }
 
 interface Dependencies {
@@ -25,7 +27,8 @@ export async function createOrganizationInviteFn(
   payload: Payload,
   dependencies: Dependencies,
 ) {
-  const { inviterId, organizationId, inviteeEmail, inviteeRoleIds } = payload;
+  const { inviterId, organizationId, inviteeEmail, inviteeRoleIds, validFor } =
+    payload;
   const { loggerService, inviteRepository, memberRepository, roleRepository } =
     dependencies;
 
@@ -43,11 +46,11 @@ export async function createOrganizationInviteFn(
   loggerService.info("Inviter found", { inviter });
 
   // 2. Check if the inviter has the necessary roles
-  loggerService.info("About to query roles", { 
-    organizationId, 
+  loggerService.info("About to query roles", {
+    organizationId,
     inviterRoleIds: inviter.roleIds,
     roleIdsType: typeof inviter.roleIds,
-    roleIdsLength: inviter.roleIds?.length 
+    roleIdsLength: inviter.roleIds?.length,
   });
 
   const inviterRoles = await roleRepository.getMany({
@@ -55,10 +58,10 @@ export async function createOrganizationInviteFn(
     ids: inviter.roleIds,
   });
 
-  loggerService.info("Inviter roles query result", { 
+  loggerService.info("Inviter roles query result", {
     inviterRoles,
     rolesCount: inviterRoles.length,
-    queryParams: { organizationId, ids: inviter.roleIds }
+    queryParams: { organizationId, ids: inviter.roleIds },
   });
 
   if (inviterRoles.length === 0) {
@@ -115,15 +118,21 @@ export async function createOrganizationInviteFn(
 
   loggerService.info("Invitee roles found", { inviteeRoles });
 
+  const inviteData: InviteData = {
+    inviterId,
+    organizationId,
+    inviteeEmail,
+    roleIds: inviteeRoleIds,
+    status: InviteStatus.PENDING,
+  };
+
+  if (validFor) {
+    inviteData.validFor = validFor;
+  }
+
   // 6. Create the invite
   const invite = await inviteRepository.create({
-    data: {
-      inviterId,
-      organizationId,
-      inviteeEmail,
-      roleIds: inviteeRoleIds,
-      status: InviteStatus.PENDING,
-    },
+    data: inviteData,
   });
 
   loggerService.info("Invite created", { invite });

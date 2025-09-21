@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Organization, OrganizationData } from "@/core";
-import { useOrganizationForm } from "@/hooks/forms/use-organization-form";
+import { useOrganizationForm } from "@/hooks";
 import { useOrganizationImageUpload } from "@/hooks/service-hooks/media/use-organization-image-upload";
 import { useEffect } from "react";
 import { Loader2, Upload, X } from "lucide-react";

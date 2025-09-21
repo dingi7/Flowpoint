@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Service, OWNER_TYPE } from "@/core";
 import { useCreateService, useUpdateService } from "@/hooks";
-import { useServiceForm } from "@/hooks/forms/use-service-form";
+import { useServiceForm } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
 import { useUserStore } from "@/stores";

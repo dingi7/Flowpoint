@@ -23,6 +23,7 @@ export const getAvailableTimeslots = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
+    // minInstances: 1,
   },
   async (request) => {
     loggerService.info("getAvalibleTimeslots request");

@@ -3,6 +3,25 @@ import { firebase } from "@/infrastructure/firebase";
 import { httpsCallable } from "@firebase/functions";
 
 export const functionsService: FunctionsService = {
+  async getAvailableTimeslots(payload) {
+    const result = await httpsCallable<
+      {
+        serviceId: string;
+        date: string;
+        organizationId: string;
+      },
+      {
+        timeslots: {
+          start: string;
+          end: string;
+        }[];
+      }
+    >(
+      firebase.functions,
+      "getAvailableTimeslots",
+    )(payload);
+    return result.data;
+  },
   async createOrganizationInvite(payload) {
     const result = await httpsCallable<
       {

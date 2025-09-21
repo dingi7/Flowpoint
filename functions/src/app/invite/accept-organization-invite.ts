@@ -1,3 +1,4 @@
+import { addDays } from 'date-fns';
 import {
   InviteRepository,
   InviteStatus,
@@ -41,6 +42,11 @@ export async function acceptOrganizationInviteFn(
   if (invite.status !== InviteStatus.PENDING) {
     loggerService.info("Invite is not pending", { invite });
     throw new Error("Invite is not pending");
+  }
+
+  if (invite.validFor && addDays(invite.createdAt, invite.validFor) < new Date()) {
+    loggerService.info("Invite has expired", { invite });
+    throw new Error("Invite has expired");
   }
 
   // 3. Check if the user is already a member

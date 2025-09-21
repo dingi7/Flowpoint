@@ -3,20 +3,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRoles } from "@/hooks";
+import { useInviteForm, InviteFormData } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { serviceHost } from "@/services";
-
-const inviteFormSchema = z.object({
-  inviteeEmail: z.string().email("Please enter a valid email address"),
-  inviteeRoleIds: z.array(z.string()).min(1, "Please select at least one role"),
-});
-
-type InviteFormData = z.infer<typeof inviteFormSchema>;
 
 interface MemberFormProps {
   onSuccess?: () => void;
@@ -33,54 +24,40 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
     orderBy: { field: "name", direction: "asc" },
   });
 
-  const { handleSubmit, register, setValue, watch, formState } =
-    useForm<InviteFormData>({
-      resolver: zodResolver(inviteFormSchema),
-      defaultValues: {
-        inviteeEmail: "",
-        inviteeRoleIds: [],
-      },
-      mode: "onChange",
-    });
-
-  const selectedRoleIds = watch("inviteeRoleIds") || [];
-
-  const onSubmit = async (data: InviteFormData) => {
-    if (!currentOrganizationId) {
-      throw new Error("No organization selected");
-    }
-
-    setIsSubmitting(true);
-    try {
-      await functionsService.createOrganizationInvite({
-        organizationId: currentOrganizationId,
-        ...data,
-      });
-
-      if (onSuccess) {
-        onSuccess();
+  const {
+    handleSubmit,
+    register,
+    handleRoleToggle,
+    isValid,
+    errors,
+    touchedFields,
+    selectedRoleIds,
+  } = useInviteForm({
+    onSubmit: async (data: InviteFormData) => {
+      if (!currentOrganizationId) {
+        throw new Error("No organization selected");
       }
-    } catch (error) {
-      console.error("Failed to create invite:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
-  const handleRoleToggle = (roleId: string, checked: boolean) => {
-    const currentRoles = selectedRoleIds;
-    if (checked) {
-      setValue("inviteeRoleIds", [...currentRoles, roleId]);
-    } else {
-      setValue(
-        "inviteeRoleIds",
-        currentRoles.filter((id) => id !== roleId),
-      );
-    }
-  };
+      setIsSubmitting(true);
+      try {
+        await functionsService.createOrganizationInvite({
+          organizationId: currentOrganizationId,
+          ...data, // TODO: add valid for
+        });
+
+        if (onSuccess) {
+          onSuccess();
+        }
+      } catch (error) {
+        console.error("Failed to create invite:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="inviteeEmail">Email Address</Label>
         <Input
@@ -90,9 +67,25 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
           {...register("inviteeEmail")}
           disabled={isSubmitting}
         />
-        {formState.errors.inviteeEmail && (
+        {errors.inviteeEmail && touchedFields.inviteeEmail && (
           <p className="text-sm text-red-500">
-            {formState.errors.inviteeEmail.message}
+            {errors.inviteeEmail.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="validFor">Valid For (days)</Label>
+        <Input
+          id="validFor"
+          type="number"
+          placeholder="Enter valid for days"
+          {...register("validFor", { valueAsNumber: true })}
+          disabled={isSubmitting}
+        />
+        {errors.validFor && touchedFields.validFor && (
+          <p className="text-sm text-red-500">
+            {errors.validFor.message}
           </p>
         )}
       </div>
@@ -125,9 +118,9 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
             </div>
           )}
         </div>
-        {formState.errors.inviteeRoleIds && (
+        {errors.inviteeRoleIds && (
           <p className="text-sm text-red-500">
-            {formState.errors.inviteeRoleIds.message}
+            {errors.inviteeRoleIds.message}
           </p>
         )}
       </div>
@@ -143,7 +136,7 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
             Cancel
           </Button>
         )}
-        <Button type="submit" disabled={isSubmitting || !formState.isValid}>
+        <Button type="submit" disabled={isSubmitting || !isValid}>
           {isSubmitting ? "Sending Invite..." : "Send Invite"}
         </Button>
       </div>

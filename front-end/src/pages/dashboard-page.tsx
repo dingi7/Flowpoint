@@ -1,3 +1,4 @@
+import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useOrganizations } from "@/stores";
+import { useUser } from "@clerk/clerk-react";
 import {
   ArrowUpRight,
   Building,
@@ -18,11 +21,10 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useOrganizations } from "@/stores";
-import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
 import * as React from "react";
 
 export default function DashboardPage() {
+  const { user } = useUser();
   const organizations = useOrganizations();
   const [showCreateModal, setShowCreateModal] = React.useState(false);
 
@@ -38,7 +40,8 @@ export default function DashboardPage() {
             No Organizations Found
           </h2>
           <p className="text-muted-foreground mb-6 max-w-md">
-            You don't have any organizations yet. Create your first organization to get started with managing your business.
+            You don't have any organizations yet. Create your first organization
+            to get started with managing your business.
           </p>
           <Button onClick={() => setShowCreateModal(true)} size="lg">
             <Plus className="h-4 w-4 mr-2" />
@@ -58,7 +61,13 @@ export default function DashboardPage() {
       {/* Welcome Section */}
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-foreground font-sans mb-2">
-          Welcome back, John!
+          Welcome back
+          {user?.firstName
+            ? `, ${user.firstName}`
+            : user?.lastName
+              ? `, ${user.lastName}`
+              : ""}
+          !
         </h2>
         <p className="text-muted-foreground">
           Here's what's happening with your business today.

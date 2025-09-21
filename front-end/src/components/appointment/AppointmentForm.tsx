@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Appointment, APPOINTMENT_STATUS, AppointmentData } from "@/core";
-import { useAppointmentForm } from "@/hooks/forms/use-appointment-form";
+import { useAppointmentForm, useAvailableTimeslots } from "@/hooks";
 import { useCustomers, useServices } from "@/hooks";
 import { CustomerForm } from "@/components/customer/CustomerForm";
 import {
@@ -149,15 +149,27 @@ export function AppointmentForm({
     handleChange("serviceId", serviceId);
   };
 
-  // Generate time slots (9 AM to 6 PM, 30-minute intervals)
-  const timeSlots = [];
-  for (let hour = 9; hour <= 18; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      if (hour === 18 && minute > 0) break; // Stop at 6:00 PM
-      const time = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
-      timeSlots.push(time);
-    }
-  }
+  // Fetch available timeslots dynamically
+  const {
+    data: timeslotsData,
+    isLoading: isTimeslotsLoading,
+    error: timeslotsError,
+  } = useAvailableTimeslots({
+    serviceId: formData.serviceId,
+    date: formData.date,
+    enabled: !!formData.serviceId && !!formData.date,
+  });
+
+  // Convert timeslots to time strings for the dropdown
+  const timeSlots = timeslotsData?.timeslots?.map((slot) => {
+    const startTime = new Date(slot.start);
+    return startTime.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }) || [];
+
   console.log(formData)
 
 
@@ -376,18 +388,47 @@ export function AppointmentForm({
                   <Select
                     value={formData.time}
                     onValueChange={(value) => handleChange("time", value)}
+                    disabled={isTimeslotsLoading || !formData.serviceId || !formData.date}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select time" />
+                      <SelectValue 
+                        placeholder={
+                          isTimeslotsLoading 
+                            ? "Loading available times..." 
+                            : !formData.serviceId || !formData.date
+                            ? "Select service and date first"
+                            : timeslotsError
+                            ? "Error loading times"
+                            : timeSlots.length === 0
+                            ? "No available times"
+                            : "Select time"
+                        } 
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      {timeSlots.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
+                      {timeSlots.length > 0 ? (
+                        timeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          {timeslotsError 
+                            ? "Error loading available times"
+                            : isTimeslotsLoading
+                            ? "Loading..."
+                            : "No available times for this date"
+                          }
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
+                  {timeslotsError && (
+                    <p className="text-sm text-destructive">
+                      Failed to load available times. Please try again.
+                    </p>
+                  )}
                 </div>
               </div>
 

@@ -14,6 +14,7 @@ interface Payload {
   organizationId: string;
   inviteeEmail: string;
   inviteeRoleIds: string[];
+  validFor?: number;
 }
 
 export const createOrganizationInvite = onCall<Payload>(
