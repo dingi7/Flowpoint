@@ -11,6 +11,7 @@ import { OrganizationData } from "@/core";
 import { useUpdateUser, useUser } from "@/hooks/repository-hooks/user/use-user";
 import { serviceHost } from "@/services";
 import { useAuth } from "@clerk/clerk-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 interface CreateOrganizationModalProps {
@@ -23,7 +24,7 @@ export function CreateOrganizationModal({
   onOpenChange,
 }: CreateOrganizationModalProps) {
   const functionsService = serviceHost.getFunctionsService();
-
+  const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { userId } = useAuth();
@@ -37,7 +38,8 @@ export function CreateOrganizationModal({
 
       // Create the organization
       const organizationId = await functionsService.createOrganization(data);
-
+      queryClient.invalidateQueries({ queryKey: ["organizations"] });
+      
       // Update user's organizationIds array
       if (userId && userData) {
         const updatedOrganizationIds = [

@@ -22,6 +22,8 @@ import { Edit, MoreHorizontal, Trash2, Eye, Clock, DollarSign } from "lucide-rea
 
 interface ServiceListProps {
   searchQuery?: string;
+  durationFilter?: "all" | "short" | "medium" | "long";
+  priceFilter?: "all" | "low" | "mid" | "high";
   onEdit?: (service: Service) => void;
   onDelete?: (service: Service) => void;
   onView?: (service: Service) => void;
@@ -35,6 +37,8 @@ interface ServiceListProps {
 
 export function ServiceList({ 
   searchQuery = "", 
+  durationFilter = "all",
+  priceFilter = "all",
   onEdit, 
   onDelete, 
   onView, 
@@ -58,11 +62,38 @@ export function ServiceList({
     );
   }
   
-  // Filter services based on search query
-  const filteredServices = services.filter((service: Service) =>
-    service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    service.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter services based on search query and selected filters
+  const filteredServices = services
+    .filter((service: Service) =>
+      service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((service: Service) => {
+      const duration = service.duration || 0;
+      switch (durationFilter) {
+        case "short":
+          return duration < 30;
+        case "medium":
+          return duration >= 30 && duration <= 60;
+        case "long":
+          return duration > 60;
+        default:
+          return true;
+      }
+    })
+    .filter((service: Service) => {
+      const price = service.price || 0;
+      switch (priceFilter) {
+        case "low":
+          return price < 50;
+        case "mid":
+          return price >= 50 && price <= 100;
+        case "high":
+          return price > 100;
+        default:
+          return true;
+      }
+    });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {

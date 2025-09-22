@@ -47,7 +47,7 @@ export default function AppointmentsPage() {
   return (
     <main className="flex-1 overflow-y-auto p-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex sm:items-center justify-between mb-6 sm:flex-row flex-col">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
             Appointment Management
@@ -56,7 +56,7 @@ export default function AppointmentsPage() {
             Schedule and manage customer appointments
           </p>
         </div>
-
+        <div className="mt-4 sm:mt-0">
         <Dialog
           open={isBookAppointmentOpen}
           onOpenChange={setIsBookAppointmentOpen}
@@ -67,7 +67,7 @@ export default function AppointmentsPage() {
               Book Appointment
             </Button>
           </DialogTrigger>
-          <DialogContent className="min-w-3xl">
+          <DialogContent className="sm:min-w-3xl">
             <DialogHeader>
               <DialogTitle>Book New Appointment</DialogTitle>
             </DialogHeader>
@@ -76,6 +76,7 @@ export default function AppointmentsPage() {
             />
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Stats Cards */}

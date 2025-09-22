@@ -22,7 +22,7 @@ export default function CustomersPage() {
   return (
     <main className="flex-1 overflow-y-auto p-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
             Customer Management
@@ -31,21 +31,22 @@ export default function CustomersPage() {
             Manage your customer relationships and information
           </p>
         </div>
-
-        <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Customer
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="min-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add New Customer</DialogTitle>
-            </DialogHeader>
-            <CustomerForm onSuccess={() => setIsAddCustomerOpen(false)} />
-          </DialogContent>
-        </Dialog>
+        <div className="mt-4 sm:mt-0">
+          <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Customer
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:min-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Add New Customer</DialogTitle>
+              </DialogHeader>
+              <CustomerForm onSuccess={() => setIsAddCustomerOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Filters and Search */}

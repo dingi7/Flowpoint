@@ -180,13 +180,13 @@ export function AppointmentForm({
           {/* Customer Selection */}
           <Card className="border-none">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex sm:items-center justify-between flex-col sm:flex-row">
                 <CardTitle className="text-lg font-sans flex items-center gap-2">
                   <User className="h-5 w-5" />
                   Customer Information
                 </CardTitle>
                 <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
-                  <DialogTrigger asChild>
+                  <DialogTrigger asChild className="mt-4 sm:mt-0">
                     <Button variant="outline" size="sm" className="gap-2">
                       <Plus className="h-4 w-4" />
                       New Customer

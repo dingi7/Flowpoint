@@ -61,7 +61,7 @@ export default function TeamPage() {
   return (
     <main className="flex-1 overflow-y-auto p-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
             Team Management
@@ -71,7 +71,7 @@ export default function TeamPage() {
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-4 sm:mt-0">
           <Dialog
             open={isAddMemberOpen}
             onOpenChange={setIsAddMemberOpen}
@@ -82,7 +82,7 @@ export default function TeamPage() {
                 Invite Member
               </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-2xl">
+            <DialogContent className="sm:min-w-2xl">
               <DialogHeader>
                 <DialogTitle>Invite New Member</DialogTitle>
               </DialogHeader>
@@ -103,7 +103,7 @@ export default function TeamPage() {
                 Add Role
               </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-2xl">
+            <DialogContent className="sm:min-w-2xl">
               <DialogHeader>
                 <DialogTitle>Add New Role</DialogTitle>
               </DialogHeader>

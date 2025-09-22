@@ -54,14 +54,14 @@ export default function ServicesPage() {
 
   // Get flattened services data for stats
   const allServices = servicesQuery.data?.pages?.flatMap(page => page) || [];
-  
+
   // Stats data
   const stats = {
     total: allServices.length,
-    active: allServices.filter((service: any) => service.isActive !== false).length,
-    categories: new Set(allServices.map((service: any) => service.category).filter(Boolean)).size,
-    avgPrice: allServices.length ? 
-      Math.round((allServices.reduce((sum: number, service: any) => sum + (service.price || 0), 0) / allServices.length)) : 0,
+    active: allServices.filter((service: Service) => service.isActive !== false).length,
+    categories: new Set(allServices.map((service: Service) => service.category).filter(Boolean)).size,
+    avgPrice: allServices.length ?
+      Math.round((allServices.reduce((sum: number, service: Service) => sum + (service.price || 0), 0) / allServices.length)) : 0,
   };
 
   // const handleAddService = () => {
@@ -83,11 +83,11 @@ export default function ServicesPage() {
       toast.error("No organization selected");
       return;
     }
-    
+
     try {
-      await deleteServiceMutation.mutateAsync({ 
-        id: service.id, 
-        organizationId: currentOrganizationId 
+      await deleteServiceMutation.mutateAsync({
+        id: service.id,
+        organizationId: currentOrganizationId
       });
       toast.success("Service deleted successfully");
     } catch (error) {
@@ -114,7 +114,7 @@ export default function ServicesPage() {
   return (
     <main className="flex-1 overflow-y-auto p-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex sm:items-center justify-between mb-6 sm:flex-row flex-col">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
             Service Management
@@ -123,24 +123,25 @@ export default function ServicesPage() {
             Manage your organization's services and offerings
           </p>
         </div>
-
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Service
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Service</DialogTitle>
-            </DialogHeader>
-            <ServiceForm
-              onSuccess={handleFormSuccess}
-              onCancel={handleFormCancel}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="mt-4 sm:mt-0">
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Service
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:min-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add New Service</DialogTitle>
+              </DialogHeader>
+              <ServiceForm
+                onSuccess={handleFormSuccess}
+                onCancel={handleFormCancel}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Stats Cards */}

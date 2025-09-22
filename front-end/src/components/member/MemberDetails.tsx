@@ -37,7 +37,7 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
   return (
     <div className="space-y-6">
       {/* Member Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex sm:items-start justify-between sm:flex-row flex-col">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage
@@ -58,7 +58,7 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
             </p>
           </div>
         </div>
-        <Button onClick={onEdit} className="gap-2">
+        <Button onClick={onEdit} className="gap-2 mt-4 sm:mt-0">
           <Edit className="h-4 w-4" />
           Edit Member
         </Button>

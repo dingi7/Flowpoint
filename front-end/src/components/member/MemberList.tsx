@@ -211,7 +211,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
 
       {/* Member Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="min-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:min-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Member Details</DialogTitle>
           </DialogHeader>
@@ -229,7 +229,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
 
       {/* Edit Member Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="min-w-2xl">
+        <DialogContent className="sm:min-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Member</DialogTitle>
           </DialogHeader>
