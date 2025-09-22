@@ -22,7 +22,7 @@ import { ServiceForm } from "@/components/service/ServiceForm";
 import { ServiceList } from "@/components/service/ServiceList";
 import { ServiceDetails } from "@/components/service/ServiceDetails";
 import { Service } from "@/core";
-import { Plus, Search, Filter, Settings, DollarSign, Users } from "lucide-react";
+import { Plus, Search, Filter, Settings, DollarSign, Users, Clock } from "lucide-react";
 import { useState } from "react";
 import { useServices, useDeleteService } from "@/hooks/repository-hooks/service/use-service";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
@@ -58,10 +58,11 @@ export default function ServicesPage() {
   // Stats data
   const stats = {
     total: allServices.length,
-    active: allServices.filter((service: Service) => service.isActive !== false).length,
-    categories: new Set(allServices.map((service: Service) => service.category).filter(Boolean)).size,
+    active: allServices.length, // All services are considered active since there's no isActive field
     avgPrice: allServices.length ?
       Math.round((allServices.reduce((sum: number, service: Service) => sum + (service.price || 0), 0) / allServices.length)) : 0,
+    avgDuration: allServices.length ?
+      Math.round((allServices.reduce((sum: number, service: Service) => sum + (service.duration || 0), 0) / allServices.length)) : 0,
   };
 
   // const handleAddService = () => {
@@ -163,12 +164,12 @@ export default function ServicesPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <Filter className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Average Duration</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.categories}</div>
-            <p className="text-xs text-muted-foreground">Service categories</p>
+            <div className="text-2xl font-bold">{stats.avgDuration}m</div>
+            <p className="text-xs text-muted-foreground">Per service</p>
           </CardContent>
         </Card>
 
