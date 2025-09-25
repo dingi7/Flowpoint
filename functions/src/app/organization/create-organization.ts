@@ -50,6 +50,12 @@ export async function createOrganizationFn(
 
   loggerService.info(`Created organization ${organizationId}`);
 
+  const user = await userRepository.get({ id: userId });
+  if (!user) {
+    loggerService.info("User not found", { userId });
+    throw new Error("User not found");
+  }
+
   const fullAccessRoleId = await roleRepository.create({
     organizationId,
     data: {
@@ -71,7 +77,7 @@ export async function createOrganizationFn(
     {
       userId,
       organizationId,
-      name: `${organizationData.name} Owner`,
+      name: `${user.name} ${user.lastName} (Owner)`,
       roleIds: [fullAccessRoleId],
       timezone: organizationData.settings.timezone,
     },

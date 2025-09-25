@@ -2,6 +2,7 @@ import { MemberForm } from "@/components/member/MemberForm";
 import { MemberList } from "@/components/member/MemberList";
 import { RoleForm } from "@/components/role/RoleForm";
 import { RoleList } from "@/components/role/RoleList";
+import { PendingInvitesList } from "@/components/invitation/PendingInvitesList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,27 +16,30 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMembers } from "@/hooks/repository-hooks/member/use-member";
 import { useRoles, useCreateRole } from "@/hooks/repository-hooks/role/use-role";
+import { useInvitesByOrganization } from "@/hooks/repository-hooks/invite/use-invite";
+import { useCurrentOrganizationId } from "@/stores/organization-store";
 import {
   Plus,
   Search,
   Users,
   Shield,
-  UserCheck,
-  UserPlus
+  UserCheck, Mail
 } from "lucide-react";
 import { useState } from "react";
+import { InviteStatus } from "@/core";
 
 export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
 
+  const currentOrganizationId = useCurrentOrganizationId();
+
   // Fetch members and roles for stats
   const { data: membersData } = useMembers({
     pagination: { limit: 100 },
     orderBy: { field: "updatedAt", direction: "desc" },
   });
-
 
   const { mutateAsync: createRole, isPending: isCreatingRole } = useCreateRole();
 
@@ -44,19 +48,22 @@ export default function TeamPage() {
     orderBy: { field: "name", direction: "asc" },
   });
 
+  // Fetch invites for stats
+  const { data: invitesData = [], error: invitesError } = useInvitesByOrganization(currentOrganizationId || "");
+
+  console.log(invitesError)
+
   const members = membersData?.pages.flatMap(page => page) || [];
   const roles = rolesData || [];
+  const invites = invitesData || [];
 
   // Calculate stats
   const totalMembers = members.length;
-  const membersWithRoles = members.filter(member => member.roleIds && member.roleIds.length > 0).length;
   const totalRoles = roles.length;
-  const recentMembers = members.filter(member => {
-    if (!member.createdAt) return false;
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return new Date(member.createdAt) > weekAgo;
-  }).length;
+  
+  // Invite stats
+  const pendingInvites = invites.filter(invite => invite.status === InviteStatus.PENDING).length;
+  const acceptedInvites = invites.filter(invite => invite.status === InviteStatus.ACCEPTED).length;
 
   return (
     <main className="flex-1 overflow-y-auto p-6">
@@ -124,7 +131,7 @@ export default function TeamPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -142,13 +149,13 @@ export default function TeamPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">With Roles</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Pending Invites</CardTitle>
+            <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{membersWithRoles}</div>
+            <div className="text-2xl font-bold">{pendingInvites}</div>
             <p className="text-xs text-muted-foreground">
-              Members with assigned roles
+              Awaiting response
             </p>
           </CardContent>
         </Card>
@@ -168,13 +175,13 @@ export default function TeamPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New This Week</CardTitle>
-            <UserPlus className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Accepted Invites</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{recentMembers}</div>
+            <div className="text-2xl font-bold">{acceptedInvites}</div>
             <p className="text-xs text-muted-foreground">
-              Members added recently
+              Successfully joined
             </p>
           </CardContent>
         </Card>
@@ -186,6 +193,15 @@ export default function TeamPage() {
           <TabsTrigger value="members" className="gap-2">
             <Users className="h-4 w-4" />
             Members
+          </TabsTrigger>
+          <TabsTrigger value="invites" className="gap-2">
+            <Mail className="h-4 w-4" />
+            Invites
+            {pendingInvites > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">
+                {pendingInvites}
+              </span>
+            )}
           </TabsTrigger>
           <TabsTrigger value="roles" className="gap-2">
             <Shield className="h-4 w-4" />
@@ -209,6 +225,24 @@ export default function TeamPage() {
 
           {/* Members List */}
           <MemberList searchQuery={searchQuery} />
+        </TabsContent>
+
+        <TabsContent value="invites" className="space-y-6">
+          {/* Search and Filters for Invites */}
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search invites..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Invites List */}
+          <PendingInvitesList searchQuery={searchQuery} />
         </TabsContent>
 
         <TabsContent value="roles" className="space-y-6">

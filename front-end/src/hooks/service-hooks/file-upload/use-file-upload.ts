@@ -23,6 +23,7 @@ export interface FileUploadTaskAndState extends UploadTask {
   isCancelled: boolean;
   isPaused: boolean;
   error: FileValidationError | UploadError | null;
+  setError: (error: FileValidationError | UploadError | null) => void;
   url: string | null;
 }
 
@@ -101,6 +102,7 @@ export function useFileUpload(
       error: null,
       isCancelled: false,
       isPaused: false,
+      setError: () => undefined,
       url: null,
       pause: () => undefined,
       resume: () => undefined,
@@ -122,6 +124,7 @@ export function useFileUpload(
     error,
     isCancelled,
     isPaused,
+    setError,
     url,
     ...task,
   };

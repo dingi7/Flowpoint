@@ -25,6 +25,23 @@ export const useInvitesByEmail = (email: string) => {
   });
 };
 
+export const useInvitesByOrganization = (organizationId: string) => {
+  return useQuery({
+    queryKey: ["invites", "byOrganization", organizationId],
+    queryFn: () =>
+      inviteRepository.getAll({
+        queryConstraints: [
+          { field: "organizationId", operator: "==", value: organizationId },
+        ],
+        orderBy: {
+          field: "createdAt",
+          direction: "desc",
+        },
+      }),
+    enabled: !!organizationId,
+  });
+};
+
 export const useInvite = (id: string) => {
   return useQuery({
     queryKey: ["invite", "id", id],

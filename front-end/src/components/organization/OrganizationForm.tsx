@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+import { ImageUpload } from "@/components/ui/image-upload";
 import {
   Select,
   SelectContent,
@@ -13,7 +13,6 @@ import { Organization, OrganizationData } from "@/core";
 import { useOrganizationForm } from "@/hooks";
 import { useOrganizationImageUpload } from "@/hooks/service-hooks/media/use-organization-image-upload";
 import { useEffect } from "react";
-import { Loader2, Upload, X } from "lucide-react";
 
 interface OrganizationFormProps {
   organization?: Organization;
@@ -34,14 +33,12 @@ export function OrganizationForm({
       onSubmit,
     });
 
+  const uploadState = useOrganizationImageUpload();
   const {
     isLoading: isUploading,
-    uploadFile,
     url,
-    error: uploadError,
     isComplete: isUploadComplete,
-    uploadProgress,
-  } = useOrganizationImageUpload();
+  } = uploadState;
 
   const currency = watch("currency");
   const timezone = watch("settings.timezone");
@@ -54,14 +51,15 @@ export function OrganizationForm({
     }
   }, [isUploadComplete, url, setValue]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Clear any previous errors
-      uploadFile(file);
-    }
-    // Clear the input value to allow re-uploading the same file
-    event.target.value = '';
+  const handleImageRemove = () => {
+    setValue("image", "");
+    uploadState.setError(null);
+  };
+  
+  const handleUploadStart = () => {
+    // Clear any previous errors when starting a new upload
+    // The upload hook will handle clearing the current image
+    uploadState.setError(null);
   };
 
   return (
@@ -81,86 +79,15 @@ export function OrganizationForm({
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="image">Organization Logo (Optional)</Label>
-        <div className="space-y-2">
-          {currentImage && (
-            <div className="flex items-center gap-3 p-3 border rounded-lg bg-green-50 border-green-200 transition-all duration-200">
-              <div className="w-16 h-16 rounded-md overflow-hidden ring-2 ring-green-200">
-                <img
-                  src={currentImage}
-                  alt="Organization logo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-green-700">Logo uploaded successfully</p>
-                <p className="text-xs text-green-600">Ready to use</p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setValue("image", "")}
-                disabled={isLoading || isUploading}
-                className="hover:bg-red-100 hover:text-red-600 hover:border-red-300 transition-colors"
-              >
-                <X className="h-4 w-4 mr-1" />
-                Remove
-              </Button>
-            </div>
-          )}
-          <div className="space-y-2">
-            {!isUploading ? (
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200">
-                <input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={isLoading || isUploading}
-                  className="hidden"
-                />
-                <label
-                  htmlFor="image"
-                  className={`cursor-pointer flex flex-col items-center gap-2 transition-colors duration-200 ${
-                    isLoading || isUploading 
-                      ? 'cursor-not-allowed opacity-50' 
-                      : 'hover:text-blue-600'
-                  }`}
-                >
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload organization logo
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    PNG, JPG, GIF up to 5MB
-                  </p>
-                </label>
-              </div>
-            ) : (
-              <div className="p-4 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 space-y-3">
-                <div className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-5 w-5 text-blue-600 animate-spin" />
-                  <span className="text-sm font-medium text-blue-600">
-                    Uploading... {Math.round(uploadProgress)}%
-                  </span>
-                </div>
-                <Progress 
-                  value={uploadProgress} 
-                  className="w-full h-2"
-                />
-              </div>
-            )}
-            {uploadError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600 font-medium">Upload failed</p>
-                <p className="text-sm text-red-500">{uploadError.message}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <ImageUpload
+        label="Organization Logo (Optional)"
+        currentImage={currentImage}
+        uploadState={uploadState}
+        onImageRemove={handleImageRemove}
+        onUploadStart={handleUploadStart}
+        disabled={isLoading}
+        id="image"
+      />
 
       <div className="space-y-2">
         <Label htmlFor="industry">Industry</Label>

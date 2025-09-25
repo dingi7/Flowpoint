@@ -17,11 +17,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { Invite } from "@/core";
 import { useAcceptOrganizationInvite } from "@/hooks/service-hooks/invite/use-accept-invite";
 import { useMemberImageUpload } from "@/hooks/service-hooks/media/use-member-image-upload";
-import { Building, User, AlertCircle, Loader2, Upload, X } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Building, User, AlertCircle, Loader2 } from "lucide-react";
 
 const acceptanceFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -64,15 +64,14 @@ export function InvitationAcceptanceModal({
     },
   });
 
-  const handleImageUpload = (file: File) => {
-    // Clear any previous errors when starting a new upload
-    setError(null);
-    imageUpload.uploadFile(file);
-  };
-
   const handleImageRemove = () => {
     setValue("image", "");
     // Clear any upload-related errors when removing image
+    setError(null);
+  };
+
+  const handleUploadStart = () => {
+    // Clear any previous errors when starting a new upload
     setError(null);
   };
 
@@ -185,92 +184,16 @@ export function InvitationAcceptanceModal({
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Profile Image (Optional)</Label>
-                  {watch("image") ? (
-                    <div className="relative">
-                      <div className="flex items-center gap-3 p-3 border rounded-lg bg-green-50 border-green-200 transition-all duration-200">
-                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-muted ring-2 ring-green-200">
-                          <img
-                            src={watch("image")}
-                            alt="Profile preview"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-green-700">Image uploaded successfully</p>
-                          <p className="text-xs text-green-600">Ready to use</p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleImageRemove}
-                          disabled={isSubmitting}
-                          className="hover:bg-red-100 hover:text-red-600 transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              handleImageUpload(file);
-                            }
-                            // Clear the input value to allow re-uploading the same file
-                            e.target.value = '';
-                          }}
-                          disabled={isSubmitting || imageUpload.isLoading}
-                          className="hidden"
-                          id="image-upload"
-                        />
-                        <label
-                          htmlFor="image-upload"
-                          className={`cursor-pointer flex flex-col items-center gap-2 transition-colors duration-200 ${
-                            isSubmitting || imageUpload.isLoading 
-                              ? 'cursor-not-allowed opacity-50' 
-                              : 'hover:text-blue-600'
-                          }`}
-                        >
-                          {imageUpload.isLoading ? (
-                            <div className="w-full space-y-3">
-                              <div className="flex items-center justify-center gap-2">
-                                <Loader2 className="h-6 w-6 text-blue-600 animate-spin" />
-                                <p className="text-sm font-medium text-blue-600">
-                                  Uploading... {Math.round(imageUpload.uploadProgress)}%
-                                </p>
-                              </div>
-                              <Progress 
-                                value={imageUpload.uploadProgress} 
-                                className="w-full h-2"
-                              />
-                            </div>
-                          ) : (
-                            <>
-                              <Upload className="h-8 w-8 text-muted-foreground" />
-                              <p className="text-sm text-muted-foreground">
-                                Click to upload an image
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                PNG, JPG, GIF up to 5MB
-                              </p>
-                            </>
-                          )}
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Add a profile picture to help others recognize you
-                  </p>
-                </div>
+                <ImageUpload
+                  label="Profile Image (Optional)"
+                  description="Add a profile picture to help others recognize you"
+                  currentImage={watch("image")}
+                  uploadState={imageUpload}
+                  onImageRemove={handleImageRemove}
+                  onUploadStart={handleUploadStart}
+                  disabled={isSubmitting}
+                  id="image-upload"
+                />
               </CardContent>
             </Card>
 

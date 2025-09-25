@@ -1,4 +1,4 @@
-import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
+import { FirstTimeUserWelcome } from "@/components/onboarding/FirstTimeUserWelcome";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,6 @@ import { useOrganizations } from "@/stores";
 import { useUser } from "@clerk/clerk-react";
 import {
   ArrowUpRight,
-  Building,
   Calendar,
   CheckCircle,
   Clock,
@@ -21,39 +20,14 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import * as React from "react";
 
 export default function DashboardPage() {
   const { user } = useUser();
   const organizations = useOrganizations();
-  const [showCreateModal, setShowCreateModal] = React.useState(false);
 
-  // If no organizations, show the no organizations message
+  // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
-    return (
-      <main className="flex-1 overflow-y-auto p-6">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-6">
-            <Building className="h-12 w-12 text-muted-foreground" />
-          </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            No Organizations Found
-          </h2>
-          <p className="text-muted-foreground mb-6 max-w-md">
-            You don't have any organizations yet. Create your first organization
-            to get started with managing your business.
-          </p>
-          <Button onClick={() => setShowCreateModal(true)} size="lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Organization
-          </Button>
-        </div>
-        <CreateOrganizationModal
-          open={showCreateModal}
-          onOpenChange={setShowCreateModal}
-        />
-      </main>
-    );
+    return <FirstTimeUserWelcome />;
   }
 
   return (
