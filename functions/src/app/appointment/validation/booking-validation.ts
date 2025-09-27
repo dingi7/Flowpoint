@@ -18,12 +18,14 @@ const bookAppointmentPayloadSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
   customerEmail: z.string().min(1, "Customer EMAIL is required"),
   organizationId: z.string().min(1, "Organization ID is required"),
-  startTime: z.string().datetime("Invalid start time format"),
+  startTime: z.string().refine((val) => !isNaN(new Date(val).getTime()), {
+    message: "Invalid start time format",
+  }),
   assigneeId: z.string().min(1, "Assignee ID is required"),
   assigneeType: z.nativeEnum(ASSIGNEE_TYPE),
   title: z.string().optional(),
   description: z.string().optional(),
-  fee: z.number().min(0).optional(),
+  fee: z.number().min(0).optional().nullable(),
   additionalCustomerFields: z.record(z.string(), z.unknown()).optional(),
 });
 
@@ -118,7 +120,7 @@ export async function validateBookingRequest(
   const calendars = await calendarRepository.getAll({
     queryConstraints: [
       { field: "ownerId", operator: "==", value: service.ownerId },
-      { field: "ownerType", operator: "==", value: service.ownerType },
+      // { field: "ownerType", operator: "==", value: service.ownerType },
     ],
     organizationId: validatedPayload.organizationId,
   });
