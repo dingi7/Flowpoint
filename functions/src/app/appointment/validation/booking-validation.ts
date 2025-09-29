@@ -1,12 +1,14 @@
 import { hasTimeslotOverlap } from "@/app/availability/util/appointment-overlap";
 import {
   APPOINTMENT_STATUS,
-  ASSIGNEE_TYPE,
   AppointmentRepository,
+  Calendar,
   CalendarRepository,
   CustomerRepository,
   LoggerService,
   OrganizationRepository,
+  OWNER_TYPE,
+  Service,
   ServiceRepository,
   TimeOffRepository,
 } from "@/core";
@@ -22,7 +24,6 @@ const bookAppointmentPayloadSchema = z.object({
     message: "Invalid start time format",
   }),
   assigneeId: z.string().min(1, "Assignee ID is required"),
-  assigneeType: z.nativeEnum(ASSIGNEE_TYPE),
   title: z.string().optional(),
   description: z.string().optional(),
   fee: z.number().min(0).optional().nullable(),
@@ -41,13 +42,23 @@ interface Dependencies {
   organizationRepository: OrganizationRepository;
 }
 
+interface ValidationResult {
+  validatedPayload: BookAppointmentPayload;
+  service: Service;
+  customerId: string;
+  calendar: Calendar;
+  startTime: Date;
+  assigneeType: OWNER_TYPE;
+  endTime: Date;
+}
+
 /**
  * Comprehensive validation for appointment booking
  */
 export async function validateBookingRequest(
   payload: BookAppointmentPayload,
   dependencies: Dependencies,
-) {
+): Promise<ValidationResult> {
   const {
     serviceRepository,
     customerRepository,
@@ -198,6 +209,7 @@ export async function validateBookingRequest(
     customerId,
     calendar,
     startTime,
+    assigneeType: calendar.ownerType,
     endTime,
   };
 }

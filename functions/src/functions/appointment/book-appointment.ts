@@ -1,5 +1,4 @@
 import { bookAppointmentFn } from "@/app/appointment/book-appointment";
-import { ASSIGNEE_TYPE } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { onCall } from "firebase-functions/https";
@@ -24,7 +23,6 @@ interface Payload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
-  assigneeType: ASSIGNEE_TYPE;
   fee?: number;
   title?: string;
   description?: string;

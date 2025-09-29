@@ -495,16 +495,18 @@ export function AppointmentList({
 
       {/* Edit Appointment Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="min-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Edit Appointment</DialogTitle>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="text-xl font-semibold">Edit Appointment</DialogTitle>
           </DialogHeader>
-          {editingAppointment && (
-            <AppointmentForm
-              appointment={editingAppointment}
-              onSuccess={() => setIsEditOpen(false)}
-            />
-          )}
+          <div className="overflow-hidden">
+            {editingAppointment && (
+              <AppointmentForm
+                appointment={editingAppointment}
+                onSuccess={() => setIsEditOpen(false)}
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>

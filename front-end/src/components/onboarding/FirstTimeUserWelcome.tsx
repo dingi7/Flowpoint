@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useInvitesByEmail } from "@/hooks";
+import { InviteStatus } from "@/core";
 import { useUser } from "@clerk/clerk-react";
 import {
   Building,
@@ -32,7 +33,7 @@ export function FirstTimeUserWelcome() {
   } = useInvitesByEmail(user?.primaryEmailAddress?.emailAddress || "");
 
   const pendingInvitations = invitations.filter(
-    (inv) => inv.status === "PENDING"
+    (inv) => inv.status === InviteStatus.PENDING
   );
 
   return (

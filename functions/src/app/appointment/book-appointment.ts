@@ -1,7 +1,6 @@
 import {
   APPOINTMENT_STATUS,
   AppointmentRepository,
-  ASSIGNEE_TYPE,
   CalendarRepository,
   CustomerRepository,
   LoggerService,
@@ -18,7 +17,6 @@ interface Payload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
-  assigneeType: ASSIGNEE_TYPE;
   fee?: number;
   title?: string;
   description?: string;
@@ -93,13 +91,14 @@ export async function bookAppointmentFn(
     customerId,
     calendar,
     startTime,
+    assigneeType,
     endTime,
   } = validationResult;
 
   // 2. Create appointment
   const appointmentData = {
-    assigneeType: validatedPayload.assigneeType,
     assigneeId: validatedPayload.assigneeId,
+    assigneeType,
     customerId,
     serviceId: validatedPayload.serviceId,
     calendarId: calendar.id,

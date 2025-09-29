@@ -67,13 +67,15 @@ export default function AppointmentsPage() {
               Book Appointment
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:min-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Book New Appointment</DialogTitle>
+          <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
+            <DialogHeader className="px-6 pt-6 pb-4">
+              <DialogTitle className="text-xl font-semibold">Book New Appointment</DialogTitle>
             </DialogHeader>
-            <AppointmentForm
-              onSuccess={() => setIsBookAppointmentOpen(false)}
-            />
+            <div className="overflow-hidden">
+              <AppointmentForm
+                onSuccess={() => setIsBookAppointmentOpen(false)}
+              />
+            </div>
           </DialogContent>
         </Dialog>
         </div>

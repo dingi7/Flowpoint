@@ -1,10 +1,7 @@
 import z from "zod";
 import { baseEntitySchema } from "./base";
+import { OWNER_TYPE } from "./calendar";
 
-export enum ASSIGNEE_TYPE {
-  MEMBER = "member",
-  ORGANIZATION = "organization",
-}
 
 export enum APPOINTMENT_STATUS {
   PENDING = "pending",
@@ -13,7 +10,7 @@ export enum APPOINTMENT_STATUS {
 }
 
 const appointmentDataBaseSchema = z.object({
-  assigneeType: z.nativeEnum(ASSIGNEE_TYPE),
+  assigneeType: z.nativeEnum(OWNER_TYPE),
   assigneeId: z.string(),
   customerId: z.string(),
   serviceId: z.string(),
