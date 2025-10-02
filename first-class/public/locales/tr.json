@@ -1,0 +1,141 @@
+{
+    "nav": {
+        "home": "Ana Sayfa",
+        "services": "Hizmetler", 
+        "team": "Ekibimiz",
+        "contact": "İletişim"
+    },
+    "hero": {
+        "title": "First Class'a Hoş Geldiniz",
+        "subtitle": "Premium tıraş deneyimini yaşayın",
+        "bookNow": "Randevu Al"
+    },
+    "services": {
+        "title": "Hizmetlerimiz",
+        "premiumHaircut": {
+            "title": "Premium Saç Kesimi",
+            "description": "Tercihlerinize göre uyarlanmış geniş bir saç kesimi ve stil yelpazesi sunuyoruz. Deneyimli berberlerimiz, kişiliğinize uygun mükemmel görünümü bulmanıza yardımcı olmak için ücretsiz danışmanlık hizmeti vermektedir.",
+            "duration": "30 dakika"
+        },
+        "hairBeardCombo": {
+            "title": "Saç & Sakal Kombo",
+            "description": "Premium saç kesimimizi profesyonel sakal şekillendirme ile birleştiren eksiksiz bakım paketi.",
+            "duration": "45 dakika"
+        },
+        "shave": {
+            "title": "Tıraş",
+            "description": "İyi bakımlı bir sakal fark yaratır ve biz size bunu korumanızda yardımcı oluyoruz. Hassas düzeltmelerden tam şekillendirme ve bakıma kadar,",
+            "duration": "15 dakika"
+        },
+        "complex": {
+            "title": "Kompleks",
+            "description": "Bıyık tıraşı, saç kesimi ve sakal şekillendirmeyi içeren premium hizmetimiz. Ekibimiz size kişiliğinize uygun mükemmel görünümü kazandırmak için çalışacaktır.",
+            "duration": "60 dakika"
+        },
+        "bookNow": "Randevu Al"
+    },
+    "team": {
+        "title": "Uzman Berberlerimizle Tanışın",
+        "subtitle": "Profesyonel ekibimiz size mükemmel görünümü kazandırmak için özveriyle çalışıyor",
+        "barbers": {
+            "burhan": {
+                "description": "13 yıllık deneyime sahip usta stilist Burhan, erkek bakımını bir sanata dönüştürüyor, ünlüler ve stil sahibi erkekler için imza niteliğinde görünümler yaratıyor."
+            },
+            "aytekin": {
+                "description": "24 yıllık ustalığa sahip Aytekin, yüzünüze, stilinize ve özgüveninize mükemmel uyan saç ve sakal stillerini yaratmak için beceri ve sanatı harmanlıyor."
+            },
+            "ismail": {
+                "description": "İsmail'in odak noktası hassasiyet; modern trendleri klasik stille dengeleyen keskin saç kesimleri ve net sakal çizgileri sunarak size bakımlı, zahmetsiz bir görünüm kazandırıyor."
+            },
+            "ershat": {
+                "description": "Ershat her kesimi bir üst seviyeye taşıyor, beceri ve yaratıcılığı birleştirerek kişiliğinize uyan, fark yaratan taze ve temiz stiller yaratıyor."
+            },
+            "martin": {
+                "description": "Martin bireyselliğe odaklanıyor, her saç kesimi ve sakal stilini yüz şeklinize ve tarzınıza uygun hale getiriyor, böylece her zaman en iyi görünüm ve hisse sahip oluyorsunuz."
+            },
+            "georgi": {
+                "description": "Georgi klasik kesimlere tutkusu olan ve modaya yatkın bir berberdir. Klasik dokunuşu modern bir yaklaşımla birleştirerek, sizi en iyi görünüm ve hisse kavuşturacak bir saç kesimi sunuyor."
+            },
+            "ibo": {
+                "description": "Ibo hassas degradeler ve çağdaş stillerde uzmanlaşmıştır. Detaylara verdiği önem ve modern trendleri anlayışı, her müşterinin mükemmel uyarlanmış bir görünümle ayrılmasını sağlar."
+            },
+            "fiki": {
+                "description": "Fiki her kesime taze enerji ve çağdaş uzmanlık getiriyor. Modern teknikleri zamansız stille ustaca harmanlayarak, hem güncel hem de zahmetsizce taşınabilir görünümler yaratıyor."
+            }
+        },
+        "bookNow": "Randevu Al"
+    },
+    "gallery": {
+        "title": "Bize Güvendiler"
+    },
+    "footer": {
+        "address": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
+        "phone": "+359 888980127",
+        "companyName": "First Class Berber Salonu",
+        "links": {
+            "cookies": "Çerezler",
+            "terms": "Şartlar ve Koşullar",
+            "privacy": "Gizlilik Politikası"
+        },
+        "rights": "Tüm hakları saklıdır.",
+        "createdBy": "Tarafından geliştirildi"
+    },
+    "contact": {
+        "title": "İletişim",
+        "address": "Adres",
+        "phone": "Telefon",
+        "email": "E-posta"
+    },
+    "booking": {
+        "title": "Randevu Al",
+        "select": "Hizmet Seç",
+        "date": "Tarih Seç",
+        "time": "Saat Seç",
+        "confirm": "Randevuyu Onayla",
+        "bookingSuccess": "Randevunuz Başarıyla Oluşturuldu!",
+        "bookingConfirmationMessage": "Randevunuz başarıyla oluşturuldu. Detayları aşağıda görebilirsiniz.",
+        "appointmentDetails": "Randevu Detayları",
+        "service": "Hizmet",
+        "barber": "Berber",
+        "duration": "Süre",
+        "minutes": "dakika",
+        "close": "Kapat",
+        "change": "Değiştir",
+        "selectBarber": "Berber Seç",
+        "selectBarberDescription": "Tercih ettiğiniz berberi seçin",
+        "userInfo": "Bilgileriniz",
+        "userInfoDescription": "Lütfen randevu için iletişim bilgilerinizi girin",
+        "name": "İsim",
+        "namePlaceholder": "İsminizi girin",
+        "phone": "Telefon",
+        "phonePlaceholder": "Telefon numaranızı girin",
+        "phoneError": "Lütfen geçerli bir Bulgar telefon numarası girin (+359XXXXXXXXX veya 0XXXXXXXXX)",
+        "email": "E-posta",
+        "emailPlaceholder": "E-posta adresinizi girin",
+        "notes": "Notlar",
+        "notesPlaceholder": "Özel istekler veya notlar",
+        "loadingTimeSlots": "Müsait saatler yükleniyor...",
+        "noTimeSlots": "Bu tarih için müsait saat bulunmuyor",
+        "selectTime": "Saat Seç",
+        "inPerson": "Yüz yüze randevu"
+    },
+    "location": {
+        "title": "BEKLENTİLERİN ÖTESİNDE HİZMET",
+        "description": "Berber salonumuz, premium kaliteye, zamana ve kusursuz görünüme değer veren erkekler için özel olarak tasarlanmış bir mekandır. Size en zarif şekilde şık ve kendinden emin görünmeniz için yardımcı olacağız.",
+        "locationTitle": "KONUM",
+        "location": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
+        "getDirections": "YOL TARİFİ AL",
+        "workingHours": {
+            "weekdays": "Salı - Pazar: 10:00 - 20:00",
+            "weekend": "Cumartesi - Pazar: 10:00 - 20:00"
+        },
+        "monday": "Pazartesi",
+        "tuesday": "Salı",
+        "wednesday": "Çarşamba",
+        "thursday": "Perşembe",
+        "friday": "Cuma",
+        "saturday": "Cumartesi",
+        "sunday": "Pazar",
+        "closed": "Kapalı"
+    }
+}

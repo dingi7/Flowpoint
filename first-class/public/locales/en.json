@@ -1,0 +1,141 @@
+{
+    "nav": {
+        "home": "Home",
+        "services": "Services",
+        "team": "Our Team",
+        "contact": "Contact"
+    },
+    "hero": {
+        "title": "Welcome to First Class",
+        "subtitle": "Experience premium grooming",
+        "bookNow": "Book Now"
+    },
+    "services": {
+        "title": "Our Services",
+        "premiumHaircut": {
+            "title": "Premium Haircut",
+            "description": "We offer a wide range of haircuts and styles tailored to your preferences. Our experienced barbers provide free consultation to help you find the perfect look that matches your personality.",
+            "duration": "30 minutes"
+        },
+        "hairBeardCombo": {
+            "title": "Hair & Beard Combo",
+            "description": "A complete grooming package that combines our premium haircut with professional beard styling.",
+            "duration": "60 minutes"
+        },
+        "shave": {
+            "title": "Shave",
+            "description": "A well-groomed beard makes a difference, and we help you maintain it. From precise trimming to full styling and maintenance.",
+            "duration": "30 minutes"
+        },
+        "complex": {
+            "title": "Complex",
+            "description": "A full beard grooming package that includes a thorough beard trim, styling, and maintenance.",
+            "duration": "60 minutes"
+        },
+        "bookNow": "Book Now"
+    },
+    "team": {
+        "title": "Meet Our Expert Barbers",
+        "subtitle": "Our professional team is dedicated to giving you the perfect look",
+        "bookNow": "Book Now",
+        "barbers": {
+            "burhan": {
+                "description": "Burhan, a master stylist with 13 years of experience, transforms men's grooming into an art, creating signature looks for celebrities and style-conscious men."
+            },
+            "aytekin": {
+                "description": "Aytekin, with 24 years of mastery, blends skill and artistry to craft hair and beard styles that perfectly suit your face, style, and confidence."
+            },
+            "ismail": {
+                "description": "Ismail is all about precision, delivering sharp haircuts and crisp beard lines that balance modern trends with classic style, giving you a polished, effortless look."
+            },
+            "ershat": {
+                "description": "Ershat takes every cut to the next level, combining skill and creativity to craft fresh, clean styles that make a statement and fit your personality."
+            },
+            "martin": {
+                "description": "Martin focuses on individuality, tailoring each haircut and beard style to match your face shape and vibe, so you always look and feel your best."
+            },
+            "georgi": {
+                "description": "Georgi is a barber with a passion for classic cuts and a flair for the trendy. He combines a touch of classic with a modern twist, delivering a haircut that will make you look and feel your best."
+            },
+            "ibo": {
+                "description": "Ibo specializes in precision fades and contemporary styles. His attention to detail and understanding of modern trends ensures each client leaves with a perfectly tailored look."
+            },
+            "fiki": {
+                "description": "Fiki brings fresh energy and contemporary expertise to every cut. His skillful blend of modern techniques with timeless style creates looks that are both current and effortlessly wearable."
+            }
+        }
+    },
+    "gallery": {
+        "title": "They Trusted Us"
+    },
+    "footer": {
+        "address": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
+        "phone": "+359 888980127",
+        "companyName": "First Class Barbershop",
+        "links": {
+            "cookies": "Cookies",
+            "terms": "Terms & Conditions",
+            "privacy": "Privacy Policy"
+        },
+        "rights": "All rights reserved.",
+        "createdBy": "Developed by"
+    },
+    "contact": {
+        "title": "Contact",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Email"
+    },
+    "booking": {
+        "title": "Book Appointment",
+        "select": "Select Service",
+        "confirm": "Confirm Appointment",
+        "bookingSuccess": "Booking Successful!",
+        "bookingConfirmationMessage": "Your appointment has been successfully created. You can see the details below.",
+        "appointmentDetails": "Appointment Details",
+        "date": "Date",
+        "time": "Time",
+        "service": "Service",
+        "barber": "Barber",
+        "duration": "Duration",
+        "minutes": "minutes",
+        "close": "Close",
+        "change": "Change",
+        "selectBarber": "Select Barber",
+        "selectBarberDescription": "Choose your preferred barber for the service",
+        "userInfo": "Your Information",
+        "userInfoDescription": "Please provide your contact details for the appointment",
+        "name": "Name",
+        "namePlaceholder": "Enter your name",
+        "phone": "Phone",
+        "phonePlaceholder": "Enter your phone number",
+        "phoneError": "Please enter a valid Bulgarian phone number (+359XXXXXXXXX or 0XXXXXXXXX)",
+        "email": "Email",
+        "emailPlaceholder": "Enter your email",
+        "notes": "Notes",
+        "notesPlaceholder": "Any special requests or notes",
+        "loadingTimeSlots": "Loading available time slots...",
+        "noTimeSlots": "No time slots available for this date",
+        "selectTime": "Select Time",
+        "inPerson": "In-person appointment"
+    },
+    "location": {
+        "title": "SERVICE BEYOND EXPECTATIONS",
+        "description": "Our barbershop is a space specially designed for men who value premium quality, time, and impeccable appearance. We will help you look stylish and confident in the most elegant way.",
+        "locationTitle": "LOCATION",
+        "location": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
+        "getDirections": "GET DIRECTIONS",
+        "workingHours": {
+            "weekdays": "Tuesday - Sunday: 10:00 - 20:00",
+            "weekend": "Saturday - Sunday: 10:00 - 20:00"
+        },
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        "closed": "Closed"
+    }
+}

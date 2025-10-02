@@ -1,4 +1,4 @@
-import { FunctionsService, OrganizationSettingsData } from "@/core";
+import { FunctionsService, OrganizationSettingsData, BookAppointmentPayload, BookAppointmentResponse } from "@/core";
 import { firebase } from "@/infrastructure/firebase";
 import { httpsCallable } from "@firebase/functions";
 
@@ -47,6 +47,16 @@ export const functionsService: FunctionsService = {
       firebase.functions,
       "acceptOrganizationInvite",
     )(payload);
+  },
+  async bookAppointment(payload) {
+    const result = await httpsCallable<
+      BookAppointmentPayload,
+      BookAppointmentResponse
+    >(
+      firebase.functions,
+      "bookAppointment",
+    )(payload);
+    return result.data;
   },
   async createOrganization(payload) {
     const result = await httpsCallable<

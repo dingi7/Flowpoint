@@ -48,6 +48,7 @@ interface ValidationResult {
   customerId: string;
   calendar: Calendar;
   startTime: Date;
+  assigneeId: string;
   assigneeType: OWNER_TYPE;
   endTime: Date;
 }
@@ -130,7 +131,7 @@ export async function validateBookingRequest(
   // 4. Calendar validation
   const calendars = await calendarRepository.getAll({
     queryConstraints: [
-      { field: "ownerId", operator: "==", value: service.ownerId },
+      { field: "ownerId", operator: "==", value: validatedPayload.assigneeId },
       // { field: "ownerType", operator: "==", value: service.ownerType },
     ],
     organizationId: validatedPayload.organizationId,
@@ -173,8 +174,7 @@ export async function validateBookingRequest(
 
   const timeOffs = await timeOffRepository.getAll({
     queryConstraints: [
-      { field: "ownerId", operator: "==", value: service.ownerId },
-      { field: "ownerType", operator: "==", value: service.ownerType },
+      { field: "ownerId", operator: "==", value: validatedPayload.assigneeId },
     ],
     organizationId: validatedPayload.organizationId,
   });
@@ -209,6 +209,7 @@ export async function validateBookingRequest(
     customerId,
     calendar,
     startTime,
+    assigneeId: validatedPayload.assigneeId,
     assigneeType: calendar.ownerType,
     endTime,
   };

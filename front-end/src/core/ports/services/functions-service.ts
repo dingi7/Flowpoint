@@ -1,8 +1,26 @@
 import { OrganizationSettingsData } from "@/core/entities/organization";
-
+  
 export interface DeleteResponse {
   deleted: boolean;
   error?: string;
+}
+
+export interface BookAppointmentPayload {
+  serviceId: string;
+  customerEmail: string;
+  organizationId: string;
+  startTime: string;
+  assigneeId: string;
+  fee?: number;
+  title?: string;
+  description?: string;
+  additionalCustomerFields?: Record<string, unknown>;
+}
+
+export interface BookAppointmentResponse {
+  success: boolean;
+  appointmentId: string;
+  confirmationDetails: any;
 }
 
 export interface FunctionsService {
@@ -16,6 +34,7 @@ export interface FunctionsService {
       end: string;
     }[];
   }>;
+  bookAppointment(payload: BookAppointmentPayload): Promise<BookAppointmentResponse>;
   createOrganizationInvite(payload: {
     organizationId: string;
     inviteeEmail: string;
