@@ -40,6 +40,7 @@ import {
 import { useState } from "react";
 import { AppointmentDetails } from "./AppointmentDetails";
 import { AppointmentForm } from "./AppointmentForm";
+import { formatUtcDateTime } from "@/utils/date-time";
 
 // Mock data - in real app this would come from API
 const mockAppointments = [
@@ -322,13 +323,10 @@ export function AppointmentList({
                     appointment.serviceId as keyof typeof mockServices
                   ];
                 const appointmentDate = appointment.startTime
-                  ? new Date(appointment.startTime).toLocaleDateString()
+                  ? formatUtcDateTime(appointment.startTime, "MMM dd, yyyy")
                   : "N/A";
                 const appointmentTime = appointment.startTime
-                  ? new Date(appointment.startTime).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                  ? formatUtcDateTime(appointment.startTime, "HH:mm")
                   : "N/A";
 
                 return (

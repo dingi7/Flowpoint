@@ -82,6 +82,9 @@ export const useUserOrganizationIds = () =>
 export const useHasOrganizations = () =>
   useUserStore((state) => (state.user?.organizationIds || []).length > 0);
 
+export const useCurrentUserId = () =>
+  useUserStore((state) => state.user?.id || null);
+
 // Action hooks
 export const useUserActions = () => {
   const setUser = useUserStore((state) => state.setUser);

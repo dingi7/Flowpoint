@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Organization, OrganizationData, DAY_OF_WEEK, CUSTOMER_FIELD_TYPE } from "@/core";
 import { useOrganizationForm } from "@/hooks";
 import { useOrganizationImageUpload } from "@/hooks/service-hooks/media/use-organization-image-upload";
+import { convertWorkingHoursToLocal, convertLocalTimeStringToUtc } from "@/utils/date-time";
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Clock, MapPin, Users } from "lucide-react";
 
@@ -45,8 +46,9 @@ export function OrganizationForm({
   } = uploadState;
 
   const currency = watch("currency");
-  const timezone = watch("settings.timezone");
   const currentImage = watch("image");
+  const workingDays = watch("settings.workingDays") || [];
+  const workingHours = watch("settings.workingHours") || { start: "09:00", end: "17:00" };
 
   // Update form when image upload completes
   useEffect(() => {
@@ -69,6 +71,10 @@ export function OrganizationForm({
   const [customerFields, setCustomerFields] = useState(
     organization?.settings?.customerFields || []
   );
+
+  // Local state for working hours to ensure proper input control
+  const [localStartTime, setLocalStartTime] = useState("09:00");
+  const [localEndTime, setLocalEndTime] = useState("17:00");
 
   const addCustomerField = () => {
     const newField = {
@@ -97,8 +103,19 @@ export function OrganizationForm({
     setValue("settings.customerFields", customerFields);
   }, [customerFields, setValue]);
 
-  const workingDays = watch("settings.workingDays") || [];
-  const workingHours = watch("settings.workingHours") || { start: "09:00", end: "17:00" };
+  // Ensure timezone is always set to UTC
+  useEffect(() => {
+    setValue("settings.timezone", "UTC");
+  }, [setValue]);
+
+  // Initialize local times when working hours change
+  useEffect(() => {
+    if (workingHours && workingHours.start && workingHours.end) {
+      const localTimes = convertWorkingHoursToLocal(workingHours as { start: string; end: string }, "UTC");
+      setLocalStartTime(localTimes.start);
+      setLocalEndTime(localTimes.end);
+    }
+  }, [workingHours]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -246,24 +263,19 @@ export function OrganizationForm({
           <div className="space-y-2">
             <Label htmlFor="timezone">Timezone</Label>
             <Select
-              value={timezone}
-              onValueChange={(value) => setValue("settings.timezone", value)}
-              disabled={isLoading}
+              value="UTC"
+              disabled={true}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select timezone" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="UTC">UTC</SelectItem>
-                <SelectItem value="Europe/London">Europe/London</SelectItem>
-                <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
-                <SelectItem value="Europe/Berlin">Europe/Berlin</SelectItem>
-                <SelectItem value="America/New_York">America/New_York</SelectItem>
-                <SelectItem value="America/Los_Angeles">America/Los_Angeles</SelectItem>
-                <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
-                <SelectItem value="Australia/Sydney">Australia/Sydney</SelectItem>
+                <SelectItem value="UTC">UTC (All organizations use UTC)</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              All organizations use UTC timezone. Working hours are displayed in your local timezone.
+            </p>
             {formState.errors.settings?.timezone && (
               <p className="text-sm text-red-500">
                 {formState.errors.settings.timezone.message}
@@ -277,10 +289,18 @@ export function OrganizationForm({
               <Input
                 id="workingHoursStart"
                 type="time"
-                value={workingHours.start}
-                onChange={(e) => setValue("settings.workingHours.start", e.target.value)}
+                value={localStartTime}
+                onChange={(e) => {
+                  setLocalStartTime(e.target.value);
+                  // Convert local time back to UTC for storage
+                  const utcTime = convertLocalTimeStringToUtc(e.target.value);
+                  setValue("settings.workingHours.start", utcTime);
+                }}
                 disabled={isLoading}
               />
+              <p className="text-xs text-muted-foreground">
+                Displayed in your local timezone (stored as UTC)
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -288,10 +308,18 @@ export function OrganizationForm({
               <Input
                 id="workingHoursEnd"
                 type="time"
-                value={workingHours.end}
-                onChange={(e) => setValue("settings.workingHours.end", e.target.value)}
+                value={localEndTime}
+                onChange={(e) => {
+                  setLocalEndTime(e.target.value);
+                  // Convert local time back to UTC for storage
+                  const utcTime = convertLocalTimeStringToUtc(e.target.value);
+                  setValue("settings.workingHours.end", utcTime);
+                }}
                 disabled={isLoading}
               />
+              <p className="text-xs text-muted-foreground">
+                Displayed in your local timezone (stored as UTC)
+              </p>
             </div>
           </div>
 

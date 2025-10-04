@@ -55,6 +55,11 @@ const data = {
       icon: LayoutDashboard,
     },
     {
+      title: "My Calendar",
+      url: "/calendar",
+      icon: Calendar,
+    },
+    {
       title: "Team",
       url: "/team",
       icon: Users,

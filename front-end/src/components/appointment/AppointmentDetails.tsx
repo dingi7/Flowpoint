@@ -19,6 +19,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import { formatUtcDateTime } from "@/utils/date-time";
 
 interface AppointmentDetailsProps {
   appointment: Appointment;
@@ -47,12 +48,12 @@ export function AppointmentDetails({
     price: appointment.fee || 150,
   };
 
-  // Mock appointment date and time (derived from startTime)
+  // Mock appointment date and time (derived from startTime) - convert from UTC to local
   const mockDate = appointment.startTime
-    ? new Date(appointment.startTime).toISOString().split("T")[0]
+    ? formatUtcDateTime(appointment.startTime, "yyyy-MM-dd")
     : new Date().toISOString().split("T")[0];
   const mockTime = appointment.startTime
-    ? new Date(appointment.startTime).toTimeString().slice(0, 5)
+    ? formatUtcDateTime(appointment.startTime, "HH:mm")
     : "10:00";
   const mockNotes = appointment.description || null;
 

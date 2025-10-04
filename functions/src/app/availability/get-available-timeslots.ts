@@ -42,10 +42,13 @@ export async function getAvailableTimeslotsFn(
     appointmentRepository,
   } = dependencies;
 
+  loggerService.info("getAvailableTimeslotsFn", { serviceId, date, organizationId });
+
   const service = await serviceRepository.get({
     id: serviceId,
     organizationId,
   });
+  loggerService.info("service", service);
   if (!service) {
     loggerService.error("Service not found", { serviceId });
     throw new Error("Service not found");
@@ -64,6 +67,7 @@ export async function getAvailableTimeslotsFn(
     throw new Error("Calendar not found");
   }
   const calendar = calendars[0];
+  loggerService.info("calendar", calendar);
 
   const timeOffs = await timeOffRepository.getAll({
     queryConstraints: [
@@ -79,13 +83,22 @@ export async function getAvailableTimeslotsFn(
     organizationId,
   });
 
+  loggerService.info("existingAppointments", existingAppointments);
+
+  loggerService.info("timeOffs", timeOffs);
+
+
   const timeslots = generateTimeslotsForDate({
     date: new Date(date),
     calendar,
     serviceDuration: service.duration,
     existingAppointments,
     timeOffs,
+  }, {
+    loggerService,
   });
+
+  loggerService.info("timeslots", timeslots);
 
   return timeslots;
 }

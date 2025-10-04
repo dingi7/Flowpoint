@@ -6,6 +6,9 @@ export * from "./repository-hooks/organization/use-organization";
 export * from "./repository-hooks/service/use-service";
 export * from "./repository-hooks/role/use-role";
 export * from "./repository-hooks/invite/use-invite";
+export * from "./repository-hooks/appointment/use-appointment";
+export * from "./repository-hooks/calendar/use-calendar";
+export * from "./repository-hooks/time-off/use-time-off";
 
 // Form hooks
 export * from "./forms/use-member-form";

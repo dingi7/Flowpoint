@@ -1,4 +1,5 @@
 import { hasTimeslotOverlap } from "@/app/availability/util/appointment-overlap";
+import { getDayOfWeek } from "@/app/availability/util/helpers";
 import {
   APPOINTMENT_STATUS,
   AppointmentRepository,
@@ -143,6 +144,8 @@ export async function validateBookingRequest(
 
   const calendar = calendars[0];
 
+  loggerService.info("calendar", calendar);
+
   // 5. Time validation
   const startTime = new Date(validatedPayload.startTime);
   const endTime = new Date(startTime);
@@ -154,11 +157,9 @@ export async function validateBookingRequest(
   }
 
   // 6. Business hours validation
-  const dayOfWeek = startTime.toLocaleDateString("en-US", {
-    weekday: "long",
-  }) as keyof typeof calendar.workingHours;
+  const dayOfWeek = getDayOfWeek(startTime);
   const workingHours = calendar.workingHours[dayOfWeek];
-
+  loggerService.info("workingHours", workingHours);
   if (!workingHours || workingHours.length === 0) {
     throw new Error(`No working hours defined for ${dayOfWeek}`);
   }

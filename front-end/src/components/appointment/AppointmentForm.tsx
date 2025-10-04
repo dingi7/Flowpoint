@@ -46,6 +46,7 @@ import {
 import { useState } from "react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { convertUtcToLocal, createUtcDateTime, formatUtcDateTime } from "@/utils/date-time";
 
 
 
@@ -130,9 +131,9 @@ export function AppointmentForm({
   const formData = {
     customerId: watch("customerId") || "",
     serviceId: watch("serviceId") || "",
-    date: watch("startTime") ? watch("startTime").split("T")[0] : "",
+    date: watch("startTime") ? formatUtcDateTime(watch("startTime"), "yyyy-MM-dd") : "",
     time: watch("startTime")
-      ? watch("startTime").split("T")[1]?.substring(0, 5)
+      ? formatUtcDateTime(watch("startTime"), "HH:mm")
       : undefined, // Use undefined instead of empty string for Select component
     status: watch("status") || APPOINTMENT_STATUS.PENDING,
     notes: watch("description") || "",
@@ -167,12 +168,12 @@ export function AppointmentForm({
 
   const handleChange = (field: string, value: string) => {
     if (field === "date" || field === "time") {
-      // Combine date and time into startTime
+      // Get current values in local timezone
       const currentDate = watch("startTime")
-        ? watch("startTime").split("T")[0]
+        ? formatUtcDateTime(watch("startTime"), "yyyy-MM-dd")
         : formData.date;
       const currentTime = watch("startTime")
-        ? watch("startTime").split("T")[1]?.substring(0, 5)
+        ? formatUtcDateTime(watch("startTime"), "HH:mm")
         : formData.time;
 
       const newDate = field === "date" ? value : currentDate;
@@ -180,13 +181,13 @@ export function AppointmentForm({
 
       if (newDate) {
         if (newTime) {
-          // Create proper ISO datetime string
-          const dateTime = new Date(`${newDate}T${newTime}:00`);
-          setValue("startTime", dateTime.toISOString());
+          // Create UTC datetime from local date and time
+          const utcDateTime = createUtcDateTime(newDate, newTime);
+          setValue("startTime", utcDateTime);
         } else {
           // Set date only, time will be added later
-          const dateTime = new Date(`${newDate}T00:00:00`);
-          setValue("startTime", dateTime.toISOString());
+          const utcDateTime = createUtcDateTime(newDate, "00:00");
+          setValue("startTime", utcDateTime);
         }
       }
     } else if (field === "customerId") {
@@ -237,14 +238,10 @@ export function AppointmentForm({
     enabled: !!formData.serviceId && !!formData.date,
   });
 
-  // Convert timeslots to time strings for the dropdown
+  // Convert timeslots to time strings for the dropdown (convert from UTC to local)
   const timeSlots = timeslotsData?.result?.map((slot) => {
-    const startTime = new Date(slot.start);
-    return startTime.toLocaleTimeString("en-US", {
-      hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const localTime = convertUtcToLocal(slot.start);
+    return format(localTime, "HH:mm");
   }) || [];
 
 
@@ -593,7 +590,7 @@ export function AppointmentForm({
                   <PopoverContent className="w-auto p-0" align="start">
                     <CalendarComponent
                       mode="single"
-                      selected={formData.date ? new Date(formData.date) : undefined}
+                      selected={formData.date ? new Date(formData.date + "T00:00:00") : undefined}
                       onSelect={(date) => {
                         if (date) {
                           handleChange("date", format(date, "yyyy-MM-dd"));
@@ -612,7 +609,10 @@ export function AppointmentForm({
                 <Label htmlFor="time" className="text-sm font-medium">Time *</Label>
                 <Select
                   value={formData.time}
-                  onValueChange={(value) => handleChange("time", value)}
+                  onValueChange={(value) => {
+                    // Convert the selected local time back to UTC for storage
+                    handleChange("time", value);
+                  }}
                   disabled={isTimeslotsLoading || !formData.serviceId || !formData.date}
                 >
                   <SelectTrigger className="h-16">
@@ -669,15 +669,12 @@ export function AppointmentForm({
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-lg">
-                      {format(new Date(formData.date), "EEEE, MMMM do, yyyy")}
+                      {formData.date && formData.time ? format(new Date(formData.date + "T00:00:00"), "EEEE, MMMM do, yyyy") : ""}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {formData.time} - {selectedService ? `${selectedService.duration} minutes` : 'Duration TBD'}
                     </p>
                   </div>
-                  <Badge variant="secondary" className="bg-purple-500/10 text-purple-600">
-                    Scheduled
-                  </Badge>
                 </div>
               </div>
             )}

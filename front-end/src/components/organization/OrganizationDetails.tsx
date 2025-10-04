@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Organization } from "@/core";
+import { convertWorkingHoursToLocal } from "@/utils/date-time";
 import {
     Building,
     Globe,
@@ -17,6 +18,12 @@ interface OrganizationDetailsProps {
 
 export function OrganizationDetails({ organization }: OrganizationDetailsProps) {
   const workingDays = organization.settings?.workingDays || [];
+  
+  // Convert working hours from organization timezone to user's local timezone
+  const localWorkingHours = organization.settings?.workingHours && organization.settings?.timezone
+    ? convertWorkingHoursToLocal(organization.settings.workingHours, organization.settings.timezone)
+    : organization.settings?.workingHours || { start: "09:00", end: "17:00" };
+  
   const workingDaysLabels = workingDays.map(day => {
     const dayMap: Record<string, string> = {
       'MONDAY': 'Mon',
@@ -154,7 +161,12 @@ export function OrganizationDetails({ organization }: OrganizationDetailsProps) 
             <div>
               <p className="text-sm font-medium text-foreground mb-2">Working Hours</p>
               <p className="text-sm text-muted-foreground">
-                {organization.settings?.workingHours?.start || "09:00"} - {organization.settings?.workingHours?.end || "17:00"}
+                {localWorkingHours.start} - {localWorkingHours.end}
+                {organization.settings?.timezone && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (converted from {organization.settings.timezone})
+                  </span>
+                )}
               </p>
             </div>
             <div>

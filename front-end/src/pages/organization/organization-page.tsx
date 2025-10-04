@@ -7,6 +7,7 @@ import { OrganizationForm } from "@/components/organization/OrganizationForm";
 import { OrganizationDetails } from "@/components/organization/OrganizationDetails";
 import { useSelectedOrganization, useOrganizationActions } from "@/stores";
 import { useUpdateOrganization } from "@/hooks/repository-hooks/organization/use-organization";
+import { convertWorkingHoursToLocal } from "@/utils/date-time";
 import { Edit, Building, Settings } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -16,6 +17,11 @@ export default function OrganizationPage() {
   const { updateOrganization: updateOrganizationStore } = useOrganizationActions();
   const updateOrganizationMutation = useUpdateOrganization();
   const [isEditing, setIsEditing] = useState(false);
+
+  // Convert working hours from organization timezone to user's local timezone
+  const localWorkingHours = selectedOrganization?.settings?.workingHours && selectedOrganization?.settings?.timezone
+    ? convertWorkingHoursToLocal(selectedOrganization.settings.workingHours, selectedOrganization.settings.timezone)
+    : selectedOrganization?.settings?.workingHours || { start: "09:00", end: "17:00" };
 
   const handleUpdateOrganization = async (data: any) => {
     if (!selectedOrganization) return;
@@ -144,7 +150,12 @@ export default function OrganizationPage() {
                           Working Hours
                         </label>
                         <p className="text-sm text-muted-foreground">
-                          {selectedOrganization.settings?.workingHours?.start || "09:00"} - {selectedOrganization.settings?.workingHours?.end || "17:00"}
+                          {localWorkingHours.start} - {localWorkingHours.end}
+                          {selectedOrganization?.settings?.timezone && (
+                            <span className="text-xs text-muted-foreground ml-1">
+                              (converted from {selectedOrganization.settings.timezone})
+                            </span>
+                          )}
                         </p>
                       </div>
                       <div>
