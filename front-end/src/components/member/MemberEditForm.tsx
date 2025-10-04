@@ -2,16 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { useRoles } from "@/hooks";
+import { useMemberImageUpload } from "@/hooks/service-hooks/media/use-member-image-upload";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Member } from "@/core";
+import { useEffect } from "react";
 
 const memberEditFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   roleIds: z.array(z.string()).min(1, "Please select at least one role"),
   description: z.string().optional(),
+  image: z.string().optional(),
 });
 
 type MemberEditFormData = z.infer<typeof memberEditFormSchema>;
@@ -34,6 +38,12 @@ export function MemberEditForm({
     orderBy: { field: "name", direction: "asc" },
   });
 
+  const uploadState = useMemberImageUpload();
+  const {
+    url,
+    isComplete: isUploadComplete,
+  } = uploadState;
+
   const { handleSubmit, register, setValue, watch, formState } =
     useForm<MemberEditFormData>({
       resolver: zodResolver(memberEditFormSchema),
@@ -41,11 +51,30 @@ export function MemberEditForm({
         name: member.name,
         roleIds: member.roleIds || [],
         description: member.description || "",
+        image: member.image || "",
       },
       mode: "onChange",
     });
 
   const selectedRoleIds = watch("roleIds") || [];
+  const currentImage = watch("image");
+
+  // Update form when image upload completes
+  useEffect(() => {
+    if (isUploadComplete && url) {
+      setValue("image", url);
+    }
+  }, [isUploadComplete, url, setValue]);
+
+  const handleImageRemove = () => {
+    setValue("image", "");
+    uploadState.setError(null);
+  };
+  
+  const handleUploadStart = () => {
+    // Clear any previous errors when starting a new upload
+    uploadState.setError(null);
+  };
 
   const handleRoleToggle = (roleId: string, checked: boolean) => {
     const currentRoles = selectedRoleIds;
@@ -90,6 +119,16 @@ export function MemberEditForm({
           </p>
         )}
       </div>
+
+      <ImageUpload
+        label="Member Photo (Optional)"
+        currentImage={currentImage}
+        uploadState={uploadState}
+        onImageRemove={handleImageRemove}
+        onUploadStart={handleUploadStart}
+        disabled={isLoading}
+        id="member-image"
+      />
 
       <div className="space-y-2">
         <Label>Roles</Label>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/image-upload";
 import {
   Select,
   SelectContent,
@@ -15,9 +16,12 @@ import {
 import { Service, OWNER_TYPE } from "@/core";
 import { useCreateService, useUpdateService } from "@/hooks";
 import { useServiceForm } from "@/hooks";
+import { useServiceImageUpload } from "@/hooks/service-hooks/media/use-service-image-upload";
+import { useNextServiceOrder } from "@/hooks/service-hooks/service/use-next-service-order";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
 import { useUserStore } from "@/stores";
+import { useEffect } from "react";
 
 interface ServiceFormProps {
   service?: Service;
@@ -30,6 +34,14 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
   const updateServiceMutation = useUpdateService();
   const currentOrganizationId = useCurrentOrganizationId();
   const {user} = useUserStore()
+  
+  const uploadState = useServiceImageUpload();
+  const {
+    url,
+    isComplete: isUploadComplete,
+  } = uploadState;
+
+  const { nextOrder } = useNextServiceOrder();
   
   const {
     register,
@@ -50,23 +62,25 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
         }
 
         if (service) {
-          // Update existing service
+          // Update existing service - preserve existing order
           await updateServiceMutation.mutateAsync({
             id: service.id,
             data: {
               ...data,
               organizationId: currentOrganizationId,
               ownerId: user.id,
+              order: service.order, // Preserve existing order
             },
             organizationId: currentOrganizationId,
           });
         } else {
-          // Create new service
+          // Create new service - assign next order
           await createServiceMutation.mutateAsync({
             data: {
               ...data,
               organizationId: currentOrganizationId,
               ownerId: user.id,
+              order: nextOrder, // Auto-assign next order
             },
             organizationId: currentOrganizationId,
           });
@@ -79,6 +93,25 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
       }
     },
   });
+  
+  const currentImage = watch("image");
+
+  // Update form when image upload completes
+  useEffect(() => {
+    if (isUploadComplete && url) {
+      setValue("image", url);
+    }
+  }, [isUploadComplete, url, setValue]);
+
+  const handleImageRemove = () => {
+    setValue("image", "");
+    uploadState.setError(null);
+  };
+  
+  const handleUploadStart = () => {
+    // Clear any previous errors when starting a new upload
+    uploadState.setError(null);
+  };
   
   if (!user) {
     return null;
@@ -170,6 +203,16 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
               <p className="text-sm text-red-500">{errors.description.message}</p>
             )}
           </div>
+
+          <ImageUpload
+            label="Service Image (Optional)"
+            currentImage={currentImage}
+            uploadState={uploadState}
+            onImageRemove={handleImageRemove}
+            onUploadStart={handleUploadStart}
+            disabled={isSubmitting}
+            id="service-image"
+          />
         </CardContent>
       </Card>
 

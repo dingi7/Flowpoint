@@ -17,6 +17,8 @@ export function SiteHeader() {
         return "Appointments";
       case "/services":
         return "Services";
+      case "/organization":
+        return "Organization";
       default:
         return "Dashboard";
     }

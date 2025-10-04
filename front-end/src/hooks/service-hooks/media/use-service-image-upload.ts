@@ -1,11 +1,11 @@
 import { useFileUpload } from "../file-upload/use-file-upload";
 
-export function useMemberImageUpload() {
+export function useServiceImageUpload() {
   return useFileUpload({
-    path: `member-images`,
+    path: `service-images`,
     fileValidationConfig: {
       allowedFileTypes: ["image/gif", "image/jpeg", "image/png", "image/webp"],
-      maxFileSize: 1024 * 1024 * 10, // 10MB
+      maxFileSize: 1024 * 1024 * 5, // 5MB
     },
   });
 }

@@ -18,6 +18,7 @@ export function useServiceForm({ service, onSubmit }: UseServiceFormProps) {
       description: service?.description || "",
       price: service?.price || 0,
       duration: service?.duration || 60,
+      image: service?.image || "",
     },
     mode: "onChange",
   });

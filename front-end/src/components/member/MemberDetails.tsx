@@ -39,15 +39,18 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
       {/* Member Header */}
       <div className="flex sm:items-start justify-between sm:flex-row flex-col">
         <div className="flex items-center gap-4">
-          <Avatar className="h-16 w-16">
+          <Avatar className="h-20 w-20 ring-4 ring-muted/20 hover:ring-primary/20 transition-all duration-200">
             <AvatarImage
-              src={`/abstract-geometric-shapes.png?height=64&width=64&query=${member.name}`}
+              src={member.image}
+              alt={member.name}
+              className="object-cover"
             />
-            <AvatarFallback className="text-lg">
+            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-bold text-xl">
               {member.name
                 .split(" ")
                 .map((n: string) => n[0])
-                .join("")}
+                .join("")
+                .toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>

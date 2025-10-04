@@ -16,6 +16,16 @@ export function Services() {
     });
 
     const allServices = services?.pages?.flatMap((page) => page) || [];
+    
+    // Sort services by order field, then by name as fallback
+    const sortedServices = allServices.sort((a: Service, b: Service) => {
+      const orderA = a.order || 0;
+      const orderB = b.order || 0;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      return a.name.localeCompare(b.name);
+    });
     const { t } = useTranslation();
     // const { openModal } = useBookingModal();
 
@@ -48,7 +58,7 @@ export function Services() {
                 </FadeInView>
 
                 <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
-                    {allServices.map((service: Service, index: number) => (
+                    {sortedServices.map((service: Service, index: number) => (
                         <FadeInView key={service.id} delay={index * 0.2}>
                             <div className='bg-[#242424] flex flex-col h-full group hover:bg-[#2A2A2A] transition-colors duration-300'>
                                 <div className='relative w-full aspect-square overflow-hidden'>
@@ -75,9 +85,7 @@ export function Services() {
                                             {service.name}
                                         </h3>
                                         <p className='text-gray-400 mb-6 flex-grow'>
-                                            {t(
-                                                `services.${service.name}.description`
-                                            )}
+                                            {service.description}
                                         </p>
                                     </div>
                                     <div className='flex flex-col mt-auto'>

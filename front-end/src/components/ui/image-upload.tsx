@@ -62,7 +62,7 @@ export function ImageUpload({
       )}
       
       <div className="space-y-2">
-        {currentImage && (
+        {(currentImage) && (
           <div className="flex items-center gap-3 p-3 border rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 transition-all duration-200">
             <div className="w-16 h-16 rounded-md overflow-hidden ring-2 ring-emerald-200 dark:ring-emerald-800">
               <img
@@ -72,7 +72,7 @@ export function ImageUpload({
               />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Image uploaded successfully</p>
+              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Currently uploaded image</p>
               <p className="text-xs text-emerald-600 dark:text-emerald-400">Ready to use</p>
             </div>
             <Button
@@ -117,7 +117,7 @@ export function ImageUpload({
                   {currentImage ? 'Click to replace image' : 'Click to upload image'}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  PNG, JPG, GIF up to 5MB
+                  PNG, JPG, GIF up to 10MB
                 </p>
               </label>
             </div>

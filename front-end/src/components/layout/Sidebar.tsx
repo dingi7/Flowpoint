@@ -9,7 +9,8 @@ import {
   Code,
   LayoutDashboard,
   Plus, UserRound,
-  Users
+  Users,
+  Settings
 } from "lucide-react";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -72,6 +73,11 @@ const data = {
       title: "Services",
       url: "/services",
       icon:  Code,
+    },
+    {
+      title: "Organization",
+      url: "/organization",
+      icon: Settings,
     },
   ],
   notifications: [

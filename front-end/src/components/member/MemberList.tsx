@@ -128,15 +128,18 @@ export function MemberList({ searchQuery }: MemberListProps) {
                 <TableRow key={member.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-12 w-12 ring-2 ring-muted/20 hover:ring-primary/20 transition-all duration-200">
                         <AvatarImage
-                          src={`/abstract-geometric-shapes.png?height=40&width=40&query=${member.name}`}
+                          src={member.image}
+                          alt={member.name}
+                          className="object-cover"
                         />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold text-sm">
                           {member.name
                             .split(" ")
                             .map((n) => n[0])
-                            .join("")}
+                            .join("")
+                            .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -211,7 +214,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
 
       {/* Member Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:min-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Member Details</DialogTitle>
           </DialogHeader>
@@ -229,7 +232,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
 
       {/* Edit Member Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:min-w-2xl">
+        <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Member</DialogTitle>
           </DialogHeader>

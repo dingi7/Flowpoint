@@ -35,8 +35,20 @@ export const useUpdateOrganization = () => {
     mutationFn: async (params: UpdateOrganizationParams) => {
       return organizationRepository.update(params);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["organizations", "get"] });
+    onSuccess: (_, variables) => {
+      // Invalidate all organization-related queries
+      queryClient.invalidateQueries({ queryKey: ["organizations"] });
+      queryClient.invalidateQueries({ queryKey: ["organization"] });
+      
+      // Invalidate specific organization query
+      queryClient.invalidateQueries({ 
+        queryKey: ["organization", "get", variables.id] 
+      });
+      
+      // Invalidate organizations by IDs queries
+      queryClient.invalidateQueries({ 
+        queryKey: ["organizations", "getMany"] 
+      });
     },
   });
 }

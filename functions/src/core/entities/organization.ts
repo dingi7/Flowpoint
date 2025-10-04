@@ -21,6 +21,12 @@ export const OrganizationSettingsSchema = z.object({
   defaultBufferTime: z.number().int().min(0).default(0), // minutes
   appointmentCancellationPolicyHours: z.number().int().min(0).default(24),
   customerFields: z.array(CustomerFieldConfigSchema).default([]),
+  contactInfo: z.object({
+    address: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().optional(),
+    googleMapsUrl: z.string().optional(),
+  }),
 });
 
 export type OrganizationSettingsData = z.infer<

@@ -31,6 +31,12 @@ export function useOrganizationForm({ organization, onSubmit }: UseOrganizationF
         defaultBufferTime: organization?.settings?.defaultBufferTime || 0,
         appointmentCancellationPolicyHours: organization?.settings?.appointmentCancellationPolicyHours || 24,
         customerFields: organization?.settings?.customerFields || [],
+        contactInfo: organization?.settings?.contactInfo || {
+          address: organization?.settings?.contactInfo?.address || "",
+          phone: organization?.settings?.contactInfo?.phone || "",
+          email: organization?.settings?.contactInfo?.email || "",
+          googleMapsUrl: organization?.settings?.contactInfo?.googleMapsUrl || "",
+        },  
       },
     },
     mode: "onChange",

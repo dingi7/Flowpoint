@@ -11,6 +11,7 @@ export const serviceDataSchema = z.object({
   price: z.number(),
   duration: z.number(),
   image: z.string().optional(),
+  order: z.number().optional(),
 });
 
 export type ServiceData = z.infer<typeof serviceDataSchema>;

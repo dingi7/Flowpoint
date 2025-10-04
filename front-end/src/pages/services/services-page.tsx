@@ -20,11 +20,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ServiceForm } from "@/components/service/ServiceForm";
 import { ServiceList } from "@/components/service/ServiceList";
+import { DraggableServiceList } from "@/components/service/DraggableServiceList";
 import { ServiceDetails } from "@/components/service/ServiceDetails";
 import { Service } from "@/core";
 import { Plus, Search, Filter, Settings, DollarSign, Users, Clock } from "lucide-react";
 import { useState } from "react";
 import { useServices, useDeleteService } from "@/hooks/repository-hooks/service/use-service";
+import { useReorderServices } from "@/hooks/service-hooks/service/use-reorder-services";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { toast } from "sonner";
 
@@ -40,16 +42,13 @@ export default function ServicesPage() {
   // Service hooks
   const currentOrganizationId = useCurrentOrganizationId();
   const deleteServiceMutation = useDeleteService();
+  const { reorderServices } = useReorderServices();
   const servicesQuery = useServices({
     pagination: { limit: 50 },
     queryConstraints: searchQuery ? [
       { field: "name", operator: ">=", value: searchQuery },
       { field: "name", operator: "<=", value: searchQuery + '\uf8ff' }
     ] : [],
-    orderBy: {
-      field: searchQuery.trim() ? "name" : "updatedAt",
-      direction: "desc",
-    },
   });
 
   // Get flattened services data for stats
@@ -106,6 +105,10 @@ export default function ServicesPage() {
     toast.success("Service saved successfully");
   };
 
+  const handleReorderServices = async (services: Service[]) => {
+    await reorderServices(services);
+  };
+
   const handleFormCancel = () => {
     setIsAddDialogOpen(false);
     setIsEditDialogOpen(false);
@@ -132,7 +135,7 @@ export default function ServicesPage() {
                 Add Service
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:min-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Service</DialogTitle>
               </DialogHeader>
@@ -249,11 +252,12 @@ export default function ServicesPage() {
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
-          <ServiceList
+          <DraggableServiceList
             searchQuery={searchQuery}
             onEdit={handleEditService}
             onDelete={handleDeleteService}
             onView={handleViewService}
+            onReorder={handleReorderServices}
             servicesData={servicesQuery.data}
             isLoading={servicesQuery.isLoading}
             error={servicesQuery.error}
@@ -298,7 +302,7 @@ export default function ServicesPage() {
 
       {/* Edit Service Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Service</DialogTitle>
           </DialogHeader>
@@ -314,7 +318,7 @@ export default function ServicesPage() {
 
       {/* Service Details Dialog */}
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Service Details</DialogTitle>
           </DialogHeader>

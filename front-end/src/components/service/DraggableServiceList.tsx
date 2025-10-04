@@ -18,36 +18,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Service, OWNER_TYPE } from "@/core";
-import { Edit, MoreHorizontal, Trash2, Eye, Clock, DollarSign } from "lucide-react";
+import { Edit, MoreHorizontal, Trash2, Eye, Clock, DollarSign, GripVertical } from "lucide-react";
+import { useState } from "react";
 
-interface ServiceListProps {
+interface DraggableServiceListProps {
   searchQuery?: string;
   durationFilter?: "all" | "short" | "medium" | "long";
   priceFilter?: "all" | "low" | "mid" | "high";
   onEdit?: (service: Service) => void;
   onDelete?: (service: Service) => void;
   onView?: (service: Service) => void;
+  onReorder?: (services: Service[]) => void;
   servicesData?: { pages: Service[][] };
   isLoading?: boolean;
   error?: Error | null;
 }
 
-// Mock data for demonstration
-
-
-export function ServiceList({ 
+export function DraggableServiceList({ 
   searchQuery = "", 
   durationFilter = "all",
   priceFilter = "all",
   onEdit, 
   onDelete, 
-  onView, 
+  onView,
+  onReorder,
   servicesData, 
   isLoading = false, 
   error 
-}: ServiceListProps) {
-  // Get services from the hook data or fallback to mock data
+}: DraggableServiceListProps) {
+  
   const services = servicesData?.pages?.flatMap((page: Service[]) => page) || [];
+  const [draggedItem, setDraggedItem] = useState<Service | null>(null);
+  const [draggedOverItem, setDraggedOverItem] = useState<Service | null>(null);
   
   // Handle error state
   if (error) {
@@ -129,6 +131,51 @@ export function ServiceList({
     );
   };
 
+  const handleDragStart = (e: React.DragEvent, service: Service) => {
+    setDraggedItem(service);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, service: Service) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDraggedOverItem(service);
+  };
+
+  const handleDragLeave = () => {
+    setDraggedOverItem(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetService: Service) => {
+    e.preventDefault();
+    
+    if (!draggedItem || draggedItem.id === targetService.id) {
+      setDraggedItem(null);
+      setDraggedOverItem(null);
+      return;
+    }
+
+    // Create new order for services
+    const newServices = [...filteredServices];
+    const draggedIndex = newServices.findIndex(s => s.id === draggedItem.id);
+    const targetIndex = newServices.findIndex(s => s.id === targetService.id);
+
+    // Remove dragged item and insert at new position
+    const [draggedService] = newServices.splice(draggedIndex, 1);
+    newServices.splice(targetIndex, 0, draggedService);
+
+    // Update order values
+    const updatedServices = newServices.map((service, index) => ({
+      ...service,
+      order: index
+    }));
+
+    onReorder?.(updatedServices);
+    setDraggedItem(null);
+    setDraggedOverItem(null);
+  };
+
+  // Handle loading state
   if (isLoading) {
     return (
       <Card>
@@ -141,19 +188,15 @@ export function ServiceList({
     );
   }
 
+  // Handle empty state
   if (filteredServices.length === 0) {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="flex flex-col items-center justify-center h-32 text-center">
-            <div className="text-muted-foreground mb-2">
-              {searchQuery ? "No services found matching your search." : "No services found."}
+          <div className="flex items-center justify-center h-32">
+            <div className="text-muted-foreground">
+              {searchQuery ? 'No services found matching your search.' : 'No services available.'}
             </div>
-            {searchQuery && (
-              <div className="text-sm text-muted-foreground">
-                Try adjusting your search terms.
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -164,7 +207,10 @@ export function ServiceList({
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-sans">
-          Services ({filteredServices.length}) 
+          Services ({filteredServices.length})
+          <span className="text-sm text-muted-foreground ml-2">
+            This is a draggable list and the order is how the services are displayed on the page and on the bussiness page.
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -172,6 +218,7 @@ export function ServiceList({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">Drag</TableHead>
                 <TableHead>Service Name</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead className="text-center">
@@ -192,7 +239,22 @@ export function ServiceList({
             </TableHeader>
             <TableBody>
               {filteredServices.map((service) => (
-                <TableRow key={service.id}>
+                <TableRow 
+                  key={service.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, service)}
+                  onDragOver={(e) => handleDragOver(e, service)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, service)}
+                  className={`cursor-move ${
+                    draggedItem?.id === service.id ? 'opacity-50' : ''
+                  } ${
+                    draggedOverItem?.id === service.id ? 'bg-muted/50' : ''
+                  }`}
+                >
+                  <TableCell>
+                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                  </TableCell>
                   <TableCell className="font-medium">
                     {service.name}
                   </TableCell>
@@ -222,22 +284,22 @@ export function ServiceList({
                         {onView && (
                           <DropdownMenuItem onClick={() => onView(service)}>
                             <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                            View
                           </DropdownMenuItem>
                         )}
                         {onEdit && (
                           <DropdownMenuItem onClick={() => onEdit(service)}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit Service
+                            Edit
                           </DropdownMenuItem>
                         )}
                         {onDelete && (
                           <DropdownMenuItem 
                             onClick={() => onDelete(service)}
-                            className="text-red-600"
+                            className="text-destructive"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Service
+                            Delete
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>

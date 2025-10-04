@@ -1,21 +1,21 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Service, OWNER_TYPE } from "@/core";
-import { 
-  Edit, 
-  Trash2, 
-  Clock, 
-  DollarSign, 
-  User, 
-  Building, 
-  Calendar,
-  FileText
-} from "lucide-react";
+import { OWNER_TYPE, Service } from "@/core";
 import { useUser } from "@/hooks";
+import {
+  Building,
+  Calendar,
+  Clock,
+  DollarSign,
+  Edit,
+  FileText,
+  Trash2,
+  User,
+} from "lucide-react";
 
 interface ServiceDetailsProps {
   service: Service;
@@ -24,44 +24,53 @@ interface ServiceDetailsProps {
   onClose?: () => void;
 }
 
-export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDetailsProps) {
+export function ServiceDetails({
+  service,
+  onEdit,
+  onDelete,
+  onClose,
+}: ServiceDetailsProps) {
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(price);
   };
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    
+
     if (hours > 0) {
-      return mins > 0 ? `${hours} hour${hours > 1 ? 's' : ''} ${mins} minute${mins > 1 ? 's' : ''}` : `${hours} hour${hours > 1 ? 's' : ''}`;
+      return mins > 0
+        ? `${hours} hour${hours > 1 ? "s" : ""} ${mins} minute${mins > 1 ? "s" : ""}`
+        : `${hours} hour${hours > 1 ? "s" : ""}`;
     }
-    return `${mins} minute${mins > 1 ? 's' : ''}`;
+    return `${mins} minute${mins > 1 ? "s" : ""}`;
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(date);
   };
 
   const getOwnerTypeInfo = (ownerType: string) => {
-    return ownerType === OWNER_TYPE.ORGANIZATION ? {
-      label: 'Organization',
-      icon: Building,
-      variant: 'secondary' as const,
-    } : {
-      label: 'Member',
-      icon: User,
-      variant: 'outline' as const,
-    };
+    return ownerType === OWNER_TYPE.ORGANIZATION
+      ? {
+          label: "Organization",
+          icon: Building,
+          variant: "secondary" as const,
+        }
+      : {
+          label: "Member",
+          icon: User,
+          variant: "outline" as const,
+        };
   };
 
   const serviceOwner = useUser(service.ownerId);
@@ -91,6 +100,24 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
         </div>
       </div>
 
+      {/* Service Image Card */}
+      {service.image && (
+        <Card className="border-none">
+          <CardHeader>
+            <CardTitle className="text-lg font-sans flex items-center gap-2"></CardTitle>
+            <CardContent className="flex justify-center">
+              <div className="relative w-128 h-128 rounded-xl overflow-hidden border-2 border-muted">
+                <img
+                  src={service.image}
+                  alt={service.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </CardContent>
+          </CardHeader>
+        </Card>
+      )}
+
       {/* Service Information */}
       <Card className="border-none">
         <CardHeader>
@@ -103,12 +130,16 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Service Name</label>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Service Name
+                </label>
                 <p className="text-base font-medium">{service.name}</p>
               </div>
-              
+
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Description</label>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Description
+                </label>
                 <p className="text-base">
                   {service.description || "No description provided"}
                 </p>
@@ -121,15 +152,26 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
                   <DollarSign className="h-4 w-4" />
                   Price
                 </label>
-                <p className="text-base font-medium">{formatPrice(service.price)}</p>
+                <p className="text-base font-medium">
+                  {formatPrice(service.price)}
+                </p>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
                   <Clock className="h-4 w-4" />
                   Duration
                 </label>
-                <p className="text-base font-medium">{formatDuration(service.duration)}</p>
+                <p className="text-base font-medium">
+                  {formatDuration(service.duration)}
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">
+                  Display Order
+                </label>
+                <p className="text-base font-medium">{service.order || 0}</p>
               </div>
             </div>
           </div>
@@ -143,7 +185,9 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
             </label>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant={ownerInfo.variant}>{ownerInfo.label}</Badge>
-              <span className="text-sm text-muted-foreground">{serviceOwner.data?.email}</span>
+              <span className="text-sm text-muted-foreground">
+                {serviceOwner.data?.email}
+              </span>
             </div>
           </div>
         </CardContent>
@@ -160,16 +204,19 @@ export function ServiceDetails({ service, onEdit, onDelete, onClose }: ServiceDe
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Created At</label>
+              <label className="text-sm font-medium text-muted-foreground">
+                Created At
+              </label>
               <p className="text-base">{formatDate(service.createdAt)}</p>
             </div>
-            
+
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
+              <label className="text-sm font-medium text-muted-foreground">
+                Last Updated
+              </label>
               <p className="text-base">{formatDate(service.updatedAt)}</p>
             </div>
           </div>
-
         </CardContent>
       </Card>
 

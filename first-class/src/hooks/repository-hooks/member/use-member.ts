@@ -7,15 +7,15 @@ import { ORGANIZATION_ID } from "@/constants";
 
 const databaseService = serviceHost.getDatabaseService();
 
-const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const memberRepository = repositoryHost.getMemberRepository(databaseService);
 
-export const useServices = (options: GetOptions) => {
+export const useMembers = (options: GetOptions) => {
   const currentOrganizationId = ORGANIZATION_ID;
   
   return useInfiniteQuery({
-    queryKey: ["services", "get", JSON.stringify(options), currentOrganizationId],
+    queryKey: ["members", "get", JSON.stringify(options), currentOrganizationId],
     queryFn: ({ pageParam }) =>
-      serviceRepository.getAll({
+      memberRepository.getAll({
         ...options,
         organizationId: currentOrganizationId!,
         pagination: {

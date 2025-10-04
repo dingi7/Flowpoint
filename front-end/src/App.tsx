@@ -15,6 +15,7 @@ import SignUpPage from "./pages/auth/sign-up-page";
 import CustomersPage from "./pages/customers/customers-page";
 import DashboardPage from "./pages/dashboard-page";
 import ServicesPage from "./pages/services/services-page";
+import OrganizationPage from "./pages/organization/organization-page";
 import { FirebaseTokenProvider } from "./utils/firebase-token-provider";
 import UserInitializer from "./components/utils/UserInitializer";
 import TeamPage from "./pages/team/team-page";
@@ -96,6 +97,16 @@ function AppContent() {
                 <SignedIn>
                   <AppLayout>
                     <ServicesPage />
+                  </AppLayout>
+                </SignedIn>
+              }
+            />
+            <Route
+              path="/organization"
+              element={
+                <SignedIn>
+                  <AppLayout>
+                    <OrganizationPage />
                   </AppLayout>
                 </SignedIn>
               }
