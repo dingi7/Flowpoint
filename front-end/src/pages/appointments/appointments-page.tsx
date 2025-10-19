@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APPOINTMENT_STATUS } from "@/core";
+import { useAppointments } from "@/hooks/repository-hooks/appointment/use-appointment";
+import { endOfDay, startOfDay } from "date-fns";
 import {
   Calendar,
   CheckCircle,
@@ -28,21 +30,132 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function AppointmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFilter, setDateFilter] = useState("today");
+  const [dateFilter, setDateFilter] = useState("all");
   const [isBookAppointmentOpen, setIsBookAppointmentOpen] = useState(false);
 
-  // Mock stats data
-  const stats = {
-    today: 8,
-    thisWeek: 32,
-    pending: 5,
-    completed: 156,
-  };
+  // Fetch appointments data
+  const { data: appointmentsData } = useAppointments({
+    pagination: { limit: 1000 },
+    orderBy: { field: "startTime", direction: "asc" },
+  });
+
+  const appointments = appointmentsData?.pages.flatMap((page) => page) || [];
+
+  // Calculate real stats from appointments data
+  const stats = useMemo(() => {
+    const today = new Date();
+    const todayStart = startOfDay(today);
+    const todayEnd = endOfDay(today);
+
+    // This week (Monday to Sunday of current week)
+    // today.getDay() returns 0-6 (Sunday=0, Monday=1, ..., Saturday=6)
+    // We want Monday, so we subtract (today.getDay() - 1) days
+    const weekStart = startOfDay(
+      new Date(today.getTime() - (today.getDay() - 1) * 24 * 60 * 60 * 1000),
+    );
+    const weekEnd = endOfDay(
+      new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000),
+    );
+
+    // Last week (Monday to Sunday of the previous week)
+    // Go back to Monday of previous week: subtract (today.getDay() + 6) days
+    const lastWeekStart = startOfDay(
+      new Date(today.getTime() - (today.getDay() + 6) * 24 * 60 * 60 * 1000),
+    );
+    const lastWeekEnd = endOfDay(
+      new Date(lastWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000),
+    );
+
+    // This month (from start of current month to end of current month)
+    const monthStart = startOfDay(
+      new Date(today.getFullYear(), today.getMonth(), 1),
+    );
+    const monthEnd = endOfDay(
+      new Date(today.getFullYear(), today.getMonth() + 1, 0),
+    );
+
+    const todayAppointments = appointments.filter((appointment) => {
+      if (!appointment.startTime) return false;
+      const appointmentDate = new Date(appointment.startTime);
+      return appointmentDate >= todayStart && appointmentDate <= todayEnd;
+    });
+
+    const thisWeekAppointments = appointments.filter((appointment) => {
+      if (!appointment.startTime) return false;
+      const appointmentDate = new Date(appointment.startTime);
+      return appointmentDate >= weekStart && appointmentDate <= weekEnd;
+    });
+
+    const lastWeekAppointments = appointments.filter((appointment) => {
+      if (!appointment.startTime) return false;
+      const appointmentDate = new Date(appointment.startTime);
+      return appointmentDate >= lastWeekStart && appointmentDate <= lastWeekEnd;
+    });
+
+    const pendingAppointments = appointments.filter(
+      (appointment) => appointment.status === APPOINTMENT_STATUS.PENDING,
+    );
+
+    const overduePending = pendingAppointments.filter((appointment) => {
+      if (!appointment.startTime) return false;
+      const appointmentDate = new Date(appointment.startTime);
+      return appointmentDate < todayStart;
+    }).length;
+
+    const completedAppointments = appointments.filter(
+      (appointment) => appointment.status === APPOINTMENT_STATUS.COMPLETED,
+    );
+
+    const thisMonthCompleted = appointments.filter((appointment) => {
+      if (
+        !appointment.startTime ||
+        appointment.status !== APPOINTMENT_STATUS.COMPLETED
+      )
+        return false;
+      const appointmentDate = new Date(appointment.startTime);
+      return appointmentDate >= monthStart && appointmentDate <= monthEnd;
+    }).length;
+
+    const todayCompleted = todayAppointments.filter(
+      (appointment) => appointment.status === APPOINTMENT_STATUS.COMPLETED,
+    ).length;
+
+    const todayUpcoming = todayAppointments.filter(
+      (appointment) =>
+        appointment.status !== APPOINTMENT_STATUS.COMPLETED &&
+        appointment.status !== APPOINTMENT_STATUS.CANCELLED,
+    ).length;
+
+    // Calculate percentage change from last week
+    const lastWeekCount = lastWeekAppointments.length;
+    const thisWeekCount = thisWeekAppointments.length;
+    let weekPercentageChange = 0;
+
+    if (lastWeekCount > 0) {
+      weekPercentageChange = Math.round(
+        ((thisWeekCount - lastWeekCount) / lastWeekCount) * 100,
+      );
+    } else if (thisWeekCount > 0) {
+      weekPercentageChange = thisWeekCount * 100; // 100% increase if no appointments last week
+    }
+
+    return {
+      today: todayAppointments.length,
+      thisWeek: thisWeekAppointments.length,
+      pending: pendingAppointments.length,
+      overduePending,
+      completed: completedAppointments.length,
+      thisMonthCompleted,
+      todayCompleted,
+      todayUpcoming,
+      weekPercentageChange,
+    };
+  }, [appointments]);
 
   return (
     <main className="flex-1 overflow-y-auto p-6">
@@ -57,27 +170,29 @@ export default function AppointmentsPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0">
-        <Dialog
-          open={isBookAppointmentOpen}
-          onOpenChange={setIsBookAppointmentOpen}
-        >
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Book Appointment
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
-            <DialogHeader className="px-6 pt-6 pb-4">
-              <DialogTitle className="text-xl font-semibold">Book New Appointment</DialogTitle>
-            </DialogHeader>
-            <div className="overflow-hidden">
-              <AppointmentForm
-                onSuccess={() => setIsBookAppointmentOpen(false)}
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
+          <Dialog
+            open={isBookAppointmentOpen}
+            onOpenChange={setIsBookAppointmentOpen}
+          >
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Book Appointment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
+              <DialogHeader className="px-6 pt-6 pb-4">
+                <DialogTitle className="text-xl font-semibold">
+                  Book New Appointment
+                </DialogTitle>
+              </DialogHeader>
+              <div className="overflow-hidden">
+                <AppointmentForm
+                  onSuccess={() => setIsBookAppointmentOpen(false)}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -93,7 +208,7 @@ export default function AppointmentsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{stats.today}</div>
             <p className="text-xs text-muted-foreground">
-              3 completed, 5 upcoming
+              {stats.todayCompleted} completed, {stats.todayUpcoming} upcoming
             </p>
           </CardContent>
         </Card>
@@ -105,7 +220,10 @@ export default function AppointmentsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.thisWeek}</div>
-            <p className="text-xs text-muted-foreground">+12% from last week</p>
+            <p className="text-xs text-muted-foreground">
+              {stats.weekPercentageChange > 0 ? "+" : ""}
+              {stats.weekPercentageChange}% from last week
+            </p>
           </CardContent>
         </Card>
 
@@ -118,7 +236,11 @@ export default function AppointmentsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pending}</div>
-            <p className="text-xs text-muted-foreground">Require attention</p>
+            <p className="text-xs text-muted-foreground">
+              {stats.overduePending > 0
+                ? `${stats.overduePending} overdue`
+                : "Require attention"}
+            </p>
           </CardContent>
         </Card>
 
@@ -130,7 +252,7 @@ export default function AppointmentsPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.completed}</div>
+            <div className="text-2xl font-bold">{stats.thisMonthCompleted}</div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
@@ -156,7 +278,6 @@ export default function AppointmentsPage() {
           <SelectContent>
             <SelectItem value="all">All Appointments</SelectItem>
             <SelectItem value={APPOINTMENT_STATUS.PENDING}>Pending</SelectItem>
-            <SelectItem value="confirmed">Confirmed</SelectItem>
             <SelectItem value={APPOINTMENT_STATUS.COMPLETED}>
               Completed
             </SelectItem>
@@ -172,11 +293,11 @@ export default function AppointmentsPage() {
             <SelectValue placeholder="Filter by date" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All Time</SelectItem>
             <SelectItem value="today">Today</SelectItem>
             <SelectItem value="tomorrow">Tomorrow</SelectItem>
             <SelectItem value="week">This Week</SelectItem>
             <SelectItem value="month">This Month</SelectItem>
-            <SelectItem value="all">All Time</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -207,7 +328,7 @@ export default function AppointmentsPage() {
         <TabsContent value="upcoming" className="mt-6">
           <AppointmentList
             searchQuery={searchQuery}
-            statusFilter="confirmed"
+            statusFilter="all"
             dateFilter="upcoming"
           />
         </TabsContent>

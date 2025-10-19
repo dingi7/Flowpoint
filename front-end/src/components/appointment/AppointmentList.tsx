@@ -26,7 +26,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { APPOINTMENT_STATUS, ASSIGNEE_TYPE } from "@/core";
+import { APPOINTMENT_STATUS, Appointment } from "@/core";
+import { useAppointments, useCustomers, useServices, useUpdateAppointment } from "@/hooks";
+import { useCurrentOrganizationId } from "@/stores/organization-store";
 import {
   CheckCircle,
   Clock,
@@ -37,141 +39,11 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AppointmentDetails } from "./AppointmentDetails";
 import { AppointmentForm } from "./AppointmentForm";
 import { formatUtcDateTime } from "@/utils/date-time";
 
-// Mock data - in real app this would come from API
-const mockAppointments = [
-  {
-    id: "1",
-    assigneeType: ASSIGNEE_TYPE.MEMBER,
-    assigneeId: "staff-1",
-    customerId: "1",
-    serviceId: "1",
-    title: "Hair Cut & Style",
-    description: "First time client, prefers shorter styles",
-    organizationId: "org-1",
-    startTime: "2024-01-25T10:00:00Z",
-    duration: 60,
-    fee: 85,
-    status: APPOINTMENT_STATUS.PENDING,
-    createdAt: new Date("2024-01-20T00:00:00Z"),
-    updatedAt: new Date("2024-01-20T00:00:00Z"),
-  },
-  {
-    id: "2",
-    assigneeType: ASSIGNEE_TYPE.MEMBER,
-    assigneeId: "staff-2",
-    customerId: "2",
-    serviceId: "2",
-    title: "Color Treatment",
-    description: "Wants to go from brown to blonde",
-    organizationId: "org-1",
-    startTime: "2024-01-25T14:00:00Z",
-    duration: 120,
-    fee: 150,
-    status: APPOINTMENT_STATUS.PENDING,
-    createdAt: new Date("2024-01-22T00:00:00Z"),
-    updatedAt: new Date("2024-01-22T00:00:00Z"),
-  },
-  {
-    id: "3",
-    assigneeType: ASSIGNEE_TYPE.MEMBER,
-    assigneeId: "staff-1",
-    customerId: "3",
-    serviceId: "3",
-    title: "Facial Treatment",
-    description: "Regular monthly facial",
-    organizationId: "org-1",
-    startTime: "2024-01-24T11:30:00Z",
-    duration: 90,
-    fee: 120,
-    status: APPOINTMENT_STATUS.COMPLETED,
-    createdAt: new Date("2024-01-15T00:00:00Z"),
-    updatedAt: new Date("2024-01-15T00:00:00Z"),
-  },
-  {
-    id: "4",
-    assigneeType: ASSIGNEE_TYPE.MEMBER,
-    assigneeId: "staff-3",
-    customerId: "4",
-    serviceId: "4",
-    title: "Massage Therapy",
-    description: "Focus on back and shoulders",
-    organizationId: "org-1",
-    startTime: "2024-01-26T16:30:00Z",
-    duration: 75,
-    fee: 100,
-    status: APPOINTMENT_STATUS.PENDING,
-    createdAt: new Date("2024-01-23T00:00:00Z"),
-    updatedAt: new Date("2024-01-23T00:00:00Z"),
-  },
-  {
-    id: "5",
-    assigneeType: ASSIGNEE_TYPE.ORGANIZATION,
-    assigneeId: "org-1",
-    customerId: "5",
-    serviceId: "5",
-    title: "Consultation",
-    description: "Cancelled due to illness",
-    organizationId: "org-1",
-    startTime: "2024-01-23T09:00:00Z",
-    duration: 30,
-    fee: 0,
-    status: APPOINTMENT_STATUS.CANCELLED,
-    createdAt: new Date("2024-01-20T00:00:00Z"),
-    updatedAt: new Date("2024-01-20T00:00:00Z"),
-  },
-];
-
-// Mock customer and service data for display
-const mockCustomers = {
-  "1": {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah.johnson@email.com",
-    phone: "+1 (555) 123-4567",
-    avatar: "/abstract-geometric-shapes.png",
-  },
-  "2": {
-    id: "2",
-    name: "Mike Chen",
-    email: "mike.chen@email.com",
-    phone: "+1 (555) 234-5678",
-    avatar: "/abstract-geometric-shapes.png",
-  },
-  "3": {
-    id: "3",
-    name: "Emma Wilson",
-    email: "emma.wilson@email.com",
-    phone: "+1 (555) 345-6789",
-    avatar: "/abstract-geometric-shapes.png",
-  },
-  "4": {
-    id: "4",
-    name: "David Park",
-    email: "david.park@email.com",
-    phone: "+1 (555) 456-7890",
-    avatar: "/abstract-geometric-shapes.png",
-  },
-  "5": {
-    id: "5",
-    name: "Lisa Zhang",
-    email: "lisa.zhang@email.com",
-    phone: "+1 (555) 567-8901",
-    avatar: "/abstract-geometric-shapes.png",
-  },
-};
-
-const mockServices = {
-  "1": { id: "1", name: "Hair Cut & Style", duration: 60, price: 85 },
-  "2": { id: "2", name: "Color Treatment", duration: 120, price: 150 },
-  "3": { id: "3", name: "Facial Treatment", duration: 90, price: 120 },
-  "4": { id: "4", name: "Massage Therapy", duration: 75, price: 100 },
-  "5": { id: "5", name: "Consultation", duration: 30, price: 0 },
-};
 
 interface AppointmentListProps {
   searchQuery: string;
@@ -184,21 +56,54 @@ export function AppointmentList({
   statusFilter,
   dateFilter,
 }: AppointmentListProps) {
-  const [selectedAppointment, setSelectedAppointment] = useState<
-    (typeof mockAppointments)[0] | null
-  >(null);
-  const [editingAppointment, setEditingAppointment] = useState<
-    (typeof mockAppointments)[0] | null
-  >(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  // Get organization ID for updates
+  const organizationId = useCurrentOrganizationId();
+
+  // Fetch real data from repositories
+  const { data: appointmentsData, isLoading: appointmentsLoading } = useAppointments({
+    pagination: { limit: 1000 },
+    orderBy: { field: "startTime", direction: "asc" }
+  });
+
+  const { data: customersData, isLoading: customersLoading } = useCustomers({
+    pagination: { limit: 1000 }
+  });
+
+  const { data: servicesData, isLoading: servicesLoading } = useServices({
+    pagination: { limit: 1000 }
+  });
+
+  // Update appointment mutation
+  const updateAppointment = useUpdateAppointment();
+
+  const appointments = appointmentsData?.pages.flatMap(page => page) as Appointment[] || [];
+  const customers = customersData?.pages.flatMap(page => page) || [];
+  const services = servicesData?.pages.flatMap(page => page) || [];
+
+  // Create lookup maps for customers and services
+  const customersMap = useMemo(() => {
+    return customers.reduce((acc, customer) => {
+      acc[customer.id] = customer;
+      return acc;
+    }, {} as Record<string, any>);
+  }, [customers]);
+
+  const servicesMap = useMemo(() => {
+    return services.reduce((acc, service) => {
+      acc[service.id] = service;
+      return acc;
+    }, {} as Record<string, any>);
+  }, [services]);
+
   // Filter appointments based on search, status, and date
-  const filteredAppointments = mockAppointments.filter((appointment) => {
-    const customer =
-      mockCustomers[appointment.customerId as keyof typeof mockCustomers];
-    const service =
-      mockServices[appointment.serviceId as keyof typeof mockServices];
+  const filteredAppointments = appointments.filter((appointment) => {
+    const customer = customersMap[appointment.customerId];
+    const service = servicesMap[appointment.serviceId];
 
     const matchesSearch =
       customer?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -209,32 +114,40 @@ export function AppointmentList({
     const matchesStatus =
       statusFilter === "all" || appointment.status === statusFilter;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date();
+    const todayString = today.toISOString().split("T")[0];
+    
+    // Get appointment date in local timezone for accurate comparison
     const appointmentDate = appointment.startTime
-      ? new Date(appointment.startTime).toISOString().split("T")[0]
+      ? new Date(appointment.startTime)
       : today;
+    const appointmentDateString = appointmentDate.toISOString().split("T")[0];
+    
     let matchesDate = true;
 
     switch (dateFilter) {
       case "today":
-        matchesDate = appointmentDate === today;
+        matchesDate = appointmentDateString === todayString;
         break;
       case "tomorrow": {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        matchesDate = appointmentDate === tomorrow.toISOString().split("T")[0];
+        const tomorrowString = tomorrow.toISOString().split("T")[0];
+        matchesDate = appointmentDateString === tomorrowString;
         break;
       }
       case "week": {
         const weekFromNow = new Date();
         weekFromNow.setDate(weekFromNow.getDate() + 7);
+        const weekFromNowString = weekFromNow.toISOString().split("T")[0];
         matchesDate =
-          appointmentDate >= today &&
-          appointmentDate <= weekFromNow.toISOString().split("T")[0];
+          appointmentDateString >= todayString &&
+          appointmentDateString <= weekFromNowString;
         break;
       }
       case "upcoming":
-        matchesDate = appointmentDate >= today;
+        // Show all appointments from today onwards
+        matchesDate = appointmentDateString >= todayString;
         break;
       default:
         matchesDate = true;
@@ -242,6 +155,18 @@ export function AppointmentList({
 
     return matchesSearch && matchesStatus && matchesDate;
   });
+
+  // Show loading state
+  if (appointmentsLoading || customersLoading || servicesLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-4 animate-spin" />
+          <p className="text-muted-foreground">Loading appointments...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -276,19 +201,37 @@ export function AppointmentList({
     }
   };
 
-  const handleViewDetails = (appointment: (typeof mockAppointments)[0]) => {
+  const handleViewDetails = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
     setIsDetailsOpen(true);
   };
 
-  const handleEdit = (appointment: (typeof mockAppointments)[0]) => {
+  const handleEdit = (appointment: Appointment) => {
     setEditingAppointment(appointment);
     setIsEditOpen(true);
   };
 
-  const handleStatusChange = (appointmentId: string, newStatus: string) => {
-    // In real app, this would make an API call
-    console.log(`Changing appointment ${appointmentId} status to ${newStatus}`);
+  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    if (!organizationId) {
+      console.error("Organization ID is missing");
+      return;
+    }
+
+    // Validate that the status is a valid APPOINTMENT_STATUS
+    if (!Object.values(APPOINTMENT_STATUS).includes(newStatus as APPOINTMENT_STATUS)) {
+      console.error("Invalid appointment status:", newStatus);
+      return;
+    }
+
+    try {
+      await updateAppointment.mutateAsync({
+        id: appointmentId,
+        data: { status: newStatus as APPOINTMENT_STATUS },
+        organizationId: organizationId,
+      });
+    } catch (error) {
+      console.error("Failed to update appointment status:", error);
+    }
   };
 
   return (
@@ -314,14 +257,8 @@ export function AppointmentList({
             </TableHeader>
             <TableBody>
               {filteredAppointments.map((appointment) => {
-                const customer =
-                  mockCustomers[
-                    appointment.customerId as keyof typeof mockCustomers
-                  ];
-                const service =
-                  mockServices[
-                    appointment.serviceId as keyof typeof mockServices
-                  ];
+                const customer = customersMap[appointment.customerId];
+                const service = servicesMap[appointment.serviceId];
                 const appointmentDate = appointment.startTime
                   ? formatUtcDateTime(appointment.startTime, "MMM dd, yyyy")
                   : "N/A";
@@ -357,7 +294,7 @@ export function AppointmentList({
                     <TableCell>
                       <div>
                         <p className="font-medium">
-                          {service?.name || appointment.title}
+                          {service?.name || appointment.title || "Unknown Service"}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {appointment.description &&
@@ -411,17 +348,6 @@ export function AppointmentList({
                             Edit Appointment
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {appointment.status ===
-                            APPOINTMENT_STATUS.PENDING && (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(appointment.id, "confirmed")
-                              }
-                            >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Confirm
-                            </DropdownMenuItem>
-                          )}
                           {appointment.status ===
                             APPOINTMENT_STATUS.PENDING && (
                             <DropdownMenuItem

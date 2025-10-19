@@ -54,6 +54,7 @@ export const getGenericRepository = <
 
       return results.flat();
     },
+    
     async getAll(payload) {
       return databaseService.getAllByFields<TEntity>(
         getDatabaseCollection(payload),
