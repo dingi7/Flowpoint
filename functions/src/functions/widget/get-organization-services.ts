@@ -8,17 +8,15 @@ const loggerService = serviceHost.getLoggerService();
 
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
 
-interface Payload {
-  organizationId: string;
-}
-
 export const widgetGetOrganizationServices = onRequest(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
   },
   async (req, res) => {
-    const payload = req.body as Payload;
+    const payload = {
+      organizationId: req.query.organizationId as string,
+    };
 
     try {
       if (
@@ -45,7 +43,7 @@ export const widgetGetOrganizationServices = onRequest(
       res.status(500).json({
         error: "Failed to fetch services",
         success: false,
-        });
+      });
     }
   },
 );

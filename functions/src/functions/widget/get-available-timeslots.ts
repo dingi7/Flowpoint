@@ -14,9 +14,9 @@ const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
 
 interface Payload {
+  organizationId: string;
   serviceId: string;
   date: string;
-  organizationId: string;
 }
 
 export const widgetGetAvailableTimeslots = onRequest(
