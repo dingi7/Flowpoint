@@ -23,3 +23,8 @@ export { acceptOrganizationInvite } from "./functions/invite/accept-organization
 
 // <-- Organization Creation -->
 export { createOrganization } from "./functions/organization/create-organization";
+
+// <-- Widget Public API -->
+export { widgetGetOrganizationServices } from "./functions/widget/get-organization-services";
+export { widgetGetAvailableTimeslots } from "./functions/widget/get-available-timeslots";
+export { widgetBookAppointment } from "./functions/widget/book-appointment";
