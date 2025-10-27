@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { serviceHost } from "@/services";
+import { ORGANIZATION_ID } from "@/constants";
 
 interface UseAvailableTimeslotsProps {
   serviceId?: string;
@@ -22,7 +23,7 @@ export function useAvailableTimeslots({
   enabled = true,
 }: UseAvailableTimeslotsProps) {
   const functionsService = serviceHost.getFunctionsService();
-  const organizationId = "";
+  const organizationId = ORGANIZATION_ID;
 
   return useQuery<AvailableTimeslotsResponse, Error>({
     queryKey: ["availableTimeslots", serviceId, date, organizationId],

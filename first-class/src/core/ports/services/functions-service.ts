@@ -1,4 +1,4 @@
-import { ASSIGNEE_TYPE } from "@/core/entities/appointment";
+import { OWNER_TYPE } from "@/core/entities/calendar";
 
 export interface DeleteResponse {
   deleted: boolean;
@@ -11,7 +11,7 @@ export interface BookAppointmentPayload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
-  assigneeType: ASSIGNEE_TYPE;
+  assigneeType: OWNER_TYPE;
   fee?: number;
   title?: string;
   description?: string;

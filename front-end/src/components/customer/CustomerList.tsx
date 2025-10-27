@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import { useCustomers } from "@/hooks/repository-hooks/customer/use-customer";
+import { useCustomers } from "@/hooks";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { CustomerDetails } from "./CustomerDetails";
 import { CustomerForm } from "./CustomerForm";
+import { CustomerDeleteDialog } from "./CustomerDeleteDialog";
 
 
 
@@ -54,6 +55,8 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Fetch customers using the hook
   const { data, error } = useCustomers({
@@ -91,6 +94,16 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
   const handleEdit = (customer: Customer) => {
     setEditingCustomer(customer);
     setIsEditOpen(true);
+  };
+
+  const handleDeleteCustomer = (customer: Customer) => {
+    setCustomerToDelete(customer);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setCustomerToDelete(null);
   };
 
   return (
@@ -179,7 +192,10 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                           Edit Customer
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDeleteCustomer(customer)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Delete Customer
                         </DropdownMenuItem>
@@ -233,6 +249,13 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Customer Dialog */}
+      <CustomerDeleteDialog
+        customer={customerToDelete}
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+      />
     </>
   );
 }

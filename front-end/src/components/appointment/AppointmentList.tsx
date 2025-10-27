@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { APPOINTMENT_STATUS, Appointment } from "@/core";
+import { APPOINTMENT_STATUS, Appointment, Customer, Service } from "@/core";
 import { useAppointments, useCustomers, useServices, useUpdateAppointment } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import {
@@ -37,11 +36,13 @@ import {
   Eye,
   MoreHorizontal,
   Trash2,
+  User,
   X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { AppointmentDetails } from "./AppointmentDetails";
 import { AppointmentForm } from "./AppointmentForm";
+import { AppointmentDeleteDialog } from "./AppointmentDeleteDialog";
 import { formatUtcDateTime } from "@/utils/date-time";
 
 
@@ -58,8 +59,10 @@ export function AppointmentList({
 }: AppointmentListProps) {
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<Appointment | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Get organization ID for updates
   const organizationId = useCurrentOrganizationId();
@@ -90,14 +93,14 @@ export function AppointmentList({
     return customers.reduce((acc, customer) => {
       acc[customer.id] = customer;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, Customer>);
   }, [customers]);
 
   const servicesMap = useMemo(() => {
     return services.reduce((acc, service) => {
       acc[service.id] = service;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, Service>);
   }, [services]);
 
   // Filter appointments based on search, status, and date
@@ -106,10 +109,10 @@ export function AppointmentList({
     const service = servicesMap[appointment.serviceId];
 
     const matchesSearch =
-      customer?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      appointment.title.toLowerCase().includes(searchQuery.toLowerCase());
+      customer?.name?.toLowerCase().includes(searchQuery?.toLowerCase() || "") ||
+      service?.name?.toLowerCase().includes(searchQuery?.toLowerCase() || "") ||
+      customer?.email?.toLowerCase().includes(searchQuery?.toLowerCase() || "") ||
+      appointment.title?.toLowerCase().includes(searchQuery?.toLowerCase() || "");
 
     const matchesStatus =
       statusFilter === "all" || appointment.status === statusFilter;
@@ -121,7 +124,9 @@ export function AppointmentList({
     const appointmentDate = appointment.startTime
       ? new Date(appointment.startTime)
       : today;
-    const appointmentDateString = appointmentDate.toISOString().split("T")[0];
+    const appointmentDateString = appointmentDate && !isNaN(appointmentDate.getTime())
+      ? appointmentDate.toISOString().split("T")[0]
+      : todayString;
     
     let matchesDate = true;
 
@@ -234,6 +239,17 @@ export function AppointmentList({
     }
   };
 
+  const handleDeleteAppointment = (appointment: Appointment) => {
+    setAppointmentToDelete(appointment);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setAppointmentToDelete(null);
+  };
+
+
   return (
     <>
       <Card>
@@ -270,17 +286,9 @@ export function AppointmentList({
                   <TableRow key={appointment.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={`${customer?.avatar}?height=40&width=40&query=${customer?.name}`}
-                          />
-                          <AvatarFallback>
-                            {customer?.name
-                              .split(" ")
-                              .map((n: string) => n[0])
-                              .join("") || "N/A"}
-                          </AvatarFallback>
-                        </Avatar>
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                        </div>
                         <div>
                           <p className="font-medium">
                             {customer?.name || "Unknown Customer"}
@@ -375,9 +383,12 @@ export function AppointmentList({
                             Cancel
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => handleDeleteAppointment(appointment)}
+                          >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
+                            Delete Appointment
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -433,6 +444,13 @@ export function AppointmentList({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Appointment Dialog */}
+      <AppointmentDeleteDialog
+        appointment={appointmentToDelete}
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+      />
     </>
   );
 }

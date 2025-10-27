@@ -1,23 +1,24 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HeroSection } from "./sections/HeroSection";
 import { Services } from "./sections/Services";
 import Team from "./sections/Team";
 import { Testimonials } from "./sections/Testimonials";
 import Location from "./sections/Location";
+import { BookingModal } from "./components/booking/BookingModal";
+import { useBookingModalStore } from "@/stores/booking-modal-store";
 
 export default function Home() {
-  const queryClient = new QueryClient();
+  const { isOpen, closeModal } = useBookingModalStore();
+  
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <HeroSection />
-        <Services />
-        <Team />
-        <Testimonials />
-        <Location />
-      </QueryClientProvider>
+      <HeroSection />
+      <Services />
+      <Team />
+      <Testimonials />
+      <Location />
+      <BookingModal isOpen={isOpen} closeModal={closeModal} />
     </>
   );
 }

@@ -3,7 +3,7 @@
 import { Scissors, Clock } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslation } from '@/lib/useTranslation';
-// import { useBookingModal } from '@/app/context/BookingModalContext';
+import { useBookingModalStore } from '@/stores/booking-modal-store';
 import { Button } from '@/app/components/ui/button';
 import { Service } from '@/core';
 import { useServices } from '@/hooks/repository-hooks/service/use-service';
@@ -27,12 +27,13 @@ export function Services() {
       return a.name.localeCompare(b.name);
     });
     const { t } = useTranslation();
-    // const { openModal } = useBookingModal();
+    const { openModal, setInitialService } = useBookingModalStore();
 
     const handleBookNow = (serviceId: string) => {
         const service = allServices.find((s) => s.id === serviceId);
         if (service) {
-            // openModal(service);
+            setInitialService(service);
+            openModal();
         }
     };
 

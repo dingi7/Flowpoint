@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import { FadeInView } from "../components/FadeInView";
 import ScrollDownButton from "../components/ScrollDownButton";
 import { useTranslation } from "@/lib/useTranslation";
+import { useBookingModalStore } from "@/stores/booking-modal-store";
 
 export const HeroSection = () => {
-  // const { openModal } = useBookingModal();
+  const { openModal } = useBookingModalStore();
   const { t } = useTranslation();
 
   return (
@@ -71,9 +72,9 @@ export const HeroSection = () => {
             }}
           >
             <Button
-              // onClick={() => openModal()}
+              onClick={() => openModal()}
               className="w-full rounded-lg sm:w-2/3 md:w-1/2 lg:w-1/4 max-w-sm"
-              variant="cta"
+              variant="default"
             >
               {t("hero.bookNow")}
             </Button>

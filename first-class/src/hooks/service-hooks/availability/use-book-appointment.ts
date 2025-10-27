@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { serviceHost } from "@/services";
 import { BookAppointmentPayload, BookAppointmentResponse } from "@/core";
+import { ORGANIZATION_ID } from "@/constants";
 
 interface UseBookAppointmentProps {
   onSuccess?: (data: BookAppointmentResponse) => void;
@@ -12,7 +13,7 @@ export function useBookAppointment({
   onError,
 }: UseBookAppointmentProps = {}) {
   const functionsService = serviceHost.getFunctionsService();
-  const organizationId = "";
+  const organizationId = ORGANIZATION_ID;
   const queryClient = useQueryClient();
 
   return useMutation<BookAppointmentResponse, Error, Omit<BookAppointmentPayload, 'organizationId'>>({

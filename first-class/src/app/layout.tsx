@@ -1,12 +1,10 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-// import { BookingModalProvider } from '@/context/BookingModalContext';
 import { Metadata } from "next";
 import Script from "next/script";
-import { LocaleProvider } from "./context/LocaleContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { QueryClient } from "@tanstack/react-query";
+import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -104,13 +102,11 @@ export default function RootLayout({
           <span itemProp="addressLocality">Varna</span>
           <span itemProp="addressCountry">Bulgaria</span>
         </div>
-          <LocaleProvider>
-            {/* <BookingModalProvider> */}
+          <Providers>
             <Header />
             <main className="flex-grow">{children}</main>
             <Footer />
-            {/* </BookingModalProvider> */}
-          </LocaleProvider>
+          </Providers>
 
         {/* Hidden content for SEO */}
         <div className="hidden">

@@ -69,7 +69,7 @@ export function useDeleteAppointment() {
       return appointmentRepository.delete(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["appointments", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
     },
   });
 }
