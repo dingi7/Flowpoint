@@ -75,8 +75,8 @@ export function CreateOrganizationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col overflow-y-auto">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Create Your Organization</DialogTitle>
           <DialogDescription>
             To get started, please create your organization. This will be your
@@ -84,21 +84,25 @@ export function CreateOrganizationModal({
             services.
           </DialogDescription>
         </DialogHeader>
-        {!showForm ? (
-          <div className="flex flex-col gap-4 p-6">
-            <div className="flex gap-3">
-              <Button onClick={handleCreateClick} className="w-full">
-                Create Organization
-              </Button>
+        <div className="flex-1">
+          {!showForm ? (
+            <div className="flex flex-col gap-4 p-6">
+              <div className="flex gap-3">
+                <Button onClick={handleCreateClick} className="w-full">
+                  Create Organization
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <OrganizationForm
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isLoading={isLoading}
-          />
-        )}
+          ) : (
+            <div className="overflow-y-auto max-h-full pr-2">
+              <OrganizationForm
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                isLoading={isLoading}
+              />
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
