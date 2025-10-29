@@ -1,7 +1,7 @@
 import { GetOptions } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { getNextPageParam } from "../utils/page-params";
 
@@ -26,6 +26,19 @@ export const useCreateCustomer = () => {
     },
   });
 }
+
+export const useCustomer = (id: string) => {
+  const currentOrganizationId = useCurrentOrganizationId();
+  
+  return useQuery({
+    queryKey: ["customer", "get", id, currentOrganizationId],
+    queryFn: () => customerRepository.get({
+      id,
+      organizationId: currentOrganizationId!,
+    }),
+    enabled: !!id && !!currentOrganizationId,
+  });
+};
 
 export const useCustomers = (options: GetOptions) => {
   const currentOrganizationId = useCurrentOrganizationId();

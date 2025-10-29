@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Appointment, APPOINTMENT_STATUS } from "@/core";
+import { useCustomer, useService } from "@/hooks";
 import {
   Briefcase,
   Calendar,
@@ -32,30 +33,54 @@ export function AppointmentDetails({
   onEdit,
   onStatusChange,
 }: AppointmentDetailsProps) {
-  // Mock data for customer, service, and assignee
-  const mockCustomer = {
-    id: appointment.customerId,
-    name: "John Smith",
-    email: "john.smith@email.com",
-    phone: "+1 (555) 123-4567",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
-  };
+  // Fetch customer and service data
+  const { data: customer, isLoading: isLoadingCustomer } = useCustomer(
+    appointment.customerId
+  );
+  const { data: service, isLoading: isLoadingService } = useService(
+    appointment.serviceId
+  );
 
-  const mockService = {
-    id: appointment.serviceId,
-    name: appointment.title || "Professional Consultation",
-    duration: appointment.duration || 60,
-    price: appointment.fee || 150,
-  };
-
-  // Mock appointment date and time (derived from startTime) - convert from UTC to local
-  const mockDate = appointment.startTime
+  // Appointment date and time (derived from startTime) - convert from UTC to local
+  const appointmentDate = appointment.startTime
     ? formatUtcDateTime(appointment.startTime, "yyyy-MM-dd")
     : new Date().toISOString().split("T")[0];
-  const mockTime = appointment.startTime
+  const appointmentTime = appointment.startTime
     ? formatUtcDateTime(appointment.startTime, "HH:mm")
     : "10:00";
-  const mockNotes = appointment.description || null;
+  const notes = appointment.description || null;
+
+  // Loading state
+  if (isLoadingCustomer || isLoadingService) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-8">
+          <p className="text-muted-foreground">Loading appointment details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback data if customer or service is not found
+  const customerData = customer || {
+    id: appointment.customerId,
+    name: "Unknown Customer",
+    email: "N/A",
+    phone: "N/A",
+  };
+
+  const serviceData = service || {
+    id: appointment.serviceId,
+    name: appointment.title || "Unknown Service",
+    duration: appointment.duration || 60,
+    price: appointment.fee || 0,
+    description: undefined,
+  };
+
+  // Generate avatar URL from customer name if customer has no image
+  const avatarUrl = customerData.name
+    ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(customerData.name)}`
+    : undefined;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -103,9 +128,9 @@ export function AppointmentDetails({
       {/* Appointment Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-2xl font-bold font-sans">{mockService.name}</h3>
+          <h3 className="text-2xl font-bold font-sans">{serviceData.name}</h3>
           <p className="text-muted-foreground mt-1">
-            {formatDate(mockDate)} at {formatTime(mockTime)}
+            {formatDate(appointmentDate)} at {formatTime(appointmentTime)}
           </p>
           <div className="flex items-center gap-2 mt-2">
             {getStatusBadge(appointment.status)}
@@ -161,17 +186,17 @@ export function AppointmentDetails({
             <div className="flex items-center gap-4">
               <Avatar className="h-12 w-12">
                 <AvatarImage
-                  src={`${mockCustomer.avatar}?height=48&width=48&query=${mockCustomer.name}`}
+                  src={avatarUrl ? `${avatarUrl}?height=48&width=48` : undefined}
                 />
                 <AvatarFallback>
-                  {mockCustomer.name
+                  {customerData.name
                     .split(" ")
                     .map((n: string) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h4 className="font-semibold">{mockCustomer.name}</h4>
+                <h4 className="font-semibold">{customerData.name}</h4>
                 <p className="text-sm text-muted-foreground">Customer</p>
               </div>
             </div>
@@ -184,19 +209,21 @@ export function AppointmentDetails({
                 <div>
                   <p className="text-sm font-medium">Email</p>
                   <p className="text-sm text-muted-foreground">
-                    {mockCustomer.email}
+                    {customerData.email}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Phone</p>
-                  <p className="text-sm text-muted-foreground">
-                    {mockCustomer.phone}
-                  </p>
+              {customerData.phone && (
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Phone</p>
+                    <p className="text-sm text-muted-foreground">
+                      {customerData.phone}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -211,9 +238,9 @@ export function AppointmentDetails({
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="font-semibold">{mockService.name}</h4>
+              <h4 className="font-semibold">{serviceData.name}</h4>
               <p className="text-sm text-muted-foreground">
-                Professional service
+                {serviceData.description || "Service"}
               </p>
             </div>
 
@@ -225,7 +252,7 @@ export function AppointmentDetails({
                 <div>
                   <p className="text-sm font-medium">Duration</p>
                   <p className="text-sm text-muted-foreground">
-                    {mockService.duration} minutes
+                    {serviceData.duration} minutes
                   </p>
                 </div>
               </div>
@@ -234,7 +261,7 @@ export function AppointmentDetails({
                 <div>
                   <p className="text-sm font-medium">Price</p>
                   <p className="text-sm text-muted-foreground">
-                    {mockService.price === 0 ? "Free" : `$${mockService.price}`}
+                    {serviceData.price === 0 ? "Free" : `$${serviceData.price}`}
                   </p>
                 </div>
               </div>
@@ -258,13 +285,13 @@ export function AppointmentDetails({
                 <p className="text-sm font-medium text-muted-foreground">
                   Date
                 </p>
-                <p className="text-lg font-semibold">{formatDate(mockDate)}</p>
+                <p className="text-lg font-semibold">{formatDate(appointmentDate)}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   Time
                 </p>
-                <p className="text-lg font-semibold">{formatTime(mockTime)}</p>
+                <p className="text-lg font-semibold">{formatTime(appointmentTime)}</p>
               </div>
             </div>
             <div className="space-y-3">
@@ -273,7 +300,7 @@ export function AppointmentDetails({
                   Duration
                 </p>
                 <p className="text-lg font-semibold">
-                  {mockService.duration} minutes
+                  {serviceData.duration} minutes
                 </p>
               </div>
               <div>
@@ -282,14 +309,14 @@ export function AppointmentDetails({
                 </p>
                 <p className="text-lg font-semibold">
                   {(() => {
-                    const [hours, minutes] = mockTime.split(":");
+                    const [hours, minutes] = appointmentTime.split(":");
                     const startTime = new Date();
                     startTime.setHours(
                       Number.parseInt(hours),
                       Number.parseInt(minutes),
                     );
                     const endTime = new Date(
-                      startTime.getTime() + mockService.duration * 60000,
+                      startTime.getTime() + serviceData.duration * 60000,
                     );
                     return formatTime(
                       `${endTime.getHours().toString().padStart(2, "0")}:${endTime.getMinutes().toString().padStart(2, "0")}`,
@@ -303,7 +330,7 @@ export function AppointmentDetails({
       </Card>
 
       {/* Notes */}
-      {mockNotes && (
+      {notes && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
@@ -312,7 +339,7 @@ export function AppointmentDetails({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">{mockNotes}</p>
+            <p className="text-sm text-muted-foreground">{notes}</p>
           </CardContent>
         </Card>
       )}
