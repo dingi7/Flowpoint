@@ -73,7 +73,7 @@ export const HeroSection = () => {
           >
             <Button
               onClick={() => openModal()}
-              className="w-full rounded-lg sm:w-2/3 md:w-1/2 lg:w-1/4 max-w-sm"
+              className="w-full rounded-lg sm:w-2/3 md:w-1/2 lg:w-1/4 max-w-sm  cursor-pointer"
               variant="default"
             >
               {t("hero.bookNow")}

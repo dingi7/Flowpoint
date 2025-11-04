@@ -40,10 +40,10 @@ export const ChooseBarber = ({ direction, barbers, handleBarberSelect }: ChooseB
             <Button
               key={barber.id}
               variant="outline"
-              className="h-auto flex flex-col items-center gap-3 dark:hover:bg-muted/50 w-full p-3"
+              className="h-auto flex flex-col items-center gap-3 dark:hover:bg-muted/50 w-full p-3 cursor-pointer"
               onClick={() => handleBarberSelect(barber)}
             >
-              <div className="w-full aspect-square relative">
+              <div className="w-full aspect-square relative cursor-pointer">
                 <Image
                   src={barber.image || "/placeholder.svg"}
                   alt={barber.name}
