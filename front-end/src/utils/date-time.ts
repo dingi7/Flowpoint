@@ -90,3 +90,32 @@ export function convertWorkingHoursToLocal(workingHours: { start: string; end: s
         end: endTime
     };
 }
+
+/**
+ * Get start and end of day in ISO format for querying
+ * This function ensures the date range is calculated correctly regardless of timezone
+ * @param date - The date to get the range for
+ * @returns Object with startOfDay and endOfDay as ISO strings in UTC
+ */
+export function getDateRangeForQuery(date: Date): { startOfDay: string; endOfDay: string } {
+  // Get the date components - these are in local timezone
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  // Create start of day (00:00:00.000) in local timezone
+  // This ensures we're working with the exact day the user selected
+  const startOfDayLocal = new Date(year, month, day, 0, 0, 0, 0);
+  
+  // Create end of day (23:59:59.999) in local timezone
+  const endOfDayLocal = new Date(year, month, day, 23, 59, 59, 999);
+
+  // Convert to ISO strings (UTC)
+  // The toISOString() will correctly convert the local time to UTC
+  // This ensures we query for all appointments that fall within the selected day
+  // regardless of timezone differences
+  const startOfDayISO = startOfDayLocal.toISOString();
+  const endOfDayISO = endOfDayLocal.toISOString();
+
+  return { startOfDay: startOfDayISO, endOfDay: endOfDayISO };
+}

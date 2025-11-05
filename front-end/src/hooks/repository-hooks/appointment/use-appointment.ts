@@ -1,9 +1,10 @@
 import { GetOptions } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { getNextPageParam } from "../utils/page-params";
+import { getDateRangeForQuery } from "@/utils/date-time";
 
 const databaseService = serviceHost.getDatabaseService();
 const appointmentRepository = repositoryHost.getAppointmentRepository(databaseService);
@@ -71,5 +72,38 @@ export function useDeleteAppointment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
     },
+  });
+}
+
+/**
+ * Hook to get appointments for a specific date using query constraints
+ * @param date - The date to query appointments for (will be normalized to local midnight)
+ * @returns Query result with appointments for the specified date
+ */
+export function useGetAppointmentsByDate(date: Date) {
+  const organizationId = useCurrentOrganizationId();
+  
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const normalizedDate = new Date(year, month, day, 12, 0, 0, 0);
+  
+  const { startOfDay, endOfDay } = getDateRangeForQuery(normalizedDate);
+  
+  const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+  return useQuery({
+    queryKey: ["appointments", "byDate", organizationId, dateKey],
+    queryFn: () =>
+      appointmentRepository.getAll({
+        organizationId: organizationId!,
+        queryConstraints: [
+          { field: "startTime", operator: ">=", value: startOfDay },
+          { field: "startTime", operator: "<=", value: endOfDay },
+        ],
+        pagination: { limit: 1000 },
+        orderBy: { field: "startTime", direction: "asc" },
+      }),
+    enabled: !!organizationId,
   });
 }

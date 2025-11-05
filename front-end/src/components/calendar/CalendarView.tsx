@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
 import { format, isWithinInterval, parseISO } from "date-fns";
 import { Appointment, TimeOff } from "@/core";
 import { cn } from "@/lib/utils";
-import { useAppointments } from "@/hooks/repository-hooks/appointment/use-appointment";
+import { useAppointments, useGetAppointmentsByDate } from "@/hooks/repository-hooks/appointment/use-appointment";
 import { useTimeOffs } from "@/hooks/repository-hooks/time-off/use-time-off";
 import { formatUtcDateTime } from "@/utils/date-time";
 
@@ -29,6 +29,8 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
     pagination: { limit: 1000 },
     orderBy: { field: "startTime", direction: "asc" }
   });
+
+  const { data: selectedDateAppointmentsData } = useGetAppointmentsByDate(selectedDate);
 
   const { data: timeOffsData } = useTimeOffs({
     pagination: { limit: 1000 },
@@ -89,23 +91,16 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
   };
 
   const handleDayClick = (day: number) => {
-    const newDate = new Date(year, month, day);
+    // Create date at noon to avoid timezone conversion issues
+    // This ensures the date represents the correct day regardless of timezone
+    const newDate = new Date(year, month, day, 12, 0, 0, 0);
     onDateSelect(newDate);
   };
 
   const getSelectedDateAppointments = () => {
-    const dateStr = format(selectedDate, 'yyyy-MM-dd');
-    
-    if (!appointmentsData?.pages) return [];
-    
-    const appointments = appointmentsData.pages
-      .flatMap(page => page) as Appointment[];
-    
-    return appointments.filter(appointment => {
-      if (!appointment.startTime) return false;
-      const appointmentDate = new Date(appointment.startTime);
-      return format(appointmentDate, 'yyyy-MM-dd') === dateStr;
-    });
+    // Use the optimized query result for selected date
+    if (!selectedDateAppointmentsData) return [];
+    return selectedDateAppointmentsData as Appointment[];
   };
 
   const getSelectedDateTimeOff = () => {

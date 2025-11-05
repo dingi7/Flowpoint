@@ -6,11 +6,11 @@ import {
   Building,
   Calendar,
   ChevronDown,
-  Code,
   LayoutDashboard,
   Plus, UserRound,
   Users,
-  Settings
+  Settings,
+  NotebookTabs
 } from "lucide-react";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -77,7 +77,7 @@ const data = {
     {
       title: "Services",
       url: "/services",
-      icon:  Code,
+      icon:  NotebookTabs,
     },
     {
       title: "Organization",

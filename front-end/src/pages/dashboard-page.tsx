@@ -20,10 +20,12 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const { user } = useUser();
   const organizations = useOrganizations();
+  const navigate = useNavigate();
 
   // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
@@ -202,7 +204,11 @@ export default function DashboardPage() {
             <CardTitle className="font-sans">Today's Appointments</CardTitle>
             <CardDescription>Your schedule for today</CardDescription>
           </div>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/calendar")}
+          >
             View Calendar
             <ArrowUpRight className="h-4 w-4 ml-1" />
           </Button>

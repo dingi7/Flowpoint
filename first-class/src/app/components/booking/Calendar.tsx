@@ -19,7 +19,7 @@ const months = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 interface CalendarProps {
   selectedBarber: Barber | null
@@ -112,7 +112,7 @@ export const Calendar = ({
                   <div className="flex-1">
                     <h3 className="font-medium">{selectedBarber.name}</h3>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={handleBackToBarber} className="text-sm">
+                  <Button variant="ghost" size="sm" onClick={handleBackToBarber} className="text-sm cursor-pointer">
                     {t('booking.change')}
                   </Button>
                 </div>
@@ -128,7 +128,7 @@ export const Calendar = ({
                     key={service.id}
                     variant={selectedService?.id === service.id ? "default" : "outline"}
                     className={cn(
-                      "w-full justify-between h-auto py-3 px-4",
+                      "w-full justify-between h-auto py-3 px-4 cursor-pointer",
                       selectedService?.id === service.id && "bg-primary text-primary-foreground",
                     )}
                     onClick={() => setSelectedService(service)}
@@ -195,7 +195,7 @@ export const Calendar = ({
                 key={index}
                 variant={day === selectedDate ? "default" : "ghost"}
                 className={cn(
-                  "h-8 md:h-12 text-sm md:text-base p-0 rounded-full",
+                  "h-8 md:h-12 text-sm md:text-base p-0 rounded-full cursor-pointer",
                   !day && "invisible",
                   isDateInPast(day, currentMonth, currentYear) && "text-muted-foreground opacity-50",
                   day === selectedDate &&
@@ -239,7 +239,7 @@ export const Calendar = ({
                           key={idx}
                           variant={selectedTime === slot.start_time ? "default" : "ghost"}
                           className={cn(
-                            "w-full justify-start text-left transition-colors h-10 rounded-md",
+                            "w-full justify-start text-left transition-colors h-10 rounded-md cursor-pointer",
                             selectedTime === slot.start_time && "bg-primary text-primary-foreground",
                             "hover:bg-muted",
                           )}
