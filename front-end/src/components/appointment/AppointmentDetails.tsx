@@ -77,7 +77,6 @@ export function AppointmentDetails({
     description: undefined,
   };
 
-  // Generate avatar URL from customer name if customer has no image
   const avatarUrl = customerData.name
     ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(customerData.name)}`
     : undefined;

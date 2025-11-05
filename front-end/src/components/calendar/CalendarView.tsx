@@ -3,13 +3,22 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { format, isWithinInterval, parseISO } from "date-fns";
-import { Appointment, TimeOff } from "@/core";
+import { Appointment, APPOINTMENT_STATUS, TimeOff } from "@/core";
 import { cn } from "@/lib/utils";
-import { useAppointments, useGetAppointmentsByDate } from "@/hooks/repository-hooks/appointment/use-appointment";
+import { useAppointments, useGetAppointmentsByDate, useUpdateAppointment } from "@/hooks/repository-hooks/appointment/use-appointment";
 import { useTimeOffs } from "@/hooks/repository-hooks/time-off/use-time-off";
-import { formatUtcDateTime } from "@/utils/date-time";
+import { normalizeDateToNoon, formatLongDate, isSameDay, isToday as isTodayUtil } from "@/utils/date-time";
+import { AppointmentCard } from "../appointment/AppointmentCard";
+import { AppointmentDetails } from "../appointment/AppointmentDetails";
+import { useCurrentOrganizationId } from "@/stores/organization-store";
 
 interface CalendarViewProps {
   selectedDate: Date;
@@ -24,6 +33,11 @@ const MONTHS = [
 
 export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(selectedDate);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  
+  const organizationId = useCurrentOrganizationId();
+  const updateAppointment = useUpdateAppointment();
   
   const { data: appointmentsData } = useAppointments({
     pagination: { limit: 1000 },
@@ -54,12 +68,13 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
   };
 
   const isToday = (day: number) => {
-    const today = new Date();
-    return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+    const date = new Date(year, month, day);
+    return isTodayUtil(date);
   };
 
   const isSelected = (day: number) => {
-    return selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
+    const date = new Date(year, month, day);
+    return isSameDay(date, selectedDate);
   };
 
   const appointments = appointmentsData?.pages.flatMap(page => page) as Appointment[] || [];
@@ -91,9 +106,7 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
   };
 
   const handleDayClick = (day: number) => {
-    // Create date at noon to avoid timezone conversion issues
-    // This ensures the date represents the correct day regardless of timezone
-    const newDate = new Date(year, month, day, 12, 0, 0, 0);
+    const newDate = normalizeDateToNoon(year, month, day);
     onDateSelect(newDate);
   };
 
@@ -115,19 +128,41 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
   };
 
   const formatSelectedDate = () => {
-    return selectedDate.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return formatLongDate(selectedDate);
   };
 
-  const getAppointmentType = (appointment: Appointment) => {
-    // You can customize this logic based on your appointment data
-    if (appointment.title?.toLowerCase().includes('meeting')) return 'meeting';
-    if (appointment.title?.toLowerCase().includes('presentation')) return 'presentation';
-    return 'personal';
+  const handleViewDetails = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setIsDetailsOpen(true);
+  };
+
+  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    if (!organizationId) {
+      console.error("Organization ID is missing");
+      return;
+    }
+
+    // Validate that the status is a valid APPOINTMENT_STATUS
+    if (!Object.values(APPOINTMENT_STATUS).includes(newStatus as APPOINTMENT_STATUS)) {
+      console.error("Invalid appointment status:", newStatus);
+      return;
+    }
+
+    try {
+      await updateAppointment.mutateAsync({
+        id: appointmentId,
+        data: { status: newStatus as APPOINTMENT_STATUS },
+        organizationId: organizationId,
+      });
+    } catch (error) {
+      console.error("Failed to update appointment status:", error);
+    }
+  };
+
+  const handleEdit = () => {
+    // For now, we'll just close the details dialog
+    // In the future, you could open an edit dialog here
+    setIsDetailsOpen(false);
   };
 
   const calendarDays = [];
@@ -215,40 +250,12 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
         {selectedAppointments.length > 0 ? (
           <div className="space-y-3">
             {selectedAppointments.map((appointment) => {
-              const appointmentType = getAppointmentType(appointment);
-              const appointmentTime = appointment.startTime ? formatUtcDateTime(appointment.startTime, "h:mm a") : "TBD";
-              const duration = appointment.duration ? `${appointment.duration} min` : "TBD";
-              
               return (
-                <div key={appointment.id} className="p-4 rounded-lg bg-accent hover:bg-accent/80 transition-colors">
-                  <h4 className="font-medium text-foreground mb-2">{appointment.title}</h4>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5" />
-                      <span>
-                        {appointmentTime} • {duration}
-                      </span>
-                    </div>
-                    {appointment.description && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
-                        <span>{appointment.description}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-3">
-                    <span
-                      className={cn(
-                        "inline-flex items-center px-2 py-1 rounded-md text-xs font-medium",
-                        appointmentType === "meeting" && "bg-primary/10 text-primary",
-                        appointmentType === "presentation" && "bg-orange-100 text-orange-700",
-                        appointmentType === "personal" && "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      {appointmentType}
-                    </span>
-                  </div>
-                </div>
+                <AppointmentCard 
+                  key={appointment.id}
+                  appointment={appointment} 
+                  onClick={() => handleViewDetails(appointment)}
+                />
               );
             })}
           </div>
@@ -261,6 +268,22 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
           </div>
         )}
       </Card>
+
+      {/* Appointment Details Dialog */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="min-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Appointment Details</DialogTitle>
+          </DialogHeader>
+          {selectedAppointment && (
+            <AppointmentDetails
+              appointment={selectedAppointment}
+              onEdit={handleEdit}
+              onStatusChange={handleStatusChange}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

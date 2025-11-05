@@ -119,3 +119,54 @@ export function getDateRangeForQuery(date: Date): { startOfDay: string; endOfDay
 
   return { startOfDay: startOfDayISO, endOfDay: endOfDayISO };
 }
+
+/**
+ * Normalize a date to noon (12:00:00) to avoid timezone conversion issues
+ * This ensures the date represents the correct day regardless of timezone
+ * @param year - The year
+ * @param month - The month (0-indexed)
+ * @param day - The day of the month
+ * @returns A Date object set to noon on the specified date
+ */
+export function normalizeDateToNoon(year: number, month: number, day: number): Date {
+  return new Date(year, month, day, 12, 0, 0, 0);
+}
+
+/**
+ * Format a date in long format (e.g., "Monday, January 15, 2024")
+ * @param date - The date to format
+ * @param locale - The locale to use (default: "en-US")
+ * @returns Formatted date string
+ */
+export function formatLongDate(date: Date, locale: string = "en-US"): string {
+  return date.toLocaleDateString(locale, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+/**
+ * Check if two dates are on the same day
+ * @param date1 - First date to compare
+ * @param date2 - Second date to compare
+ * @returns True if both dates are on the same day
+ */
+export function isSameDay(date1: Date, date2: Date): boolean {
+  return (
+    date1.getDate() === date2.getDate() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear()
+  );
+}
+
+/**
+ * Check if a date is today
+ * @param date - The date to check
+ * @returns True if the date is today
+ */
+export function isToday(date: Date): boolean {
+  const today = new Date();
+  return isSameDay(date, today);
+}
