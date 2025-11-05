@@ -20,15 +20,15 @@ const ScrollDownButton: React.FC<ScrollDownButtonProps> = ({
 
   return (
     <div
-      className={cn(`relative h-16 w-8 border-2 border-white rounded-full cursor-pointer`, className)}
+      className={cn(`relative h-16 w-8 border-2 border-white rounded-full cursor-pointer overflow-hidden`, className)}
       onClick={handleScroll}
     >
       <span
-        className="absolute h-2.5 w-2.5 border-2 border-white border-t-0 border-l-0 rotate-45 left-1/2 top-1/5 -translate-x-1/2 animate-scroll-down"
+        className="absolute h-2.5 w-2.5 border-2 border-white border-t-0 border-l-0 rotate-45 left-1/2 top-2 -translate-x-1/2 animate-scroll-down"
         style={{ animationDelay: "0.3s" }}
       />
       <span
-        className="absolute h-2.5 w-2.5 border-2 border-white border-t-0 border-l-0 rotate-45 left-1/2 top-1/5 -translate-x-1/2 animate-scroll-down"
+        className="absolute h-2.5 w-2.5 border-2 border-white border-t-0 border-l-0 rotate-45 left-1/2 top-2 -translate-x-1/2 animate-scroll-down"
       />
     </div>
   );

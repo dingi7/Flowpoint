@@ -39,10 +39,10 @@ export const HeroSection = () => {
             <motion.h1
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{
+              transition={{ 
                 duration: 0.8,
                 delay: 0.6,
-                ease: "easeOut",
+                ease: "easeOut"
               }}
               className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 text-white"
             >
@@ -51,10 +51,10 @@ export const HeroSection = () => {
             <motion.p
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{
+              transition={{ 
                 duration: 0.8,
                 delay: 0.8,
-                ease: "easeOut",
+                ease: "easeOut"
               }}
               className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-8 text-gray-300"
             >
@@ -65,26 +65,23 @@ export const HeroSection = () => {
           <motion.div
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{
+            transition={{ 
               duration: 0.8,
               delay: 1,
-              ease: "easeOut",
+              ease: "easeOut"
             }}
           >
             <Button
               onClick={() => openModal()}
-              className="w-full rounded-lg sm:w-2/3 md:w-1/2 lg:w-1/4 max-w-sm  cursor-pointer"
-              variant="default"
+              className="w-full rounded-lg sm:w-2/3 md:w-1/2 lg:w-1/4 max-w-sm"
+              variant="cta"
             >
               {t("hero.bookNow")}
             </Button>
           </motion.div>
         </FadeInView>
       </div>
-      <ScrollDownButton
-        targetSectionId="services"
-        className="absolute bottom-[5%]"
-      />
+      <ScrollDownButton targetSectionId="services" className="absolute bottom-[5%]" />
     </section>
   );
 };
