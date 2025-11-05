@@ -2,14 +2,17 @@ import {
   APPOINTMENT_STATUS,
   AppointmentRepository,
   CalendarRepository,
+  CloudTasksService,
   CustomerRepository,
   LoggerService,
+  MailgunService,
   OrganizationRepository,
   Service,
   ServiceRepository,
   TimeOffRepository,
 } from "@/core";
 import { validateBookingRequest } from "./validation/booking-validation";
+import { sendAppointmentConfirmationEmailFn } from "./send-appointment-confirmation-email";
 
 interface Payload {
   serviceId: string;
@@ -37,6 +40,8 @@ interface Dependencies {
   timeOffRepository: TimeOffRepository;
   loggerService: LoggerService;
   organizationRepository: OrganizationRepository;
+  mailgunService: MailgunService;
+  cloudTasksService: CloudTasksService;
 }
 
 interface BookingResult {
@@ -66,6 +71,8 @@ export async function bookAppointmentFn(
     timeOffRepository,
     loggerService,
     organizationRepository,
+    mailgunService,
+    cloudTasksService,
   } = dependencies;
 
   loggerService.info("Starting appointment booking process", {
@@ -123,7 +130,65 @@ export async function bookAppointmentFn(
     serviceId: service.id,
   });
 
-  // 4. Prepare confirmation details
+  // 3. Send confirmation email
+  try {
+    await sendAppointmentConfirmationEmailFn(
+      {
+        appointmentId,
+        organizationId: validatedPayload.organizationId,
+      },
+      {
+        appointmentRepository,
+        customerRepository,
+        serviceRepository,
+        organizationRepository,
+        mailgunService,
+        loggerService,
+      },
+    );
+  } catch (error) {
+    loggerService.error("Failed to send confirmation email", error);
+  }
+
+  // 4. Schedule reminder email
+  try {
+    const organization = await organizationRepository.get({
+      id: validatedPayload.organizationId,
+    });
+
+    if (organization) {
+      const reminderHoursBefore =
+        organization.settings.appointmentReminderHoursBefore ?? 24;
+      const reminderTime = new Date(startTime);
+      reminderTime.setHours(
+        reminderTime.getHours() - reminderHoursBefore,
+      );
+
+      if (reminderTime > new Date()) {
+        await cloudTasksService.scheduleTask({
+          payload: {
+            appointmentId,
+            organizationId: validatedPayload.organizationId,
+          },
+          scheduleTime: reminderTime,
+        });
+
+        loggerService.info("Reminder email scheduled", {
+          appointmentId,
+          reminderTime: reminderTime.toISOString(),
+        });
+      } else {
+        loggerService.warn("Reminder time is in the past, skipping scheduling", {
+          appointmentId,
+          reminderTime: reminderTime.toISOString(),
+        });
+      }
+    }
+  } catch (error) {
+    loggerService.error("Failed to schedule reminder email", error);
+  }
+
+  // 5. Prepare confirmation details
   const confirmationDetails = {
     service,
     customerId,

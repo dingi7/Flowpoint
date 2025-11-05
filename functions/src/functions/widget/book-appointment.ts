@@ -2,12 +2,17 @@ import { bookAppointmentFn } from "@/app/appointment/book-appointment";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { onRequest } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
+import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
+const loggerService = serviceHost.getLoggerService();
+const mailgunApiKeySecret = defineSecret(Secrets.MAILGUN_API_KEY);
+const mailgunDomainSecret = defineSecret(Secrets.MAILGUN_DOMAIN);
+const mailgunUrlSecret = defineSecret(Secrets.MAILGUN_URL);
 
 const organizationRepository =
   repositoryHost.getOrganizationRepository(databaseService);
-const loggerService = serviceHost.getLoggerService();
 
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
 const customerRepository =
@@ -33,7 +38,7 @@ export const widgetBookAppointment = onRequest(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
-    // secrets: [adminClerkWebhookSecret],
+    secrets: [mailgunApiKeySecret, mailgunDomainSecret, mailgunUrlSecret],
   },
   async (req, res) => {
     if (req.method === "OPTIONS") {
@@ -69,6 +74,14 @@ export const widgetBookAppointment = onRequest(
         return;
       }
 
+      const mailgunService = serviceHost.getMailgunService({
+        apiKey: mailgunApiKeySecret.value(),
+        domain: mailgunDomainSecret.value(),
+        url: mailgunUrlSecret.value() || undefined,
+      });
+
+      const cloudTasksService = serviceHost.getCloudTasksService("sendAppointmentReminder");
+
       const result = await bookAppointmentFn(payload, {
         appointmentRepository,
         serviceRepository,
@@ -77,6 +90,8 @@ export const widgetBookAppointment = onRequest(
         timeOffRepository,
         loggerService,
         organizationRepository,
+        mailgunService,
+        cloudTasksService,
       });
 
       loggerService.info("Appointment booked successfully", {

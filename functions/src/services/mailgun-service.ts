@@ -5,22 +5,23 @@ import {
 import formData from "form-data";
 import Mailgun from "mailgun.js";
 
-function getMailgunClient(apiKey: string) {
+function getMailgunClient(apiKey: string, url?: string) {
   const mailgun = new Mailgun(formData);
   return mailgun.client({
     username: "api",
     key: apiKey,
+    ...(url ? { url } : {}), // Add URL if provided (for EU domains)
   });
 }
 
 export function getMailgunService(
   payload: GetMailgunServicePayload,
 ): MailgunService {
-  const { apiKey } = payload;
-  const mailgun = getMailgunClient(apiKey);
+  const { apiKey, domain, url } = payload;
+  const mailgun = getMailgunClient(apiKey, url);
   return {
     sendEmail: async (payload) => {
-      const response = await mailgun.messages.create('',payload);
+      const response = await mailgun.messages.create(domain, payload);
       return response;
     },
   };

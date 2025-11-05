@@ -1,5 +1,6 @@
 import type { AuthenticationService } from "./authentication-service";
 import type { ClerkService } from "./clerk-service";
+import type { CloudTasksService } from "./cloud-tasks-service";
 import type { DatabaseService } from "./database-service";
 import type { GetMailgunServicePayload, MailgunService } from "./mailgun-service";
 import type { LoggerService } from "./logger-service";
@@ -12,4 +13,5 @@ export interface ServiceHost {
   getLoggerService: () => LoggerService;
   getPubSubService: () => PubSubService;
   getMailgunService: (payload: GetMailgunServicePayload) => MailgunService;
+  getCloudTasksService: (functionName: string) => CloudTasksService;
 }

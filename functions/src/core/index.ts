@@ -33,8 +33,10 @@ export * from "./ports/repositories/utilities";
 //Services
 export * from "./ports/services/authentication-service";
 export * from "./ports/services/clerk-service";
+export * from "./ports/services/cloud-tasks-service";
 export * from "./ports/services/database-service";
 export * from "./ports/services/logger-service";
+export * from "./ports/services/mailgun-service";
 export * from "./ports/services/pub-sub-service";
 
 //Service Host

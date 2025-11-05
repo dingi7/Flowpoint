@@ -6,6 +6,7 @@ import { loggerService } from "./logger-service";
 import { pubSubService } from "./pub-sub-service";
 import { getMailgunService } from "./mailgun-service";
 import { GetMailgunServicePayload } from "@/core/ports/services/mailgun-service";
+import { getCloudTasksService } from "./cloud-tasks-service";
 
 export const serviceHost: ServiceHost = {
   getAuthenticationService() {
@@ -25,5 +26,8 @@ export const serviceHost: ServiceHost = {
   },
   getMailgunService(payload: GetMailgunServicePayload) {
     return getMailgunService(payload);
+  },
+  getCloudTasksService(functionName: string) {
+    return getCloudTasksService(functionName);
   },
 };
