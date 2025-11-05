@@ -4,6 +4,8 @@ import { clerkService } from "./clerk-service";
 import { databaseService } from "./database-service";
 import { loggerService } from "./logger-service";
 import { pubSubService } from "./pub-sub-service";
+import { getMailgunService } from "./mailgun-service";
+import { GetMailgunServicePayload } from "@/core/ports/services/mailgun-service";
 
 export const serviceHost: ServiceHost = {
   getAuthenticationService() {
@@ -20,5 +22,8 @@ export const serviceHost: ServiceHost = {
   },
   getPubSubService() {
     return pubSubService;
+  },
+  getMailgunService(payload: GetMailgunServicePayload) {
+    return getMailgunService(payload);
   },
 };

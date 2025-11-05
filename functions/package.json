@@ -24,6 +24,7 @@
     "firebase-admin": "^13.4.0",
     "firebase-functions": "^6.4.0",
     "jest": "^30.0.5",
+    "mailgun.js": "^12.1.1",
     "prettier": "^3.6.2",
     "svix": "^1.68.0",
     "zod": "^3.25.73"
