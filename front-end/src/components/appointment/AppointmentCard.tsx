@@ -1,8 +1,17 @@
-import { Appointment } from "@/core";
+import { Appointment, APPOINTMENT_STATUS, ASSIGNEE_TYPE } from "@/core";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getAppointmentType } from "@/utils/appointment";
+import { useCustomer, useService, useMembers, useGetOrganizationById } from "@/hooks";
 import { formatUtcDateTime } from "@/utils/date-time";
-import { Clock, MapPin } from "lucide-react";
+import { 
+    Clock, 
+    User, 
+    Briefcase, 
+    FileText,
+    Calendar,
+    Users
+} from "lucide-react";
+import { useMemo } from "react";
 
 interface AppointmentCardProps {
     appointment: Appointment;
@@ -10,15 +19,76 @@ interface AppointmentCardProps {
 }
 
 export function AppointmentCard({ appointment, onClick }: AppointmentCardProps) {
-    const appointmentType = getAppointmentType(appointment);
-    const appointmentTime = appointment.startTime ? formatUtcDateTime(appointment.startTime, "h:mm a") : "TBD";
+    const { data: customer } = useCustomer(appointment.customerId);
+    const { data: service } = useService(appointment.serviceId);
+    
+    // Fetch organization for currency
+    const { data: organization } = useGetOrganizationById(appointment.organizationId);
+    
+    // Fetch members to find assignee if it's a member
+    const { data: membersData } = useMembers({ pagination: { limit: 1000 } });
+    const members = useMemo(() => {
+        return membersData?.pages.flatMap(page => page) || [];
+    }, [membersData]);
+    
+    const assigneeMember = useMemo(() => {
+        if (appointment.assigneeType === ASSIGNEE_TYPE.MEMBER) {
+            return members.find(m => m.id === appointment.assigneeId);
+        }
+        return null;
+    }, [members, appointment.assigneeType, appointment.assigneeId]);
+    
+    // Fetch organization if assignee is organization
+    const { data: assigneeOrganization } = useGetOrganizationById(
+        appointment.assigneeType === ASSIGNEE_TYPE.ORGANIZATION ? appointment.assigneeId : ""
+    );
+
+    const appointmentDate = appointment.startTime 
+        ? formatUtcDateTime(appointment.startTime, "MMM dd, yyyy")
+        : "TBD";
+    const appointmentTime = appointment.startTime 
+        ? formatUtcDateTime(appointment.startTime, "h:mm a")
+        : "TBD";
     const duration = appointment.duration ? `${appointment.duration} min` : "TBD";
+    
+    // Calculate end time
+    const endTime = appointment.startTime && appointment.duration
+        ? (() => {
+            const start = new Date(appointment.startTime);
+            const end = new Date(start.getTime() + appointment.duration * 60000);
+            return formatUtcDateTime(end.toISOString(), "h:mm a");
+        })()
+        : null;
+
+    const getStatusBadge = (status: string) => {
+        switch (status) {
+            case APPOINTMENT_STATUS.PENDING:
+                return (
+                    <Badge
+                        variant="outline"
+                        className="border-yellow-500 text-yellow-600 bg-yellow-50"
+                    >
+                        Pending
+                    </Badge>
+                );
+            case APPOINTMENT_STATUS.COMPLETED:
+                return (
+                    <Badge className="bg-primary text-primary-foreground">
+                        Completed
+                    </Badge>
+                );
+            case APPOINTMENT_STATUS.CANCELLED:
+                return <Badge variant="destructive">Cancelled</Badge>;
+            default:
+                return <Badge variant="outline">{status}</Badge>;
+        }
+    };
 
     return (
         <div 
             className={cn(
-                "p-4 bg-muted transition-colors rounded-2xl",
-                onClick && "cursor-pointer hover:bg-muted/80"
+                "p-4 bg-card border border-border rounded-lg transition-all shadow-sm",
+                onClick && "cursor-pointer hover:shadow-md hover:border-primary/50"
             )}
             onClick={onClick}
             role={onClick ? "button" : undefined}
@@ -30,32 +100,89 @@ export function AppointmentCard({ appointment, onClick }: AppointmentCardProps) 
                 }
             } : undefined}
         >
-            <h4 className="font-medium text-foreground mb-2">{appointment.title}</h4>
-            <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>
-                        {appointmentTime} • {duration}
-                    </span>
-                </div>
-                {appointment.description && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
-                        <span>{appointment.description}</span>
+            {/* Header with title and status */}
+            <div className="flex items-start justify-between mb-3">
+                <h4 className="font-semibold text-foreground text-base leading-tight pr-2">
+                    {appointment.title}
+                </h4>
+                {getStatusBadge(appointment.status)}
+            </div>
+
+            {/* Customer, Service, and Assignee Info */}
+            <div className="space-y-2 mb-3">
+                {customer && (
+                    <div className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-foreground font-medium">{customer.name}</span>
+                    </div>
+                )}
+                {service && (
+                    <div className="flex items-center gap-2 text-sm">
+                        <Briefcase className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">{service.name}</span>
+                    </div>
+                )}
+                {assigneeMember && (
+                    <div className="flex items-center gap-2 text-sm">
+                        <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">
+                            Assigned to: <span className="font-medium text-foreground">{assigneeMember.name}</span>
+                        </span>
+                    </div>
+                )}
+                {assigneeOrganization && (
+                    <div className="flex items-center gap-2 text-sm">
+                        <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground">
+                            Assigned to: <span className="font-medium text-foreground">{assigneeOrganization.name}</span>
+                        </span>
                     </div>
                 )}
             </div>
-            <div className="mt-3">
-                <span
-                    className={cn(
-                        "inline-flex items-center px-2 py-1 rounded-md text-xs font-medium",
-                        appointmentType === "meeting" && "bg-primary/10 text-primary",
-                        appointmentType === "presentation" && "bg-orange-100 text-orange-700",
-                        appointmentType === "personal" && "bg-muted text-muted-foreground",
+
+            {/* Date and Time */}
+            <div className="space-y-2 mb-3 pb-3 border-b border-border">
+                <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground">{appointmentDate}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground">
+                        {appointmentTime}
+                        {endTime && ` - ${endTime}`}
+                        {duration && ` • ${duration}`}
+                    </span>
+                </div>
+            </div>
+
+            {/* Footer with price and description */}
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                    {appointment.description && (
+                        <div className="flex items-start gap-2 text-sm">
+                            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                            <span className="text-muted-foreground line-clamp-2">
+                                {appointment.description}
+                            </span>
+                        </div>
                     )}
-                >
-                    {appointmentType}
-                </span>
+                </div>
+                {appointment.fee !== undefined && (
+                    <div className="flex items-center gap-1 text-sm font-semibold text-foreground flex-shrink-0">
+                        <span>
+                            {appointment.fee === 0 
+                                ? "Free" 
+                                : new Intl.NumberFormat(undefined, {
+                                    style: 'currency',
+                                    currency: organization?.currency || 'USD',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 2,
+                                  }).format(appointment.fee)
+                            }
+                        </span>
+                    </div>
+                )}
             </div>
         </div>
     );

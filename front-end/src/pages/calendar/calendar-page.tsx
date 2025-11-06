@@ -133,7 +133,7 @@ export default function CalendarPage() {
             </CardContent>
           </Card>
         ) : (
-          <Tabs defaultValue="calendar" className="space-y-6">
+          <Tabs defaultValue="calendar" className="space-y-6 max-w-[100rem] mx-auto">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="calendar" className="gap-2">
                 <CalendarIcon className="h-4 w-4" />

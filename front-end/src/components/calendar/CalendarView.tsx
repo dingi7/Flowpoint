@@ -203,7 +203,7 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
   const selectedAppointments = getSelectedDateAppointments();
 
   return (
-    <div className="grid lg:grid-cols-[1fr_400px] gap-6">
+    <div className="grid lg:grid-cols-[50%_50%] gap-6">
       {/* Calendar Section */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">

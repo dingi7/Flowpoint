@@ -411,7 +411,7 @@ export function AppointmentList({
 
       {/* Appointment Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="min-w-4xl">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Appointment Details</DialogTitle>
           </DialogHeader>
