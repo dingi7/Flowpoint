@@ -1,6 +1,6 @@
 import { defineSecret } from "firebase-functions/params";
 import { onRequest } from "firebase-functions/v2/https";
-import { sendAppointmentReminderEmailFn } from "@/app/appointment/send-appointment-reminder-email";
+import { sendAppointmentReminderEmailFn } from "@/app/notification/send-appointment-reminder-email";
 import { Secrets } from "@/config/secrets";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
