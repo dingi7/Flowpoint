@@ -1,8 +1,8 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Dialog,
@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Appointment, APPOINTMENT_STATUS, AppointmentData } from "@/core";
 import { useAppointmentForm, useAvailableTimeslots, useBookAppointment, useMembers } from "@/hooks";
@@ -33,20 +32,17 @@ import { CustomerForm } from "@/components/customer/CustomerForm";
 import {
   Calendar,
   Clock,
-  DollarSign,
   Plus,
   Save,
-  Search,
-  User,
   X,
-  CheckCircle,
   AlertCircle,
   Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { convertUtcToLocal, createUtcDateTime, formatUtcDateTime } from "@/utils/date-time";
+import { formatPrice } from "@/utils/price-format";
+import { useCurrentOrganization } from "@/stores/organization-store";
 
 
 
@@ -65,11 +61,11 @@ export function AppointmentForm({
     handleSubmit: formHandleSubmit,
     setValue,
     watch,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useAppointmentForm({
     appointment,
     onSubmit: onSubmit || (async (data: AppointmentData) => {
-      
+
       // Only book appointment if this is a new appointment (not editing existing)
       if (!appointment) {
         if (!selectedCustomer?.email) {
@@ -123,6 +119,10 @@ export function AppointmentForm({
     orderBy: { field: "name", direction: "asc" },
   });
 
+  // Get current organization for currency
+  const currentOrganization = useCurrentOrganization();
+  const currency = currentOrganization?.currency || "EUR";
+
   // Flatten the infinite query data
   const customers = customersData?.pages.flatMap(page => page) || [];
   const services = servicesData?.pages.flatMap(page => page) || [];
@@ -134,7 +134,7 @@ export function AppointmentForm({
     date: watch("startTime") ? formatUtcDateTime(watch("startTime"), "yyyy-MM-dd") : "",
     time: watch("startTime")
       ? formatUtcDateTime(watch("startTime"), "HH:mm")
-      : undefined, // Use undefined instead of empty string for Select component
+      : "", // Use empty string for Select component
     status: watch("status") || APPOINTMENT_STATUS.PENDING,
     notes: watch("description") || "",
   };
@@ -207,7 +207,7 @@ export function AppointmentForm({
     const customer = customers.find((c) => c.id === customerId);
     setSelectedCustomer(customer || null);
     handleChange("customerId", customerId);
-    
+
     // Update title when customer is selected
     if (customer && selectedService) {
       const title = `${selectedService.name} - ${customer.name}`;
@@ -219,7 +219,7 @@ export function AppointmentForm({
     const service = services.find((s) => s.id === serviceId);
     setSelectedService(service || null);
     handleChange("serviceId", serviceId);
-    
+
     // Update title when service is selected
     if (service && selectedCustomer) {
       const title = `${service.name} - ${selectedCustomer.name}`;
@@ -245,343 +245,185 @@ export function AppointmentForm({
   }) || [];
 
 
-
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Progress Steps */}
-      <div className="flex items-center justify-center mb-6 px-6 flex-shrink-0">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center">
-            <div className={cn(
-              "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium",
-              formData.customerId ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            )}>
-              {formData.customerId ? <CheckCircle className="h-4 w-4" /> : "1"}
-            </div>
-            <span className="ml-2 text-sm font-medium">Customer</span>
-          </div>
-          <div className="w-8 h-px bg-border"></div>
-          <div className="flex items-center">
-            <div className={cn(
-              "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium",
-              formData.serviceId ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            )}>
-              {formData.serviceId ? <CheckCircle className="h-4 w-4" /> : "2"}
-            </div>
-            <span className="ml-2 text-sm font-medium">Service</span>
-          </div>
-          <div className="w-8 h-px bg-border"></div>
-          <div className="flex items-center">
-            <div className={cn(
-              "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium",
-              watch("assigneeId") ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            )}>
-              {watch("assigneeId") ? <CheckCircle className="h-4 w-4" /> : "3"}
-            </div>
-            <span className="ml-2 text-sm font-medium">Assignee</span>
-          </div>
-          <div className="w-8 h-px bg-border"></div>
-          <div className="flex items-center">
-            <div className={cn(
-              "flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium",
-              formData.date && formData.time ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            )}>
-              {formData.date && formData.time ? <CheckCircle className="h-4 w-4" /> : "4"}
-            </div>
-            <span className="ml-2 text-sm font-medium">Schedule</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-6 pb-4 min-h-0">
-        <form id="appointment-form" onSubmit={(e) => {
-          formHandleSubmit(e);
-        }} className="space-y-8">
-          {/* Customer Selection */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <User className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Customer Information</h3>
-                  <p className="text-sm text-muted-foreground">Select or create a customer</p>
-                </div>
-              </div>
-              <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    New Customer
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Create New Customer</DialogTitle>
-                  </DialogHeader>
-                  <CustomerForm
-                    onSuccess={async () => {
-                      setIsCustomerDialogOpen(false);
-                      // Refresh customers data to get the newly created customer
-                      await refetchCustomers();
-                    }}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="customer" className="text-sm font-medium">Select Customer *</Label>
-              <Select
-                value={formData.customerId}
-                onValueChange={handleCustomerSelect}
-              >
-                <SelectTrigger className="h-16 py-4">
-                  <SelectValue placeholder="Choose a customer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {customers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id} className="py-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage
-                            src={`/abstract-geometric-shapes.png?height=32&width=32&query=${customer.name}`}
-                          />
-                          <AvatarFallback className="text-xs">
-                            {customer.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{customer.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {customer.email}
-                          </p>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {selectedCustomer && (
-              <div className="p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20">
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage
-                      src={`/abstract-geometric-shapes.png?height=48&width=48&query=${selectedCustomer.name}`}
-                    />
-                    <AvatarFallback>
-                      {selectedCustomer.name
-                        .split(" ")
-                        .map((n: string) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-semibold text-lg">{selectedCustomer.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedCustomer.email}
-                    </p>
-                    {selectedCustomer.phone && (
-                      <p className="text-sm text-muted-foreground">
-                        {selectedCustomer.phone}
-                      </p>
-                    )}
-                  </div>
-                  <Badge variant="secondary" className="bg-primary/10 text-primary">
-                    Selected
-                  </Badge>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Separator className="my-6" />
-
-          {/* Service Selection */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Search className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Service Selection</h3>
-                <p className="text-sm text-muted-foreground">Choose the service for this appointment</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="service" className="text-sm font-medium">Select Service *</Label>
-              <Select
-                value={formData.serviceId}
-                onValueChange={handleServiceSelect}
-              >
-                <SelectTrigger className="h-16" size="default">
-                  <SelectValue placeholder="Choose a service" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service.id} value={service.id} className="py-4">
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex-1">
-                          <p className="font-medium">{service.name}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              {service.duration} min
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <DollarSign className="h-3 w-3" />
-                              {service.price === 0 ? "Free" : `$${service.price}`}
+      <Card className="border-none flex flex-col h-full min-h-0 bg-black py-0">
+        <CardContent className="flex-1 overflow-y-auto min-h-0 pt-6">
+          <form
+            id="appointment-form"
+            onSubmit={(e) => {
+              formHandleSubmit(e);
+            }}
+            className="h-full"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Customer Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="customer">Select Customer *</Label>
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.customerId}
+                    onValueChange={handleCustomerSelect}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a customer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {customers.map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage
+                                src={`/abstract-geometric-shapes.png?height=32&width=32&query=${customer.name}`}
+                              />
+                              <AvatarFallback className="text-xs">
+                                {customer.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{customer.name}</p>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {selectedService && (
-              <div className="p-4 bg-gradient-to-r from-blue-500/5 to-blue-500/10 rounded-xl border border-blue-500/20">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="font-semibold text-lg">{selectedService.name}</p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        {selectedService.duration} minutes
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <DollarSign className="h-4 w-4" />
-                        {selectedService.price === 0 ? "Free" : `$${selectedService.price}`}
-                      </div>
-                    </div>
-                    {selectedService.description && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {selectedService.description}
-                      </p>
-                    )}
-                  </div>
-                  <Badge variant="secondary" className="bg-blue-500/10 text-blue-600">
-                    Selected
-                  </Badge>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="shrink-0 rounded-none">
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Create New Customer</DialogTitle>
+                      </DialogHeader>
+                      <CustomerForm
+                        onSuccess={async () => {
+                          setIsCustomerDialogOpen(false);
+                          // Refresh customers data to get the newly created customer
+                          await refetchCustomers();
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
+                {errors.customerId && (
+                  <p className="text-sm text-red-500">{errors.customerId.message}</p>
+                )}
               </div>
-            )}
-          </div>
 
-          <Separator className="my-6" />
-
-          {/* Assignee Selection */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <User className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Assignee Selection</h3>
-                <p className="text-sm text-muted-foreground">Choose who will handle this appointment</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="assignee" className="text-sm font-medium">Select Assignee *</Label>
-              <Select
-                value={watch("assigneeId") || ""}
-                onValueChange={(value) => handleChange("assigneeId", value)}
-              >
-                <SelectTrigger className="h-16">
-                  <SelectValue placeholder="Choose an assignee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {members.length > 0 ? (
-                    members.map((member) => (
-                      <SelectItem key={member.id} value={member.id} className="py-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={member.image} />
-                            <AvatarFallback>
-                              {member.name.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{member.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {member.description || 'Team member'}
-                            </p>
+              {/* Service Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="service">Select Service *</Label>
+                <Select
+                  value={formData.serviceId}
+                  onValueChange={handleServiceSelect}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.map((service) => (
+                      <SelectItem key={service.id} value={service.id}>
+                        <div className="flex items-center w-full gap-2">
+                          <p className="font-medium">{service.name}</p>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            {formatPrice(service.price, currency)}
                           </div>
                         </div>
                       </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-members" disabled className="py-4">
-                      No members available
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Assignee Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="assignee">Select Assignee *</Label>
+                <Select
+                  value={watch("assigneeId") || ""}
+                  onValueChange={(value) => handleChange("assigneeId", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose an assignee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {members.length > 0 ? (
+                      members.map((member) => (
+                        <SelectItem key={member.id} value={member.id}>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={member.image} />
+                              <AvatarFallback>
+                                {member.name.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{member.name}</p>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-members" disabled>
+                        No members available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Status */}
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => handleChange("status", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={APPOINTMENT_STATUS.PENDING}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        Pending
+                      </div>
                     </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {watch("assigneeId") && (
-              <div className="p-4 bg-gradient-to-r from-green-500/5 to-green-500/10 rounded-xl border border-green-500/20">
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={members.find(m => m.id === watch("assigneeId"))?.image} />
-                    <AvatarFallback>
-                      {members.find(m => m.id === watch("assigneeId"))?.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-semibold text-lg">
-                      {members.find(m => m.id === watch("assigneeId"))?.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {members.find(m => m.id === watch("assigneeId"))?.description || 'Team member'}
-                    </p>
-                  </div>
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-600">
-                    Assigned
-                  </Badge>
-                </div>
+                    <SelectItem value={APPOINTMENT_STATUS.COMPLETED}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        Completed
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={APPOINTMENT_STATUS.CANCELLED}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        Cancelled
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-          </div>
 
-          <Separator className="my-6" />
-
-          {/* Date & Time Selection */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <Calendar className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Schedule</h3>
-                <p className="text-sm text-muted-foreground">Set the date and time for this appointment</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <Label htmlFor="date" className="text-sm font-medium">Date *</Label>
+              {/* Date Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="date">Date *</Label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       id="date"
                       variant="outline"
-                      className={`h-16 w-full justify-start text-left font-normal ${!formData.date && "text-muted-foreground"
+                      className={`w-full rounded-none justify-start text-left font-normal ${!formData.date && "text-muted-foreground"
                         }`}
                     >
                       <Calendar className="mr-2 h-4 w-4" />
                       {formData.date ? (
-                        format(new Date(formData.date), "PPP")
+                        format(new Date(formData.date + "T00:00:00"), "PPP")
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -605,35 +447,37 @@ export function AppointmentForm({
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="space-y-3">
-                <Label htmlFor="time" className="text-sm font-medium">Time *</Label>
+
+              {/* Time Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="time">Time *</Label>
                 <Select
-                  value={formData.time}
+                  value={formData.time || undefined}
                   onValueChange={(value) => {
                     // Convert the selected local time back to UTC for storage
                     handleChange("time", value);
                   }}
-                  disabled={isTimeslotsLoading || !formData.serviceId || !formData.date}
+                  disabled={!formData.serviceId || !formData.date}
                 >
-                  <SelectTrigger className="h-16">
-                    <SelectValue 
+                  <SelectTrigger>
+                    <SelectValue
                       placeholder={
-                        isTimeslotsLoading 
-                          ? "Loading available times..." 
-                          : !formData.serviceId || !formData.date
+                        !formData.serviceId || !formData.date
                           ? "Select service and date first"
+                          : isTimeslotsLoading
+                          ? "Loading available times..."
                           : timeslotsError
                           ? "Error loading times"
                           : timeSlots.length === 0
                           ? "No available times"
                           : "Select time"
-                      } 
+                      }
                     />
                   </SelectTrigger>
                   <SelectContent>
                     {timeSlots.length > 0 ? (
                       timeSlots.map((time) => (
-                        <SelectItem key={time} value={time} className="py-4">
+                        <SelectItem key={time} value={time}>
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4" />
                             {time}
@@ -642,120 +486,47 @@ export function AppointmentForm({
                       ))
                     ) : (
                       <div className="px-2 py-4 text-sm text-muted-foreground">
-                        {timeslotsError 
+                        {timeslotsError
                           ? "Error loading available times"
                           : isTimeslotsLoading
-                          ? "Loading..."
-                          : "No available times for this date"
+                            ? "Loading..."
+                            : "No available times for this date"
                         }
                       </div>
                     )}
                   </SelectContent>
                 </Select>
                 {timeslotsError && (
-                  <div className="flex items-center gap-2 text-sm text-destructive">
+                  <p className="text-sm text-red-500 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
                     Failed to load available times. Please try again.
-                  </div>
+                  </p>
                 )}
               </div>
-            </div>
 
-            {formData.date && formData.time && (
-              <div className="p-4 bg-gradient-to-r from-purple-500/5 to-purple-500/10 rounded-xl border border-purple-500/20">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 bg-purple-500/10 rounded-lg">
-                    <Calendar className="h-5 w-5 text-purple-500" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-lg">
-                      {formData.date && formData.time ? format(new Date(formData.date + "T00:00:00"), "EEEE, MMMM do, yyyy") : ""}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {formData.time} - {selectedService ? `${selectedService.duration} minutes` : 'Duration TBD'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <Label htmlFor="status" className="text-sm font-medium">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => handleChange("status", value)}
-              >
-                <SelectTrigger className="h-16">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={APPOINTMENT_STATUS.PENDING} className="py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      Pending
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="confirmed" className="py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      Confirmed
-                    </div>
-                  </SelectItem>
-                  <SelectItem value={APPOINTMENT_STATUS.COMPLETED} className="py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      Completed
-                    </div>
-                  </SelectItem>
-                  <SelectItem value={APPOINTMENT_STATUS.CANCELLED} className="py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      Cancelled
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <Separator className="my-6" />
-
-          {/* Additional Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-500/10 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-orange-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Additional Information</h3>
-                <p className="text-sm text-muted-foreground">Add any special notes or requirements</p>
+              {/* Notes - Full Width */}
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => handleChange("notes", e.target.value)}
+                  placeholder="Any special requests, preferences, or notes for this appointment..."
+                  rows={3}
+                />
               </div>
             </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="notes" className="text-sm font-medium">Notes</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => handleChange("notes", e.target.value)}
-                placeholder="Any special requests, preferences, or notes for this appointment..."
-                rows={4}
-                className="resize-none"
-              />
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {/* Form Actions - Fixed at bottom */}
-      <div className="flex items-center justify-between gap-4 px-6 py-4 border-t bg-background/95 backdrop-blur-sm flex-shrink-0">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <AlertCircle className="h-4 w-4" />
-          <span>All fields marked with * are required</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button type="button" variant="outline" onClick={onSuccess} className="gap-2">
-            <X className="h-4 w-4" />
+          </form>
+        </CardContent>
+        {/* Form Actions - Fixed at bottom */}
+        <div className="flex justify-end gap-3 p-6 border-t flex-shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onSuccess}
+            disabled={isSubmitting || bookAppointment.isPending}
+          >
+            <X className="h-4 w-4 mr-2" />
             Cancel
           </Button>
           <Button
@@ -767,28 +538,27 @@ export function AppointmentForm({
                   !formData.serviceId ||
                   !watch("assigneeId") ||
                   !formData.date ||
-                  formData.time === undefined ||
+                  !formData.time ||
                   isSubmitting ||
                   bookAppointment.isPending;
                 return disabled;
               })()
             }
-            className="gap-2 min-w-[140px]"
           >
             {isSubmitting || bookAppointment.isPending ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Booking...
               </>
             ) : (
               <>
-                <Save className="h-4 w-4" />
+                <Save className="h-4 w-4 mr-2" />
                 {appointment ? "Update Appointment" : "Book Appointment"}
               </>
             )}
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
