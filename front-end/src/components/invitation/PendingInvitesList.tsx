@@ -6,19 +6,34 @@ import {
   useDeclineInvite,
   useInvitesByOrganization,
 } from "@/hooks/repository-hooks/invite/use-invite";
+import { useRoles } from "@/hooks/repository-hooks/role/use-role";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { addDays, format } from "date-fns";
 import {
   AlertCircle,
-  CheckCircle,
   Clock,
   Mail,
-  Shield,
-  User,
+  MoreHorizontal,
   X,
-  XCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface PendingInvitesListProps {
   searchQuery?: string;
@@ -39,6 +54,15 @@ export function PendingInvitesList({
     refetch,
   } = useInvitesByOrganization(currentOrganizationId || "");
 
+  // Fetch roles for display
+  const { data: rolesData } = useRoles({
+    pagination: { limit: 100 },
+    orderBy: { field: "name", direction: "asc" },
+  });
+
+  const roles = rolesData || [];
+  const roleMap = new Map(roles.map(role => [role.id, role]));
+
   const declineInviteMutation = useDeclineInvite();
 
   const handleDeclineInvite = async (inviteId: string) => {
@@ -58,18 +82,11 @@ export function PendingInvitesList({
     invite.inviteeEmail.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // Group invites by status
-  const pendingInvites = filteredInvites.filter(
-    (invite) => invite.status === InviteStatus.PENDING,
-  );
-  const acceptedInvites = filteredInvites.filter(
-    (invite) => invite.status === InviteStatus.ACCEPTED,
-  );
-  const declinedInvites = filteredInvites.filter(
-    (invite) => invite.status === InviteStatus.DECLINED,
-  );
-
-  const getStatusBadge = (status: InviteStatus) => {
+  const getStatusBadge = (status: InviteStatus, isExpired: boolean) => {
+    if (isExpired && status === InviteStatus.PENDING) {
+      return <Badge variant="destructive">Expired</Badge>;
+    }
+    
     switch (status) {
       case InviteStatus.PENDING:
         return (
@@ -100,7 +117,7 @@ export function PendingInvitesList({
   };
 
   const getDaysLeft = (invite: Invite) => {
-    if (!invite.validFor || !invite.createdAt) return 0;
+    if (!invite.validFor || !invite.createdAt) return null;
     const created = new Date(invite.createdAt);
     const expiryDate = addDays(created, invite.validFor);
     const now = new Date();
@@ -108,6 +125,18 @@ export function PendingInvitesList({
       0,
       Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
     );
+  };
+
+  const getInviteRoles = (roleIds: string[]) => {
+    return roleIds.map(roleId => roleMap.get(roleId)).filter((role): role is NonNullable<typeof role> => Boolean(role));
+  };
+
+  const getInitials = (email: string) => {
+    const parts = email.split("@")[0].split(".");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return email.substring(0, 2).toUpperCase();
   };
 
   if (isLoading) {
@@ -144,201 +173,135 @@ export function PendingInvitesList({
 
   if (invites.length === 0) {
     return (
-      <div className="space-y-4">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Mail className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">No invites found</p>
-            <p className="text-xs text-muted-foreground">
-              Invites will appear here when you send them to new members
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Mail className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No invites found</p>
+          <p className="text-xs text-muted-foreground">
+            Invites will appear here when you send them to new members
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Pending Invites */}
-      {pendingInvites.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-yellow-500" />
-            <h3 className="text-lg font-semibold">
-              Pending Invites ({pendingInvites.length})
-            </h3>
-          </div>
-          <div className="grid gap-4">
-            {pendingInvites.map((invite) => (
-              <Card
-                key={invite.id}
-                className={`${isExpired(invite) ? "border-red-200 bg-red-50/50" : "border-yellow-200"}`}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Mail className="h-5 w-5" />
+          Invites ({filteredInvites.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Invitee</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Roles</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Expires</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredInvites.map((invite) => {
+              const expired = isExpired(invite);
+              const daysLeft = getDaysLeft(invite);
+              const inviteRoles = getInviteRoles(invite.roleIds || []);
+
+              return (
+                <TableRow key={invite.id}>
+                  <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                        <User className="h-5 w-5 text-yellow-600" />
-                      </div>
+                      <Avatar className="h-12 w-12 ring-2 ring-muted/20 hover:ring-primary/20 transition-all duration-200">
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold text-sm">
+                          {getInitials(invite.inviteeEmail)}
+                        </AvatarFallback>
+                      </Avatar>
                       <div>
-                        <CardTitle className="text-base">
-                          {invite.inviteeEmail}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          Invited{" "}
-                          {format(
-                            new Date(invite.createdAt),
-                            "MMM d, yyyy 'at' h:mm a",
-                          )}
+                        <p className="font-medium">{invite.inviteeEmail}</p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          Invited Member
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {isExpired(invite) ? (
-                        <Badge variant="destructive" className="text-xs">
-                          Expired
+                  </TableCell>
+                  <TableCell>
+                    {getStatusBadge(invite.status, expired)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {inviteRoles.map((role) => (
+                        <Badge key={role.id} variant="secondary" className="text-xs">
+                          {role.name}
                         </Badge>
-                      ) : (
-                        getStatusBadge(invite.status)
+                      ))}
+                      {(!invite.roleIds || invite.roleIds.length === 0) && (
+                        <span className="text-sm text-muted-foreground">No roles assigned</span>
                       )}
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Shield className="h-4 w-4" />
-                        <span>
-                          {invite.roleIds?.length || 0} role
-                          {invite.roleIds?.length > 1 ? "s" : ""} assigned
-                        </span>
-                      </div>
-                      {invite.validFor &&
-                        invite.createdAt &&
-                        (() => {
-                          const daysLeft = getDaysLeft(invite);
-                          return (
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {daysLeft > 0 ? (
-                                <span>
-                                  Expires in {daysLeft} day
-                                  {daysLeft > 1 ? "s" : ""}
-                                </span>
-                              ) : (
-                                <span className="text-destructive">
-                                  Expired
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })()}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeclineInvite(invite.id)}
-                      disabled={decliningInviteId === invite.id}
-                      className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      {decliningInviteId === invite.id
-                        ? "Declining..."
-                        : "Cancel Invite"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+                  </TableCell>
+                  <TableCell>
+                    {invite.createdAt ? format(new Date(invite.createdAt), "MMM d, yyyy") : "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    {invite.validFor && invite.createdAt ? (
+                      expired ? (
+                        <span className="text-sm text-destructive">Expired</span>
+                      ) : daysLeft !== null ? (
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {daysLeft} day{daysLeft !== 1 ? "s" : ""} left
+                        </div>
+                      ) : (
+                        "N/A"
+                      )
+                    ) : (
+                      "N/A"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {invite.status === InviteStatus.PENDING && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeclineInvite(invite.id)}
+                            disabled={decliningInviteId === invite.id}
+                          >
+                            <X className="h-4 w-4 mr-2" />
+                            {decliningInviteId === invite.id
+                              ? "Declining..."
+                              : "Cancel Invite"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
 
-      {/* Accepted Invites */}
-      {acceptedInvites.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
-            <h3 className="text-lg font-semibold">
-              Accepted Invites ({acceptedInvites.length})
-            </h3>
+        {filteredInvites.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+              No invites found matching your criteria.
+            </p>
           </div>
-          <div className="grid gap-4">
-            {acceptedInvites.map((invite) => (
-              <Card key={invite.id} className="border-green-200 bg-green-50/50">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <User className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base">
-                          {invite.inviteeEmail}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          Accepted{" "}
-                          {invite.updatedAt
-                            ? format(
-                                new Date(invite.updatedAt),
-                                "MMM d, yyyy 'at' h:mm a",
-                              )
-                            : "Recently"}
-                        </p>
-                      </div>
-                    </div>
-                    {getStatusBadge(invite.status)}
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Declined Invites */}
-      {declinedInvites.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <XCircle className="h-5 w-5 text-red-500" />
-            <h3 className="text-lg font-semibold">
-              Declined Invites ({declinedInvites.length})
-            </h3>
-          </div>
-          <div className="grid gap-4">
-            {declinedInvites.map((invite) => (
-              <Card key={invite.id} className="border-red-200 bg-red-50/50">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                        <User className="h-5 w-5 text-red-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base">
-                          {invite.inviteeEmail}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          Declined{" "}
-                          {invite.updatedAt
-                            ? format(
-                                new Date(invite.updatedAt),
-                                "MMM d, yyyy 'at' h:mm a",
-                              )
-                            : "Recently"}
-                        </p>
-                      </div>
-                    </div>
-                    {getStatusBadge(invite.status)}
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
