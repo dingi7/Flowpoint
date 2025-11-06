@@ -141,6 +141,18 @@ export function MemberList({ searchQuery }: MemberListProps) {
     return member.name.includes("(Owner)");
   };
 
+  const canDeleteMember = (member: Member) => {
+    // Don't allow users to delete themselves
+    if (member.id === currentUser?.id) {
+      return false;
+    }
+    // Don't allow deleting owners
+    if (isOwner(member)) {
+      return false;
+    }
+    return true;
+  };
+
   const getMemberRoles = (roleIds: string[]) => {
     return roleIds.map(roleId => roleMap.get(roleId)).filter((role): role is NonNullable<typeof role> => Boolean(role));
   };
@@ -231,7 +243,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Member
                         </DropdownMenuItem>
-                        {!isOwner(member) && (
+                        {canDeleteMember(member) && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 

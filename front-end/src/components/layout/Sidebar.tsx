@@ -39,13 +39,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { User } from "@/core";
-import { useUser } from "@/hooks";
+import { User, InviteStatus } from "@/core";
+import { useUser, useInvitesByEmail } from "@/hooks";
 import { ModeToggle } from "../ui/mode-toggle";
 import { useOrganizations, useSelectedOrganization, useOrganizationActions } from "@/stores";
 import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
 import { InvitationNotifications } from "@/components/invitation/InvitationNotifications";
 import { useEffect } from "react";
+import { useUser as useClerkUser } from "@clerk/clerk-react";
 
 const data = {
   navMain: [
@@ -142,6 +143,15 @@ function NavMain({ items }: { items: typeof data.navMain }) {
 }
 
 function NotificationsDropdown() {
+  const { user } = useClerkUser();
+  const {
+    data: invitations = [],
+  } = useInvitesByEmail(user?.primaryEmailAddress?.emailAddress || "");
+
+  const pendingInvitationsCount = invitations.filter(
+    (inv) => inv.status === InviteStatus.PENDING
+  ).length;
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Notifications</SidebarGroupLabel>
@@ -150,8 +160,16 @@ function NotificationsDropdown() {
           <SidebarMenuItem>
             <Popover>
               <PopoverTrigger asChild>
-                <SidebarMenuButton className="relative">
-                  <Bell className="h-4 w-4" />
+                <SidebarMenuButton>
+                  <div className="relative">
+                    <Bell className="h-4 w-4" />
+                    {pendingInvitationsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                      </span>
+                    )}
+                  </div>
                   <span>Invitations</span>
                 </SidebarMenuButton>
               </PopoverTrigger>
