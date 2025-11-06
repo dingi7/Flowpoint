@@ -127,7 +127,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
 
     try {
       await deleteMemberFromOrg({
-        userId: deletingMember.id,
+        memberId: deletingMember.id,
         organizationId: currentOrganizationId,
       });
       setIsDeleteOpen(false);

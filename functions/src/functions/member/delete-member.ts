@@ -1,4 +1,4 @@
-import { deleteMemberFn } from "@/app/member/delete-member";
+import { kickOrganizationMemberFn } from "@/app/member/delete-member";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { CallableRequest, onCall } from "firebase-functions/https";
@@ -9,13 +9,14 @@ const loggerService = serviceHost.getLoggerService();
 const memberRepository = repositoryHost.getMemberRepository(databaseService);
 const userRepository = repositoryHost.getUserRepository(databaseService);
 const calendarRepository = repositoryHost.getCalendarRepository(databaseService);
+const roleRepository = repositoryHost.getRoleRepository(databaseService);
 
 interface Payload {
-  userId: string;
+  memberId: string;
   organizationId: string;
 }
 
-export const deleteMember = onCall<Payload>(
+export const kickOrganizationMember = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
@@ -27,31 +28,32 @@ export const deleteMember = onCall<Payload>(
 
     const { data } = request;
 
-    loggerService.info("Delete member request received", {
+    loggerService.info("Kick organization member request received", {
       data,
     });
 
     try {
-      await deleteMemberFn(
-        { userId: data.userId, organizationId: data.organizationId },
+      await kickOrganizationMemberFn(
+        { initiatorId: request.auth.uid, ...data },
         {
           loggerService,
           memberRepository,
           userRepository,
           calendarRepository,
+          roleRepository,
         },
       );
 
-      loggerService.info("Member deleted successfully", {
-        userId: data.userId,
+      loggerService.info("Kick organization member successful", {
+        memberId: data.memberId,
         organizationId: data.organizationId,
       });
 
       return { success: true };
     } catch (error) {
-      loggerService.error("Member deletion error", error);
+      loggerService.error("Kick organization member error", error);
       throw new Error(
-        `Member deletion failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Kick organization member failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   },

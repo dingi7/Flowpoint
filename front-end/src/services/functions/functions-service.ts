@@ -74,16 +74,16 @@ export const functionsService: FunctionsService = {
     )(payload);
     return result.data;
   },
-  async deleteMember(payload) {
+  async kickOrganizationMember(payload) {
     const result = await httpsCallable<
       {
-        userId: string;
+        memberId: string;
         organizationId: string;
       },
       { success: boolean }
     >(
       firebase.functions,
-      "deleteMember",
+      "kickOrganizationMember",
     )(payload);
     return result.data;
   },

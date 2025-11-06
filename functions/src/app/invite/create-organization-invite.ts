@@ -69,7 +69,17 @@ export async function createOrganizationInviteFn(
     throw new Error("Inviter has no roles");
   }
 
-  // 3. Check if an invite already exists for this email
+  // 3. Check if the inviter roles allow him to invite members
+  const canInvite = inviterRoles.some((role) =>
+    role.permissions.includes(PermissionKey.MANAGE_MEMBERS),
+  );
+
+  if (!canInvite) {
+    loggerService.info("Inviter does not have the necessary roles");
+    throw new Error("Inviter does not have the necessary roles");
+  }
+
+  // 4. Check if an invite already exists for this email
   const existingInvites = await inviteRepository.getAll({
     queryConstraints: [
       {
@@ -93,16 +103,6 @@ export async function createOrganizationInviteFn(
   if (existingInvites.length > 0) {
     loggerService.info("Invite already exists", { existingInvites });
     throw new Error("Invite already exists");
-  }
-
-  // 4. Check if the inviter roles allow him to invite members
-  const canInvite = inviterRoles.some((role) =>
-    role.permissions.includes(PermissionKey.MANAGE_MEMBERS),
-  );
-
-  if (!canInvite) {
-    loggerService.info("Inviter does not have the necessary roles");
-    throw new Error("Inviter does not have the necessary roles");
   }
 
   // 5. Check if the invitee roles exist

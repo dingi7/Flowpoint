@@ -4,7 +4,7 @@ import { serviceHost } from "@/services";
 const functionsService = serviceHost.getFunctionsService();
 
 export interface DeleteMemberFromOrganizationParams {
-  userId: string;
+  memberId: string;
   organizationId: string;
 }
 
@@ -14,7 +14,7 @@ export const useDeleteMemberFromOrganization = () => {
   return useMutation({
     mutationKey: ["deleteMemberFromOrganization"],
     mutationFn: async (params: DeleteMemberFromOrganizationParams) => {
-      return functionsService.deleteMember(params);
+      return functionsService.kickOrganizationMember(params);
     },
     onSuccess: () => {
       // Invalidate and refetch member-related queries
