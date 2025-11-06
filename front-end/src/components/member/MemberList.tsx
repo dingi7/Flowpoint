@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useMembers, useUpdateMember } from "@/hooks/repository-hooks/member/use-member";
 import { useRoles } from "@/hooks/repository-hooks/role/use-role";
 import { useUser } from "@/stores/user-store";
+import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useDeleteMemberFromOrganization } from "@/hooks";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -31,6 +33,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Member } from "@/core";
 import {
   Edit,
@@ -52,8 +64,12 @@ export function MemberList({ searchQuery }: MemberListProps) {
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [deletingMember, setDeletingMember] = useState<Member | null>(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const currentOrganizationId = useCurrentOrganizationId();
 
   const { mutateAsync: updateMember, isPending: isUpdatingMember } = useUpdateMember();
+  const { mutateAsync: deleteMemberFromOrg, isPending: isDeletingMember } = useDeleteMemberFromOrganization();
 
   // Fetch members using the hook
   const { data, error } = useMembers({
@@ -97,6 +113,32 @@ export function MemberList({ searchQuery }: MemberListProps) {
   const handleEdit = (member: Member) => {
     setEditingMember(member);
     setIsEditOpen(true);
+  };
+
+  const handleDelete = (member: Member) => {
+    setDeletingMember(member);
+    setIsDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingMember || !currentOrganizationId) {
+      return;
+    }
+
+    try {
+      await deleteMemberFromOrg({
+        userId: deletingMember.id,
+        organizationId: currentOrganizationId,
+      });
+      setIsDeleteOpen(false);
+      setDeletingMember(null);
+    } catch (error) {
+      console.error("Failed to delete member:", error);
+    }
+  };
+
+  const isOwner = (member: Member) => {
+    return member.name.includes("(Owner)");
   };
 
   const getMemberRoles = (roleIds: string[]) => {
@@ -189,11 +231,18 @@ export function MemberList({ searchQuery }: MemberListProps) {
                           <Edit className="h-4 w-4 mr-2" />
                           Edit Member
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Member
-                        </DropdownMenuItem>
+                        {!isOwner(member) && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => handleDelete(member)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Member
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -253,6 +302,42 @@ export function MemberList({ searchQuery }: MemberListProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Member Confirmation */}
+      <AlertDialog 
+        open={isDeleteOpen} 
+        onOpenChange={(open) => {
+          setIsDeleteOpen(open);
+          if (!open) {
+            setDeletingMember(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Member</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the member "{deletingMember?.name}"? 
+              This action cannot be undone and will remove this member from the organization.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setIsDeleteOpen(false);
+              setDeletingMember(null);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={isDeletingMember}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeletingMember ? "Deleting..." : "Delete Member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

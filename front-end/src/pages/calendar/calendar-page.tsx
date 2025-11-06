@@ -5,13 +5,18 @@ import { MemberCalendarForm } from "@/components/calendar/MemberCalendarForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar as CalendarType } from "@/core";
+import { CalendarData, Calendar as CalendarType } from "@/core";
 import { useCalendars, useCreateCalendar, useUpdateCalendar } from "@/hooks/repository-hooks/calendar/use-calendar";
 import { useCurrentUserId } from "@/stores/user-store";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Calendar as CalendarIcon, Clock, Plus, Settings, Edit } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+interface WorkingHoursSlot {
+  start: string;
+  end: string;
+}
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -28,15 +33,15 @@ export default function CalendarPage() {
     .flatMap((page) => page)
     .find(
       (calendar) =>
-        (calendar as any).ownerType === "member" &&
-        (calendar as any).ownerId === currentUserId,
+        (calendar).ownerType === "member" &&
+        (calendar).ownerId === currentUserId,
     ) as CalendarType | undefined;
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
   };
 
-  const handleUpdateCalendar = async (data: any) => {
+  const handleUpdateCalendar = async (data: CalendarData) => {
     if (!userCalendar) return;
 
     try {
@@ -54,7 +59,7 @@ export default function CalendarPage() {
     }
   };
 
-  const handleCreateCalendar = async (data: any) => {
+  const handleCreateCalendar = async (data: CalendarData) => {
     try {
       await createCalendar.mutateAsync({
         data,
@@ -169,14 +174,14 @@ export default function CalendarPage() {
                                     <span className="font-medium capitalize">
                                       {day}
                                     </span>
-                                    {(hours as any[]).length > 0 ? (
+                                    {(hours).length > 0 ? (
                                       <div className="text-sm text-muted-foreground">
-                                        {(hours as any[]).map(
-                                          (slot: any, index: number) => (
+                                        {(hours).map(
+                                          (slot: WorkingHoursSlot, index: number) => (
                                             <span key={index}>
                                               {slot.start}-{slot.end}
                                               {index <
-                                                (hours as any[]).length - 1 && ", "}
+                                                (hours).length - 1 && ", "}
                                             </span>
                                           ),
                                         )}

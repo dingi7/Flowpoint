@@ -208,9 +208,6 @@ export function DraggableServiceList({
       <CardHeader>
         <CardTitle className="text-lg font-sans">
           Services ({filteredServices.length})
-          <span className="text-sm text-muted-foreground ml-2">
-            This is a draggable list and the order is how the services are displayed on the page and on the bussiness page.
-          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>

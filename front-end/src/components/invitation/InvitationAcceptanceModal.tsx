@@ -118,7 +118,7 @@ export function InvitationAcceptanceModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building className="h-5 w-5" />

@@ -54,4 +54,8 @@ export interface FunctionsService {
     currency: string;
     settings: OrganizationSettingsData;
   }): Promise<string>;
+  deleteMember(payload: {
+    userId: string;
+    organizationId: string;
+  }): Promise<{ success: boolean }>;
 }

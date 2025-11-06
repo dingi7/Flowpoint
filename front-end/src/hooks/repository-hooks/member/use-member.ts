@@ -11,7 +11,6 @@ const memberRepository = repositoryHost.getMemberRepository(databaseService);
 
 type CreateMemberParams = Parameters<typeof memberRepository.create>[0];
 type UpdateMemberParams = Parameters<typeof memberRepository.update>[0];
-type DeleteMemberParams = Parameters<typeof memberRepository.delete>[0];
 
 export const useCreateMember = () => {
     const queryClient = useQueryClient();
@@ -54,20 +53,6 @@ export const useUpdateMember = () => {
     mutationKey: ["member", "update"],
     mutationFn: async (params: UpdateMemberParams) => {
       return memberRepository.update(params);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members", "get"] });
-    },
-  });
-}
-
-export const useDeleteMember = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, DeleteMemberParams>({
-    mutationKey: ["member", "delete"],
-    mutationFn: async (params: DeleteMemberParams) => {
-      return memberRepository.delete(params);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members", "get"] });
