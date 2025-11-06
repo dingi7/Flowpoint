@@ -17,7 +17,7 @@ import { useOrganizationForm } from "@/hooks";
 import { useOrganizationImageUpload } from "@/hooks/service-hooks/media/use-organization-image-upload";
 import { convertWorkingHoursToLocal, convertLocalTimeStringToUtc } from "@/utils/date-time";
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Clock, MapPin, Users } from "lucide-react";
+import { Plus, Trash2, Clock, MapPin, Users, Bell } from "lucide-react";
 
 interface OrganizationFormProps {
   organization?: Organization;
@@ -49,6 +49,8 @@ export function OrganizationForm({
   const currentImage = watch("image");
   const workingDays = watch("settings.workingDays") || [];
   const workingHours = watch("settings.workingHours") || { start: "09:00", end: "17:00" };
+  const emailNotifications = watch("settings.emailNotifications") ?? true;
+  const smsNotifications = watch("settings.smsNotifications") ?? false;
 
   // Update form when image upload completes
   useEffect(() => {
@@ -375,7 +377,75 @@ export function OrganizationForm({
           </div>
         </CardContent>
       </Card>
+      {/* Appointment Notifications Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Appointment Notifications
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="reminderHoursBefore">Reminder Hours Before Appointment</Label>
+            <Input
+              id="reminderHoursBefore"
+              type="number"
+              min="0"
+              placeholder="24"
+              {...register("settings.appointmentReminderHoursBefore", { valueAsNumber: true })}
+              disabled={isLoading}
+            />
+            <p className="text-xs text-muted-foreground">
+              How many hours before the appointment should reminder notifications be sent
+            </p>
+            {formState.errors.settings?.appointmentReminderHoursBefore && (
+              <p className="text-sm text-red-500">
+                {formState.errors.settings.appointmentReminderHoursBefore.message}
+              </p>
+            )}
+          </div>
 
+          <div className="space-y-3">
+            <Label>Notification Methods</Label>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="emailNotifications"
+                  checked={emailNotifications}
+                  onCheckedChange={(checked) => {
+                    setValue("settings.emailNotifications", !!checked);
+                  }}
+                  disabled={isLoading}
+                />
+                <Label htmlFor="emailNotifications" className="text-sm font-medium cursor-pointer">
+                  Email Notifications
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground ml-6">
+                Send appointment confirmation and reminder emails to customers
+              </p>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="smsNotifications"
+                  checked={smsNotifications}
+                  onCheckedChange={(checked) => {
+                    setValue("settings.smsNotifications", !!checked);
+                  }}
+                  disabled={isLoading}
+                />
+                <Label htmlFor="smsNotifications" className="text-sm font-medium cursor-pointer">
+                  SMS Notifications
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground ml-6">
+                Send appointment confirmation and reminder SMS messages to customers
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
       {/* Customer Fields Configuration */}
       <Card>
         <CardHeader>
