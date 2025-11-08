@@ -38,9 +38,9 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
-import { convertUtcToLocal, createUtcDateTime, formatUtcDateTime } from "@/utils/date-time";
+import { formatUtcDateTime } from "@/utils/date-time";
 import { formatPrice } from "@/utils/price-format";
 import { useCurrentOrganization } from "@/stores/organization-store";
 
@@ -84,10 +84,15 @@ export function AppointmentForm({
         }
 
         // Transform AppointmentData to BookAppointmentPayload
+        // Send local date and time, not UTC
+        const localDate = formData.date; // Format: yyyy-MM-dd
+        const localTime = formData.time; // Format: HH:mm
+        const startTime = `${localDate}T${localTime}:00`; // Format: yyyy-MM-ddTHH:mm:00
+        
         const bookingPayload = {
           serviceId: data.serviceId,
           customerEmail: selectedCustomer.email,
-          startTime: data.startTime, // This should already be in ISO format
+          startTime: startTime, // Local time, not UTC
           assigneeId: data.assigneeId,
           fee: data.fee, // Function now accepts null
           title: data.title,
@@ -98,6 +103,11 @@ export function AppointmentForm({
             // Add any additional customer fields if needed
           },
         };
+        console.log("📤 Booking Request (Local Time):", {
+          localDate,
+          localTime,
+          startTime: bookingPayload.startTime,
+        });
         await bookAppointment.mutateAsync(bookingPayload);
       }
     }),
@@ -181,13 +191,13 @@ export function AppointmentForm({
 
       if (newDate) {
         if (newTime) {
-          // Create UTC datetime from local date and time
-          const utcDateTime = createUtcDateTime(newDate, newTime);
-          setValue("startTime", utcDateTime);
+          // Store local date and time (backend will handle timezone conversion)
+          const localDateTime = `${newDate}T${newTime}:00`;
+          setValue("startTime", localDateTime);
         } else {
           // Set date only, time will be added later
-          const utcDateTime = createUtcDateTime(newDate, "00:00");
-          setValue("startTime", utcDateTime);
+          const localDateTime = `${newDate}T00:00:00`;
+          setValue("startTime", localDateTime);
         }
       }
     } else if (field === "customerId") {
@@ -238,11 +248,12 @@ export function AppointmentForm({
     enabled: !!formData.serviceId && !!formData.date,
   });
 
-  // Convert timeslots to time strings for the dropdown (convert from UTC to local)
-  const timeSlots = timeslotsData?.result?.map((slot) => {
-    const localTime = convertUtcToLocal(slot.start);
-    return format(localTime, "HH:mm");
-  }) || [];
+  const timeSlots = useMemo(() => {
+    return timeslotsData?.result?.map((slot) => {
+      const timeMatch = slot.start.match(/T(\d{2}):(\d{2})/);
+      return timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "";
+    }) || [];
+  }, [timeslotsData?.result]);
 
 
   return (
@@ -454,7 +465,6 @@ export function AppointmentForm({
                 <Select
                   value={formData.time || undefined}
                   onValueChange={(value) => {
-                    // Convert the selected local time back to UTC for storage
                     handleChange("time", value);
                   }}
                   disabled={!formData.serviceId || !formData.date}
