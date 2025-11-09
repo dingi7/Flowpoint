@@ -45,7 +45,10 @@ export async function createOrganizationFn(
   } = dependencies;
 
   const organizationId = await organizationRepository.create({
-    data: organizationData,
+    data: {
+      ...organizationData,
+      apiKeys: [],
+    },
   });
 
   loggerService.info(`Created organization ${organizationId}`);

@@ -1,4 +1,4 @@
-import type { ServiceHost } from "@/core";
+import type { GetSecretManagerServiceDependencies, ServiceHost } from "@/core";
 import { authService } from "./auth-service";
 import { clerkService } from "./clerk-service";
 import { databaseService } from "./database-service";
@@ -7,6 +7,7 @@ import { pubSubService } from "./pub-sub-service";
 import { getMailgunService } from "./mailgun-service";
 import { GetMailgunServicePayload } from "@/core/ports/services/mailgun-service";
 import { getCloudTasksService } from "./cloud-tasks-service";
+import { getSecretManagerService } from "./secret-manager-sercvice";
 
 export const serviceHost: ServiceHost = {
   getAuthenticationService() {
@@ -29,5 +30,8 @@ export const serviceHost: ServiceHost = {
   },
   getCloudTasksService(functionName: string) {
     return getCloudTasksService(functionName);
+  },
+  getSecretManagerService(dependencies: GetSecretManagerServiceDependencies) {
+    return getSecretManagerService(dependencies);
   },
 };

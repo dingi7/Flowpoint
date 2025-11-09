@@ -38,6 +38,7 @@ export * from "./ports/services/database-service";
 export * from "./ports/services/logger-service";
 export * from "./ports/services/mailgun-service";
 export * from "./ports/services/pub-sub-service";
+export * from "./ports/services/secret-manager-service";
 
 //Service Host
 export * from "./ports/services/service-host";

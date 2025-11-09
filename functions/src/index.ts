@@ -26,6 +26,10 @@ export { kickOrganizationMember } from "./functions/member/delete-member";
 // <-- Organization Creation -->
 export { createOrganization } from "./functions/organization/create-organization";
 
+// <-- API Key Management -->
+export { createApiKey } from "./functions/organization/create-api-key";
+export { revokeApiKey } from "./functions/organization/revoke-api-key";
+
 // <-- Widget Public API -->
 export { widgetGetOrganizationServices } from "./functions/widget/get-organization-services";
 export { widgetGetAvailableTimeslots } from "./functions/widget/get-available-timeslots";

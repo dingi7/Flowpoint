@@ -36,12 +36,23 @@ export type OrganizationSettingsData = z.infer<
   typeof OrganizationSettingsSchema
 >;
 
+export const ApiKeySchema = z.object({
+  name: z.string(),
+  secretId: z.string(),
+  createdAt: z.date(),
+  status: z.enum(["active", "revoked"]),
+  lastFour: z.string(),
+});
+
+export type ApiKey = z.infer<typeof ApiKeySchema>;
+
 export const organizationDataSchema = z.object({
   name: z.string(),
   image: z.string().optional(),
   industry: z.string().optional(),
   currency: z.string().default("EUR"),
   settings: OrganizationSettingsSchema,
+  apiKeys: z.array(ApiKeySchema).default([]),
 });
 
 export type OrganizationData = z.infer<typeof organizationDataSchema>;

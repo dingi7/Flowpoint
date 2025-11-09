@@ -258,7 +258,7 @@ export function AppointmentForm({
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <Card className="border-none flex flex-col h-full min-h-0 bg-black py-0">
+      <Card className="border-none flex flex-col h-full min-h-0 bg-transparent py-0">
         <CardContent className="flex-1 overflow-y-auto min-h-0 pt-6">
           <form
             id="appointment-form"

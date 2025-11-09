@@ -10,6 +10,7 @@ import { useCreateCustomer, useUpdateCustomer } from "@/hooks";
 import { useCustomerForm } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
+import { Separator } from "../ui/separator";
 
 interface CustomerFormProps {
   customer?: Customer;
@@ -63,11 +64,13 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
     },
   });
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-2">
       {/* Basic Information */}
-      <Card className="border-none">
+      <Card className="border-none shadow-none bg-transparent">
         <CardHeader>
           <CardTitle className="text-lg font-sans">Basic Information</CardTitle>
+          <Separator />
+
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -117,13 +120,14 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       </Card>
 
       {/* Custom Fields */}
-      <Card className="border-none">
-        <CardHeader>
+      <Card className="border-none bg-transparent shadow-none p-0 pb-4">
+        <CardHeader className="space-y-0 ">
           <CardTitle className="text-lg font-sans">
             Additional Information
           </CardTitle>
+          <Separator />
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-0">
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea

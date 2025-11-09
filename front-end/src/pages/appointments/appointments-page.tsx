@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APPOINTMENT_STATUS } from "@/core";
 import { useAppointments } from "@/hooks/repository-hooks/appointment/use-appointment";
@@ -185,6 +186,7 @@ export default function AppointmentsPage() {
                 <DialogTitle className="text-xl font-semibold">
                   Book New Appointment
                 </DialogTitle>
+                <Separator />
               </DialogHeader>
               <div className="overflow-hidden">
                 <AppointmentForm
