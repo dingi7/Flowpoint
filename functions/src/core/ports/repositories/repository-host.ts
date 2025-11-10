@@ -1,4 +1,5 @@
 import {
+  ApiKeyHashRepository,
   AppointmentRepository,
   CalendarRepository,
   CustomerRepository,
@@ -27,4 +28,7 @@ export interface RepositoryHost {
   ): AppointmentRepository;
   getTimeOffRepository(databaseService: DatabaseService): TimeOffRepository;
   getInviteRepository(databaseService: DatabaseService): InviteRepository;
+  getApiKeyHashRepository(
+    databaseService: DatabaseService,
+  ): ApiKeyHashRepository;
 }

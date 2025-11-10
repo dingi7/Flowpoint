@@ -15,6 +15,8 @@ const organizationRepository =
   repositoryHost.getOrganizationRepository(databaseService);
 const roleRepository = repositoryHost.getRoleRepository(databaseService);
 const memberRepository = repositoryHost.getMemberRepository(databaseService);
+const apiKeyHashRepository =
+  repositoryHost.getApiKeyHashRepository(databaseService);
 
 interface Payload {
   organizationId: string;
@@ -61,6 +63,7 @@ export const createApiKey = onCall<Payload>(
         {
           organizationRepository,
           secretManagerService,
+          apiKeyHashRepository,
           loggerService,
         },
       );

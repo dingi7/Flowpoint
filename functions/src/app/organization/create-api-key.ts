@@ -1,11 +1,12 @@
 import {
   ApiKey,
+  ApiKeyHashRepository,
   ApiKeySchema,
   LoggerService,
   OrganizationRepository,
   SecretManagerService,
 } from "@/core";
-import { randomBytes } from "crypto";
+import { createHash, randomBytes } from "crypto";
 
 interface Payload {
   userId: string;
@@ -16,6 +17,7 @@ interface Payload {
 interface Dependencies {
   organizationRepository: OrganizationRepository;
   secretManagerService: SecretManagerService;
+  apiKeyHashRepository: ApiKeyHashRepository;
   loggerService: LoggerService;
 }
 
@@ -32,6 +34,7 @@ export async function createApiKeyFn(
   const {
     organizationRepository,
     secretManagerService,
+    apiKeyHashRepository,
     loggerService,
   } = dependencies;
 
@@ -61,12 +64,20 @@ export async function createApiKeyFn(
     apiKeyLength: apiKey.length,
   });
 
-  // 4. Store API key in Cloud Secret Manager
+  // 4. Hash the API key for lookup mapping
+  const apiKeyHash = createHash("sha256").update(apiKey).digest("hex");
+
+  loggerService.info("Generated API key hash", {
+    secretId,
+    hashLength: apiKeyHash.length,
+  });
+
+  // 5. Store API key in Cloud Secret Manager
   await secretManagerService.createSecret(secretId, apiKey);
 
   loggerService.info("API key stored in Secret Manager", { secretId });
 
-  // 5. Create API key metadata
+  // 6. Create API key metadata
   const apiKeyMetadata: ApiKey = ApiKeySchema.parse({
     name,
     secretId,
@@ -75,7 +86,33 @@ export async function createApiKeyFn(
     lastFour: apiKey.slice(-4),
   });
 
-  // 6. Add API key metadata to organization
+  // 7. Store hash mapping in Firestore (hash -> secretId, organizationId)
+  // Use the hash as the document ID for fast lookup
+  try {
+    await apiKeyHashRepository.set({
+      id: apiKeyHash,
+      data: {
+        secretId,
+        organizationId,
+      },
+    });
+    loggerService.info("API key hash mapping stored", {
+      hash: apiKeyHash,
+      secretId,
+      organizationId,
+    });
+  } catch (error) {
+    loggerService.error("Failed to store API key hash mapping", error);
+    // Try to clean up the secret if hash mapping fails
+    try {
+      await secretManagerService.deleteSecret(secretId);
+    } catch (deleteError) {
+      loggerService.error("Failed to clean up secret after error", deleteError);
+    }
+    throw new Error("Failed to create API key");
+  }
+
+  // 8. Add API key metadata to organization
   try {
     await organizationRepository.addToSet({
       id: organizationId,
@@ -91,11 +128,13 @@ export async function createApiKeyFn(
       "Failed to add API key metadata to organization",
       error,
     );
-    // Try to clean up the secret if organization update fails
+    // Try to clean up the secret and hash mapping if organization update fails
     try {
       await secretManagerService.deleteSecret(secretId);
+      // Delete hash mapping using the hash as ID
+      await apiKeyHashRepository.delete({ id: apiKeyHash });
     } catch (deleteError) {
-      loggerService.error("Failed to clean up secret after error", deleteError);
+      loggerService.error("Failed to clean up after error", deleteError);
     }
     throw new Error("Failed to create API key");
   }

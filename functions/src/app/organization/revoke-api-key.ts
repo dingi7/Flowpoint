@@ -1,4 +1,5 @@
 import {
+  ApiKeyHashRepository,
   LoggerService,
   OrganizationRepository,
   SecretManagerService,
@@ -12,6 +13,7 @@ interface Payload {
 interface Dependencies {
   organizationRepository: OrganizationRepository;
   secretManagerService: SecretManagerService;
+  apiKeyHashRepository: ApiKeyHashRepository;
   loggerService: LoggerService;
 }
 
@@ -20,8 +22,12 @@ export async function revokeApiKeyFn(
   dependencies: Dependencies,
 ): Promise<void> {
   const { organizationId, secretId } = payload;
-  const { organizationRepository, secretManagerService, loggerService } =
-    dependencies;
+  const {
+    organizationRepository,
+    secretManagerService,
+    apiKeyHashRepository,
+    loggerService,
+  } = dependencies;
 
   loggerService.info("Revoking API key", { organizationId, secretId });
 
@@ -51,12 +57,34 @@ export async function revokeApiKeyFn(
     throw new Error("API key already revoked");
   }
 
-  // 3. Delete secret from Cloud Secret Manager
+  // 3. Find and delete hash mapping
+  // Query by secretId to find the hash mapping document
+  const hashMappings = await apiKeyHashRepository.getAll({
+    queryConstraints: [
+      {
+        field: "secretId",
+        operator: "==",
+        value: secretId,
+      },
+    ],
+    pagination: { limit: 1 },
+  });
 
+  if (hashMappings.length > 0) {
+    await apiKeyHashRepository.delete({ id: hashMappings[0].id });
+    loggerService.info("API key hash mapping deleted", {
+      hashId: hashMappings[0].id,
+      secretId,
+    });
+  } else {
+    loggerService.info("Hash mapping not found for secretId", { secretId });
+  }
+
+  // 4. Delete secret from Cloud Secret Manager
   await secretManagerService.deleteSecret(secretId);
   loggerService.info("API key deleted from Secret Manager", { secretId });
 
-  // 4. Update API key status to "revoked" in organization document
+  // 5. Update API key status to "revoked" in organization document
   const updatedApiKeys = [...apiKeys];
   updatedApiKeys[apiKeyIndex] = {
     ...apiKey,

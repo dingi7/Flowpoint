@@ -1,4 +1,5 @@
 import { DatabaseService, RepositoryHost } from "@/core";
+import { getApiKeyHashRepository } from "./api-key-hash-repository";
 import { getAppointmentRepository } from "./appointment-repository";
 import { getCalendarRepository } from "./calendar-repository";
 import { getCustomerRepository } from "./customer-repository";
@@ -31,4 +32,6 @@ export const repositoryHost: RepositoryHost = {
     getTimeOffRepository(databaseService),
   getInviteRepository: (databaseService: DatabaseService) =>
     getInviteRepository(databaseService),
+  getApiKeyHashRepository: (databaseService: DatabaseService) =>
+    getApiKeyHashRepository(databaseService),
 };

@@ -34,3 +34,23 @@ export { revokeApiKey } from "./functions/organization/revoke-api-key";
 export { widgetGetOrganizationServices } from "./functions/widget/get-organization-services";
 export { widgetGetAvailableTimeslots } from "./functions/widget/get-available-timeslots";
 export { widgetBookAppointment } from "./functions/widget/book-appointment";
+
+// <-- API Key Authenticated API -->
+// Read operations (widget equivalents)
+export { apiGetOrganizationServices } from "./functions/api/get-organization-services";
+export { apiGetAvailableTimeslots } from "./functions/api/get-available-timeslots";
+export { apiBookAppointment } from "./functions/api/book-appointment";
+
+// Services CRUD
+export { apiCreateService } from "./functions/api/services/create-service";
+export { apiGetService } from "./functions/api/services/get-service";
+export { apiListServices } from "./functions/api/services/list-services";
+export { apiUpdateService } from "./functions/api/services/update-service";
+export { apiDeleteService } from "./functions/api/services/delete-service";
+
+// Appointments CRUD
+export { apiCreateAppointment } from "./functions/api/appointments/create-appointment";
+export { apiGetAppointment } from "./functions/api/appointments/get-appointment";
+export { apiListAppointments } from "./functions/api/appointments/list-appointments";
+export { apiUpdateAppointment } from "./functions/api/appointments/update-appointment";
+export { apiDeleteAppointment } from "./functions/api/appointments/delete-appointment";
