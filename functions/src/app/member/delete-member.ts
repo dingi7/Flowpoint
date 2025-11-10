@@ -3,8 +3,6 @@ import {
   LoggerService,
   MemberRepository,
   OWNER_TYPE,
-  PermissionKey,
-  RoleRepository,
   UserRepository,
 } from "@/core";
 
@@ -19,7 +17,6 @@ interface Dependencies {
   userRepository: UserRepository;
   calendarRepository: CalendarRepository;
   loggerService: LoggerService;
-  roleRepository: RoleRepository;
 }
 
 /**
@@ -39,7 +36,6 @@ export async function kickOrganizationMemberFn(
     userRepository,
     calendarRepository,
     loggerService,
-    roleRepository,
   } = dependencies;
 
   loggerService.info("Starting member deletion process", {
@@ -47,52 +43,6 @@ export async function kickOrganizationMemberFn(
     memberId,
     organizationId,
   });
-
-  // 1. Check if the initiator is a member of the organization
-  const initiator = await memberRepository.get({
-    organizationId,
-    id: initiatorId,
-  });
-
-  if (!initiator) {
-    loggerService.info("Initiator not found");
-    throw new Error("Initiator not found");
-  }
-
-  loggerService.info("Initiator found", { initiator });
-
-  // 2. Check if the inviter has the necessary roles
-  loggerService.info("About to query roles", {
-    organizationId,
-    initiatorRoleIds: initiator.roleIds,
-    roleIdsType: typeof initiator.roleIds,
-    roleIdsLength: initiator.roleIds?.length,
-  });
-
-  const initiatorRoles = await roleRepository.getMany({
-    organizationId,
-    ids: initiator.roleIds,
-  });
-
-  loggerService.info("Initiator roles query result", {
-    initiatorRoles,
-    rolesCount: initiatorRoles.length,
-    queryParams: { organizationId, ids: initiator.roleIds },
-  });
-
-  if (initiatorRoles.length === 0) {
-    loggerService.info("Initiator has no roles");
-    throw new Error("Initiator has no roles");
-  }
-
-  const canKick = initiatorRoles.some((role) =>
-    role.permissions.includes(PermissionKey.MANAGE_MEMBERS),
-  );
-
-  if (!canKick) {
-    loggerService.info("Initiator does not have the necessary roles");
-    throw new Error("Initiator does not have the necessary roles");
-  }
 
   // 1. Get the user and verify they exist
   const user = await userRepository.get({ id: memberId });

@@ -1,6 +1,8 @@
 import { createOrganizationInviteFn } from "@/app/invite/create-organization-invite";
+import { PermissionKey } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { checkPermission } from "@/utils/check-permission";
 import { CallableRequest, onCall } from "firebase-functions/https";
 
 const databaseService = serviceHost.getDatabaseService();
@@ -34,12 +36,24 @@ export const createOrganizationInvite = onCall<Payload>(
     });
 
     try {
+      await checkPermission(
+        {
+          userId: request.auth.uid,
+          organizationId: data.organizationId,
+          permission: PermissionKey.MANAGE_MEMBERS,
+        },
+        {
+          loggerService,
+          memberRepository,
+          roleRepository,
+        },
+      );
+      
       const invite = await createOrganizationInviteFn(
         { inviterId: request.auth.uid, ...data },
         {
           loggerService,
           inviteRepository,
-          memberRepository,
           roleRepository,
         },
       );

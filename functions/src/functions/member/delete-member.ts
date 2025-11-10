@@ -1,6 +1,8 @@
 import { kickOrganizationMemberFn } from "@/app/member/delete-member";
+import { PermissionKey } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { checkPermission } from "@/utils/check-permission";
 import { CallableRequest, onCall } from "firebase-functions/https";
 
 const databaseService = serviceHost.getDatabaseService();
@@ -33,6 +35,18 @@ export const kickOrganizationMember = onCall<Payload>(
     });
 
     try {
+      await checkPermission(
+        {
+          userId: request.auth.uid,
+          organizationId: data.organizationId,
+          permission: PermissionKey.MANAGE_MEMBERS,
+        },
+        {
+          memberRepository,
+          roleRepository,
+          loggerService,
+        },
+      );
       await kickOrganizationMemberFn(
         { initiatorId: request.auth.uid, ...data },
         {
@@ -40,7 +54,6 @@ export const kickOrganizationMember = onCall<Payload>(
           memberRepository,
           userRepository,
           calendarRepository,
-          roleRepository,
         },
       );
 

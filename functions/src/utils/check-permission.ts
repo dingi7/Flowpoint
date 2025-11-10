@@ -5,6 +5,12 @@ import {
   RoleRepository,
 } from "@/core";
 
+interface Payload {
+  userId: string;
+  organizationId: string;
+  permission: PermissionKey;
+}
+
 interface Dependencies {
   memberRepository: MemberRepository;
   roleRepository: RoleRepository;
@@ -12,11 +18,10 @@ interface Dependencies {
 }
 
 export async function checkPermission(
-  userId: string,
-  organizationId: string,
-  permission: PermissionKey,
+  payload: Payload,
   dependencies: Dependencies,
 ): Promise<void> {
+  const { userId, organizationId, permission } = payload;
   const { memberRepository, roleRepository, loggerService } = dependencies;
 
   // 1. Check if user is a member of the organization

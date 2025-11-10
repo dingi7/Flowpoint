@@ -40,9 +40,11 @@ export const createApiKey = onCall<Payload>(
     try {
       // Check permission
       await checkPermission(
-        request.auth.uid,
-        data.organizationId,
-        PermissionKey.MANAGE_ORGANIZATION,
+        {
+          userId: request.auth.uid,
+          organizationId: data.organizationId,
+          permission: PermissionKey.MANAGE_ORGANIZATION,
+        },
         {
           memberRepository,
           roleRepository,

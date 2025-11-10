@@ -3,8 +3,6 @@ import {
   InviteRepository,
   InviteStatus,
   LoggerService,
-  MemberRepository,
-  PermissionKey,
   RoleRepository,
 } from "@/core";
 
@@ -19,7 +17,6 @@ interface Payload {
 interface Dependencies {
   loggerService: LoggerService;
   inviteRepository: InviteRepository;
-  memberRepository: MemberRepository;
   roleRepository: RoleRepository;
 }
 
@@ -29,55 +26,8 @@ export async function createOrganizationInviteFn(
 ) {
   const { inviterId, organizationId, inviteeEmail, inviteeRoleIds, validFor } =
     payload;
-  const { loggerService, inviteRepository, memberRepository, roleRepository } =
+  const { loggerService, inviteRepository, roleRepository } =
     dependencies;
-
-  // 1. Check if the inviter has the roles necessary to create an invite
-  const inviter = await memberRepository.get({
-    organizationId,
-    id: inviterId,
-  });
-
-  if (!inviter) {
-    loggerService.info("Inviter not found");
-    throw new Error("Inviter not found");
-  }
-
-  loggerService.info("Inviter found", { inviter });
-
-  // 2. Check if the inviter has the necessary roles
-  loggerService.info("About to query roles", {
-    organizationId,
-    inviterRoleIds: inviter.roleIds,
-    roleIdsType: typeof inviter.roleIds,
-    roleIdsLength: inviter.roleIds?.length,
-  });
-
-  const inviterRoles = await roleRepository.getMany({
-    organizationId,
-    ids: inviter.roleIds,
-  });
-
-  loggerService.info("Inviter roles query result", {
-    inviterRoles,
-    rolesCount: inviterRoles.length,
-    queryParams: { organizationId, ids: inviter.roleIds },
-  });
-
-  if (inviterRoles.length === 0) {
-    loggerService.info("Inviter has no roles");
-    throw new Error("Inviter has no roles");
-  }
-
-  // 3. Check if the inviter roles allow him to invite members
-  const canInvite = inviterRoles.some((role) =>
-    role.permissions.includes(PermissionKey.MANAGE_MEMBERS),
-  );
-
-  if (!canInvite) {
-    loggerService.info("Inviter does not have the necessary roles");
-    throw new Error("Inviter does not have the necessary roles");
-  }
 
   // 4. Check if an invite already exists for this email
   const existingInvites = await inviteRepository.getAll({
