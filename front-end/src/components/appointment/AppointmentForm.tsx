@@ -28,6 +28,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Appointment, APPOINTMENT_STATUS, AppointmentData } from "@/core";
 import { useAppointmentForm, useAvailableTimeslots, useBookAppointment, useMembers } from "@/hooks";
 import { useCustomers, useServices } from "@/hooks";
+import { useUpdateAppointment } from "@/hooks/repository-hooks/appointment/use-appointment";
+import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { CustomerForm } from "@/components/customer/CustomerForm";
 import {
   Calendar,
@@ -57,63 +59,10 @@ export function AppointmentForm({
   onSuccess,
   onSubmit,
 }: AppointmentFormProps) {
-  const {
-    handleSubmit: formHandleSubmit,
-    setValue,
-    watch,
-    formState: { isSubmitting, errors },
-  } = useAppointmentForm({
-    appointment,
-    onSubmit: onSubmit || (async (data: AppointmentData) => {
+  // Get organization ID for updates
+  const organizationId = useCurrentOrganizationId();
 
-      // Only book appointment if this is a new appointment (not editing existing)
-      if (!appointment) {
-        if (!selectedCustomer?.email) {
-          console.error("No customer email found");
-          throw new Error("Customer email is required to book an appointment");
-        }
-
-        if (!data.assigneeId) {
-          console.error("No assignee ID found");
-          throw new Error("Assignee is required to book an appointment");
-        }
-
-        if (!data.serviceId) {
-          console.error("No service ID found");
-          throw new Error("Service is required to book an appointment");
-        }
-
-        // Transform AppointmentData to BookAppointmentPayload
-        // Send local date and time, not UTC
-        const localDate = formData.date; // Format: yyyy-MM-dd
-        const localTime = formData.time; // Format: HH:mm
-        const startTime = `${localDate}T${localTime}:00`; // Format: yyyy-MM-ddTHH:mm:00
-        
-        const bookingPayload = {
-          serviceId: data.serviceId,
-          customerEmail: selectedCustomer.email,
-          startTime: startTime, // Local time, not UTC
-          assigneeId: data.assigneeId,
-          fee: data.fee, // Function now accepts null
-          title: data.title,
-          description: data.description,
-          additionalCustomerFields: {
-            customerId: selectedCustomer.id,
-            customerName: selectedCustomer.name,
-            // Add any additional customer fields if needed
-          },
-        };
-        console.log("📤 Booking Request (Local Time):", {
-          localDate,
-          localTime,
-          startTime: bookingPayload.startTime,
-        });
-        await bookAppointment.mutateAsync(bookingPayload);
-      }
-    }),
-  });
-
-  // Fetch customers and services data
+  // Fetch customers and services data FIRST (before form hook to avoid closure issues)
   const { data: customersData, refetch: refetchCustomers } = useCustomers({
     pagination: { limit: 100 },
     orderBy: { field: "name", direction: "asc" },
@@ -129,14 +78,170 @@ export function AppointmentForm({
     orderBy: { field: "name", direction: "asc" },
   });
 
-  // Get current organization for currency
-  const currentOrganization = useCurrentOrganization();
-  const currency = currentOrganization?.currency || "EUR";
-
   // Flatten the infinite query data
   const customers = customersData?.pages.flatMap(page => page) || [];
   const services = servicesData?.pages.flatMap(page => page) || [];
   const members = membersData?.pages.flatMap(page => page) || [];
+
+  // Book appointment mutation
+  const bookAppointment = useBookAppointment({
+    onSuccess: () => {
+      onSuccess();
+    },
+    onError: (error) => {
+      console.error("Failed to book appointment:", error);
+      // TODO: Add toast notification for better UX
+      alert(`Failed to book appointment: ${error.message}`);
+    },
+  });
+
+  // Update appointment mutation
+  const updateAppointment = useUpdateAppointment();
+
+  const {
+    handleSubmit: formHandleSubmit,
+    setValue,
+    watch,
+    formState: { isSubmitting, errors },
+  } = useAppointmentForm({
+    appointment,
+    onSubmit: onSubmit || (async (data: AppointmentData) => {
+      try {
+        console.log("📝 AppointmentForm onSubmit called", {
+          isEditing: !!appointment,
+          appointmentId: appointment?.id,
+          data,
+        });
+
+        // Handle updating existing appointment
+        if (appointment) {
+          console.log("🔄 Updating existing appointment", {
+            appointmentId: appointment.id,
+            organizationId,
+            currentStatus: appointment.status,
+            newStatus: data.status,
+          });
+
+          if (!organizationId) {
+            const error = new Error("Organization ID is missing");
+            console.error("❌ Update failed:", error);
+            throw error;
+          }
+
+          if (!appointment.id) {
+            const error = new Error("Appointment ID is missing");
+            console.error("❌ Update failed:", error);
+            throw error;
+          }
+
+          // Get form data for date/time
+          const localDate = watch("startTime") 
+            ? formatUtcDateTime(watch("startTime"), "yyyy-MM-dd")
+            : formatUtcDateTime(appointment.startTime, "yyyy-MM-dd");
+          const localTime = watch("startTime")
+            ? formatUtcDateTime(watch("startTime"), "HH:mm")
+            : formatUtcDateTime(appointment.startTime, "HH:mm");
+          const startTime = `${localDate}T${localTime}:00`;
+
+          const updatePayload = {
+            id: appointment.id,
+            organizationId: organizationId,
+            data: {
+              assigneeId: data.assigneeId || appointment.assigneeId,
+              customerId: data.customerId || appointment.customerId,
+              serviceId: data.serviceId || appointment.serviceId,
+              title: data.title || appointment.title,
+              description: data.description || appointment.description,
+              startTime: startTime,
+              duration: data.duration || appointment.duration,
+              fee: data.fee !== undefined ? data.fee : appointment.fee,
+              status: data.status || appointment.status,
+            },
+          };
+
+          console.log("📤 Update Request:", updatePayload);
+
+          await updateAppointment.mutateAsync(updatePayload);
+          
+          console.log("✅ Appointment updated successfully");
+          onSuccess();
+          return;
+        }
+
+        // Handle creating new appointment
+        console.log("➕ Creating new appointment");
+        
+        // Get customer from data
+        const customer = data.customerId 
+          ? customers.find((c) => c.id === data.customerId)
+          : null;
+        
+        if (!customer?.email) {
+          const error = new Error("Customer email is required to book an appointment");
+          console.error("❌ Create failed:", error, { customerId: data.customerId, customer });
+          throw error;
+        }
+
+        if (!data.assigneeId) {
+          const error = new Error("Assignee is required to book an appointment");
+          console.error("❌ Create failed:", error);
+          throw error;
+        }
+
+        if (!data.serviceId) {
+          const error = new Error("Service is required to book an appointment");
+          console.error("❌ Create failed:", error);
+          throw error;
+        }
+
+        // Transform AppointmentData to BookAppointmentPayload
+        // Send local date and time, not UTC
+        const localDate = watch("startTime")
+          ? formatUtcDateTime(watch("startTime"), "yyyy-MM-dd")
+          : "";
+        const localTime = watch("startTime")
+          ? formatUtcDateTime(watch("startTime"), "HH:mm")
+          : "";
+        const startTime = `${localDate}T${localTime}:00`; // Format: yyyy-MM-ddTHH:mm:00
+        
+        const bookingPayload = {
+          serviceId: data.serviceId,
+          customerEmail: customer.email,
+          startTime: startTime, // Local time, not UTC
+          assigneeId: data.assigneeId,
+          fee: data.fee, // Function now accepts null
+          title: data.title,
+          description: data.description,
+          additionalCustomerFields: {
+            customerId: customer.id,
+            customerName: customer.name,
+            // Add any additional customer fields if needed
+          },
+        };
+        console.log("📤 Booking Request (Local Time):", {
+          localDate,
+          localTime,
+          startTime: bookingPayload.startTime,
+        });
+        await bookAppointment.mutateAsync(bookingPayload);
+        console.log("✅ Appointment created successfully");
+      } catch (error) {
+        console.error("❌ AppointmentForm onSubmit error:", {
+          error,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          errorStack: error instanceof Error ? error.stack : undefined,
+          isEditing: !!appointment,
+          appointmentId: appointment?.id,
+        });
+        throw error; // Re-throw to let the form handle it
+      }
+    }),
+  });
+  console.log(errors);
+
+  // Get current organization for currency
+  const currentOrganization = useCurrentOrganization();
+  const currency = currentOrganization?.currency || "EUR";
 
   const formData = {
     customerId: watch("customerId") || "",
@@ -161,18 +266,6 @@ export function AppointmentForm({
   );
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-
-  // Book appointment mutation
-  const bookAppointment = useBookAppointment({
-    onSuccess: () => {
-      onSuccess();
-    },
-    onError: (error) => {
-      console.error("Failed to book appointment:", error);
-      // TODO: Add toast notification for better UX
-      alert(`Failed to book appointment: ${error.message}`);
-    },
-  });
 
 
 
