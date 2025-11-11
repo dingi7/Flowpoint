@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useOrganizations } from "@/stores";
 import { useUser } from "@clerk/clerk-react";
 import {
@@ -17,15 +18,22 @@ import {
   Clock,
   DollarSign,
   Plus,
-  TrendingUp,
   Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useCustomers, useServices, useGetAppointmentsByDate } from "@/hooks";
+import { APPOINTMENT_STATUS } from "@/core";
+import { format } from "date-fns";
 
 export default function DashboardPage() {
   const { user } = useUser();
   const organizations = useOrganizations();
   const navigate = useNavigate();
+  
+  // Fetch dashboard data using existing hooks
+  const customersQuery = useCustomers({ pagination: { limit: 1 } });
+  const servicesQuery = useServices({ pagination: { limit: 1000 } });
+  const todayAppointmentsQuery = useGetAppointmentsByDate(new Date());
 
   // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
@@ -52,6 +60,7 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Customers */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -60,17 +69,25 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-accent flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                +12%
-              </span>
-              from last month
-            </p>
+            {customersQuery.isPending ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-4 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {customersQuery.data?.pages[0]?.length || 0}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Active customers in your organization
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
+        {/* Appointments Today */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -79,13 +96,34 @@ export default function DashboardPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">
-              3 completed, 5 upcoming
-            </p>
+            {todayAppointmentsQuery.isPending ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-4 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {todayAppointmentsQuery.data?.length || 0}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {todayAppointmentsQuery.data?.filter(
+                    (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED
+                  ).length || 0}{" "}
+                  completed,{" "}
+                  {todayAppointmentsQuery.data?.filter(
+                    (apt) =>
+                      apt.status !== APPOINTMENT_STATUS.COMPLETED &&
+                      apt.status !== APPOINTMENT_STATUS.CANCELLED
+                  ).length || 0}{" "}
+                  upcoming
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
+        {/* Revenue This Month */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -94,17 +132,36 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$12,450</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-accent flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                +8%
-              </span>
-              from last month
-            </p>
+            {todayAppointmentsQuery.isPending ? (
+              <>
+                <Skeleton className="h-8 w-24 mb-2" />
+                <Skeleton className="h-4 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  $
+                  {(
+                    todayAppointmentsQuery.data
+                      ?.filter(
+                        (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED
+                      )
+                      .reduce(
+                        (sum, apt) =>
+                          sum + (apt.fee || 0),
+                        0
+                      ) || 0
+                  ).toFixed(2)}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  From completed appointments today
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
+        {/* Active Services */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -113,10 +170,21 @@ export default function DashboardPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15</div>
-            <p className="text-xs text-muted-foreground">
-              All services operational
-            </p>
+            {servicesQuery.isPending ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-4 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {servicesQuery.data?.pages[0]?.length || 0}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Services available for booking
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -166,33 +234,35 @@ export default function DashboardPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-accent rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">New customer registered</p>
-                <p className="text-xs text-muted-foreground">
-                  Sarah Johnson - 2 minutes ago
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-primary rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Appointment completed</p>
-                <p className="text-xs text-muted-foreground">
-                  Mike Chen - 15 minutes ago
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Payment received</p>
-                <p className="text-xs text-muted-foreground">
-                  $150 from Alex Rodriguez - 1 hour ago
-                </p>
-              </div>
-            </div>
+            {customersQuery.isPending ? (
+              <>
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </>
+            ) : customersQuery.data?.pages[0]?.length ? (
+              customersQuery.data.pages[0]?.slice(0, 3).map((customer, idx) => (
+                <div key={customer.id} className="flex items-center gap-3">
+                  <div
+                    className={`w-2 h-2 ${
+                      idx === 0
+                        ? "bg-accent"
+                        : idx === 1
+                          ? "bg-primary"
+                          : "bg-muted-foreground"
+                    } rounded-full`}
+                  ></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">New customer added</p>
+                    <p className="text-xs text-muted-foreground">
+                      {customer.name} - {format(new Date(customer.createdAt), "MMM d, p")}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No recent activity</p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -215,75 +285,61 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center">
-                  <span className="text-sm font-medium">10:00</span>
-                  <span className="text-xs text-muted-foreground">AM</span>
-                </div>
-                <div>
-                  <p className="font-medium">Hair Cut & Style</p>
-                  <p className="text-sm text-muted-foreground">
-                    with Emma Wilson
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">
-                  <Clock className="h-3 w-3 mr-1" />
-                  60 min
-                </Badge>
-                <Badge className="bg-accent text-accent-foreground">
-                  Confirmed
-                </Badge>
-              </div>
-            </div>
+            {todayAppointmentsQuery.isPending ? (
+              <>
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </>
+            ) : todayAppointmentsQuery.data?.length ? (
+              todayAppointmentsQuery.data?.map((appointment) => {
+                const startTime = new Date(appointment.startTime);
+                const statusBadgeColor =
+                  appointment.status === APPOINTMENT_STATUS.COMPLETED
+                    ? "bg-accent text-accent-foreground"
+                    : appointment.status === APPOINTMENT_STATUS.CANCELLED
+                      ? "bg-destructive text-destructive-foreground"
+                      : "bg-yellow-100 text-yellow-800";
 
-            <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center">
-                  <span className="text-sm font-medium">2:00</span>
-                  <span className="text-xs text-muted-foreground">PM</span>
-                </div>
-                <div>
-                  <p className="font-medium">Consultation</p>
-                  <p className="text-sm text-muted-foreground">
-                    with David Park
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">
-                  <Clock className="h-3 w-3 mr-1" />
-                  30 min
-                </Badge>
-                <Badge variant="secondary">Pending</Badge>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center">
-                  <span className="text-sm font-medium">4:30</span>
-                  <span className="text-xs text-muted-foreground">PM</span>
-                </div>
-                <div>
-                  <p className="font-medium">Color Treatment</p>
-                  <p className="text-sm text-muted-foreground">
-                    with Lisa Zhang
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">
-                  <Clock className="h-3 w-3 mr-1" />
-                  90 min
-                </Badge>
-                <Badge className="bg-accent text-accent-foreground">
-                  Confirmed
-                </Badge>
-              </div>
-            </div>
+                return (
+                  <div
+                    key={appointment.id}
+                    className="flex items-center justify-between p-4 border border-border rounded-lg"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex flex-col items-center">
+                        <span className="text-sm font-medium">
+                          {format(startTime, "h:mm")}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {format(startTime, "a")}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-medium">{appointment.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Duration: {appointment.duration} min
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {appointment.duration} min
+                      </Badge>
+                      <Badge className={statusBadgeColor}>
+                        {appointment.status.charAt(0).toUpperCase() +
+                          appointment.status.slice(1)}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No appointments scheduled for today
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -56,7 +56,8 @@ export function useUpdateAppointment() {
       return appointmentRepository.update(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["appointments", "get"] });
+      // Invalidate all appointment-related queries
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
     },
   });
 }
@@ -105,5 +106,49 @@ export function useGetAppointmentsByDate(date: Date) {
         orderBy: { field: "startTime", direction: "asc" },
       }),
     enabled: !!organizationId,
+  });
+}
+
+export function useGetAppointmentsByAssignee(assigneeId: string) {
+  const organizationId = useCurrentOrganizationId();
+  return useQuery({
+    queryKey: ["appointments", "byAssignee", organizationId, assigneeId],
+    queryFn: () =>
+      appointmentRepository.getAll({
+        organizationId: organizationId!,
+        queryConstraints: [{ field: "assigneeId", operator: "==", value: assigneeId }],
+        pagination: { limit: 1000 },
+        orderBy: { field: "startTime", direction: "asc" },
+      }),
+    enabled: !!organizationId && !!assigneeId,
+  });
+}
+
+export function useGetAppointmentsByAssigneeAndDate(assigneeId: string, date: Date) {
+  const organizationId = useCurrentOrganizationId();
+
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const normalizedDate = new Date(year, month, day, 12, 0, 0, 0);
+  
+  const { startOfDay, endOfDay } = getDateRangeForQuery(normalizedDate);
+  
+  const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+  return useQuery({
+    queryKey: ["appointments", "byAssignee", organizationId, assigneeId, dateKey],
+    queryFn: () =>
+      appointmentRepository.getAll({
+        organizationId: organizationId!,
+        queryConstraints: [
+          { field: "assigneeId", operator: "==", value: assigneeId },
+          { field: "startTime", operator: ">=", value: startOfDay },
+          { field: "startTime", operator: "<=", value: endOfDay },
+        ],
+        pagination: { limit: 1000 },
+        orderBy: { field: "startTime", direction: "asc" },
+      }),
+    enabled: !!organizationId && !!assigneeId,
   });
 }

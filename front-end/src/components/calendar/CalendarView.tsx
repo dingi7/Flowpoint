@@ -13,12 +13,13 @@ import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { format, isWithinInterval, parseISO } from "date-fns";
 import { Appointment, APPOINTMENT_STATUS, TimeOff } from "@/core";
 import { cn } from "@/lib/utils";
-import { useAppointments, useGetAppointmentsByDate, useUpdateAppointment } from "@/hooks/repository-hooks/appointment/use-appointment";
+import { useGetAppointmentsByAssignee, useGetAppointmentsByAssigneeAndDate, useUpdateAppointment } from "@/hooks/repository-hooks/appointment/use-appointment";
 import { useTimeOffs } from "@/hooks/repository-hooks/time-off/use-time-off";
 import { normalizeDateToNoon, formatLongDate, isSameDay, isToday as isTodayUtil } from "@/utils/date-time";
 import { AppointmentCard } from "../appointment/AppointmentCard";
 import { AppointmentDetails } from "../appointment/AppointmentDetails";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useUser } from "@clerk/clerk-react";
 
 interface CalendarViewProps {
   selectedDate: Date;
@@ -39,13 +40,10 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
   const organizationId = useCurrentOrganizationId();
   const updateAppointment = useUpdateAppointment();
   
-  const { data: appointmentsData } = useAppointments({
-    pagination: { limit: 1000 },
-    orderBy: { field: "startTime", direction: "asc" }
-  });
+  const { user } = useUser();
 
-  const { data: selectedDateAppointmentsData } = useGetAppointmentsByDate(selectedDate);
-
+  const { data: appointmentsData } = useGetAppointmentsByAssignee(user?.id || "");
+  const { data: selectedDateAppointmentsData } = useGetAppointmentsByAssigneeAndDate(user?.id || "", selectedDate);
   const { data: timeOffsData } = useTimeOffs({
     pagination: { limit: 1000 },
     orderBy: { field: "startAt", direction: "asc" }
@@ -77,7 +75,7 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
     return isSameDay(date, selectedDate);
   };
 
-  const appointments = appointmentsData?.pages.flatMap(page => page) as Appointment[] || [];
+  const appointments = (appointmentsData as Appointment[] | undefined) || [];
   const timeOffs = timeOffsData?.pages.flatMap(page => page) as TimeOff[] || [];
 
   const hasAppointments = (day: number) => {
@@ -154,6 +152,14 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
         data: { status: newStatus as APPOINTMENT_STATUS },
         organizationId: organizationId,
       });
+      
+      // Update the local state to reflect the status change immediately
+      if (selectedAppointment && selectedAppointment.id === appointmentId) {
+        setSelectedAppointment({
+          ...selectedAppointment,
+          status: newStatus as APPOINTMENT_STATUS,
+        });
+      }
     } catch (error) {
       console.error("Failed to update appointment status:", error);
     }
