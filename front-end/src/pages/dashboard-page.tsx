@@ -8,6 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrganizations } from "@/stores";
 import { useUser } from "@clerk/clerk-react";
@@ -24,11 +30,16 @@ import { useNavigate } from "react-router-dom";
 import { useCustomers, useServices, useGetAppointmentsByDate } from "@/hooks";
 import { APPOINTMENT_STATUS } from "@/core";
 import { format } from "date-fns";
+import { useState } from "react";
+import { AppointmentForm } from "@/components/appointment/AppointmentForm";
+import { CustomerForm } from "@/components/customer/CustomerForm";
 
 export default function DashboardPage() {
   const { user } = useUser();
   const organizations = useOrganizations();
   const navigate = useNavigate();
+  const [isBookAppointmentOpen, setIsBookAppointmentOpen] = useState(false);
+  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   
   // Fetch dashboard data using existing hooks
   const customersQuery = useCustomers({ pagination: { limit: 1 } });
@@ -189,83 +200,67 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions & Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-sans">Quick Actions</CardTitle>
-            <CardDescription>Common tasks to get you started</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button className="w-full justify-start gap-3" size="lg">
-              <Plus className="h-4 w-4" />
-              Schedule New Appointment
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 bg-transparent"
-              size="lg"
-            >
-              <Users className="h-4 w-4" />
-              Add New Customer
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 bg-transparent"
-              size="lg"
-            >
-              <Calendar className="h-4 w-4" />
-              View Today's Schedule
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Quick Actions */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="font-sans">Quick Actions</CardTitle>
+          <CardDescription>Common tasks to get you started</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button 
+            className="w-full justify-start gap-3" 
+            size="lg"
+            onClick={() => setIsBookAppointmentOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Schedule New Appointment
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3 bg-transparent"
+            size="lg"
+            onClick={() => setIsAddCustomerOpen(true)}
+          >
+            <Users className="h-4 w-4" />
+            Add New Customer
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3 bg-transparent"
+            size="lg"
+            onClick={() => navigate("/calendar")}
+          >
+            <Calendar className="h-4 w-4" />
+            View Today's Schedule
+          </Button>
+        </CardContent>
+      </Card>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="font-sans">Recent Activity</CardTitle>
-              <CardDescription>Latest updates from your CRM</CardDescription>
-            </div>
-            <Button variant="ghost" size="sm">
-              View All
-              <ArrowUpRight className="h-4 w-4 ml-1" />
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {customersQuery.isPending ? (
-              <>
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-              </>
-            ) : customersQuery.data?.pages[0]?.length ? (
-              customersQuery.data.pages[0]?.slice(0, 3).map((customer, idx) => (
-                <div key={customer.id} className="flex items-center gap-3">
-                  <div
-                    className={`w-2 h-2 ${
-                      idx === 0
-                        ? "bg-accent"
-                        : idx === 1
-                          ? "bg-primary"
-                          : "bg-muted-foreground"
-                    } rounded-full`}
-                  ></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">New customer added</p>
-                    <p className="text-xs text-muted-foreground">
-                      {customer.name} - {format(new Date(customer.createdAt), "MMM d, p")}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No recent activity</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Appointment Booking Dialog */}
+      <Dialog open={isBookAppointmentOpen} onOpenChange={setIsBookAppointmentOpen}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="text-xl font-semibold">
+              Book New Appointment
+            </DialogTitle>
+          </DialogHeader>
+          <div className="overflow-hidden">
+            <AppointmentForm
+              onSuccess={() => setIsBookAppointmentOpen(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Customer Dialog */}
+      <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
+        <DialogContent className="sm:min-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Add New Customer</DialogTitle>
+          </DialogHeader>
+          <CustomerForm onSuccess={() => setIsAddCustomerOpen(false)} />
+        </DialogContent>
+      </Dialog>
 
       {/* Today's Appointments */}
       <Card>

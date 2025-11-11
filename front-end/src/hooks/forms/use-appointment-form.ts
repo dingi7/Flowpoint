@@ -40,13 +40,16 @@ export function useAppointmentForm({
       await onSubmit(data);
     } catch (error) {
       console.error("Form submission error:", error);
-      // You can add toast notifications here if needed
+      // Re-throw error so the form component can handle it
+      throw error;
     }
   });
 
   return {
     ...form,
     handleSubmit,
+    trigger: form.trigger,
+    clearErrors: form.clearErrors,
     isSubmitting: form.formState.isSubmitting,
     isValid: form.formState.isValid,
     errors: form.formState.errors,
