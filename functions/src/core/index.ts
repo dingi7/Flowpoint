@@ -11,6 +11,7 @@ export * from "./entities/role";
 export * from "./entities/service";
 export * from "./entities/time-off";
 export * from "./entities/user";
+export * from "./entities/webhook-subscription";
 
 //Repositories
 export * from "./ports/repositories/api-key-hash-repository";
@@ -25,6 +26,7 @@ export * from "./ports/repositories/role-repository";
 export * from "./ports/repositories/service-repository";
 export * from "./ports/repositories/time-off-repository";
 export * from "./ports/repositories/user-repository";
+export * from "./ports/repositories/webhook-subscription-repository";
 
 //Repository Host
 export * from "./ports/repositories/repository-host";

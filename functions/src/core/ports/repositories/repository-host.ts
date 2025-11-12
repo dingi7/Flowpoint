@@ -11,6 +11,7 @@ import {
   ServiceRepository,
   TimeOffRepository,
   UserRepository,
+  WebhookSubscriptionRepository,
 } from "@/core";
 
 export interface RepositoryHost {
@@ -31,4 +32,7 @@ export interface RepositoryHost {
   getApiKeyHashRepository(
     databaseService: DatabaseService,
   ): ApiKeyHashRepository;
+  getWebhookSubscriptionRepository(
+    databaseService: DatabaseService,
+  ): WebhookSubscriptionRepository;
 }

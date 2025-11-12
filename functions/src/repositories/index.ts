@@ -10,6 +10,7 @@ import { getRoleRepository } from "./role-repository";
 import { getServiceRepository } from "./service-repository";
 import { getTimeOffRepository } from "./time-off-repository";
 import { getUserRepository } from "./user-repository";
+import { getWebhookSubscriptionRepository } from "./webhook-subscription-repository";
 
 export const repositoryHost: RepositoryHost = {
   getUserRepository: (databaseService: DatabaseService) =>
@@ -34,4 +35,6 @@ export const repositoryHost: RepositoryHost = {
     getInviteRepository(databaseService),
   getApiKeyHashRepository: (databaseService: DatabaseService) =>
     getApiKeyHashRepository(databaseService),
+  getWebhookSubscriptionRepository: (databaseService: DatabaseService) =>
+    getWebhookSubscriptionRepository(databaseService),
 };

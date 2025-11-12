@@ -30,6 +30,14 @@ export { createOrganization } from "./functions/organization/create-organization
 export { createApiKey } from "./functions/organization/create-api-key";
 export { revokeApiKey } from "./functions/organization/revoke-api-key";
 
+// <-- Webhook Management -->
+export { createWebhookSubscription } from "./functions/api/webhooks/create-webhook-subscription";
+export { onCustomerChange } from "./functions/webhooks/on-customer-change";
+export { onAppointmentChange } from "./functions/webhooks/on-appointment-change";
+export { onServiceChange } from "./functions/webhooks/on-service-change";
+export { onMemberChange } from "./functions/webhooks/on-member-change";
+export { onInviteChange } from "./functions/webhooks/on-invite-change";
+
 // <-- Widget Public API -->
 export { widgetGetOrganizationServices } from "./functions/widget/get-organization-services";
 export { widgetGetAvailableTimeslots } from "./functions/widget/get-available-timeslots";
