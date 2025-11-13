@@ -114,11 +114,25 @@ export async function createApiKeyFn(
 
   // 8. Add API key metadata to organization
   try {
-    await organizationRepository.addToSet({
+    // Get current organization to append to existing apiKeys array
+    const currentOrganization = await organizationRepository.get({
       id: organizationId,
-      fieldName: "apiKeys",
-      value: [apiKeyMetadata],
     });
+
+    if (!currentOrganization) {
+      throw new Error("Organization not found");
+    }
+
+    const existingApiKeys = currentOrganization.apiKeys || [];
+    const updatedApiKeys = [...existingApiKeys, apiKeyMetadata];
+
+    await organizationRepository.update({
+      id: organizationId,
+      data: {
+        apiKeys: updatedApiKeys,
+      },
+    });
+
     loggerService.info("API key metadata added to organization", {
       organizationId,
       secretId,
