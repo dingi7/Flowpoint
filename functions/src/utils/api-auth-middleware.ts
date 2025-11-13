@@ -15,15 +15,17 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
+interface Dependencies {
+  organizationRepository: OrganizationRepository;
+  secretManagerService: SecretManagerService;
+  apiKeyHashRepository: ApiKeyHashRepository;
+  loggerService: LoggerService;
+}
+
 export async function authenticateApiKey(
   req: AuthenticatedRequest,
   res: Response,
-  dependencies: {
-    organizationRepository: OrganizationRepository;
-    secretManagerService: SecretManagerService;
-    apiKeyHashRepository: ApiKeyHashRepository;
-    loggerService: LoggerService;
-  },
+  dependencies: Dependencies,
 ): Promise<boolean> {
   const {
     organizationRepository,
