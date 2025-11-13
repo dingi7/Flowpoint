@@ -103,4 +103,16 @@ export const functionsService: FunctionsService = {
     )(payload);
     return result.data;
   },
+  async revokeApiKey(payload) {
+    await httpsCallable<
+      {
+        organizationId: string;
+        secretId: string;
+      },
+      void
+    >(
+      firebase.functions,
+      "revokeApiKey",
+    )(payload);
+  },
 };

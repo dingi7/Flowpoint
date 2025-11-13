@@ -65,4 +65,8 @@ export interface FunctionsService {
     apiKey: string;
     apiKeyMetadata: ApiKey;
   }>;
+  revokeApiKey(payload: {
+    organizationId: string;
+    secretId: string;
+  }): Promise<void>;
 }

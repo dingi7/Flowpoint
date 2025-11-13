@@ -20,11 +20,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Organization } from "@/core";
-import { useCreateApiKey } from "@/hooks/service-hooks/organization/use-create-api-key";
+import { useCreateApiKey, useRevokeApiKey } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { Key, Plus, Copy, Check, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { Key, Plus, Copy, Check, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -36,13 +46,23 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
   const organizationId = useCurrentOrganizationId();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [apiKeyName, setApiKeyName] = useState("");
-  const [newlyCreatedApiKey, setNewlyCreatedApiKey] = useState<string | null>(null);
-  const [showApiKey, setShowApiKey] = useState(false);
   const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
+  const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
+  const [isRevokeDialogOpen, setIsRevokeDialogOpen] = useState(false);
+  // Store full API keys by secretId (since ApiKey schema only has lastFour)
+  const [apiKeysMap, setApiKeysMap] = useState<Record<string, string>>({});
+  const [localApiKeys, setLocalApiKeys] = useState<typeof organization.apiKeys>(organization.apiKeys || []);
 
   const createApiKeyMutation = useCreateApiKey();
+  const revokeApiKeyMutation = useRevokeApiKey();
 
-  const apiKeys = organization.apiKeys || [];
+  // Sync localApiKeys with organization prop when it changes
+  useEffect(() => {
+    setLocalApiKeys(organization.apiKeys || []);
+  }, [organization.apiKeys]);
+
+  // Merge organization apiKeys with local state
+  const apiKeys = localApiKeys;
 
   const handleCreateApiKey = async () => {
     if (!apiKeyName.trim()) {
@@ -60,9 +80,16 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
         organizationId,
         name: apiKeyName.trim(),
       });
-
-      setNewlyCreatedApiKey(result.apiKey);
-      setShowApiKey(true);
+      
+      // Store the full API key in the map
+      setApiKeysMap((prev) => ({
+        ...prev,
+        [result.apiKeyMetadata.secretId]: result.apiKey,
+      }));
+      
+      // Add to local API keys list
+      setLocalApiKeys((prev) => [...prev, result.apiKeyMetadata]);
+      
       setApiKeyName("");
       setIsCreateDialogOpen(false);
       toast.success("API key created successfully");
@@ -72,16 +99,43 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
     }
   };
 
-  const handleCopyApiKey = (apiKey: string) => {
+  const handleCopyApiKey = (apiKey: string, secretId: string) => {
     navigator.clipboard.writeText(apiKey);
-    setCopiedKeyId(apiKey);
+    setCopiedKeyId(secretId);
     toast.success("API key copied to clipboard");
     setTimeout(() => setCopiedKeyId(null), 2000);
   };
 
-  const handleCloseNewKeyDialog = () => {
-    setNewlyCreatedApiKey(null);
-    setShowApiKey(false);
+  const handleRevokeClick = (secretId: string) => {
+    setRevokingKeyId(secretId);
+    setIsRevokeDialogOpen(true);
+  };
+
+  const handleRevokeConfirm = async () => {
+    if (!revokingKeyId || !organizationId) {
+      return;
+    }
+
+    try {
+      await revokeApiKeyMutation.mutateAsync({
+        organizationId,
+        secretId: revokingKeyId,
+      });
+      
+      // Remove from apiKeysMap since it's revoked
+      setApiKeysMap((prev) => {
+        const newMap = { ...prev };
+        delete newMap[revokingKeyId];
+        return newMap;
+      });
+      
+      toast.success("API key revoked successfully");
+      setIsRevokeDialogOpen(false);
+      setRevokingKeyId(null);
+    } catch (error) {
+      console.error("Failed to revoke API key:", error);
+      toast.error("Failed to revoke API key");
+    }
   };
 
   return (
@@ -116,35 +170,72 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>API Key</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Last 4 Characters</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {apiKeys.map((apiKey) => (
-                  <TableRow key={apiKey.secretId}>
-                    <TableCell className="font-medium">{apiKey.name}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          apiKey.status === "active" ? "default" : "secondary"
-                        }
-                      >
-                        {apiKey.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      ••••{apiKey.lastFour}
-                    </TableCell>
-                    <TableCell>
-                      {format(
-                        new Date(apiKey.createdAt),
-                        "MMM dd, yyyy HH:mm"
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {apiKeys.map((apiKey) => {
+                  const fullApiKey = apiKeysMap[apiKey.secretId];
+                  return (
+                    <TableRow key={apiKey.secretId}>
+                      <TableCell className="font-medium">{apiKey.name}</TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {fullApiKey ? (
+                          fullApiKey
+                        ) : (
+                          <span className="text-muted-foreground">
+                            ••••{apiKey.lastFour}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            apiKey.status === "active" ? "default" : "destructive"
+                          }
+                        >
+                          {apiKey.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {format(
+                          new Date(apiKey.createdAt),
+                          "MMM dd, yyyy HH:mm"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {fullApiKey && apiKey.status === "active" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleCopyApiKey(fullApiKey, apiKey.secretId)}
+                            >
+                              {copiedKeyId === apiKey.secretId ? (
+                                <Check className="h-4 w-4" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                          {apiKey.status === "active" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleRevokeClick(apiKey.secretId)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
@@ -157,8 +248,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
           <DialogHeader>
             <DialogTitle>Create API Key</DialogTitle>
             <DialogDescription>
-              Create a new API key for your organization. You'll be able to see
-              the key only once after creation.
+              Create a new API key for your organization.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -197,69 +287,35 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Show Newly Created API Key Dialog */}
-      <Dialog open={!!newlyCreatedApiKey} onOpenChange={handleCloseNewKeyDialog}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>API Key Created</DialogTitle>
-            <DialogDescription>
-              Your API key has been created. Make sure to copy it now as you
-              won't be able to see it again.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>API Key</Label>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 relative">
-                  <Input
-                    type={showApiKey ? "text" : "password"}
-                    value={newlyCreatedApiKey || ""}
-                    readOnly
-                    className="font-mono text-sm pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                  >
-                    {showApiKey ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() =>
-                    newlyCreatedApiKey && handleCopyApiKey(newlyCreatedApiKey)
-                  }
-                >
-                  {copiedKeyId === newlyCreatedApiKey ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Important:</strong> This is the only time you'll be able
-                to see this API key. Make sure to copy and store it securely.
-              </p>
-            </div>
-            <div className="flex justify-end">
-              <Button onClick={handleCloseNewKeyDialog}>I've Copied It</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Revoke API Key Confirmation Dialog */}
+      <AlertDialog open={isRevokeDialogOpen} onOpenChange={setIsRevokeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Revoke API Key</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to revoke this API key? This action cannot be undone.
+              The key will immediately stop working and cannot be restored.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setIsRevokeDialogOpen(false);
+                setRevokingKeyId(null);
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRevokeConfirm}
+              disabled={revokeApiKeyMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {revokeApiKeyMutation.isPending ? "Revoking..." : "Revoke API Key"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
