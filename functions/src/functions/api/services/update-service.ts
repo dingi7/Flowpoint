@@ -4,7 +4,6 @@ import { serviceHost } from "@/services";
 import { authenticateApiKey, AuthenticatedRequest } from "@/utils/api-auth-middleware";
 import { onRequest } from "firebase-functions/v2/https";
 import { serviceDataSchema } from "@/core";
-import { z } from "zod";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();

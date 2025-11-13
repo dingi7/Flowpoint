@@ -1,5 +1,4 @@
 import {
-  APPOINTMENT_STATUS,
   AppointmentData,
   AppointmentRepository,
   appointmentDataSchema,

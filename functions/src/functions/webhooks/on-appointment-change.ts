@@ -1,12 +1,11 @@
 import { sendWebhookFn } from "@/app/webhooks/send-webhook";
 import {
   Appointment,
-  DatabaseCollection,
   WEBHOOK_EVENT_TYPE,
   WEBHOOK_SUBSCRIPTION_STATUS,
-  WebhookSubscriptionRepository,
 } from "@/core";
 import { repositoryHost } from "@/repositories";
+import { DatabaseCollection } from "@/repositories/config";
 import { serviceHost } from "@/services";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 
