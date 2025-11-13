@@ -170,3 +170,40 @@ export function isToday(date: Date): boolean {
   const today = new Date();
   return isSameDay(date, today);
 }
+
+/**
+ * Convert a Firestore timestamp to a Date object.
+ * Handles multiple formats:
+ * - Date object (returns as-is)
+ * - Firestore Timestamp instance (calls toDate())
+ * - Plain object with seconds and nanoseconds properties
+ * @param timestamp - The timestamp to convert
+ * @returns A Date object
+ */
+export function convertFirestoreTimestampToDate(
+  timestamp: Date | { seconds: number; nanoseconds: number } | { toDate: () => Date } | null | undefined
+): Date | null {
+  if (!timestamp) {
+    return null;
+  }
+
+  // If it's already a Date, return it
+  if (timestamp instanceof Date) {
+    return timestamp;
+  }
+
+  // If it has a toDate method (Firestore Timestamp instance), use it
+  if (typeof timestamp === "object" && "toDate" in timestamp && typeof timestamp.toDate === "function") {
+    return timestamp.toDate();
+  }
+
+  // If it's a plain object with seconds and nanoseconds
+  if (typeof timestamp === "object" && "seconds" in timestamp && "nanoseconds" in timestamp) {
+    const { seconds, nanoseconds } = timestamp;
+    // Convert seconds to milliseconds and add nanoseconds as milliseconds
+    return new Date(seconds * 1000 + nanoseconds / 1000000);
+  }
+
+  // Fallback: try to create a Date from the value
+  return new Date(timestamp as any);
+}

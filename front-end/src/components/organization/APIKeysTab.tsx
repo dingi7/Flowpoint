@@ -37,6 +37,7 @@ import { Key, Plus, Copy, Check, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { convertFirestoreTimestampToDate } from "@/utils/date-time";
 
 interface APIKeysTabProps {
   organization: Organization;
@@ -201,10 +202,12 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {format(
-                          new Date(apiKey.createdAt),
-                          "MMM dd, yyyy HH:mm"
-                        )}
+                        {(() => {
+                          const date = convertFirestoreTimestampToDate(apiKey.createdAt);
+                          return date
+                            ? format(date, "MMM dd, yyyy HH:mm")
+                            : "Invalid date";
+                        })()}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
