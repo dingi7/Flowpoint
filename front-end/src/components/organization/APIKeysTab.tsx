@@ -37,7 +37,7 @@ import { Key, Plus, Copy, Check, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { convertFirestoreTimestampToDate } from "@/utils/date-time";
+import { convertFirestoreTimestampToDateWithFallback, normalizeApiKey } from "@/utils/date-time";
 
 interface APIKeysTabProps {
   organization: Organization;
@@ -88,8 +88,8 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
         [result.apiKeyMetadata.secretId]: result.apiKey,
       }));
       
-      // Add to local API keys list
-      setLocalApiKeys((prev) => [...prev, result.apiKeyMetadata]);
+      // Add to local API keys list (normalize the createdAt field)
+      setLocalApiKeys((prev) => [...prev, normalizeApiKey(result.apiKeyMetadata)]);
       
       setApiKeyName("");
       setIsCreateDialogOpen(false);
@@ -100,11 +100,16 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
     }
   };
 
-  const handleCopyApiKey = (apiKey: string, secretId: string) => {
-    navigator.clipboard.writeText(apiKey);
-    setCopiedKeyId(secretId);
-    toast.success("API key copied to clipboard");
-    setTimeout(() => setCopiedKeyId(null), 2000);
+  const handleCopyApiKey = (secretId: string) => {
+    const fullApiKey = apiKeysMap[secretId];
+    if (fullApiKey) {
+      navigator.clipboard.writeText(fullApiKey);
+      setCopiedKeyId(secretId);
+      toast.success("API key copied to clipboard");
+      setTimeout(() => setCopiedKeyId(null), 2000);
+    } else {
+      toast.error("Full API key not available. It was only shown once when created.");
+    }
   };
 
   const handleRevokeClick = (secretId: string) => {
@@ -122,6 +127,15 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
         organizationId,
         secretId: revokingKeyId,
       });
+      
+      // Optimistically update the local API keys list to mark as revoked
+      setLocalApiKeys((prev) =>
+        prev.map((key) =>
+          key.secretId === revokingKeyId
+            ? { ...key, status: "revoked" as const }
+            : key
+        )
+      );
       
       // Remove from apiKeysMap since it's revoked
       setApiKeysMap((prev) => {
@@ -204,45 +218,39 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                       <TableCell>
                         {(() => {
                           try {
-                            const date = convertFirestoreTimestampToDate(apiKey.createdAt);
-                            if (!date) {
-                              return "Invalid date";
-                            }
-                            // Validate date before formatting
-                            if (isNaN(date.getTime())) {
-                              return "Invalid date";
-                            }
+                            const date = convertFirestoreTimestampToDateWithFallback(apiKey.createdAt);
                             return format(date, "MMM dd, yyyy HH:mm");
                           } catch (error) {
                             console.error("Error formatting date:", error, apiKey.createdAt);
-                            return "Invalid date";
+                            return format(new Date(), "MMM dd, yyyy HH:mm");
                           }
                         })()}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {fullApiKey && apiKey.status === "active" && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleCopyApiKey(fullApiKey, apiKey.secretId)}
-                            >
-                              {copiedKeyId === apiKey.secretId ? (
-                                <Check className="h-4 w-4" />
-                              ) : (
-                                <Copy className="h-4 w-4" />
-                              )}
-                            </Button>
-                          )}
                           {apiKey.status === "active" && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleRevokeClick(apiKey.secretId)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleCopyApiKey(apiKey.secretId)}
+                                title={fullApiKey ? "Copy API key" : "Full API key not available. It was only shown once when created."}
+                              >
+                                {copiedKeyId === apiKey.secretId ? (
+                                  <Check className="h-4 w-4" />
+                                ) : (
+                                  <Copy className="h-4 w-4" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleRevokeClick(apiKey.secretId)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
                           )}
                         </div>
                       </TableCell>

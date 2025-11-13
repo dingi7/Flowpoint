@@ -28,11 +28,18 @@ export const useCreateApiKey = () => {
       return functionsService.createApiKey(params);
     },
     onSuccess: (_, variables) => {
-      // Invalidate organization queries to refresh API keys list
+      // Invalidate all organization-related queries to refresh API keys list
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
       queryClient.invalidateQueries({ queryKey: ["organization"] });
+      
+      // Invalidate specific organization query
       queryClient.invalidateQueries({ 
         queryKey: ["organization", "get", variables.organizationId] 
+      });
+      
+      // Invalidate organizations by IDs queries (this is what UserInitializer uses)
+      queryClient.invalidateQueries({ 
+        queryKey: ["organizations", "getMany"] 
       });
     },
   });

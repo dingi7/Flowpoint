@@ -172,16 +172,49 @@ export function isToday(date: Date): boolean {
 }
 
 /**
+ * Normalize an API key to ensure the createdAt field is a valid Date
+ * @param apiKey - The API key object that may have a serialized createdAt
+ * @returns The API key with a properly converted createdAt Date
+ */
+export function normalizeApiKey<T extends Record<string, unknown>>(apiKey: T): T & { createdAt: Date | null } {
+  if (!apiKey) return apiKey as T & { createdAt: Date | null };
+  
+  return {
+    ...apiKey,
+    createdAt: convertFirestoreTimestampToDate(apiKey.createdAt as Date | { seconds: number; nanoseconds: number } | { toDate: () => Date } | string | number | null | undefined),
+  } as T & { createdAt: Date | null };
+}
+
+/**
+ * Convert a Firestore timestamp to a Date object, with current date as fallback.
+ * Handles multiple formats:
+ * - Date object (returns as-is)
+ * - Firestore Timestamp instance (calls toDate())
+ * - Plain object with seconds and nanoseconds properties
+ * - String timestamps (ISO format or unix)
+ * If conversion fails, returns the current date.
+ * @param timestamp - The timestamp to convert
+ * @returns A valid Date object (current date if conversion fails)
+ */
+export function convertFirestoreTimestampToDateWithFallback(
+  timestamp: Date | { seconds: number; nanoseconds: number } | { toDate: () => Date } | string | number | null | undefined
+): Date {
+  const converted = convertFirestoreTimestampToDate(timestamp);
+  return converted || new Date();
+}
+
+/**
  * Convert a Firestore timestamp to a Date object.
  * Handles multiple formats:
  * - Date object (returns as-is)
  * - Firestore Timestamp instance (calls toDate())
  * - Plain object with seconds and nanoseconds properties
+ * - String timestamps (ISO format or unix)
  * @param timestamp - The timestamp to convert
  * @returns A Date object or null if conversion fails
  */
 export function convertFirestoreTimestampToDate(
-  timestamp: Date | { seconds: number; nanoseconds: number } | { toDate: () => Date } | null | undefined | any
+  timestamp: Date | { seconds: number; nanoseconds: number } | { toDate: () => Date } | string | number | null | undefined
 ): Date | null {
   if (!timestamp) {
     return null;
@@ -237,9 +270,24 @@ export function convertFirestoreTimestampToDate(
     }
   }
 
+  // If it's a string, try to parse it
+  if (typeof timestamp === "string") {
+    try {
+      const date = new Date(timestamp);
+      // Validate the date
+      if (isNaN(date.getTime())) {
+        return null;
+      }
+      return date;
+    } catch (error) {
+      console.error("Error parsing string timestamp:", error);
+      return null;
+    }
+  }
+
   // Fallback: try to create a Date from the value
   try {
-    const date = new Date(timestamp);
+    const date = new Date(timestamp as string | number | Date);
     // Validate the date
     if (isNaN(date.getTime())) {
       return null;
