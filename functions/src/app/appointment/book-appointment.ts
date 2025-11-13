@@ -23,6 +23,7 @@ interface Payload {
   fee?: number;
   title?: string;
   description?: string;
+  timezone?: string;
   customerData?: {
     name?: string;
     phone?: string;
@@ -80,15 +81,19 @@ export async function bookAppointmentFn(
   });
 
   // 1. Comprehensive validation
-  const validationResult = await validateBookingRequest(payload, {
-    serviceRepository,
-    customerRepository,
-    calendarRepository,
-    appointmentRepository,
-    timeOffRepository,
-    loggerService,
-    organizationRepository,
-  });
+  const validationResult = await validateBookingRequest(
+    payload,
+    {
+      serviceRepository,
+      customerRepository,
+      calendarRepository,
+      appointmentRepository,
+      timeOffRepository,
+      loggerService,
+      organizationRepository,
+    },
+    payload.timezone,
+  );
 
   const {
     validatedPayload,

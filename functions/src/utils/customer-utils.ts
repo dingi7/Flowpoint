@@ -105,6 +105,7 @@ export function createCustomerWithFields(
   baseData: {
     organizationId: string;
     email: string;
+    timezone?: string;
   },
   customFields: Record<string, unknown> = {},
   organization: Organization,
@@ -132,6 +133,7 @@ export function createCustomerWithFields(
   return {
     organizationId: baseData.organizationId,
     email: baseData.email,
+    timezone: baseData.timezone,
     customFields: validatedCustomFields,
   };
 }

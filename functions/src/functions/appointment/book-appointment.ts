@@ -1,6 +1,7 @@
 import { bookAppointmentFn } from "@/app/appointment/book-appointment";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { getClientIp, getTimezoneFromIp } from "@/utils/ip-timezone";
 import { onCall } from "firebase-functions/https";
 import { defineSecret } from "firebase-functions/params";
 import { Secrets } from "@/config/secrets";
@@ -31,6 +32,7 @@ interface Payload {
   fee?: number;
   title?: string;
   description?: string;
+  timezone?: string;
   additionalCustomerFields?: Record<string, unknown>;
 }
 
@@ -54,17 +56,32 @@ export const bookAppointment = onCall<Payload>(
 
       const cloudTasksService = serviceHost.getCloudTasksService("sendAppointmentReminder");
 
-      const result = await bookAppointmentFn(request.data, {
-        appointmentRepository,
-        serviceRepository,
-        customerRepository,
-        calendarRepository,
-        timeOffRepository,
-        loggerService,
-        organizationRepository,
-        mailgunService,
-        cloudTasksService,
-      });
+      // Get timezone from IP if not provided in payload
+      let timezone = request.data.timezone;
+      if (!timezone) {
+        // Try to get IP from rawRequest if available (onCall functions)
+        const rawRequest = (request as unknown as { rawRequest?: { headers?: Record<string, string | string[] | undefined>; ip?: string } }).rawRequest;
+        const clientIp = rawRequest && rawRequest.headers ? getClientIp({ headers: rawRequest.headers, ip: rawRequest.ip }) : null;
+        timezone = await getTimezoneFromIp(clientIp, loggerService);
+      }
+
+      const result = await bookAppointmentFn(
+        {
+          ...request.data,
+          timezone,
+        },
+        {
+          appointmentRepository,
+          serviceRepository,
+          customerRepository,
+          calendarRepository,
+          timeOffRepository,
+          loggerService,
+          organizationRepository,
+          mailgunService,
+          cloudTasksService,
+        },
+      );
 
       loggerService.info("Appointment booked successfully", {
         appointmentId: result.appointmentId,

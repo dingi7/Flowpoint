@@ -8,6 +8,7 @@ interface Payload {
   assigneeId: string;
   title?: string;
   description?: string;
+  timezone?: string;
   additionalCustomerFields?: Record<string, unknown>;
 }
 

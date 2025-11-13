@@ -2,6 +2,7 @@ import { bookAppointmentApiFn } from "@/app/api/book-appointment";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { authenticateApiKey, AuthenticatedRequest } from "@/utils/api-auth-middleware";
+import { getClientIp, getTimezoneFromIp } from "@/utils/ip-timezone";
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { Secrets } from "@/config/secrets";
@@ -91,10 +92,15 @@ export const apiBookAppointment = onRequest(
         "sendAppointmentReminder",
       );
 
+      // Get timezone from client IP
+      const clientIp = getClientIp(req);
+      const timezone = await getTimezoneFromIp(clientIp, loggerService);
+
       const result = await bookAppointmentApiFn(
         {
           ...validationResult.data,
           organizationId: req.organizationId!,
+          timezone,
         },
         {
           appointmentRepository,

@@ -60,6 +60,7 @@ interface ValidationResult {
 export async function validateBookingRequest(
   payload: BookAppointmentPayload,
   dependencies: Dependencies,
+  timezone?: string,
 ): Promise<ValidationResult> {
   const {
     serviceRepository,
@@ -116,6 +117,7 @@ export async function validateBookingRequest(
       {
         organizationId: validatedPayload.organizationId,
         email: validatedPayload.customerEmail,
+        timezone,
       },
       validatedPayload.additionalCustomerFields || {},
       organization,
@@ -127,6 +129,23 @@ export async function validateBookingRequest(
     });
   } else {
     customerId = customers[0].id;
+    
+    // Update customer timezone if provided and different
+    if (timezone && customers[0].timezone !== timezone) {
+      loggerService.info("Updating customer timezone", {
+        customerId,
+        oldTimezone: customers[0].timezone,
+        newTimezone: timezone,
+      });
+      
+      await customerRepository.update({
+        id: customerId,
+        data: {
+          timezone,
+        },
+        organizationId: validatedPayload.organizationId,
+      });
+    }
   }
 
   // 4. Calendar validation

@@ -1,6 +1,7 @@
 import { bookAppointmentFn } from "@/app/appointment/book-appointment";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { getClientIp, getTimezoneFromIp } from "@/utils/ip-timezone";
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { Secrets } from "@/config/secrets";
@@ -82,17 +83,27 @@ export const widgetBookAppointment = onRequest(
 
       const cloudTasksService = serviceHost.getCloudTasksService("sendAppointmentReminder");
 
-      const result = await bookAppointmentFn(payload, {
-        appointmentRepository,
-        serviceRepository,
-        customerRepository,
-        calendarRepository,
-        timeOffRepository,
-        loggerService,
-        organizationRepository,
-        mailgunService,
-        cloudTasksService,
-      });
+      // Get timezone from client IP
+      const clientIp = getClientIp(req);
+      const timezone = await getTimezoneFromIp(clientIp, loggerService);
+
+      const result = await bookAppointmentFn(
+        {
+          ...payload,
+          timezone,
+        },
+        {
+          appointmentRepository,
+          serviceRepository,
+          customerRepository,
+          calendarRepository,
+          timeOffRepository,
+          loggerService,
+          organizationRepository,
+          mailgunService,
+          cloudTasksService,
+        },
+      );
 
       loggerService.info("Appointment booked successfully", {
         appointmentId: result.appointmentId,
