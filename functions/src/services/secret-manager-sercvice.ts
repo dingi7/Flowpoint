@@ -28,9 +28,6 @@ export function getSecretManagerService(
           secretId: secretId,
           secret: {
             name: secretId,
-            labels: {
-              createdBy: "system",
-            },
             replication: {
               automatic: {}, // Use automatic replication
             },

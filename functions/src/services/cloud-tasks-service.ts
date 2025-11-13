@@ -3,6 +3,7 @@ import {
   CloudTasksService,
   ScheduleTaskPayload,
 } from "@/core/ports/services/cloud-tasks-service";
+import { GCP_PROJECT_ID } from "@/config/gcp";
 
 function getCloudTasksClient() {
   return new CloudTasksClient();
@@ -62,7 +63,7 @@ async function ensureQueueExists(
 
 export function getCloudTasksService(functionName: string): CloudTasksService {
   const client = getCloudTasksClient();
-  const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || "";
+  const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || GCP_PROJECT_ID;
   const location = process.env.LOCATION || "us-central1";
   const queueName = "appointment-reminders";
 
