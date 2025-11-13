@@ -39,6 +39,7 @@ export function generateTimeslotsForDate(payload: Payload, dependencies: Depende
 
 
   const timeslots: Timeslot[] = [];
+  const now = new Date();
 
   // Process each working hour block
   for (const workingBlock of workingHours) {
@@ -63,6 +64,11 @@ export function generateTimeslotsForDate(payload: Payload, dependencies: Depende
 
       const slotEnd = new Date(slotStart);
       slotEnd.setMinutes(slotEnd.getMinutes() + serviceDuration);
+
+      // Skip timeslots that are in the past
+      if (slotStart < now) {
+        continue;
+      }
 
       const hasOverlap = hasTimeslotOverlap({
         slotStart,

@@ -49,11 +49,12 @@ export function RoleForm({
   };
 
   // Permission descriptions for better UX
-  const permissionDescriptions = {
+  const permissionDescriptions: Record<PermissionKey, string> = {
     [PermissionKey.MANAGE_MEMBERS]: "Create, edit, and delete team members",
     [PermissionKey.MANAGE_APPOINTMENTS]: "Create, edit, and delete appointments",
     [PermissionKey.MANAGE_CALENDARS]: "Manage calendar settings and availability",
     [PermissionKey.VIEW_REPORTS]: "Access reports and analytics",
+    [PermissionKey.MANAGE_ORGANIZATION]: "Manage organization settings and configuration",
   };
 
   return (

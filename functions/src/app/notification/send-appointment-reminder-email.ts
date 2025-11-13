@@ -13,6 +13,7 @@ import {
   formatAppointmentDateTime,
   formatDuration,
   getCustomerName,
+  getCustomerTimezone,
 } from "@/utils/email-utils";
 
 interface Payload {
@@ -122,9 +123,10 @@ export async function sendAppointmentReminderEmailFn(
     return;
   }
 
+  const customerTimezone = getCustomerTimezone(customer);
   const appointmentDate = formatAppointmentDateTime(
     appointment.startTime,
-    organization.settings.timezone,
+    customerTimezone,
   );
   const duration = formatDuration(appointment.duration);
   const customerName = getCustomerName(customer);

@@ -5,6 +5,7 @@ import { OWNER_TYPE } from "./calendar";
 
 export enum APPOINTMENT_STATUS {
   PENDING = "pending",
+  CONFIRMED = "confirmed",
   COMPLETED = "completed",
   CANCELLED = "cancelled",
 }

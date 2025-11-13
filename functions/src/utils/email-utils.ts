@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { Customer } from "@/core";
 
 export interface EmailTemplateData {
@@ -15,9 +15,19 @@ export interface EmailTemplateData {
   };
 }
 
+const SOFIA_TIMEZONE = "Europe/Sofia";
+
+export function getCustomerTimezone(customer: Customer | null | undefined): string {
+  if (customer?.timezone) {
+    return customer.timezone;
+  }
+  return SOFIA_TIMEZONE;
+}
+
 export function formatAppointmentDateTime(dateString: string, timezone: string): string {
   const date = new Date(dateString);
-  return format(date, "EEEE, MMMM d, yyyy 'at' h:mm a");
+  // Convert UTC date to the specified timezone
+  return formatInTimeZone(date, timezone, "EEEE, MMMM d, yyyy 'at' h:mm a zzz");
 }
 
 export function formatDuration(minutes: number): string {
