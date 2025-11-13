@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APIKeysTab } from "@/components/organization/APIKeysTab";
 import { WebhooksTab } from "@/components/organization/WebhooksTab";
+import { EmailTemplatesTab } from "@/components/organization/EmailTemplatesTab";
 import { EditOrganizationDialog } from "@/components/organization/EditOrganizationDialog";
 import { OrganizationDetails } from "@/components/organization/OrganizationDetails";
 import { useSelectedOrganization } from "@/stores";
@@ -66,9 +67,10 @@ export default function OrganizationPage() {
       {/* Organization Content */}
       <div className="space-y-6">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="templates">Email Templates</TabsTrigger>
             <TabsTrigger value="api">API</TabsTrigger>
           </TabsList>
           
@@ -125,6 +127,10 @@ export default function OrganizationPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-6">
+            <EmailTemplatesTab organization={selectedOrganization} />
           </TabsContent>
 
           <TabsContent value="api" className="space-y-6">

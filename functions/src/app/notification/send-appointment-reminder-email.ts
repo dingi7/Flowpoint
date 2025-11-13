@@ -9,6 +9,7 @@ import {
 } from "@/core";
 import {
   buildAppointmentEmailHtml,
+  buildAppointmentEmailSubject,
   buildAppointmentEmailText,
   formatAppointmentDateTime,
   formatDuration,
@@ -141,13 +142,15 @@ export async function sendAppointmentReminderEmailFn(
     organizationContactInfo: organization.settings.contactInfo,
   };
 
-  const html = buildAppointmentEmailHtml("reminder", emailData);
-  const text = buildAppointmentEmailText("reminder", emailData);
+  const customTemplate = organization.settings.emailTemplates?.reminder;
+  const html = buildAppointmentEmailHtml("reminder", emailData, customTemplate);
+  const text = buildAppointmentEmailText("reminder", emailData, customTemplate);
+  const subject = buildAppointmentEmailSubject("reminder", emailData, customTemplate);
 
   await mailgunService.sendEmail({
     from: `${organization.name} <${fromEmail}>`,
     to: customer.email,
-    subject: `Appointment Reminder - ${service.name}`,
+    subject,
     html,
     text,
   });

@@ -3,6 +3,14 @@ import { baseEntitySchema } from "./base";
 import { DAY_OF_WEEK } from "./calendar";
 import { CustomerFieldConfigSchema } from "./customer";
 
+export const EmailTemplateSchema = z.object({
+  subject: z.string().default(""),
+  html: z.string().default(""),
+  text: z.string().default(""),
+});
+
+export type EmailTemplate = z.infer<typeof EmailTemplateSchema>;
+
 export const OrganizationSettingsSchema = z.object({
   timezone: z.string().default("UTC"),
   workingDays: z
@@ -30,6 +38,10 @@ export const OrganizationSettingsSchema = z.object({
     email: z.string().optional(),
     googleMapsUrl: z.string().optional(),
   }),
+  emailTemplates: z.object({
+    confirmation: EmailTemplateSchema.optional(),
+    reminder: EmailTemplateSchema.optional(),
+  }).optional(),
 });
 
 export type OrganizationSettingsData = z.infer<typeof OrganizationSettingsSchema>;

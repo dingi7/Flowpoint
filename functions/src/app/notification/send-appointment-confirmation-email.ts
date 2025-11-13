@@ -8,6 +8,7 @@ import {
 } from "@/core";
 import {
   buildAppointmentEmailHtml,
+  buildAppointmentEmailSubject,
   buildAppointmentEmailText,
   formatAppointmentDateTime,
   formatDuration,
@@ -117,13 +118,15 @@ export async function sendAppointmentConfirmationEmailFn(
     organizationContactInfo: organization.settings.contactInfo,
   };
 
-  const html = buildAppointmentEmailHtml("confirmation", emailData);
-  const text = buildAppointmentEmailText("confirmation", emailData);
+  const customTemplate = organization.settings.emailTemplates?.confirmation;
+  const html = buildAppointmentEmailHtml("confirmation", emailData, customTemplate);
+  const text = buildAppointmentEmailText("confirmation", emailData, customTemplate);
+  const subject = buildAppointmentEmailSubject("confirmation", emailData, customTemplate);
 
   await mailgunService.sendEmail({
     from: `${organization.name} <${fromEmail}>`,
     to: customer.email,
-    subject: `Appointment Confirmed - ${service.name}`,
+    subject,
     html,
     text,
   });

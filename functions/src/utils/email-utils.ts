@@ -1,5 +1,6 @@
 import { formatInTimeZone } from "date-fns-tz";
-import { Customer } from "@/core";
+import { Customer, EmailTemplate } from "@/core";
+import { getDefaultEmailTemplate, renderTemplate } from "./template-renderer";
 
 export interface EmailTemplateData {
   customerName: string;
@@ -53,91 +54,38 @@ export function getCustomerName(customer: Customer): string {
 export function buildAppointmentEmailHtml(
   type: "confirmation" | "reminder",
   data: EmailTemplateData,
+  customTemplate?: EmailTemplate,
 ): string {
-  const subjectLine = type === "confirmation" ? "Appointment Confirmed" : "Appointment Reminder";
-  const greeting = type === "confirmation" 
-    ? "Your appointment has been confirmed!" 
-    : "This is a reminder about your upcoming appointment.";
-  
-  const headerColor = type === "confirmation" ? "#4a90e2" : "#f39c12";
-  const borderColor = type === "confirmation" ? "#4a90e2" : "#f39c12";
+  if (customTemplate?.html) {
+    return renderTemplate(customTemplate.html, data);
+  }
 
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background-color: ${headerColor}; color: white; padding: 20px; text-align: center; }
-    .content { padding: 20px; background-color: #f9f9f9; }
-    .appointment-details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid ${borderColor}; }
-    .detail-row { margin: 10px 0; }
-    .detail-label { font-weight: bold; color: #555; }
-    .footer { text-align: center; padding: 20px; color: #777; font-size: 12px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>${subjectLine}</h1>
-    </div>
-    <div class="content">
-      <p>Dear ${data.customerName},</p>
-      <p>${greeting}</p>
-      <div class="appointment-details">
-        <div class="detail-row">
-          <span class="detail-label">Service:</span> ${data.serviceName}
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Date & Time:</span> ${data.appointmentDate}
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Duration:</span> ${data.duration}
-        </div>
-        ${data.fee !== undefined ? `<div class="detail-row"><span class="detail-label">Fee:</span> $${data.fee.toFixed(2)}</div>` : ""}
-      </div>
-      ${data.organizationContactInfo?.address ? `<p><strong>Location:</strong> ${data.organizationContactInfo.address}</p>` : ""}
-      ${data.organizationContactInfo?.phone ? `<p><strong>Phone:</strong> ${data.organizationContactInfo.phone}</p>` : ""}
-      <p>If you need to reschedule or cancel your appointment, please contact us at ${data.organizationContactInfo?.email || "our support email"}.</p>
-    </div>
-    <div class="footer">
-      <p>Best regards,<br>${data.organizationName}</p>
-    </div>
-  </div>
-</body>
-</html>
-  `.trim();
+  const defaultTemplate = getDefaultEmailTemplate(type);
+  return renderTemplate(defaultTemplate.html, data);
 }
 
 export function buildAppointmentEmailText(
   type: "confirmation" | "reminder",
   data: EmailTemplateData,
+  customTemplate?: EmailTemplate,
 ): string {
-  const subjectLine = type === "confirmation" ? "Appointment Confirmed" : "Appointment Reminder";
-  const greeting = type === "confirmation" 
-    ? "Your appointment has been confirmed!" 
-    : "This is a reminder about your upcoming appointment.";
+  if (customTemplate?.text) {
+    return renderTemplate(customTemplate.text, data);
+  }
 
-  return `
-${subjectLine}
+  const defaultTemplate = getDefaultEmailTemplate(type);
+  return renderTemplate(defaultTemplate.text, data);
+}
 
-Dear ${data.customerName},
+export function buildAppointmentEmailSubject(
+  type: "confirmation" | "reminder",
+  data: EmailTemplateData,
+  customTemplate?: EmailTemplate,
+): string {
+  if (customTemplate?.subject) {
+    return renderTemplate(customTemplate.subject, data);
+  }
 
-${greeting}
-
-Appointment Details:
-- Service: ${data.serviceName}
-- Date & Time: ${data.appointmentDate}
-- Duration: ${data.duration}
-${data.fee !== undefined ? `- Fee: $${data.fee.toFixed(2)}` : ""}
-${data.organizationContactInfo?.address ? `- Location: ${data.organizationContactInfo.address}` : ""}
-${data.organizationContactInfo?.phone ? `- Phone: ${data.organizationContactInfo.phone}` : ""}
-
-If you need to reschedule or cancel your appointment, please contact us at ${data.organizationContactInfo?.email || "our support email"}.
-
-Best regards,
-${data.organizationName}
-  `.trim();
+  const defaultTemplate = getDefaultEmailTemplate(type);
+  return renderTemplate(defaultTemplate.subject, data);
 }
