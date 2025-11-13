@@ -71,7 +71,7 @@ export async function listAppointmentsApiFn(
     queryConstraints.push({
       field: "startTime",
       operator: ">=" as const,
-      value: filters.startDate,
+      value: new Date(filters.startDate),
     });
   }
 
@@ -79,7 +79,7 @@ export async function listAppointmentsApiFn(
     queryConstraints.push({
       field: "startTime",
       operator: "<=" as const,
-      value: filters.endDate,
+      value: new Date(filters.endDate),
     });
   }
 
