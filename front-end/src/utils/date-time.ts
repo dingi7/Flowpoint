@@ -178,32 +178,75 @@ export function isToday(date: Date): boolean {
  * - Firestore Timestamp instance (calls toDate())
  * - Plain object with seconds and nanoseconds properties
  * @param timestamp - The timestamp to convert
- * @returns A Date object
+ * @returns A Date object or null if conversion fails
  */
 export function convertFirestoreTimestampToDate(
-  timestamp: Date | { seconds: number; nanoseconds: number } | { toDate: () => Date } | null | undefined
+  timestamp: Date | { seconds: number; nanoseconds: number } | { toDate: () => Date } | null | undefined | any
 ): Date | null {
   if (!timestamp) {
     return null;
   }
 
-  // If it's already a Date, return it
+  // If it's already a Date, validate and return it
   if (timestamp instanceof Date) {
+    // Check if the date is valid
+    if (isNaN(timestamp.getTime())) {
+      return null;
+    }
     return timestamp;
   }
 
   // If it has a toDate method (Firestore Timestamp instance), use it
   if (typeof timestamp === "object" && "toDate" in timestamp && typeof timestamp.toDate === "function") {
-    return timestamp.toDate();
+    try {
+      const date = timestamp.toDate();
+      // Validate the date
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error converting Firestore Timestamp to Date:", error);
+      return null;
+    }
   }
 
   // If it's a plain object with seconds and nanoseconds
   if (typeof timestamp === "object" && "seconds" in timestamp && "nanoseconds" in timestamp) {
-    const { seconds, nanoseconds } = timestamp;
-    // Convert seconds to milliseconds and add nanoseconds as milliseconds
-    return new Date(seconds * 1000 + nanoseconds / 1000000);
+    try {
+      const { seconds, nanoseconds } = timestamp;
+      
+      // Validate that seconds and nanoseconds are numbers
+      if (typeof seconds !== "number" || typeof nanoseconds !== "number") {
+        return null;
+      }
+      
+      // Convert seconds to milliseconds and add nanoseconds as milliseconds
+      const milliseconds = seconds * 1000 + nanoseconds / 1000000;
+      const date = new Date(milliseconds);
+      
+      // Validate the date
+      if (isNaN(date.getTime())) {
+        return null;
+      }
+      
+      return date;
+    } catch (error) {
+      console.error("Error converting timestamp object to Date:", error);
+      return null;
+    }
   }
 
   // Fallback: try to create a Date from the value
-  return new Date(timestamp as any);
+  try {
+    const date = new Date(timestamp);
+    // Validate the date
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+    return date;
+  } catch (error) {
+    console.error("Error creating Date from timestamp:", error);
+    return null;
+  }
 }

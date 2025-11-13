@@ -203,10 +203,20 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                       </TableCell>
                       <TableCell>
                         {(() => {
-                          const date = convertFirestoreTimestampToDate(apiKey.createdAt);
-                          return date
-                            ? format(date, "MMM dd, yyyy HH:mm")
-                            : "Invalid date";
+                          try {
+                            const date = convertFirestoreTimestampToDate(apiKey.createdAt);
+                            if (!date) {
+                              return "Invalid date";
+                            }
+                            // Validate date before formatting
+                            if (isNaN(date.getTime())) {
+                              return "Invalid date";
+                            }
+                            return format(date, "MMM dd, yyyy HH:mm");
+                          } catch (error) {
+                            console.error("Error formatting date:", error, apiKey.createdAt);
+                            return "Invalid date";
+                          }
                         })()}
                       </TableCell>
                       <TableCell>
