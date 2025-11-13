@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APIKeysTab } from "@/components/organization/APIKeysTab";
+import { WebhooksTab } from "@/components/organization/WebhooksTab";
 import { EditOrganizationDialog } from "@/components/organization/EditOrganizationDialog";
 import { OrganizationDetails } from "@/components/organization/OrganizationDetails";
 import { useSelectedOrganization } from "@/stores";
@@ -128,6 +129,7 @@ export default function OrganizationPage() {
 
           <TabsContent value="api" className="space-y-6">
             <APIKeysTab organization={selectedOrganization} />
+            <WebhooksTab />
           </TabsContent>
         </Tabs>
       </div>

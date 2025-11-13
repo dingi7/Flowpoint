@@ -14,18 +14,18 @@ type UpdateCustomerParams = Parameters<typeof customerRepository.update>[0];
 type DeleteCustomerParams = Parameters<typeof customerRepository.delete>[0];
 
 export const useCreateCustomer = () => {
-    const queryClient = useQueryClient();
-  
+  const queryClient = useQueryClient();
+
   return useMutation<string, Error, CreateCustomerParams>({
     mutationKey: ["customer", "create"],
     mutationFn: async (params: CreateCustomerParams) => {
       return customerRepository.create(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["organizations", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["customers", "get"] });
     },
   });
-}
+};
 
 export const useCustomer = (id: string) => {
   const currentOrganizationId = useCurrentOrganizationId();

@@ -1,4 +1,4 @@
-import { ApiKey, FunctionsService, OrganizationSettingsData, BookAppointmentPayload, BookAppointmentResponse } from "@/core";
+import { ApiKey, FunctionsService, OrganizationSettingsData, BookAppointmentPayload, BookAppointmentResponse, WebhookSubscription } from "@/core";
 import { firebase } from "@/infrastructure/firebase";
 import { httpsCallable } from "@firebase/functions";
 
@@ -114,5 +114,21 @@ export const functionsService: FunctionsService = {
       firebase.functions,
       "revokeApiKey",
     )(payload);
+  },
+  async createWebhookSubscription(payload) {
+    const result = await httpsCallable<
+      {
+        organizationId: string;
+        eventTypes: string[];
+        callbackUrl: string;
+      },
+      {
+        webhookSubscription: WebhookSubscription;
+      }
+    >(
+      firebase.functions,
+      "createWebhookSubscription",
+    )(payload);
+    return result.data;
   },
 };

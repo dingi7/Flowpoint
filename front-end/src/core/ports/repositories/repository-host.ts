@@ -10,6 +10,7 @@ import {
   ServiceRepository,
   TimeOffRepository,
   UserRepository,
+  WebhookSubscriptionRepository,
 } from "@/core";
 
 export interface RepositoryHost {
@@ -27,4 +28,5 @@ export interface RepositoryHost {
   ): AppointmentRepository;
   getTimeOffRepository(databaseService: DatabaseService): TimeOffRepository;
   getInviteRepository(databaseService: DatabaseService): InviteRepository;
+  getWebhookSubscriptionRepository(databaseService: DatabaseService): WebhookSubscriptionRepository;
 }

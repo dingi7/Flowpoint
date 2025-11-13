@@ -9,4 +9,5 @@ export enum DatabaseCollection {
   CUSTOMERS = "customers",
   TIME_OFF = "time-off",
   INVITES = "invites",
+  WEBHOOK_SUBSCRIPTIONS = "webhook-subscriptions",
 }

@@ -9,6 +9,7 @@ export * from "./repository-hooks/invite/use-invite";
 export * from "./repository-hooks/appointment/use-appointment";
 export * from "./repository-hooks/calendar/use-calendar";
 export * from "./repository-hooks/time-off/use-time-off";
+export * from "./repository-hooks/webhook-subscription/use-webhook-subscription";
 
 // Form hooks
 export * from "./forms/use-member-form";
@@ -27,4 +28,5 @@ export * from "./service-hooks/availability/use-book-appointment";
 export * from "./service-hooks/member/use-delete-member";
 export * from "./service-hooks/organization/use-create-api-key";
 export * from "./service-hooks/organization/use-revoke-api-key";
+export * from "./service-hooks/organization/use-create-webhook-subscription";
 

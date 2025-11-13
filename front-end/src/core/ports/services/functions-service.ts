@@ -1,4 +1,5 @@
 import { ApiKey, OrganizationSettingsData } from "@/core/entities/organization";
+import { WebhookSubscription } from "@/core/entities/webhook-subscription";
   
 export interface DeleteResponse {
   deleted: boolean;
@@ -69,4 +70,11 @@ export interface FunctionsService {
     organizationId: string;
     secretId: string;
   }): Promise<void>;
+  createWebhookSubscription(payload: {
+    organizationId: string;
+    eventTypes: string[];
+    callbackUrl: string;
+  }): Promise<{
+    webhookSubscription: WebhookSubscription;
+  }>;
 }

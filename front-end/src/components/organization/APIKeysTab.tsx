@@ -33,7 +33,7 @@ import {
 import { Organization } from "@/core";
 import { useCreateApiKey, useRevokeApiKey } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { Key, Plus, Copy, Check, Trash2 } from "lucide-react";
+import { Key, Plus, Copy, Check, Trash2, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -47,11 +47,11 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
   const organizationId = useCurrentOrganizationId();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [apiKeyName, setApiKeyName] = useState("");
-  const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
   const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
   const [isRevokeDialogOpen, setIsRevokeDialogOpen] = useState(false);
-  // Store full API keys by secretId (since ApiKey schema only has lastFour)
-  const [apiKeysMap, setApiKeysMap] = useState<Record<string, string>>({});
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [newlyCreatedApiKey, setNewlyCreatedApiKey] = useState<string | null>(null);
+  const [copiedInModal, setCopiedInModal] = useState(false);
   const [localApiKeys, setLocalApiKeys] = useState<typeof organization.apiKeys>(organization.apiKeys || []);
 
   const createApiKeyMutation = useCreateApiKey();
@@ -82,33 +82,26 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
         name: apiKeyName.trim(),
       });
       
-      // Store the full API key in the map
-      setApiKeysMap((prev) => ({
-        ...prev,
-        [result.apiKeyMetadata.secretId]: result.apiKey,
-      }));
-      
       // Add to local API keys list (normalize the createdAt field)
       setLocalApiKeys((prev) => [...prev, normalizeApiKey(result.apiKeyMetadata)]);
       
+      // Store the newly created API key and show success modal
+      setNewlyCreatedApiKey(result.apiKey);
       setApiKeyName("");
       setIsCreateDialogOpen(false);
-      toast.success("API key created successfully");
+      setIsSuccessDialogOpen(true);
     } catch (error) {
       console.error("Failed to create API key:", error);
       toast.error("Failed to create API key");
     }
   };
 
-  const handleCopyApiKey = (secretId: string) => {
-    const fullApiKey = apiKeysMap[secretId];
-    if (fullApiKey) {
-      navigator.clipboard.writeText(fullApiKey);
-      setCopiedKeyId(secretId);
+  const handleCopyApiKeyFromModal = () => {
+    if (newlyCreatedApiKey) {
+      navigator.clipboard.writeText(newlyCreatedApiKey);
+      setCopiedInModal(true);
       toast.success("API key copied to clipboard");
-      setTimeout(() => setCopiedKeyId(null), 2000);
-    } else {
-      toast.error("Full API key not available. It was only shown once when created.");
+      setTimeout(() => setCopiedInModal(false), 2000);
     }
   };
 
@@ -136,13 +129,6 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
             : key
         )
       );
-      
-      // Remove from apiKeysMap since it's revoked
-      setApiKeysMap((prev) => {
-        const newMap = { ...prev };
-        delete newMap[revokingKeyId];
-        return newMap;
-      });
       
       toast.success("API key revoked successfully");
       setIsRevokeDialogOpen(false);
@@ -193,18 +179,13 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
               </TableHeader>
               <TableBody>
                 {apiKeys.map((apiKey) => {
-                  const fullApiKey = apiKeysMap[apiKey.secretId];
                   return (
                     <TableRow key={apiKey.secretId}>
                       <TableCell className="font-medium">{apiKey.name}</TableCell>
                       <TableCell className="font-mono text-sm">
-                        {fullApiKey ? (
-                          fullApiKey
-                        ) : (
-                          <span className="text-muted-foreground">
-                            ••••{apiKey.lastFour}
-                          </span>
-                        )}
+                        <span className="text-muted-foreground">
+                          ••••{apiKey.lastFour}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -229,28 +210,14 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {apiKey.status === "active" && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleCopyApiKey(apiKey.secretId)}
-                                title={fullApiKey ? "Copy API key" : "Full API key not available. It was only shown once when created."}
-                              >
-                                {copiedKeyId === apiKey.secretId ? (
-                                  <Check className="h-4 w-4" />
-                                ) : (
-                                  <Copy className="h-4 w-4" />
-                                )}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleRevokeClick(apiKey.secretId)}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleRevokeClick(apiKey.secretId)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           )}
                         </div>
                       </TableCell>
@@ -302,6 +269,66 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                 disabled={!apiKeyName.trim() || createApiKeyMutation.isPending}
               >
                 {createApiKeyMutation.isPending ? "Creating..." : "Create API Key"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* API Key Success Dialog */}
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>API Key Created Successfully</DialogTitle>
+            <DialogDescription>
+              Your API key has been created. Please copy it now as you won't be able to see it again.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg bg-muted p-4 border border-destructive/50">
+              <div className="flex items-start gap-2 mb-2">
+                <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
+                <p className="text-sm text-destructive font-medium">
+                  Important: Copy your API key now
+                </p>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                This is the only time you'll be able to see the full API key. Make sure to copy and store it securely.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="apiKeyValue">API Key</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="apiKeyValue"
+                  readOnly
+                  value={newlyCreatedApiKey || ""}
+                  className="font-mono text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyApiKeyFromModal}
+                  className="shrink-0"
+                  title="Copy API key"
+                >
+                  {copiedInModal ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => {
+                  setIsSuccessDialogOpen(false);
+                  setNewlyCreatedApiKey(null);
+                  setCopiedInModal(false);
+                }}
+              >
+                I've copied the API key
               </Button>
             </div>
           </div>
