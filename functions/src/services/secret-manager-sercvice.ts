@@ -3,6 +3,7 @@ import {
   SecretManagerService,
 } from "@/core";
 import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
+import { GCP_PROJECT_ID } from "@/config/gcp";
 
 export function getSecretManagerService(
   dependencies: GetSecretManagerServiceDependencies,
@@ -11,11 +12,7 @@ export function getSecretManagerService(
 
   const secretManagerClient = new SecretManagerServiceClient();
 
-  const PROJECT_ID = process.env.GCP_PROJECT;
-  if (!PROJECT_ID) {
-    throw new Error("GCP_PROJECT environment variable is not set");
-  }
-  const parent = `projects/${PROJECT_ID}`;
+  const parent = `projects/${GCP_PROJECT_ID}`;
 
   return {
     async getSecret(secretId: string): Promise<string | null> {

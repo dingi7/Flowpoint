@@ -1,0 +1,1 @@
+export const GCP_PROJECT_ID = "brogrammers-crm";

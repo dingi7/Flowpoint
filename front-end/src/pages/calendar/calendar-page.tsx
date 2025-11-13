@@ -104,7 +104,7 @@ export default function CalendarPage() {
             <Button
               onClick={() => setIsEditing(true)}
               className="gap-2"
-              variant="outline"
+              variant="default"
             >
               <Edit className="h-4 w-4" />
               Edit Schedule

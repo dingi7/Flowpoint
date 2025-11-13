@@ -1,4 +1,4 @@
-import { OrganizationSettingsData } from "@/core/entities/organization";
+import { ApiKey, OrganizationSettingsData } from "@/core/entities/organization";
   
 export interface DeleteResponse {
   deleted: boolean;
@@ -58,4 +58,11 @@ export interface FunctionsService {
     memberId: string;
     organizationId: string;
   }): Promise<{ success: boolean }>;
+  createApiKey(payload: {
+    organizationId: string;
+    name: string;
+  }): Promise<{
+    apiKey: string;
+    apiKeyMetadata: ApiKey;
+  }>;
 }

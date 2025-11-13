@@ -25,4 +25,5 @@ export * from "./service-hooks/invite/use-accept-invite";
 export * from "./service-hooks/availability/use-available-timeslots";
 export * from "./service-hooks/availability/use-book-appointment";
 export * from "./service-hooks/member/use-delete-member";
+export * from "./service-hooks/organization/use-create-api-key";
 

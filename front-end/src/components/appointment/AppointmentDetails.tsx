@@ -13,7 +13,6 @@ import {
   CheckCircle,
   Clock,
   DollarSign,
-  Edit,
   FileText,
   Mail,
   Phone,
@@ -24,13 +23,11 @@ import { formatUtcDateTime } from "@/utils/date-time";
 
 interface AppointmentDetailsProps {
   appointment: Appointment;
-  onEdit: () => void;
   onStatusChange: (appointmentId: string, newStatus: string) => void;
 }
 
 export function AppointmentDetails({
   appointment,
-  onEdit,
   onStatusChange,
 }: AppointmentDetailsProps) {
   // Fetch customer and service data
@@ -165,10 +162,6 @@ export function AppointmentDetails({
               Cancel
             </Button>
           )}
-          <Button onClick={onEdit} className="gap-2">
-            <Edit className="h-4 w-4" />
-            Edit
-          </Button>
         </div>
       </div>
 

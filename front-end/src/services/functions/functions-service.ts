@@ -1,4 +1,4 @@
-import { FunctionsService, OrganizationSettingsData, BookAppointmentPayload, BookAppointmentResponse } from "@/core";
+import { ApiKey, FunctionsService, OrganizationSettingsData, BookAppointmentPayload, BookAppointmentResponse } from "@/core";
 import { firebase } from "@/infrastructure/firebase";
 import { httpsCallable } from "@firebase/functions";
 
@@ -84,6 +84,22 @@ export const functionsService: FunctionsService = {
     >(
       firebase.functions,
       "kickOrganizationMember",
+    )(payload);
+    return result.data;
+  },
+  async createApiKey(payload) {
+    const result = await httpsCallable<
+      {
+        organizationId: string;
+        name: string;
+      },
+      {
+        apiKey: string;
+        apiKeyMetadata: ApiKey;
+      }
+    >(
+      firebase.functions,
+      "createApiKey",
     )(payload);
     return result.data;
   },

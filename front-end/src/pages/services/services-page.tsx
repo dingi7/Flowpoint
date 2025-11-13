@@ -130,7 +130,7 @@ export default function ServicesPage() {
         <div className="mt-4 sm:mt-0">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2" variant="default">
                 <Plus className="h-4 w-4" />
                 Add Service
               </Button>

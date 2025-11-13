@@ -103,6 +103,7 @@ export function AppointmentList({
     }, {} as Record<string, Service>);
   }, [services]);
 
+
   // Filter appointments based on search, status, and date
   const filteredAppointments = appointments.filter((appointment) => {
     const customer = customersMap[appointment.customerId];
@@ -248,7 +249,6 @@ export function AppointmentList({
     setIsDeleteDialogOpen(false);
     setAppointmentToDelete(null);
   };
-
 
   return (
     <>
@@ -410,7 +410,15 @@ export function AppointmentList({
       </Card>
 
       {/* Appointment Details Dialog */}
-      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+      <Dialog 
+        open={isDetailsOpen} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsDetailsOpen(false);
+            setSelectedAppointment(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Appointment Details</DialogTitle>
@@ -418,10 +426,6 @@ export function AppointmentList({
           {selectedAppointment && (
             <AppointmentDetails
               appointment={selectedAppointment}
-              onEdit={() => {
-                setIsDetailsOpen(false);
-                handleEdit(selectedAppointment);
-              }}
               onStatusChange={handleStatusChange}
             />
           )}
@@ -429,7 +433,16 @@ export function AppointmentList({
       </Dialog>
 
       {/* Edit Appointment Dialog */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+      <Dialog 
+        open={isEditOpen} 
+        onOpenChange={(open) => {
+          setIsEditOpen(open);
+          if (!open) {
+            // Clear editing appointment when dialog closes
+            setEditingAppointment(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="text-xl font-semibold">Edit Appointment</DialogTitle>
@@ -438,7 +451,10 @@ export function AppointmentList({
             {editingAppointment && (
               <AppointmentForm
                 appointment={editingAppointment}
-                onSuccess={() => setIsEditOpen(false)}
+                onSuccess={() => {
+                  setIsEditOpen(false);
+                  setEditingAppointment(null);
+                }}
               />
             )}
           </div>

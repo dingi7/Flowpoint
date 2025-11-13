@@ -165,12 +165,6 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
     }
   };
 
-  const handleEdit = () => {
-    // For now, we'll just close the details dialog
-    // In the future, you could open an edit dialog here
-    setIsDetailsOpen(false);
-  };
-
   const calendarDays = [];
   
   // Empty cells for days before the first day of the month
@@ -284,7 +278,6 @@ export function CalendarView({ selectedDate, onDateSelect  }: CalendarViewProps)
           {selectedAppointment && (
             <AppointmentDetails
               appointment={selectedAppointment}
-              onEdit={handleEdit}
               onStatusChange={handleStatusChange}
             />
           )}
