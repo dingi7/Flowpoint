@@ -152,3 +152,63 @@ export function useGetAppointmentsByAssigneeAndDate(assigneeId: string, date: Da
     enabled: !!organizationId && !!assigneeId,
   });
 }
+
+/**
+ * Hook to get appointments for a specific customer
+ * @param customerId - The ID of the customer
+ * @returns Query result with appointments for the specified customer
+ */
+export function useGetAppointmentsByCustomer(customerId: string) {
+  const organizationId = useCurrentOrganizationId();
+
+  return useQuery({
+    queryKey: ["appointments", "byCustomer", organizationId, customerId],
+    queryFn: () =>
+      appointmentRepository.getAll({
+        organizationId: organizationId!,
+        queryConstraints: [{ field: "customerId", operator: "==", value: customerId }],
+        pagination: { limit: 1000 },
+        orderBy: { field: "startTime", direction: "desc" },
+      }),
+    enabled: !!organizationId && !!customerId,
+  });
+}
+
+/**
+ * Hook to search appointments by title
+ * Uses Firestore prefix matching for efficient queries
+ * @param searchQuery - The search query string (searches by title)
+ * @param limit - Maximum number of results to return (default: 20)
+ */
+export function useSearchAppointments(searchQuery: string, limit: number = 20) {
+  const organizationId = useCurrentOrganizationId();
+  const trimmedQuery = searchQuery.trim().toLowerCase();
+
+  return useQuery({
+    queryKey: ["appointments", "search", trimmedQuery, organizationId, limit],
+    queryFn: async () => {
+      if (!trimmedQuery || !organizationId) {
+        return [];
+      }
+
+      // Use Firestore prefix matching for title field
+      const results = await appointmentRepository.getAll({
+        organizationId: organizationId,
+        queryConstraints: [
+          { field: "title", operator: ">=", value: trimmedQuery },
+          { field: "title", operator: "<=", value: trimmedQuery + "\uf8ff" },
+        ],
+        pagination: { limit },
+        orderBy: { field: "title", direction: "asc" },
+      });
+
+      // Client-side filtering for more flexible matching
+      return results.filter((appointment) => {
+        const titleMatch = appointment.title.toLowerCase().includes(trimmedQuery);
+        const descriptionMatch = appointment.description?.toLowerCase().includes(trimmedQuery);
+        return titleMatch || descriptionMatch;
+      });
+    },
+    enabled: !!organizationId && trimmedQuery.length >= 2,
+  });
+}

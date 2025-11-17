@@ -2,8 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
-import { useCustomers } from "@/hooks";
+import { useState, useEffect } from "react";
+import { useCustomers, useCustomer } from "@/hooks";
+import { useSearchParams } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -57,6 +58,23 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const customerIdFromUrl = searchParams.get("id");
+
+  // Fetch customer if ID is in URL
+  const { data: customerFromUrl } = useCustomer(customerIdFromUrl || "");
+
+  // Open dialog when customer ID is in URL
+  useEffect(() => {
+    if (customerFromUrl && customerIdFromUrl) {
+      setSelectedCustomer(customerFromUrl);
+      setIsDetailsOpen(true);
+      // Remove the ID from URL to clean it up
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete("id");
+      setSearchParams(newSearchParams, { replace: true });
+    }
+  }, [customerFromUrl, customerIdFromUrl, searchParams, setSearchParams]);
 
   // Fetch customers using the hook
   const { data, error } = useCustomers({

@@ -42,7 +42,6 @@ import {
 import { User, InviteStatus } from "@/core";
 import { useUser, useInvitesByEmail } from "@/hooks";
 import { ModeToggle } from "../ui/mode-toggle";
-import { Logo } from "../ui/logo";
 import { useOrganizations, useSelectedOrganization, useOrganizationActions } from "@/stores";
 import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
 import { InvitationNotifications } from "@/components/invitation/InvitationNotifications";
@@ -240,9 +239,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <div className="flex items-center justify-center px-4 py-3 mb-2">
-          <Logo className="object-contain" width={140} height={45} />
-        </div>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton

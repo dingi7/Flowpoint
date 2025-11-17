@@ -39,7 +39,8 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AppointmentDetails } from "./AppointmentDetails";
 import { AppointmentForm } from "./AppointmentForm";
 import { AppointmentDeleteDialog } from "./AppointmentDeleteDialog";
@@ -63,6 +64,8 @@ export function AppointmentList({
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const appointmentIdFromUrl = searchParams.get("id");
 
   // Get organization ID for updates
   const organizationId = useCurrentOrganizationId();
@@ -103,6 +106,20 @@ export function AppointmentList({
     }, {} as Record<string, Service>);
   }, [services]);
 
+  // Open dialog when appointment ID is in URL
+  useEffect(() => {
+    if (appointmentIdFromUrl && appointments.length > 0) {
+      const appointment = appointments.find((a) => a.id === appointmentIdFromUrl);
+      if (appointment) {
+        setSelectedAppointment(appointment);
+        setIsDetailsOpen(true);
+        // Remove the ID from URL to clean it up
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete("id");
+        setSearchParams(newSearchParams, { replace: true });
+      }
+    }
+  }, [appointmentIdFromUrl, appointments, searchParams, setSearchParams]);
 
   // Filter appointments based on search, status, and date
   const filteredAppointments = appointments.filter((appointment) => {
