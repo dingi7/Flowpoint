@@ -6,10 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Format a time slot from ISO string to display format (HH:MM AM/PM)
+ * Format a time slot from UTC ISO string to local time display format (HH:MM AM/PM)
+ * The ISO string is expected to be in UTC, and this function converts it to local time for display
  */
 export function formatTimeSlot(isoString: string): string {
+  // Parse the UTC ISO string - JavaScript Date automatically handles UTC to local conversion
   const date = new Date(isoString);
+  
+  // getHours() and getMinutes() already return local time values
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const ampm = hours >= 12 ? 'PM' : 'AM';

@@ -183,18 +183,14 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
             console.log('Customer created with ID:', customerId);
 
             // Step 2: Create appointment
-            // Create a Date object from the selected time
-            const selectedDateObj = new Date(selectedTime);
-            
-            // Convert to UTC ISO string
-            const utcTime = selectedDateObj.toISOString();
-            console.log('Submitting booking with UTC time:', utcTime);
+            // selectedTime is already a UTC ISO string from the timeslot
+            console.log('Submitting booking with UTC time:', selectedTime);
 
             // Prepare the payload according to BookAppointmentPayload interface
             bookAppointment({
                 serviceId: selectedService.id,
                 customerEmail: userInfo.email,
-                startTime: utcTime,
+                startTime: selectedTime, // Already in UTC ISO format
                 assigneeId: selectedBarber.id,
                 assigneeType: OWNER_TYPE.MEMBER, // Barbers are members
                 fee: selectedService.price,

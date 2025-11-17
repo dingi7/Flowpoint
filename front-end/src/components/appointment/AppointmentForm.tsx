@@ -130,14 +130,11 @@ export function AppointmentForm({
             throw error;
           }
 
-          // Get form data for date/time
-          const localDate = watch("startTime") 
-            ? formatUtcDateTime(watch("startTime"), "yyyy-MM-dd")
-            : formatUtcDateTime(appointment.startTime, "yyyy-MM-dd");
-          const localTime = watch("startTime")
-            ? formatUtcDateTime(watch("startTime"), "HH:mm")
-            : formatUtcDateTime(appointment.startTime, "HH:mm");
-          const startTime = `${localDate}T${localTime}:00`;
+          // Get form data for date/time - startTime is already in UTC ISO format
+          const startTime = watch("startTime") || appointment.startTime;
+          if (!startTime) {
+            throw new Error("Start time is required");
+          }
 
           const updatePayload = {
             id: appointment.id,
@@ -148,7 +145,7 @@ export function AppointmentForm({
               serviceId: data.serviceId || appointment.serviceId,
               title: data.title || appointment.title,
               description: data.description || appointment.description,
-              startTime: startTime,
+              startTime: startTime, // UTC ISO string
               duration: data.duration || appointment.duration,
               fee: data.fee !== undefined ? data.fee : appointment.fee,
               status: data.status || appointment.status,
@@ -184,19 +181,16 @@ export function AppointmentForm({
         }
 
         // Transform AppointmentData to BookAppointmentPayload
-        // Send local date and time, not UTC
-        const localDate = watch("startTime")
-          ? formatUtcDateTime(watch("startTime"), "yyyy-MM-dd")
-          : "";
-        const localTime = watch("startTime")
-          ? formatUtcDateTime(watch("startTime"), "HH:mm")
-          : "";
-        const startTime = `${localDate}T${localTime}:00`; // Format: yyyy-MM-ddTHH:mm:00
+        // startTime is already in UTC ISO format from the timeslot selection
+        const startTime = watch("startTime");
+        if (!startTime) {
+          throw new Error("Start time is required");
+        }
         
         const bookingPayload = {
           serviceId: data.serviceId,
           customerEmail: customer.email,
-          startTime: startTime, // Local time, not UTC
+          startTime: startTime, // UTC ISO string
           assigneeId: data.assigneeId,
           fee: data.fee, // Function now accepts null
           title: data.title,
@@ -248,7 +242,34 @@ export function AppointmentForm({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Fetch available timeslots dynamically
+  const {
+    data: timeslotsData,
+    isLoading: isTimeslotsLoading,
+    error: timeslotsError,
+  } = useAvailableTimeslots({
+    serviceId: formData.serviceId,
+    date: formData.date,
+    enabled: !!formData.serviceId && !!formData.date,
+  });
 
+  // Map of display time (HH:mm) to UTC timeslot ISO string
+  const timeSlotMap = useMemo(() => {
+    const map = new Map<string, string>();
+    timeslotsData?.result?.forEach((slot) => {
+      // Convert UTC ISO string to local time for display
+      const utcDate = new Date(slot.start);
+      const hours = utcDate.getHours().toString().padStart(2, '0');
+      const minutes = utcDate.getMinutes().toString().padStart(2, '0');
+      const displayTime = `${hours}:${minutes}`;
+      map.set(displayTime, slot.start);
+    });
+    return map;
+  }, [timeslotsData?.result]);
+
+  const timeSlots = useMemo(() => {
+    return Array.from(timeSlotMap.keys());
+  }, [timeSlotMap]);
 
   const handleChange = (field: string, value: string) => {
     if (field === "date" || field === "time") {
@@ -268,15 +289,22 @@ export function AppointmentForm({
 
       if (newDate) {
         if (newTime) {
-          // Store local date and time (backend will handle timezone conversion)
-          const localDateTime = `${newDate}T${newTime}:00`;
-          setValue("startTime", localDateTime, { shouldValidate: true });
+          // Find the UTC timeslot for the selected local time
+          const utcTimeslot = timeSlotMap.get(newTime);
+          if (utcTimeslot) {
+            // Use the UTC timeslot directly
+            setValue("startTime", utcTimeslot, { shouldValidate: true });
+          } else {
+            // Fallback: create UTC datetime from local date and time
+            const localDateTime = new Date(`${newDate}T${newTime}:00`);
+            setValue("startTime", localDateTime.toISOString(), { shouldValidate: true });
+          }
           // Trigger validation to clear any previous errors
           trigger("startTime");
         } else {
           // Set date only, time will be added later
-          const localDateTime = `${newDate}T00:00:00`;
-          setValue("startTime", localDateTime, { shouldValidate: true });
+          const localDateTime = new Date(`${newDate}T00:00:00`);
+          setValue("startTime", localDateTime.toISOString(), { shouldValidate: true });
           // Clear startTime error if only date is set (time not selected yet)
           clearErrors("startTime");
         }
@@ -317,24 +345,6 @@ export function AppointmentForm({
       setValue("title", title);
     }
   };
-
-  // Fetch available timeslots dynamically
-  const {
-    data: timeslotsData,
-    isLoading: isTimeslotsLoading,
-    error: timeslotsError,
-  } = useAvailableTimeslots({
-    serviceId: formData.serviceId,
-    date: formData.date,
-    enabled: !!formData.serviceId && !!formData.date,
-  });
-
-  const timeSlots = useMemo(() => {
-    return timeslotsData?.result?.map((slot) => {
-      const timeMatch = slot.start.match(/T(\d{2}):(\d{2})/);
-      return timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "";
-    }) || [];
-  }, [timeslotsData?.result]);
 
 
   return (
