@@ -3,11 +3,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRoles } from "@/hooks";
-import { useInviteForm, InviteFormData } from "@/hooks";
+import { useInviteForm, InviteFormData, useCreateOrganizationInvite } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { useState } from "react";
-
-import { serviceHost } from "@/services";
 
 interface MemberFormProps {
   onSuccess?: () => void;
@@ -15,9 +12,8 @@ interface MemberFormProps {
 }
 
 export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
-  const functionsService = serviceHost.getFunctionsService();
   const currentOrganizationId = useCurrentOrganizationId();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createInviteMutation = useCreateOrganizationInvite();
 
   const { data: roles = [] } = useRoles({
     pagination: { limit: 100 },
@@ -38,11 +34,10 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
         throw new Error("No organization selected");
       }
 
-      setIsSubmitting(true);
       try {
-        await functionsService.createOrganizationInvite({
+        await createInviteMutation.mutateAsync({
           organizationId: currentOrganizationId,
-          ...data, // TODO: add valid for
+          ...data,
         });
 
         if (onSuccess) {
@@ -50,11 +45,11 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
         }
       } catch (error) {
         console.error("Failed to create invite:", error);
-      } finally {
-        setIsSubmitting(false);
       }
     },
   });
+
+  const isSubmitting = createInviteMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

@@ -23,6 +23,7 @@ export * from "./forms/use-appointment-form"
 // Service hooks
 export * from "./service-hooks/auth/use-auth";
 export * from "./service-hooks/invite/use-accept-invite";
+export * from "./service-hooks/invite/use-create-organization-invite";
 export * from "./service-hooks/availability/use-available-timeslots";
 export * from "./service-hooks/availability/use-book-appointment";
 export * from "./service-hooks/member/use-delete-member";
