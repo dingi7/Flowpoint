@@ -117,6 +117,7 @@
         "loadingTimeSlots": "Зареждане на свободни часове...",
         "noTimeSlots": "Няма свободни часове за тази дата",
         "selectTime": "Избери Час",
+        "submitting": "Изпращане...",
         "inPerson": "Присъствена среща"
     },
     "location": {

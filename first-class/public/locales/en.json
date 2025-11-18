@@ -117,7 +117,8 @@
         "loadingTimeSlots": "Loading available time slots...",
         "noTimeSlots": "No time slots available for this date",
         "selectTime": "Select Time",
-        "inPerson": "In-person appointment"
+        "inPerson": "In-person appointment",
+        "submitting": "Submitting..."
     },
     "location": {
         "title": "SERVICE BEYOND EXPECTATIONS",

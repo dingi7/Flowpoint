@@ -3,9 +3,27 @@ import { FadeInView } from "./FadeInView";
 import { useTranslation } from "@/lib/useTranslation";
 import { Member } from "@/core";
 import Image from 'next/image';
+import { useBookingModalStore } from "@/stores/booking-modal-store";
+import { Barber } from "@/stores/types/booking-modal.types";
 
 export function MemberCard({ member, index }: { member: Member, index: number }) {
     const { t } = useTranslation();
+    const { setInitialBarber, openModal } = useBookingModalStore();
+
+    const handleBookNow = () => {
+        // Convert Member to Barber format
+        const barber: Barber = {
+            id: member.id,
+            name: member.name,
+            image: member.image,
+            description: member.description,
+            working: true, // Assume all members are working
+        };
+        
+        // Set the initial barber and open the modal
+        setInitialBarber(barber);
+        openModal();
+    };
 
   return (
     <FadeInView key={member.id} delay={index * 0.2}>
@@ -29,14 +47,12 @@ export function MemberCard({ member, index }: { member: Member, index: number })
               {member.description}
             </span>
           </div>
-          {/* {member.working && (
-            <button
-              onClick={() => openModal(undefined, member)}
-              className="w-full bg-[#B5A48A] text-[#0A0A0A] py-2 font-semibold hover:bg-[#C8B79D] transition-colors duration-300"
-            >
-              {t("team.bookNow")}
-            </button>
-          )} */}
+          <button
+            onClick={handleBookNow}
+            className="cursor-pointer w-full bg-[#B5A48A] text-[#0A0A0A] py-2 font-semibold hover:bg-[#C8B79D] transition-colors duration-300"
+          >
+            {t("team.bookNow")}
+          </button>
         </div>
       </div>
     </FadeInView>

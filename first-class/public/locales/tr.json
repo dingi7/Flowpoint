@@ -117,7 +117,8 @@
         "loadingTimeSlots": "Müsait saatler yükleniyor...",
         "noTimeSlots": "Bu tarih için müsait saat bulunmuyor",
         "selectTime": "Saat Seç",
-        "inPerson": "Yüz yüze randevu"
+        "inPerson": "Yüz yüze randevu",
+        "submitting": "Gönderiliyor..."
     },
     "location": {
         "title": "BEKLENTİLERİN ÖTESİNDE HİZMET",
