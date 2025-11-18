@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { LocaleEditor } from "@/components/ui/locale-editor";
 import {
   Select,
   SelectContent,
@@ -95,6 +96,7 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
   });
   
   const currentImage = watch("image");
+  const localisation = watch("localisation");
 
   // Update form when image upload completes
   useEffect(() => {
@@ -215,6 +217,13 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
           />
         </CardContent>
       </Card>
+
+      {/* Translations */}
+      <LocaleEditor
+        value={localisation}
+        onChange={(value) => setValue("localisation", value)}
+        disabled={isSubmitting}
+      />
 
       {/* Form Actions */}
       <div className="flex justify-end gap-3">

@@ -3,6 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { LocaleEditor } from "@/components/ui/locale-editor";
 import { useRoles } from "@/hooks";
 import { useMemberImageUpload } from "@/hooks/service-hooks/media/use-member-image-upload";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,11 +12,19 @@ import { z } from "zod";
 import { Member } from "@/core";
 import { useEffect } from "react";
 
+const localeSchema = z.record(z.string(), z.string());
+
 const memberEditFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   roleIds: z.array(z.string()).min(1, "Please select at least one role"),
   description: z.string().optional(),
   image: z.string().optional(),
+  localisation: z
+    .object({
+      name: localeSchema,
+      description: localeSchema,
+    })
+    .optional(),
 });
 
 type MemberEditFormData = z.infer<typeof memberEditFormSchema>;
@@ -52,12 +61,14 @@ export function MemberEditForm({
         roleIds: member.roleIds || [],
         description: member.description || "",
         image: member.image || "",
+        localisation: member.localisation,
       },
       mode: "onChange",
     });
 
   const selectedRoleIds = watch("roleIds") || [];
   const currentImage = watch("image");
+  const localisation = watch("localisation");
 
   // Update form when image upload completes
   useEffect(() => {
@@ -128,6 +139,12 @@ export function MemberEditForm({
         onUploadStart={handleUploadStart}
         disabled={isLoading}
         id="member-image"
+      />
+
+      <LocaleEditor
+        value={localisation}
+        onChange={(value) => setValue("localisation", value)}
+        disabled={isLoading}
       />
 
       <div className="space-y-2">

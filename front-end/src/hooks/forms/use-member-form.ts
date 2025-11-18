@@ -16,6 +16,7 @@ export function useMemberForm({ member, onSubmit }: UseMemberFormProps) {
       roleIds: member?.roleIds || [],
       image: member?.image,
       description: member?.description,
+      localisation: member?.localisation,
     },
     mode: "onChange",
   });
