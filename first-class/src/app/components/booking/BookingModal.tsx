@@ -23,6 +23,8 @@ import { Member, OWNER_TYPE, Service, CustomerData } from '@/core';
 import { ORGANIZATION_ID } from '@/constants';
 import { userInfoAnimation } from './animations';
 import { useMembers, useServices, useAvailableTimeslots, useCreateCustomer } from '@/hooks';
+import { useTranslation } from '@/lib/useTranslation';
+import { getLocalizedMemberValue } from '@/lib/member-localization';
 
 export interface BookingModalProps {
     isOpen: boolean;
@@ -30,6 +32,7 @@ export interface BookingModalProps {
   }
 
 export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
+    const { locale } = useTranslation();
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -67,12 +70,12 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
     const services = servicesData?.pages?.flatMap((page) => page) || [];
     const members = membersData?.pages?.flatMap((page) => page) || [];
 
-    // Convert members to barbers format for the UI
+    // Convert members to barbers format for the UI with localized name and description
     const barbers: Barber[] = members.map((member: Member) => ({
         id: member.id,
-        name: member.name,
+        name: getLocalizedMemberValue(member, "name", locale),
         image: member.image,
-        description: member.description,
+        description: getLocalizedMemberValue(member, "description", locale),
         working: true, // Assume all fetched members are working
     }));
 

@@ -5,18 +5,23 @@ import { Member } from "@/core";
 import Image from 'next/image';
 import { useBookingModalStore } from "@/stores/booking-modal-store";
 import { Barber } from "@/stores/types/booking-modal.types";
+import { getLocalizedMemberValue } from "@/lib/member-localization";
 
 export function MemberCard({ member, index }: { member: Member, index: number }) {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const { setInitialBarber, openModal } = useBookingModalStore();
+
+    // Get localized name and description with fallback chain
+    const localizedName = getLocalizedMemberValue(member, "name", locale);
+    const localizedDescription = getLocalizedMemberValue(member, "description", locale);
 
     const handleBookNow = () => {
         // Convert Member to Barber format
         const barber: Barber = {
             id: member.id,
-            name: member.name,
+            name: localizedName,
             image: member.image,
-            description: member.description,
+            description: localizedDescription,
             working: true, // Assume all members are working
         };
         
@@ -31,7 +36,7 @@ export function MemberCard({ member, index }: { member: Member, index: number })
         <div className="relative w-full aspect-square overflow-hidden">
           <Image
             src={member.image || "/placeholder.svg"}
-            alt={member.name}
+            alt={localizedName}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -40,11 +45,11 @@ export function MemberCard({ member, index }: { member: Member, index: number })
         <div className="p-8">
           <h3 className="text-white text-xl font-bold mb-2 flex items-center justify-center">
             <Scissors className="w-5 h-5 mr-2 text-[#B5A48A]" />
-            {member.name}
+            {localizedName}
           </h3>
           <div className="flex justify-center space-x-4 mb-6">
             <span>
-              {member.description}
+              {localizedDescription}
             </span>
           </div>
           <button
