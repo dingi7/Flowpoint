@@ -1,0 +1,985 @@
+openapi: 3.0.3
+info:
+  title: FLOWPOINT API
+  description: |
+    Comprehensive REST API for managing CRM resources including services, appointments, customers, and more.
+    
+    ## Authentication
+    
+    All API endpoints require authentication using an API key. Include your API key in the `Authorization` header:
+    
+    ```
+    Authorization: Bearer <your-api-key>
+    ```
+    
+    ## Webhooks
+    
+    This API supports webhooks for real-time event notifications. See the full documentation for webhook setup and configuration.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://us-central1-brogrammers-crm.cloudfunctions.net
+    description: Production server
+
+
+tags:
+  - name: Services
+    description: Service management endpoints
+  - name: Appointments
+    description: Appointment management endpoints
+  - name: Availability
+    description: Availability and timeslot endpoints
+
+security:
+  - BearerAuth: []
+
+paths:
+  /apiListServices:
+    get:
+      tags:
+        - Services
+      summary: List all services
+      description: Retrieve all services for the authenticated organization
+      operationId: listServices
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListServicesResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiGetService:
+    get:
+      tags:
+        - Services
+      summary: Get a service
+      description: Retrieve a specific service by ID
+      operationId: getService
+      parameters:
+        - name: serviceId
+          in: query
+          required: true
+          description: The ID of the service to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetServiceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiCreateService:
+    post:
+      tags:
+        - Services
+      summary: Create a service
+      description: Create a new service for the organization
+      operationId: createService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceRequest'
+            example:
+              ownerType: member
+              ownerId: member-789
+              name: Consultation
+              description: 30-minute consultation
+              price: 100.00
+              duration: 30
+              image: https://example.com/image.jpg
+              order: 1
+      responses:
+        '201':
+          description: Service created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateServiceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiUpdateService:
+    put:
+      tags:
+        - Services
+      summary: Update a service
+      description: Update an existing service
+      operationId: updateService
+      parameters:
+        - name: serviceId
+          in: query
+          required: true
+          description: The ID of the service to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateServiceRequest'
+            example:
+              name: Updated Consultation
+              price: 150.00
+              duration: 45
+      responses:
+        '200':
+          description: Service updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiDeleteService:
+    delete:
+      tags:
+        - Services
+      summary: Delete a service
+      description: Delete a service
+      operationId: deleteService
+      parameters:
+        - name: serviceId
+          in: query
+          required: true
+          description: The ID of the service to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiListAppointments:
+    get:
+      tags:
+        - Appointments
+      summary: List appointments
+      description: Retrieve appointments for the organization with optional filters
+      operationId: listAppointments
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [pending, completed, cancelled]
+        - name: customerId
+          in: query
+          description: Filter by customer ID
+          schema:
+            type: string
+        - name: serviceId
+          in: query
+          description: Filter by service ID
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          description: Filter by start date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Filter by end date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAppointmentsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiGetAppointment:
+    get:
+      tags:
+        - Appointments
+      summary: Get an appointment
+      description: Retrieve a specific appointment by ID
+      operationId: getAppointment
+      parameters:
+        - name: appointmentId
+          in: query
+          required: true
+          description: The ID of the appointment to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAppointmentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiCreateAppointment:
+    post:
+      tags:
+        - Appointments
+      summary: Create an appointment
+      description: Create a new appointment
+      operationId: createAppointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppointmentRequest'
+            example:
+              assigneeType: member
+              assigneeId: member-789
+              customerId: customer-101
+              serviceId: service-123
+              title: Consultation
+              description: Initial consultation
+              startTime: '2024-01-20T10:00:00Z'
+              duration: 30
+              fee: 100.00
+              status: pending
+      responses:
+        '201':
+          description: Appointment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAppointmentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiUpdateAppointment:
+    put:
+      tags:
+        - Appointments
+      summary: Update an appointment
+      description: Update an existing appointment
+      operationId: updateAppointment
+      parameters:
+        - name: appointmentId
+          in: query
+          required: true
+          description: The ID of the appointment to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppointmentRequest'
+            example:
+              title: Updated Consultation
+              status: completed
+              fee: 150.00
+      responses:
+        '200':
+          description: Appointment updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiDeleteAppointment:
+    delete:
+      tags:
+        - Appointments
+      summary: Delete an appointment
+      description: Delete an appointment
+      operationId: deleteAppointment
+      parameters:
+        - name: appointmentId
+          in: query
+          required: true
+          description: The ID of the appointment to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Appointment deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiBookAppointment:
+    post:
+      tags:
+        - Appointments
+      summary: Book an appointment
+      description: Book an appointment (public endpoint for widget integration)
+      operationId: bookAppointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookAppointmentRequest'
+            example:
+              serviceId: service-123
+              customerEmail: customer@example.com
+              customerName: John Doe
+              customerPhone: '+1234567890'
+              startTime: '2024-01-20T10:00:00Z'
+              assigneeId: member-789
+              additionalCustomerFields:
+                company: Acme Corp
+                notes: First-time customer
+      responses:
+        '200':
+          description: Appointment booked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookAppointmentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiGetAvailableTimeslots:
+    post:
+      tags:
+        - Availability
+      summary: Get available timeslots
+      description: Get available timeslots for a service on a specific date
+      operationId: getAvailableTimeslots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAvailableTimeslotsRequest'
+            example:
+              serviceId: service-123
+              date: '2024-01-20'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAvailableTimeslotsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /apiGetOrganizationServices:
+    get:
+      tags:
+        - Services
+      summary: Get organization services
+      description: Get all services for the organization (public endpoint for widget integration)
+      operationId: getOrganizationServices
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationServicesResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: |
+        API key authentication. Include your API key in the Authorization header:
+        
+        ```
+        Authorization: Bearer <your-api-key>
+        ```
+
+  schemas:
+    # Common Schemas
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+      required:
+        - success
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+          example: Invalid request data
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: array
+                items:
+                  type: string
+              message:
+                type: string
+      required:
+        - success
+        - error
+
+    # Service Schemas
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+          example: service-123
+        organizationId:
+          type: string
+          example: org-456
+        ownerType:
+          type: string
+          enum: [member, organization]
+          example: member
+        ownerId:
+          type: string
+          example: member-789
+        name:
+          type: string
+          example: Consultation
+        description:
+          type: string
+          nullable: true
+          example: 30-minute consultation
+        price:
+          type: number
+          format: float
+          example: 100.00
+        duration:
+          type: integer
+          description: Duration in minutes
+          example: 30
+        image:
+          type: string
+          format: uri
+          nullable: true
+          example: https://example.com/image.jpg
+        order:
+          type: integer
+          nullable: true
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:00:00Z'
+      required:
+        - id
+        - organizationId
+        - ownerType
+        - ownerId
+        - name
+        - price
+        - duration
+        - createdAt
+        - updatedAt
+
+    CreateServiceRequest:
+      type: object
+      properties:
+        ownerType:
+          type: string
+          enum: [member, organization]
+        ownerId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        duration:
+          type: integer
+          description: Duration in minutes
+        image:
+          type: string
+          format: uri
+        order:
+          type: integer
+      required:
+        - ownerType
+        - ownerId
+        - name
+        - price
+        - duration
+
+    UpdateServiceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        duration:
+          type: integer
+          description: Duration in minutes
+        image:
+          type: string
+          format: uri
+        order:
+          type: integer
+      description: All fields are optional. Only include fields you want to update.
+
+    ListServicesResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            services:
+              type: array
+              items:
+                $ref: '#/components/schemas/Service'
+
+    GetServiceResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            service:
+              $ref: '#/components/schemas/Service'
+
+    CreateServiceResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            serviceId:
+              type: string
+              example: service-123
+
+    GetOrganizationServicesResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            services:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  price:
+                    type: number
+                    format: float
+                  duration:
+                    type: integer
+                  image:
+                    type: string
+                    format: uri
+
+    # Appointment Schemas
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: appt-123
+        organizationId:
+          type: string
+          example: org-456
+        assigneeType:
+          type: string
+          enum: [member, organization]
+          example: member
+        assigneeId:
+          type: string
+          example: member-789
+        customerId:
+          type: string
+          example: customer-101
+        serviceId:
+          type: string
+          example: service-123
+        title:
+          type: string
+          example: Consultation
+        description:
+          type: string
+          example: Initial consultation
+        startTime:
+          type: string
+          format: date-time
+          example: '2024-01-20T10:00:00Z'
+        duration:
+          type: integer
+          description: Duration in minutes
+          example: 30
+        fee:
+          type: number
+          format: float
+          nullable: true
+          example: 100.00
+        status:
+          type: string
+          enum: [pending, completed, cancelled]
+          example: pending
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2024-01-15T10:00:00Z'
+      required:
+        - id
+        - organizationId
+        - assigneeType
+        - assigneeId
+        - customerId
+        - serviceId
+        - title
+        - description
+        - startTime
+        - duration
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateAppointmentRequest:
+      type: object
+      properties:
+        assigneeType:
+          type: string
+          enum: [member, organization]
+        assigneeId:
+          type: string
+        customerId:
+          type: string
+        serviceId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in minutes
+        fee:
+          type: number
+          format: float
+        status:
+          type: string
+          enum: [pending, completed, cancelled]
+      required:
+        - assigneeType
+        - assigneeId
+        - customerId
+        - serviceId
+        - title
+        - description
+        - startTime
+        - duration
+        - status
+
+    UpdateAppointmentRequest:
+      type: object
+      properties:
+        assigneeType:
+          type: string
+          enum: [member, organization]
+        assigneeId:
+          type: string
+        customerId:
+          type: string
+        serviceId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+          description: Duration in minutes
+        fee:
+          type: number
+          format: float
+        status:
+          type: string
+          enum: [pending, completed, cancelled]
+      description: All fields are optional. Only include fields you want to update.
+
+    BookAppointmentRequest:
+      type: object
+      properties:
+        serviceId:
+          type: string
+        customerEmail:
+          type: string
+          format: email
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        assigneeId:
+          type: string
+        additionalCustomerFields:
+          type: object
+          additionalProperties: true
+          description: Additional customer fields
+      required:
+        - serviceId
+        - customerEmail
+        - customerName
+        - customerPhone
+        - startTime
+        - assigneeId
+
+    ListAppointmentsResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            appointments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Appointment'
+
+    GetAppointmentResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            appointment:
+              $ref: '#/components/schemas/Appointment'
+
+    CreateAppointmentResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            appointmentId:
+              type: string
+              example: appt-123
+
+    BookAppointmentResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            appointmentId:
+              type: string
+              example: appt-123
+            confirmationDetails:
+              type: object
+              properties:
+                appointmentId:
+                  type: string
+                startTime:
+                  type: string
+                  format: date-time
+                duration:
+                  type: integer
+                serviceName:
+                  type: string
+
+    # Availability Schemas
+    Timeslot:
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          example: '2024-01-20T09:00:00Z'
+        endTime:
+          type: string
+          format: date-time
+          example: '2024-01-20T09:30:00Z'
+        available:
+          type: boolean
+          example: true
+      required:
+        - startTime
+        - endTime
+        - available
+
+    GetAvailableTimeslotsRequest:
+      type: object
+      properties:
+        serviceId:
+          type: string
+        date:
+          type: string
+          format: date
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+          description: Date in YYYY-MM-DD format
+          example: '2024-01-20'
+      required:
+        - serviceId
+        - date
+
+    GetAvailableTimeslotsResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            timeslots:
+              type: array
+              items:
+                $ref: '#/components/schemas/Timeslot'
+
+  responses:
+    BadRequestError:
+      description: Bad request - Invalid request data or parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Invalid request data
+            details:
+              - path: [serviceId]
+                message: Required
+
+    UnauthorizedError:
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Invalid API key
+
+    NotFoundError:
+      description: Not found - Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Service not found
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: Failed to process request
+

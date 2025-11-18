@@ -2,6 +2,8 @@ import z from "zod";
 import { baseEntitySchema } from "./base";
 import { OWNER_TYPE } from "./calendar";
 
+const localeSchema = z.record(z.string(), z.string());
+
 export const serviceDataSchema = z.object({
   organizationId: z.string(),
   ownerType: z.nativeEnum(OWNER_TYPE),
@@ -12,6 +14,10 @@ export const serviceDataSchema = z.object({
   duration: z.number(),
   image: z.string().optional(),
   order: z.number().optional(),
+  localisation: z.object({
+    description: localeSchema,
+    name: localeSchema,
+  }).optional(),
 });
 
 export type ServiceData = z.infer<typeof serviceDataSchema>;

@@ -21,7 +21,8 @@
       ]
     }
   ],
-  "hosting": {
+  "hosting": [{
+    "site": "brogrammers-crm",
     "public": "./front-end/dist",
     "ignore": [
       "firebase.json",
@@ -34,5 +35,19 @@
         "destination": "/index.html"
       }
     ]
-  }
+  },{
+    "site": "firstclass-barbershop",
+    "public": "./first-class/dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }]
 }
