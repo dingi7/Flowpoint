@@ -42,7 +42,20 @@ export const useOrganizationStore = create<OrganizationStore>()(devtools(
 
       // Actions
       setOrganizations: (organizations: Organization[]) =>
-        set({ organizations }, false, "setOrganizations"),
+        set(
+          (state) => {
+            // If there's a currentOrganizationId, sync selectedOrganization with it
+            const selectedOrg = state.currentOrganizationId
+              ? organizations.find((org) => org.id === state.currentOrganizationId) || null
+              : null;
+            return {
+              organizations,
+              selectedOrganization: selectedOrg || state.selectedOrganization,
+            };
+          },
+          false,
+          "setOrganizations"
+        ),
 
       addOrganization: (organization: Organization) =>
         set(
@@ -89,7 +102,19 @@ export const useOrganizationStore = create<OrganizationStore>()(devtools(
         set({ selectedOrganization: organization }, false, "setSelectedOrganization"),
 
       setCurrentOrganizationId: (id: string | null) =>
-        set({ currentOrganizationId: id }, false, "setCurrentOrganizationId"),
+        set(
+          (state) => {
+            const organization = id
+              ? state.organizations.find((org) => org.id === id) || null
+              : null;
+            return {
+              currentOrganizationId: id,
+              selectedOrganization: organization,
+            };
+          },
+          false,
+          "setCurrentOrganizationId"
+        ),
 
       setLoading: (loading: boolean) => set({ isLoading: loading }, false, "setLoading"),
 

@@ -42,7 +42,7 @@ import {
 import { User, InviteStatus } from "@/core";
 import { useUser, useInvitesByEmail } from "@/hooks";
 import { ModeToggle } from "../ui/mode-toggle";
-import { useOrganizations, useSelectedOrganization, useOrganizationActions } from "@/stores";
+import { useOrganizations, useSelectedOrganization, useOrganizationActions, useCurrentOrganizationId } from "@/stores";
 import { CreateOrganizationModal } from "@/components/organization/CreateOrganizationModal";
 import { InvitationNotifications } from "@/components/invitation/InvitationNotifications";
 import { useEffect } from "react";
@@ -227,15 +227,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUser(userId as string);
   const organizations = useOrganizations();
   const selectedOrganization = useSelectedOrganization();
+  const currentOrganizationId = useCurrentOrganizationId();
   const { setSelectedOrganization, setCurrentOrganizationId } = useOrganizationActions();
   const [showCreateModal, setShowCreateModal] = React.useState(false);
 
-  // Set default selected organization if none is selected and organizations are available
+  // Sync selectedOrganization with currentOrganizationId when organizations are updated
   useEffect(() => {
-    if (!selectedOrganization && organizations.length > 0) {
+    if (currentOrganizationId && organizations.length > 0) {
+      const org = organizations.find((o) => o.id === currentOrganizationId);
+      if (org && org.id !== selectedOrganization?.id) {
+        setSelectedOrganization(org);
+      }
+    } else if (!selectedOrganization && organizations.length > 0) {
+      // Set default selected organization if none is selected and organizations are available
       setSelectedOrganization(organizations[0]);
     }
-  }, [selectedOrganization, organizations, setSelectedOrganization]);
+  }, [currentOrganizationId, selectedOrganization, organizations, setSelectedOrganization]);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

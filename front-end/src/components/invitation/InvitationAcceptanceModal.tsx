@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,6 +21,7 @@ import { ImageUpload } from "@/components/ui/image-upload";
 import { Invite } from "@/core";
 import { useAcceptOrganizationInvite } from "@/hooks/service-hooks/invite/use-accept-invite";
 import { useMemberImageUpload } from "@/hooks/service-hooks/media/use-member-image-upload";
+import { useOrganizationActions } from "@/stores/organization-store";
 import { Building, User, AlertCircle, Loader2 } from "lucide-react";
 
 const acceptanceFormSchema = z.object({
@@ -47,6 +48,7 @@ export function InvitationAcceptanceModal({
   const [error, setError] = useState<string | null>(null);
   const acceptInviteMutation = useAcceptOrganizationInvite();
   const imageUpload = useMemberImageUpload();
+  const { setCurrentOrganizationId } = useOrganizationActions();
 
   const {
     register,
@@ -76,14 +78,14 @@ export function InvitationAcceptanceModal({
   };
 
   // Update image field when upload completes
-  React.useEffect(() => {
+  useEffect(() => {
     if (imageUpload.isComplete && imageUpload.url) {
       setValue("image", imageUpload.url);
     }
   }, [imageUpload.isComplete, imageUpload.url, setValue]);
 
   // Set error when upload fails
-  React.useEffect(() => {
+  useEffect(() => {
     if (imageUpload.error) {
       setError(imageUpload.error.message || "Failed to upload image");
     }
@@ -100,6 +102,9 @@ export function InvitationAcceptanceModal({
         description: data.description,
         image: data.image,
       });
+      
+      // Set the accepted organization as the current organization
+      setCurrentOrganizationId(invitation.organizationId);
       
       reset();
       onSuccess();
