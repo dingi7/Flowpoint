@@ -7,8 +7,10 @@ interface UseMemberFormProps {
   onSubmit: (data: MemberData) => void | Promise<void>;
 }
 
+import { z } from "zod";
+
 export function useMemberForm({ member, onSubmit }: UseMemberFormProps) {
-  const form = useForm<MemberData>({
+  const form = useForm<z.input<typeof memberDataSchema>>({
     resolver: zodResolver(memberDataSchema),
     defaultValues: {
       organizationId: member?.organizationId || "",
@@ -17,6 +19,7 @@ export function useMemberForm({ member, onSubmit }: UseMemberFormProps) {
       image: member?.image,
       description: member?.description,
       localisation: member?.localisation,
+      status: member?.status || "active",
     },
     mode: "onChange",
   });
