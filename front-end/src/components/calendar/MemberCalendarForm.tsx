@@ -13,7 +13,7 @@ import { Plus, Trash2 } from "lucide-react";
 
 interface MemberCalendarFormProps {
   calendar?: CalendarType;
-  onSubmit: (data: any) => void | Promise<void>;
+  onSubmit: (data: CalendarData) => void | Promise<void>;
   onCancel?: () => void;
   isLoading?: boolean;
 }
@@ -41,21 +41,36 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
 
   // Initialize form with existing calendar data
   useEffect(() => {
+    // Default structure with all days
+    const defaultHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
+      [DAY_OF_WEEK.MONDAY]: [],
+      [DAY_OF_WEEK.TUESDAY]: [],
+      [DAY_OF_WEEK.WEDNESDAY]: [],
+      [DAY_OF_WEEK.THURSDAY]: [],
+      [DAY_OF_WEEK.FRIDAY]: [],
+      [DAY_OF_WEEK.SATURDAY]: [],
+      [DAY_OF_WEEK.SUNDAY]: [],
+    };
+
     if (calendar) {
-      setWorkingHours(calendar.workingHours as Record<DAY_OF_WEEK, WorkingHoursSlot[]>);
+      // Merge existing workingHours with default to ensure all days are present
+      const mergedHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
+        ...defaultHours,
+        ...(calendar.workingHours || {}),
+      };
+      setWorkingHours(mergedHours);
       setBufferTime(calendar.bufferTime);
     } else {
       // Set default working hours (Monday-Friday, 9-17)
-      const defaultHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
+      const defaultWorkingHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
+        ...defaultHours,
         [DAY_OF_WEEK.MONDAY]: [{ start: "09:00", end: "17:00" }],
         [DAY_OF_WEEK.TUESDAY]: [{ start: "09:00", end: "17:00" }],
         [DAY_OF_WEEK.WEDNESDAY]: [{ start: "09:00", end: "17:00" }],
         [DAY_OF_WEEK.THURSDAY]: [{ start: "09:00", end: "17:00" }],
         [DAY_OF_WEEK.FRIDAY]: [{ start: "09:00", end: "17:00" }],
-        [DAY_OF_WEEK.SATURDAY]: [],
-        [DAY_OF_WEEK.SUNDAY]: [],
       };
-      setWorkingHours(defaultHours);
+      setWorkingHours(defaultWorkingHours);
     }
   }, [calendar]);
 
@@ -87,11 +102,13 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
     if (!currentUserId || !organizationId) return;
 
     try {
-      // Convert working hours to UTC
+      // Convert working hours to UTC - ensure all days are included
       const utcWorkingHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {} as Record<DAY_OF_WEEK, WorkingHoursSlot[]>;
       
-      Object.entries(workingHours).forEach(([day, slots]) => {
-        utcWorkingHours[day as DAY_OF_WEEK] = slots.map(slot => ({
+      // Iterate over all days to ensure they're all included in the update
+      Object.values(DAY_OF_WEEK).forEach((day) => {
+        const slots = workingHours[day] || [];
+        utcWorkingHours[day] = slots.map(slot => ({
           start: convertLocalTimeStringToUtc(slot.start),
           end: convertLocalTimeStringToUtc(slot.end)
         }));
