@@ -42,7 +42,7 @@ export default function DashboardPage() {
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   
   // Fetch dashboard data using existing hooks
-  const customersQuery = useCustomers({ pagination: { limit: 1 } });
+  const customersQuery = useCustomers({ pagination: { limit: 1000 } });
   const servicesQuery = useServices({ pagination: { limit: 1000 } });
   const todayAppointmentsQuery = useGetAppointmentsByDate(new Date());
 
