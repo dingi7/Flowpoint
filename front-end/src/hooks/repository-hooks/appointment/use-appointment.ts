@@ -93,14 +93,14 @@ export function useGetAllAppointments() {
  */
 export function useGetAppointmentsByDate(date: Date) {
   const organizationId = useCurrentOrganizationId();
-  
+
   const year = date.getFullYear();
   const month = date.getMonth();
   const day = date.getDate();
   const normalizedDate = new Date(year, month, day, 12, 0, 0, 0);
-  
+
   const { startOfDay, endOfDay } = getDateRangeForQuery(normalizedDate);
-  
+
   const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
   return useQuery({
@@ -141,9 +141,9 @@ export function useGetAppointmentsByAssigneeAndDate(assigneeId: string, date: Da
   const month = date.getMonth();
   const day = date.getDate();
   const normalizedDate = new Date(year, month, day, 12, 0, 0, 0);
-  
+
   const { startOfDay, endOfDay } = getDateRangeForQuery(normalizedDate);
-  
+
   const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
   return useQuery({
@@ -185,9 +185,9 @@ export function useGetAppointmentsByCustomer(customerId: string) {
 }
 
 /**
- * Hook to search appointments by title
- * Uses Firestore prefix matching for efficient queries
- * @param searchQuery - The search query string (searches by title)
+ * Hook to search appointments by title, description, or customer name/email
+ * Uses Firestore prefix matching and client-side filtering for comprehensive search
+ * @param searchQuery - The search query string
  * @param limit - Maximum number of results to return (default: 20)
  */
 export function useSearchAppointments(searchQuery: string, limit: number = 20) {
@@ -201,8 +201,12 @@ export function useSearchAppointments(searchQuery: string, limit: number = 20) {
         return [];
       }
 
-      // Use Firestore prefix matching for title field
-      const results = await appointmentRepository.getAll({
+      const customerRepository = repositoryHost.getCustomerRepository(databaseService);
+      const allResults: Set<string> = new Set(); // Track appointment IDs to avoid duplicates
+      const appointmentResults: any[] = [];
+
+      // 1. Search by appointment title
+      const titleResults = await appointmentRepository.getAll({
         organizationId: organizationId,
         queryConstraints: [
           { field: "title", operator: ">=", value: trimmedQuery },
@@ -212,12 +216,69 @@ export function useSearchAppointments(searchQuery: string, limit: number = 20) {
         orderBy: { field: "title", direction: "asc" },
       });
 
-      // Client-side filtering for more flexible matching
-      return results.filter((appointment) => {
+      // Add title matches with client-side filtering for description too
+      titleResults.forEach((appointment) => {
         const titleMatch = appointment.title.toLowerCase().includes(trimmedQuery);
         const descriptionMatch = appointment.description?.toLowerCase().includes(trimmedQuery);
-        return titleMatch || descriptionMatch;
+        if ((titleMatch || descriptionMatch) && !allResults.has(appointment.id)) {
+          allResults.add(appointment.id);
+          appointmentResults.push(appointment);
+        }
       });
+
+      // 2. Search by customer name
+      const customersByName = await customerRepository.getAll({
+        organizationId: organizationId,
+        queryConstraints: [
+          { field: "name", operator: ">=", value: trimmedQuery },
+          { field: "name", operator: "<=", value: trimmedQuery + "\uf8ff" },
+        ],
+        pagination: { limit: 10 },
+      });
+
+      // 3. Search by customer email
+      const customersByEmail = await customerRepository.getAll({
+        organizationId: organizationId,
+        queryConstraints: [
+          { field: "email", operator: ">=", value: trimmedQuery },
+          { field: "email", operator: "<=", value: trimmedQuery + "\uf8ff" },
+        ],
+        pagination: { limit: 10 },
+      });
+
+      // Combine and deduplicate customers
+      const allCustomers = new Map();
+      [...customersByName, ...customersByEmail].forEach(customer => {
+        if (customer.name.toLowerCase().includes(trimmedQuery) ||
+          customer.email.toLowerCase().includes(trimmedQuery)) {
+          allCustomers.set(customer.id, customer);
+        }
+      });
+
+      // 4. Fetch appointments for matching customers
+      const customerIds = Array.from(allCustomers.keys());
+      for (const customerId of customerIds) {
+        const customerAppointments = await appointmentRepository.getAll({
+          organizationId: organizationId,
+          queryConstraints: [
+            { field: "customerId", operator: "==", value: customerId }
+          ],
+          pagination: { limit: 5 }, // Limit per customer to avoid too many results
+          orderBy: { field: "startTime", direction: "desc" },
+        });
+
+        customerAppointments.forEach((appointment) => {
+          if (!allResults.has(appointment.id)) {
+            allResults.add(appointment.id);
+            appointmentResults.push(appointment);
+          }
+        });
+      }
+
+      // Return limited results, sorted by start time (most recent first)
+      return appointmentResults
+        .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
+        .slice(0, limit);
     },
     enabled: !!organizationId && trimmedQuery.length >= 2,
   });
