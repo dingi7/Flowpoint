@@ -1,16 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown, Plus, Trash2, Globe } from "lucide-react";
 import { useState } from "react";
 
 type Locale = Record<string, string>;
@@ -46,7 +58,8 @@ export function LocaleEditor({
   onChange,
   disabled = false,
 }: LocaleEditorProps) {
-  const [newLocaleCode, setNewLocaleCode] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(undefined);
 
   const localisation = value || { name: {}, description: {} };
   const localeCodes = Array.from(
@@ -56,24 +69,27 @@ export function LocaleEditor({
     ])
   );
 
-  const handleAddLocale = () => {
-    if (!newLocaleCode.trim()) return;
+  const handleAddLocale = (localeCode: string) => {
+    if (!localeCode) return;
 
-    const localeCode = newLocaleCode.trim().toLowerCase();
-    if (localeCodes.includes(localeCode)) {
-      setNewLocaleCode("");
+    const code = localeCode.toLowerCase();
+    if (localeCodes.includes(code)) {
+      setOpen(false);
+      setAccordionValue(code);
       return;
     }
 
     const updated = {
-      name: { ...localisation.name, [localeCode]: "" },
-      description: { ...localisation.description, [localeCode]: "" },
+      name: { ...localisation.name, [code]: "" },
+      description: { ...localisation.description, [code]: "" },
     };
     onChange(updated);
-    setNewLocaleCode("");
+    setOpen(false);
+    setAccordionValue(code);
   };
 
-  const handleRemoveLocale = (localeCode: string) => {
+  const handleRemoveLocale = (localeCode: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     const updated = {
       name: { ...localisation.name },
       description: { ...localisation.description },
@@ -109,123 +125,126 @@ export function LocaleEditor({
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Translations</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Add Locale Section */}
-        <div className="flex gap-2">
-          <Select
-            value={newLocaleCode}
-            onValueChange={setNewLocaleCode}
-            disabled={disabled || availableLocales.length === 0}
-          >
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder="Select a locale to add" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableLocales.map((locale) => (
-                <SelectItem key={locale.code} value={locale.code}>
-                  {locale.name} ({locale.code})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            type="text"
-            placeholder="Or enter locale code (e.g., en, bg)"
-            value={newLocaleCode}
-            onChange={(e) => setNewLocaleCode(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddLocale();
-              }
-            }}
-            disabled={disabled}
-            className="flex-1"
-          />
-          <Button
-            type="button"
-            onClick={handleAddLocale}
-            disabled={disabled || !newLocaleCode.trim()}
-            size="icon"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label className="text-base font-medium flex items-center gap-2">
+          Translations
+        </Label>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-[200px] justify-between"
+              disabled={disabled}
+            >
+              Add Language
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0">
+            <Command>
+              <CommandInput placeholder="Search language..." />
+              <CommandList>
+                <CommandEmpty>No language found.</CommandEmpty>
+                <CommandGroup>
+                  {availableLocales.map((locale) => (
+                    <CommandItem
+                      key={locale.code}
+                      value={locale.name}
+                      onSelect={() => handleAddLocale(locale.code)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          localeCodes.includes(locale.code)
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                      {locale.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {localeCodes.length === 0 ? (
+        <div className="text-sm text-muted-foreground text-center py-8 border rounded-lg border-dashed">
+          No translations added. Add a language to get started.
         </div>
+      ) : (
+        <Accordion
+          type="single"
+          collapsible
+          value={accordionValue}
+          onValueChange={setAccordionValue}
+          className="w-full border rounded-lg"
+        >
+          {localeCodes.map((localeCode) => {
+            const localeName = COMMON_LOCALES.find(
+              (l) => l.code === localeCode
+            )?.name || localeCode.toUpperCase();
 
-        {/* Locale List */}
-        {localeCodes.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No translations added. Add a locale to get started.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {localeCodes.map((localeCode) => {
-              const localeName = COMMON_LOCALES.find(
-                (l) => l.code === localeCode
-              )?.name || localeCode.toUpperCase();
-
-              return (
-                <Card key={localeCode} className="border">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base font-medium">
-                        {localeName} ({localeCode})
-                      </CardTitle>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveLocale(localeCode)}
-                        disabled={disabled}
-                        className="h-8 w-8"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor={`name-${localeCode}`}>Name</Label>
-                      <Input
-                        id={`name-${localeCode}`}
-                        value={localisation.name[localeCode] || ""}
-                        onChange={(e) =>
-                          handleNameChange(localeCode, e.target.value)
-                        }
-                        placeholder={`Enter name in ${localeName}`}
-                        disabled={disabled}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor={`description-${localeCode}`}>
-                        Description
-                      </Label>
-                      <Textarea
-                        id={`description-${localeCode}`}
-                        value={localisation.description[localeCode] || ""}
-                        onChange={(e) =>
-                          handleDescriptionChange(
-                            localeCode,
-                            e.target.value
-                          )
-                        }
-                        placeholder={`Enter description in ${localeName}`}
-                        disabled={disabled}
-                        rows={3}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            return (
+              <AccordionItem key={localeCode} value={localeCode} className="px-4 border-b last:border-0">
+                <AccordionTrigger className="hover:no-underline py-3 items-center [&>svg]:translate-y-0">
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <span className="font-medium">
+                      {localeName} <span className="text-muted-foreground font-normal text-sm ml-1">({localeCode})</span>
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleRemoveLocale(localeCode, e)}
+                      disabled={disabled}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-4 pt-1 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`name-${localeCode}`} className="text-xs text-muted-foreground uppercase">Name</Label>
+                    <Input
+                      id={`name-${localeCode}`}
+                      value={localisation.name[localeCode] || ""}
+                      onChange={(e) =>
+                        handleNameChange(localeCode, e.target.value)
+                      }
+                      placeholder={`Enter name in ${localeName}`}
+                      disabled={disabled}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`description-${localeCode}`} className="text-xs text-muted-foreground uppercase">Description</Label>
+                    <Textarea
+                      id={`description-${localeCode}`}
+                      value={localisation.description[localeCode] || ""}
+                      onChange={(e) =>
+                        handleDescriptionChange(
+                          localeCode,
+                          e.target.value
+                        )
+                      }
+                      placeholder={`Enter description in ${localeName}`}
+                      disabled={disabled}
+                      rows={3}
+                      className="resize-none"
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
+      )}
+    </div>
   );
 }
-

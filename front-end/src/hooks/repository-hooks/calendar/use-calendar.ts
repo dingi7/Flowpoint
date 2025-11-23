@@ -41,7 +41,7 @@ export function useCreateCalendar() {
       return calendarRepository.create(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["calendars", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["calendars"] });
     },
   });
 }
@@ -55,7 +55,7 @@ export function useUpdateCalendar() {
       return calendarRepository.update(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["calendars", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["calendars"] });
     },
   });
 }
@@ -69,7 +69,7 @@ export function useDeleteCalendar() {
       return calendarRepository.delete(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["calendars", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["calendars"] });
     },
   });
 }

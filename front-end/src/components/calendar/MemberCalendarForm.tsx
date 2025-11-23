@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Calendar as CalendarType, DAY_OF_WEEK, CalendarData, OWNER_TYPE } from "@/core";
 import { useCurrentUserId } from "@/stores/user-store";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { convertLocalTimeStringToUtc } from "@/utils/date-time";
+import { convertLocalTimeStringToUtc, convertUtcTimeToLocal } from "@/utils/date-time";
 import { Plus, Trash2 } from "lucide-react";
 
 interface MemberCalendarFormProps {
@@ -24,9 +24,11 @@ interface WorkingHoursSlot {
 }
 
 export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = false }: MemberCalendarFormProps) {
+  console.log(calendar);
+
   const currentUserId = useCurrentUserId();
   const organizationId = useCurrentOrganizationId();
-  
+
   const [workingHours, setWorkingHours] = useState<Record<DAY_OF_WEEK, WorkingHoursSlot[]>>({
     [DAY_OF_WEEK.MONDAY]: [],
     [DAY_OF_WEEK.TUESDAY]: [],
@@ -36,7 +38,7 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
     [DAY_OF_WEEK.SATURDAY]: [],
     [DAY_OF_WEEK.SUNDAY]: [],
   });
-  
+
   const [bufferTime, setBufferTime] = useState(0);
 
   // Initialize form with existing calendar data
@@ -56,8 +58,20 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
       // Merge existing workingHours with default to ensure all days are present
       const mergedHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
         ...defaultHours,
-        ...(calendar.workingHours || {}),
       };
+
+      // Convert stored UTC times to local time for display in form
+      if (calendar.workingHours) {
+        Object.entries(calendar.workingHours).forEach(([day, slots]) => {
+          if (slots && slots.length > 0) {
+            mergedHours[day as DAY_OF_WEEK] = slots.map(slot => ({
+              start: convertUtcTimeToLocal(slot.start),
+              end: convertUtcTimeToLocal(slot.end)
+            }));
+          }
+        });
+      }
+
       setWorkingHours(mergedHours);
       setBufferTime(calendar.bufferTime);
     } else {
@@ -91,7 +105,7 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
   const updateWorkingHoursSlot = (day: DAY_OF_WEEK, index: number, field: 'start' | 'end', value: string) => {
     setWorkingHours(prev => ({
       ...prev,
-      [day]: prev[day].map((slot, i) => 
+      [day]: prev[day].map((slot, i) =>
         i === index ? { ...slot, [field]: value } : slot
       )
     }));
@@ -104,7 +118,7 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
     try {
       // Convert working hours to UTC - ensure all days are included
       const utcWorkingHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {} as Record<DAY_OF_WEEK, WorkingHoursSlot[]>;
-      
+
       // Iterate over all days to ensure they're all included in the update
       Object.values(DAY_OF_WEEK).forEach((day) => {
         const slots = workingHours[day] || [];
@@ -151,7 +165,7 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="bufferTime">Buffer Time (minutes)</Label>
               <Input
                 id="bufferTime"
@@ -172,7 +186,7 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
             <p className="text-sm text-muted-foreground">
               Times are displayed in your local timezone but stored as UTC
             </p>
-            
+
             {Object.values(DAY_OF_WEEK).map((day) => (
               <Card key={day}>
                 <CardHeader className="pb-3">
