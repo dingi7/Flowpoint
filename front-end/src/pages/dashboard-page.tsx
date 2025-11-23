@@ -195,41 +195,120 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="font-sans">Quick Actions</CardTitle>
-          <CardDescription>Common tasks to get you started</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button
-            className="w-full justify-start gap-3"
-            size="lg"
-            onClick={() => setIsBookAppointmentOpen(true)}
-          >
-            <Plus className="h-4 w-4" />
-            Schedule New Appointment
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-3 bg-transparent"
-            size="lg"
-            onClick={() => setIsAddCustomerOpen(true)}
-          >
-            <Users className="h-4 w-4" />
-            Add New Customer
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-3 bg-transparent"
-            size="lg"
-            onClick={() => navigate("/calendar")}
-          >
-            <Calendar className="h-4 w-4" />
-            View Today's Schedule
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Quick Actions and Most Popular Services */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-sans">Quick Actions</CardTitle>
+            <CardDescription>Common tasks to get you started</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button
+              className="w-full justify-start gap-3"
+              size="lg"
+              onClick={() => setIsBookAppointmentOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+              Schedule New Appointment
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 bg-transparent"
+              size="lg"
+              onClick={() => setIsAddCustomerOpen(true)}
+            >
+              <Users className="h-4 w-4" />
+              Add New Customer
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-3 bg-transparent"
+              size="lg"
+              onClick={() => navigate("/calendar")}
+            >
+              <Calendar className="h-4 w-4" />
+              View Today's Schedule
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Most Popular Services */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-sans">Most Popular Services</CardTitle>
+            <CardDescription>Top services by bookings and revenue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {allAppointmentsQuery.isPending || servicesQuery.isPending ? (
+              <>
+                <Skeleton className="h-16 w-full mb-3" />
+                <Skeleton className="h-16 w-full mb-3" />
+                <Skeleton className="h-16 w-full" />
+              </>
+            ) : (() => {
+              // Calculate service statistics from appointments
+              const serviceStats = new Map<string, { name: string; bookings: number; revenue: number }>();
+
+              // Get all services as a map for quick lookup
+              const servicesMap = new Map(
+                servicesQuery.data?.pages.flatMap(page => page).map(service => [service.id, service]) || []
+              );
+
+              // Aggregate data from appointments
+              allAppointmentsQuery.data?.forEach(appointment => {
+                const service = servicesMap.get(appointment.serviceId);
+                if (service) {
+                  const existing = serviceStats.get(appointment.serviceId) || {
+                    name: service.name,
+                    bookings: 0,
+                    revenue: 0,
+                  };
+
+                  serviceStats.set(appointment.serviceId, {
+                    name: existing.name,
+                    bookings: existing.bookings + 1,
+                    revenue: existing.revenue + (appointment.fee || 0),
+                  });
+                }
+              });
+
+              // Convert to array and sort by bookings (descending)
+              const topServices = Array.from(serviceStats.values())
+                .sort((a, b) => b.bookings - a.bookings)
+                .slice(0, 5);
+
+              return topServices.length > 0 ? (
+                <div className="space-y-3">
+                  {topServices.map((service, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{service.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {service.bookings} {service.bookings === 1 ? 'booking' : 'bookings'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-sm">
+                          ${formatPrice(service.revenue, true)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">revenue</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No service data available yet
+                </p>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Appointment Booking Dialog */}
       <Dialog
