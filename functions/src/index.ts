@@ -33,6 +33,7 @@ export { revokeApiKey } from "./functions/organization/revoke-api-key";
 
 // <-- Webhook Management -->
 export { createWebhookSubscription } from "./functions/api/webhooks/create-webhook-subscription";
+export { removeWebhookSubscription } from "./functions/api/webhooks/remove-webhook-subscription";
 export { onCustomerChange } from "./functions/webhooks/on-customer-change";
 export { onAppointmentChange } from "./functions/webhooks/on-appointment-change";
 export { onServiceChange } from "./functions/webhooks/on-service-change";

@@ -22,9 +22,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { WEBHOOK_EVENT_TYPE, WebhookSubscription } from "@/core";
-import { useCreateWebhookSubscription, useWebhookSubscriptions } from "@/hooks";
+import { useCreateWebhookSubscription, useRemoveWebhookSubscription, useWebhookSubscriptions } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { Webhook, Plus, Eye } from "lucide-react";
+import { Webhook, Plus, Eye, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -52,7 +62,9 @@ export function WebhooksTab() {
   const organizationId = useCurrentOrganizationId();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedWebhook, setSelectedWebhook] = useState<WebhookSubscription | null>(null);
+  const [webhookToDelete, setWebhookToDelete] = useState<WebhookSubscription | null>(null);
   const [callbackUrl, setCallbackUrl] = useState("");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   
@@ -68,6 +80,7 @@ export function WebhooksTab() {
   const webhookSubscriptions = webhookSubscriptionsData?.pages.flat() || [];
 
   const createWebhookSubscriptionMutation = useCreateWebhookSubscription();
+  const removeWebhookSubscriptionMutation = useRemoveWebhookSubscription();
 
   const handleCreateWebhookSubscription = async () => {
     console.log("handleCreateWebhookSubscription called", {
@@ -144,6 +157,32 @@ export function WebhooksTab() {
     setIsDetailsDialogOpen(true);
   };
 
+  const handleDeleteClick = (subscription: WebhookSubscription) => {
+    setWebhookToDelete(subscription);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!webhookToDelete || !organizationId) {
+      return;
+    }
+
+    try {
+      await removeWebhookSubscriptionMutation.mutateAsync({
+        organizationId,
+        subscriptionId: webhookToDelete.id,
+      });
+      toast.success("Webhook subscription removed successfully");
+      setIsDeleteDialogOpen(false);
+      setWebhookToDelete(null);
+    } catch (error) {
+      console.error("Failed to remove webhook subscription:", error);
+      toast.error(
+        `Failed to remove webhook subscription: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    }
+  };
+
   return (
     <>
       <Card>
@@ -212,14 +251,25 @@ export function WebhooksTab() {
                       })()}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleViewDetails(subscription)}
-                        title="View webhook details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleViewDetails(subscription)}
+                          title="View webhook details"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteClick(subscription)}
+                          title="Delete webhook subscription"
+                          disabled={removeWebhookSubscriptionMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -408,6 +458,43 @@ export function WebhooksTab() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Webhook Subscription Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Webhook Subscription</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this webhook subscription? This action cannot be undone.
+              {webhookToDelete && (
+                <div className="mt-2 p-2 bg-muted rounded-md">
+                  <p className="text-sm font-mono text-xs break-all">
+                    {webhookToDelete.callbackUrl}
+                  </p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setWebhookToDelete(null);
+              }}
+              disabled={removeWebhookSubscriptionMutation.isPending}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={removeWebhookSubscriptionMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {removeWebhookSubscriptionMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

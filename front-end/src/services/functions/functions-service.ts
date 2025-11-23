@@ -131,4 +131,16 @@ export const functionsService: FunctionsService = {
     )(payload);
     return result.data;
   },
+  async removeWebhookSubscription(payload) {
+    await httpsCallable<
+      {
+        organizationId: string;
+        subscriptionId: string;
+      },
+      void
+    >(
+      firebase.functions,
+      "removeWebhookSubscription",
+    )(payload);
+  },
 };

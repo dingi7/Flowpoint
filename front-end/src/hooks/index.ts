@@ -30,4 +30,5 @@ export * from "./service-hooks/member/use-delete-member";
 export * from "./service-hooks/organization/use-create-api-key";
 export * from "./service-hooks/organization/use-revoke-api-key";
 export * from "./service-hooks/organization/use-create-webhook-subscription";
+export * from "./service-hooks/organization/use-remove-webhook-subscription";
 

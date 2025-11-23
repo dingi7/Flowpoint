@@ -77,4 +77,8 @@ export interface FunctionsService {
   }): Promise<{
     webhookSubscription: WebhookSubscription;
   }>;
+  removeWebhookSubscription(payload: {
+    organizationId: string;
+    subscriptionId: string;
+  }): Promise<void>;
 }
