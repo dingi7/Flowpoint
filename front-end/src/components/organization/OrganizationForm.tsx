@@ -63,7 +63,7 @@ export function OrganizationForm({
     setValue("image", "");
     uploadState.setError(null);
   };
-  
+
   const handleUploadStart = () => {
     // Clear any previous errors when starting a new upload
     // The upload hook will handle clearing the current image
@@ -73,6 +73,14 @@ export function OrganizationForm({
   const [customerFields, setCustomerFields] = useState(
     organization?.settings?.customerFields || []
   );
+
+  // Update local state when organization changes
+  useEffect(() => {
+    if (organization) {
+      setCustomerFields(organization.settings?.customerFields || []);
+    }
+  }, [organization]);
+
 
   // Local state for working hours to ensure proper input control
   const [localStartTime, setLocalStartTime] = useState("09:00");

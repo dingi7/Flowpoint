@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Calendar as CalendarType, DAY_OF_WEEK, CalendarData, OWNER_TYPE } from "@/core";
 import { useCurrentUserId } from "@/stores/user-store";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { convertLocalTimeStringToUtc, convertUtcTimeToLocal } from "@/utils/date-time";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Clock, Copy } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MemberCalendarFormProps {
   calendar?: CalendarType;
@@ -24,8 +27,6 @@ interface WorkingHoursSlot {
 }
 
 export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = false }: MemberCalendarFormProps) {
-  console.log(calendar);
-
   const currentUserId = useCurrentUserId();
   const organizationId = useCurrentOrganizationId();
 
@@ -43,7 +44,6 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
 
   // Initialize form with existing calendar data
   useEffect(() => {
-    // Default structure with all days
     const defaultHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
       [DAY_OF_WEEK.MONDAY]: [],
       [DAY_OF_WEEK.TUESDAY]: [],
@@ -55,12 +55,8 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
     };
 
     if (calendar) {
-      // Merge existing workingHours with default to ensure all days are present
-      const mergedHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
-        ...defaultHours,
-      };
+      const mergedHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = { ...defaultHours };
 
-      // Convert stored UTC times to local time for display in form
       if (calendar.workingHours) {
         Object.entries(calendar.workingHours).forEach(([day, slots]) => {
           if (slots && slots.length > 0) {
@@ -75,7 +71,6 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
       setWorkingHours(mergedHours);
       setBufferTime(calendar.bufferTime);
     } else {
-      // Set default working hours (Monday-Friday, 9-17)
       const defaultWorkingHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {
         ...defaultHours,
         [DAY_OF_WEEK.MONDAY]: [{ start: "09:00", end: "17:00" }],
@@ -111,15 +106,43 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
     }));
   };
 
+  const toggleDay = (day: DAY_OF_WEEK, enabled: boolean) => {
+    if (enabled) {
+      if (workingHours[day].length === 0) {
+        addWorkingHoursSlot(day);
+      }
+    } else {
+      setWorkingHours(prev => ({
+        ...prev,
+        [day]: []
+      }));
+    }
+  };
+
+  const copyToAll = (sourceDay: DAY_OF_WEEK) => {
+    const sourceSlots = workingHours[sourceDay];
+    if (sourceSlots.length === 0) return;
+
+    setWorkingHours(prev => {
+      const newHours = { ...prev };
+      Object.values(DAY_OF_WEEK).forEach(day => {
+        if (day !== sourceDay) {
+          // Deep copy the slots to avoid reference issues
+          newHours[day] = sourceSlots.map(slot => ({ ...slot }));
+        }
+      });
+      return newHours;
+    });
+    toast.success(`Copied ${sourceDay.toLowerCase()} schedule to all days`);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUserId || !organizationId) return;
 
     try {
-      // Convert working hours to UTC - ensure all days are included
       const utcWorkingHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> = {} as Record<DAY_OF_WEEK, WorkingHoursSlot[]>;
 
-      // Iterate over all days to ensure they're all included in the update
       Object.values(DAY_OF_WEEK).forEach((day) => {
         const slots = workingHours[day] || [];
         utcWorkingHours[day] = slots.map(slot => ({
@@ -143,10 +166,154 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
     }
   };
 
+  const dayOrder = [
+    DAY_OF_WEEK.MONDAY,
+    DAY_OF_WEEK.TUESDAY,
+    DAY_OF_WEEK.WEDNESDAY,
+    DAY_OF_WEEK.THURSDAY,
+    DAY_OF_WEEK.FRIDAY,
+    DAY_OF_WEEK.SATURDAY,
+    DAY_OF_WEEK.SUNDAY,
+  ];
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Buffer Time Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center gap-2 pb-2 border-b">
+          <Clock className="h-5 w-5 text-muted-foreground" />
+          <h3 className="font-medium">General Settings</h3>
+        </div>
+        <div className="max-w-xs">
+          <Label htmlFor="bufferTime">Buffer Time (minutes)</Label>
+          <div className="mt-1.5">
+            <Input
+              id="bufferTime"
+              type="number"
+              min="0"
+              value={bufferTime}
+              onChange={(e) => setBufferTime(Number(e.target.value))}
+              disabled={isLoading}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Time gap between appointments
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Working Hours Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b">
+          <div className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-muted-foreground" />
+            <h3 className="font-medium">Weekly Hours</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Set your availability for each day
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          {dayOrder.map((day) => {
+            const isOpen = workingHours[day].length > 0;
+
+            return (
+              <div key={day} className="group flex flex-col sm:flex-row sm:items-start gap-4 p-4 border rounded-lg hover:border-primary/50 transition-colors bg-card">
+                <div className="w-32 flex-shrink-0 pt-2">
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={isOpen}
+                      onCheckedChange={(checked) => toggleDay(day, checked)}
+                      disabled={isLoading}
+                    />
+                    <span className="font-medium capitalize">{day.toLowerCase()}</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 space-y-3">
+                  {!isOpen ? (
+                    <div className="pt-2 text-sm text-muted-foreground italic">Unavailable</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {workingHours[day].map((slot, index) => (
+                        <div key={index} className="flex items-center gap-2 flex-wrap">
+                          <Input
+                            type="time"
+                            value={slot.start}
+                            onChange={(e) => updateWorkingHoursSlot(day, index, 'start', e.target.value)}
+                            disabled={isLoading}
+                            className="w-32"
+                          />
+                          <span className="text-muted-foreground">-</span>
+                          <Input
+                            type="time"
+                            value={slot.end}
+                            onChange={(e) => updateWorkingHoursSlot(day, index, 'end', e.target.value)}
+                            disabled={isLoading}
+                            className="w-32"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeWorkingHoursSlot(day, index)}
+                            disabled={isLoading}
+                            className="h-9 w-9 text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => addWorkingHoursSlot(day)}
+                        disabled={isLoading}
+                        className="text-xs h-8"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Interval
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {isOpen && (
+                  <div className="pt-2 sm:pt-0">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => copyToAll(day)}
+                            disabled={isLoading}
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Copy to all days</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Action Buttons */}
+      <div className="flex items-center justify-end gap-3 pt-4">
+        {onCancel && (
           <Button
             type="button"
             variant="outline"
@@ -155,105 +322,16 @@ export function MemberCalendarForm({ calendar, onSubmit, onCancel, isLoading = f
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-          >
-            {isLoading ? "Saving..." : "Save Schedule"}
-          </Button>
-        </div>
-
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="bufferTime">Buffer Time (minutes)</Label>
-              <Input
-                id="bufferTime"
-                type="number"
-                min="0"
-                value={bufferTime}
-                onChange={(e) => setBufferTime(Number(e.target.value))}
-                disabled={isLoading}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Time between appointments in minutes
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className="font-medium">Working Hours by Day</h4>
-            <p className="text-sm text-muted-foreground">
-              Times are displayed in your local timezone but stored as UTC
-            </p>
-
-            {Object.values(DAY_OF_WEEK).map((day) => (
-              <Card key={day}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base capitalize flex items-center justify-between">
-                    {day}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addWorkingHoursSlot(day)}
-                      disabled={isLoading}
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add Hours
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {workingHours[day].length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No working hours set</p>
-                  ) : (
-                    workingHours[day].map((slot, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor={`${day}-${index}-start`} className="text-sm">
-                            Start:
-                          </Label>
-                          <Input
-                            id={`${day}-${index}-start`}
-                            type="time"
-                            value={slot.start}
-                            onChange={(e) => updateWorkingHoursSlot(day, index, 'start', e.target.value)}
-                            disabled={isLoading}
-                            className="w-32"
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor={`${day}-${index}-end`} className="text-sm">
-                            End:
-                          </Label>
-                          <Input
-                            id={`${day}-${index}-end`}
-                            type="time"
-                            value={slot.end}
-                            onChange={(e) => updateWorkingHoursSlot(day, index, 'end', e.target.value)}
-                            disabled={isLoading}
-                            className="w-32"
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removeWorkingHoursSlot(day, index)}
-                          disabled={isLoading}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+        )}
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="min-w-[120px]"
+        >
+          {isLoading ? "Saving..." : "Save Changes"}
+        </Button>
       </div>
     </form>
   );
 }
+

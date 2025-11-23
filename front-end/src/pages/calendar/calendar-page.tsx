@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarView } from "@/components/calendar/CalendarView";
-import { EditScheduleModal } from "@/components/calendar/EditScheduleModal";
+import { MemberCalendarForm } from "@/components/calendar/MemberCalendarForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,18 +9,13 @@ import { CalendarData, Calendar as CalendarType } from "@/core";
 import { useCalendars, useCreateCalendar, useUpdateCalendar } from "@/hooks/repository-hooks/calendar/use-calendar";
 import { useCurrentUserId } from "@/stores/user-store";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { Calendar as CalendarIcon, Clock, Plus, Edit } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { convertUtcTimeToLocal } from "@/utils/date-time";
-interface WorkingHoursSlot {
-  start: string;
-  end: string;
-}
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [isEditing, setIsEditing] = useState(false);
 
   const currentUserId = useCurrentUserId();
   const currentOrganizationId = useCurrentOrganizationId();
@@ -53,7 +48,6 @@ export default function CalendarPage() {
       });
 
       toast.success("Calendar updated successfully");
-      setIsEditing(false);
     } catch (error) {
       console.error("Failed to update calendar:", error);
       toast.error("Failed to update calendar");
@@ -68,7 +62,6 @@ export default function CalendarPage() {
       });
 
       toast.success("Calendar created successfully");
-      setIsEditing(false);
     } catch (error) {
       console.error("Failed to create calendar:", error);
       toast.error("Failed to create calendar");
@@ -96,25 +89,7 @@ export default function CalendarPage() {
             Manage your working schedule and view appointments
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setIsEditing(true)}
-            className="gap-2"
-            variant="default"
-          >
-            <Edit className="h-4 w-4" />
-            Edit Schedule
-          </Button>
-        </div>
       </div>
-
-      <EditScheduleModal
-        open={isEditing}
-        onOpenChange={setIsEditing}
-        calendar={userCalendar}
-        onSubmit={userCalendar ? handleUpdateCalendar : handleCreateCalendar}
-        isLoading={userCalendar ? updateCalendar.isPending : createCalendar.isPending}
-      />
 
       {/* Main Content */}
       <div className="space-y-6">
@@ -143,70 +118,11 @@ export default function CalendarPage() {
                 <CardTitle>Working Schedule</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {userCalendar ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <h3 className="font-medium mb-2">Working Days</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {Object.entries(userCalendar.workingHours || {}).map(
-                              ([day, hours]) => (
-                                <div
-                                  key={day}
-                                  className="flex items-center gap-2 p-2 border rounded-lg"
-                                >
-                                  <span className="font-medium capitalize">
-                                    {day}
-                                  </span>
-                                  {(hours).length > 0 ? (
-                                    <div className="text-sm text-muted-foreground">
-                                      {(hours).map(
-                                        (slot: WorkingHoursSlot, index: number) => (
-                                          <span key={index}>
-                                            {convertUtcTimeToLocal(slot.start)}-{convertUtcTimeToLocal(slot.end)}
-                                            {index <
-                                              (hours).length - 1 && ", "}
-                                          </span>
-                                        ),
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <span className="text-sm text-muted-foreground">
-                                      Off
-                                    </span>
-                                  )}
-                                </div>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="font-medium mb-2">Buffer Time</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {userCalendar.bufferTime || 0} minutes between
-                            appointments
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <CalendarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">
-                        No Calendar Found
-                      </h3>
-                      <p className="text-muted-foreground mb-4">
-                        You don't have a calendar set up yet. Create one to manage
-                        your working schedule.
-                      </p>
-                      <Button onClick={() => setIsEditing(true)} className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Create Calendar
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                <MemberCalendarForm
+                  calendar={userCalendar}
+                  onSubmit={userCalendar ? handleUpdateCalendar : handleCreateCalendar}
+                  isLoading={userCalendar ? updateCalendar.isPending : createCalendar.isPending}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -215,3 +131,4 @@ export default function CalendarPage() {
     </div>
   );
 }
+

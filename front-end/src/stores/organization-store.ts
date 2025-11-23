@@ -1,6 +1,6 @@
 import { Organization } from "@/core";
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 import { useMemo } from "react";
 
 interface OrganizationStore {
@@ -37,6 +37,7 @@ const initialState = {
 };
 
 export const useOrganizationStore = create<OrganizationStore>()(devtools(
+  persist(
     (set, get) => ({
       ...initialState,
 
@@ -138,9 +139,11 @@ export const useOrganizationStore = create<OrganizationStore>()(devtools(
       },
     }),
     {
-      name: "organization-store",
+      name: "organization-storage",
+      partialize: (state) => ({ currentOrganizationId: state.currentOrganizationId }),
     }
-  ));
+  )
+));
 
 // Selector hooks for better performance
 export const useOrganizations = () =>
