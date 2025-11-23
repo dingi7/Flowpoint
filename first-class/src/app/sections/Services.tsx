@@ -8,8 +8,10 @@ import { Button } from '@/app/components/ui/button';
 import { Service } from '@/core';
 import { useServices } from '@/hooks/repository-hooks/service/use-service';
 import { FadeInView } from '../components/FadeInView';
+import { useLocale } from '@/app/context/LocaleContext';
 
 export function Services() {
+    const { locale } = useLocale();
     // use the useServices hook
     const { data: services } = useServices({
         pagination: { limit: 50 },
@@ -35,6 +37,13 @@ export function Services() {
             setInitialService(service);
             openModal();
         }
+    };
+
+    const getServiceDescription = (service: Service) => {
+        if(service.localisation && service.localisation.description[locale]) {
+            return service.localisation.description[locale];
+        }
+        return service.description || '';
     };
 
     return (
@@ -86,7 +95,7 @@ export function Services() {
                                             {service.name}
                                         </h3>
                                         <p className='text-gray-400 mb-6 flex-grow'>
-                                            {service.description}
+                                            {getServiceDescription(service)}
                                         </p>
                                     </div>
                                     <div className='flex flex-col mt-auto'>

@@ -1,3 +1,5 @@
+import { AppointmentForm } from "@/components/appointment/AppointmentForm";
+import { CustomerForm } from "@/components/customer/CustomerForm";
 import { FirstTimeUserWelcome } from "@/components/onboarding/FirstTimeUserWelcome";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,8 +17,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { APPOINTMENT_STATUS } from "@/core";
+import { useCustomers, useGetAllAppointments, useServices } from "@/hooks";
 import { useOrganizations } from "@/stores";
+import { formatPrice } from "@/utils/price-format";
 import { useUser } from "@clerk/clerk-react";
+import { format } from "date-fns";
 import {
   ArrowUpRight,
   Calendar,
@@ -26,13 +32,8 @@ import {
   Plus,
   Users,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useCustomers, useServices, useGetAppointmentsByDate } from "@/hooks";
-import { APPOINTMENT_STATUS } from "@/core";
-import { format } from "date-fns";
 import { useState } from "react";
-import { AppointmentForm } from "@/components/appointment/AppointmentForm";
-import { CustomerForm } from "@/components/customer/CustomerForm";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -40,11 +41,11 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [isBookAppointmentOpen, setIsBookAppointmentOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
-  
+
   // Fetch dashboard data using existing hooks
   const customersQuery = useCustomers({ pagination: { limit: 1000 } });
   const servicesQuery = useServices({ pagination: { limit: 1000 } });
-  const todayAppointmentsQuery = useGetAppointmentsByDate(new Date());
+  const allAppointmentsQuery = useGetAllAppointments();
 
   // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
@@ -107,7 +108,7 @@ export default function DashboardPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {todayAppointmentsQuery.isPending ? (
+            {allAppointmentsQuery.isPending ? (
               <>
                 <Skeleton className="h-8 w-16 mb-2" />
                 <Skeleton className="h-4 w-32" />
@@ -115,17 +116,17 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className="text-2xl font-bold">
-                  {todayAppointmentsQuery.data?.length || 0}
+                  {allAppointmentsQuery.data?.length || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {todayAppointmentsQuery.data?.filter(
-                    (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED
+                  {allAppointmentsQuery.data?.filter(
+                    (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED,
                   ).length || 0}{" "}
                   completed,{" "}
-                  {todayAppointmentsQuery.data?.filter(
+                  {allAppointmentsQuery.data?.filter(
                     (apt) =>
                       apt.status !== APPOINTMENT_STATUS.COMPLETED &&
-                      apt.status !== APPOINTMENT_STATUS.CANCELLED
+                      apt.status !== APPOINTMENT_STATUS.CANCELLED,
                   ).length || 0}{" "}
                   upcoming
                 </p>
@@ -134,16 +135,14 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Revenue This Month */}
+        {/* Total Revenue */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Revenue This Month
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {todayAppointmentsQuery.isPending ? (
+            {allAppointmentsQuery.isPending ? (
               <>
                 <Skeleton className="h-8 w-24 mb-2" />
                 <Skeleton className="h-4 w-32" />
@@ -152,20 +151,16 @@ export default function DashboardPage() {
               <>
                 <div className="text-2xl font-bold">
                   $
-                  {(
-                    todayAppointmentsQuery.data
-                      ?.filter(
-                        (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED
-                      )
-                      .reduce(
-                        (sum, apt) =>
-                          sum + (apt.fee || 0),
-                        0
-                      ) || 0
-                  ).toFixed(2)}
+                  {formatPrice(
+                    allAppointmentsQuery.data?.reduce(
+                      (sum, apt) => sum + (apt.fee || 0),
+                      0,
+                    ) || 0,
+                    true,
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  From completed appointments today
+                  From completed appointments
                 </p>
               </>
             )}
@@ -207,8 +202,8 @@ export default function DashboardPage() {
           <CardDescription>Common tasks to get you started</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button 
-            className="w-full justify-start gap-3" 
+          <Button
+            className="w-full justify-start gap-3"
             size="lg"
             onClick={() => setIsBookAppointmentOpen(true)}
           >
@@ -237,7 +232,10 @@ export default function DashboardPage() {
       </Card>
 
       {/* Appointment Booking Dialog */}
-      <Dialog open={isBookAppointmentOpen} onOpenChange={setIsBookAppointmentOpen}>
+      <Dialog
+        open={isBookAppointmentOpen}
+        onOpenChange={setIsBookAppointmentOpen}
+      >
         <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="text-xl font-semibold">
@@ -280,14 +278,14 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {todayAppointmentsQuery.isPending ? (
+            {allAppointmentsQuery.isPending ? (
               <>
                 <Skeleton className="h-20 w-full" />
                 <Skeleton className="h-20 w-full" />
                 <Skeleton className="h-20 w-full" />
               </>
-            ) : todayAppointmentsQuery.data?.length ? (
-              todayAppointmentsQuery.data?.map((appointment) => {
+            ) : allAppointmentsQuery.data?.length ? (
+              allAppointmentsQuery.data?.map((appointment) => {
                 const startTime = new Date(appointment.startTime);
                 const statusBadgeColor =
                   appointment.status === APPOINTMENT_STATUS.COMPLETED

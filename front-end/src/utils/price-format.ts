@@ -3,9 +3,9 @@
  * @param price - The price value in BGN (Bulgarian Lev)
  * @returns Formatted price string as "50lv/€25.56"
  */
-export function formatPrice(price: number): string {
+export function formatPrice(price: number, showZeroSum: boolean = false): string {
   if (price === 0) {
-    return "Free";
+    return !showZeroSum ? "Free" : "0.00";
   }
 
   // BGN to EUR conversion rate (fixed rate: 1 BGN = 0.51129 EUR, or 1 EUR = 1.95583 BGN)

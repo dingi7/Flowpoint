@@ -76,6 +76,16 @@ export function useDeleteAppointment() {
   });
 }
 
+export function useGetAllAppointments() {
+  const organizationId = useCurrentOrganizationId();
+  return useQuery({
+    queryKey: ["appointments", "all", organizationId],
+    queryFn: () =>
+      appointmentRepository.getAll({ organizationId: organizationId! }),
+    enabled: !!organizationId,
+  });
+}
+
 /**
  * Hook to get appointments for a specific date using query constraints
  * @param date - The date to query appointments for (will be normalized to local midnight)
