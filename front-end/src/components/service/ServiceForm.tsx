@@ -143,7 +143,7 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($) *</Label>
+              <Label htmlFor="price">Price (BGN) *</Label>
               <Input
                 id="price"
                 type="number"

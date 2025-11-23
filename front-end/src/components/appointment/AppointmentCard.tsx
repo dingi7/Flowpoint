@@ -1,6 +1,7 @@
 import { Appointment, APPOINTMENT_STATUS, ASSIGNEE_TYPE } from "@/core";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/utils/price-format";
 import { useCustomer, useService, useMembers, useGetOrganizationById } from "@/hooks";
 import { formatUtcDateTime } from "@/utils/date-time";
 import { 
@@ -171,15 +172,7 @@ export function AppointmentCard({ appointment, onClick }: AppointmentCardProps) 
                 {appointment.fee !== undefined && (
                     <div className="flex items-center gap-1 text-sm font-semibold text-foreground flex-shrink-0">
                         <span>
-                            {appointment.fee === 0 
-                                ? "Free" 
-                                : new Intl.NumberFormat(undefined, {
-                                    style: 'currency',
-                                    currency: organization?.currency || 'USD',
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 2,
-                                  }).format(appointment.fee)
-                            }
+                            {formatPrice(appointment.fee)}
                         </span>
                     </div>
                 )}

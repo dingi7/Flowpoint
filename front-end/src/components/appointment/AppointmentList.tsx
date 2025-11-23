@@ -31,7 +31,6 @@ import { useCurrentOrganizationId } from "@/stores/organization-store";
 import {
   CheckCircle,
   Clock,
-  DollarSign,
   Edit,
   Eye,
   MoreHorizontal,
@@ -45,6 +44,7 @@ import { AppointmentDetails } from "./AppointmentDetails";
 import { AppointmentForm } from "./AppointmentForm";
 import { AppointmentDeleteDialog } from "./AppointmentDeleteDialog";
 import { formatUtcDateTime } from "@/utils/date-time";
+import { formatPrice } from "@/utils/price-format";
 
 
 interface AppointmentListProps {
@@ -345,8 +345,7 @@ export function AppointmentList({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
-                        {appointment.fee === 0 ? "Free" : appointment.fee}
+                        {formatPrice(appointment.fee || 0)}
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(appointment.status)}</TableCell>

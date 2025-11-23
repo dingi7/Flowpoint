@@ -1,4 +1,5 @@
 import { EmailTemplateData } from "./email-utils";
+import { formatPrice } from "./price-format";
 
 /**
  * Available template variables for email templates
@@ -63,7 +64,7 @@ export function renderTemplate(
   rendered = rendered.replace(/\{\{duration\}\}/g, data.duration || "");
   rendered = rendered.replace(
     /\{\{fee\}\}/g,
-    data.fee !== undefined ? `$${data.fee.toFixed(2)}` : "",
+    data.fee !== undefined ? formatPrice(data.fee) : "",
   );
   rendered = rendered.replace(/\{\{organizationName\}\}/g, data.organizationName || "");
   rendered = rendered.replace(

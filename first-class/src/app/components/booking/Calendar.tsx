@@ -4,6 +4,7 @@ import { Link, Clock, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
 import { cn, formatTimeSlot, navigateMonth, generateCalendarDays, isDateInPast } from "@/lib/utils"
+import { formatPrice } from "@/utils/price-format"
 import { motion } from "framer-motion"
 import type { Barber } from "@/stores/types/booking-modal.types"
 import Image from "next/image"
@@ -137,7 +138,7 @@ export const Calendar = ({
                       <span className="font-medium">{service.name}</span>
                       <span className="text-sm opacity-90">{service.duration} {t('booking.minutes')}</span>
                     </div>
-                    <span className="text-sm font-medium">{service.price}lv.</span>
+                    <span className="text-sm font-medium">{formatPrice(service.price)}</span>
                   </Button>
                 ))}
               </div>

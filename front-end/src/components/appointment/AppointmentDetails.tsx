@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Appointment, APPOINTMENT_STATUS } from "@/core";
+import { formatPrice } from "@/utils/price-format";
 import { useCustomer, useService } from "@/hooks";
 import {
   Briefcase,
@@ -253,7 +254,7 @@ export function AppointmentDetails({
                 <div>
                   <p className="text-sm font-medium">Price</p>
                   <p className="text-sm text-muted-foreground">
-                    {serviceData.price === 0 ? "Free" : `$${serviceData.price}`}
+                    {formatPrice(serviceData.price)}
                   </p>
                 </div>
               </div>

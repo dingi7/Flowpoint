@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Customer, APPOINTMENT_STATUS } from "@/core";
+import { formatPrice } from "@/utils/price-format";
 import { useGetAppointmentsByCustomer, useServices } from "@/hooks";
 import { formatUtcDateTime } from "@/utils/date-time";
 import {
@@ -213,7 +214,7 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="font-medium">${amount.toFixed(2)}</p>
+                      <p className="font-medium">{formatPrice(amount)}</p>
                       <div className="mt-1">
                         {getStatusBadge(appointment.status)}
                       </div>

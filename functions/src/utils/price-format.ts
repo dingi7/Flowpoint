@@ -21,6 +21,6 @@ export function formatPrice(price: number): string {
   // Format EUR price (always 2 decimals)
   const eurFormatted = eurPrice.toFixed(2);
 
-  return `${bgnFormatted}лв. / ${eurFormatted}€`;
+  return `${bgnFormatted}lv/€${eurFormatted}`;
 }
 

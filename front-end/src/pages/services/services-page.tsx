@@ -23,6 +23,7 @@ import { ServiceList } from "@/components/service/ServiceList";
 import { DraggableServiceList } from "@/components/service/DraggableServiceList";
 import { ServiceDetails } from "@/components/service/ServiceDetails";
 import { Service } from "@/core";
+import { formatPrice } from "@/utils/price-format";
 import { Plus, Search, Filter, Settings, DollarSign, Users, Clock } from "lucide-react";
 import { useState } from "react";
 import { useServices, useDeleteService } from "@/hooks/repository-hooks/service/use-service";
@@ -184,7 +185,7 @@ export default function ServicesPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.avgPrice}</div>
+            <div className="text-2xl font-bold">{formatPrice(stats.avgPrice)}</div>
             <p className="text-xs text-muted-foreground">Per service</p>
           </CardContent>
         </Card>

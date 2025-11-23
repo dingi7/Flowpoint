@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { OWNER_TYPE, Service } from "@/core";
+import { formatPrice } from "@/utils/price-format";
 import { useUser } from "@/hooks";
 import {
   Building,
@@ -30,12 +31,6 @@ export function ServiceDetails({
   onDelete,
   onClose,
 }: ServiceDetailsProps) {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);

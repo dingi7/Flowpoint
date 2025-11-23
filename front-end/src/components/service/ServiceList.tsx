@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Service, OWNER_TYPE } from "@/core";
+import { formatPrice } from "@/utils/price-format";
 import { Edit, MoreHorizontal, Trash2, Eye, Clock, DollarSign } from "lucide-react";
 
 interface ServiceListProps {
@@ -104,12 +105,6 @@ export function ServiceList({
       return a.name.localeCompare(b.name);
     });
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
-  };
 
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
