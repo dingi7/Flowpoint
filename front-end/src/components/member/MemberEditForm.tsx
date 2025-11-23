@@ -4,6 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { LocaleEditor } from "@/components/ui/locale-editor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRoles } from "@/hooks";
 import { useMemberImageUpload } from "@/hooks/service-hooks/media/use-member-image-upload";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +26,7 @@ const memberEditFormSchema = z.object({
   roleIds: z.array(z.string()).min(1, "Please select at least one role"),
   description: z.string().optional(),
   image: z.string().optional(),
+  status: z.enum(["active", "inactive", "hidden"]),
   localisation: z
     .object({
       name: localeSchema,
@@ -61,6 +69,7 @@ export function MemberEditForm({
         roleIds: member.roleIds || [],
         description: member.description || "",
         image: member.image || "",
+        status: member.status || "active",
         localisation: member.localisation,
       },
       mode: "onChange",
@@ -69,6 +78,7 @@ export function MemberEditForm({
   const selectedRoleIds = watch("roleIds") || [];
   const currentImage = watch("image");
   const localisation = watch("localisation");
+  const status = watch("status");
 
   // Update form when image upload completes
   useEffect(() => {
@@ -130,6 +140,31 @@ export function MemberEditForm({
           </p>
         )}
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="status">Status</Label>
+        <Select
+          value={status}
+          onValueChange={(value) => setValue("status", value as "active" | "inactive" | "hidden")}
+          disabled={isLoading}
+        >
+          <SelectTrigger id="status">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="hidden">Hidden</SelectItem>
+          </SelectContent>
+        </Select>
+        {formState.errors.status && (
+          <p className="text-sm text-red-500">
+            {formState.errors.status.message}
+          </p>
+        )}
+      </div>
+
+      
 
       <ImageUpload
         label="Member Photo (Optional)"

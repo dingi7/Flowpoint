@@ -9,7 +9,7 @@ export const memberDataSchema = z.object({
   roleIds: z.array(z.string()),
   image: z.string().optional(),
   description: z.string().optional(),
-  status: z.enum(["active", "inactive"]).default("active"),
+  status: z.enum(["active", "inactive", "hidden"]).default("active"),
   localisation: z.object({
     description: localeSchema,
     name: localeSchema,

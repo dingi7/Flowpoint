@@ -7,6 +7,7 @@ import {
   UnsubscribeFn,
 } from "@/core";
 import { firebase } from "@/infrastructure";
+import { removeUndefined } from "@/utils/firestore";
 import {
   addDoc,
   arrayRemove,
@@ -234,8 +235,9 @@ export const databaseService: DatabaseService = {
    */
   async create<T>(collectionName: string, data: T): Promise<string> {
     const collectionReference = collection(firebase.firestore, collectionName);
+    const cleanedData = removeUndefined(data as Record<string, unknown>);
     const documentReference = await addDoc(collectionReference, {
-      ...data,
+      ...cleanedData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -256,9 +258,10 @@ export const databaseService: DatabaseService = {
    */
   async set<T>(collectionName: string, id: string, data: T): Promise<void> {
     const documentRef = doc(firebase.firestore, collectionName, id);
+    const cleanedData = removeUndefined(data as Record<string, unknown>);
 
     await setDoc(documentRef, {
-      ...data,
+      ...cleanedData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -277,9 +280,10 @@ export const databaseService: DatabaseService = {
    */
   async update<T>(collectionName: string, id: string, data: T): Promise<void> {
     const documentRef = doc(firebase.firestore, collectionName, id);
+    const cleanedData = removeUndefined(data as Record<string, unknown>);
 
     await updateDoc(documentRef, {
-      ...data,
+      ...cleanedData,
       updatedAt: serverTimestamp(),
     });
   },

@@ -8,6 +8,7 @@ import {
   PaginationOptions,
   QueryConstraint,
 } from "@/core";
+import { removeUndefined } from "@/utils/firestore";
 import DocumentData = firestore.DocumentData;
 import Timestamp = firestore.Timestamp;
 import DocumentSnapshot = firestore.DocumentSnapshot;
@@ -245,10 +246,11 @@ export const databaseService: DatabaseService = {
    * @return {Promise<string>} The id of the created document
    */
   async create<T>(collectionName: string, data: T): Promise<string> {
+    const cleanedData = removeUndefined(data as Record<string, unknown>);
     const response = await firestore()
       .collection(collectionName)
       .add({
-        ...data,
+        ...cleanedData,
         createdAt: firestore.FieldValue.serverTimestamp(),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
@@ -269,9 +271,10 @@ export const databaseService: DatabaseService = {
    */
   async set<T>(collectionName: string, id: string, data: T): Promise<void> {
     const documentRef = firestore().collection(collectionName).doc(id);
+    const cleanedData = removeUndefined(data as Record<string, unknown>);
 
     await documentRef.set({
-      ...data,
+      ...cleanedData,
       createdAt: firestore.FieldValue.serverTimestamp(),
       updatedAt: firestore.FieldValue.serverTimestamp(),
     });
@@ -291,9 +294,10 @@ export const databaseService: DatabaseService = {
   batchSet<T>(collectionName: string, id: string, data: T): BatchOperation {
     return (batch: FirebaseFirestore.WriteBatch) => {
       const documentRef = firestore().collection(collectionName).doc(id);
+      const cleanedData = removeUndefined(data as Record<string, unknown>);
 
       batch.set(documentRef, {
-        ...data,
+        ...cleanedData,
         createdAt: firestore.FieldValue.serverTimestamp(),
         updatedAt: firestore.FieldValue.serverTimestamp(),
       });
@@ -313,9 +317,10 @@ export const databaseService: DatabaseService = {
    */
   async update<T>(collectionName: string, id: string, data: T): Promise<void> {
     const documentRef = firestore().collection(collectionName).doc(id);
+    const cleanedData = removeUndefined(data as Record<string, unknown>);
 
     await documentRef.update({
-      ...data,
+      ...cleanedData,
       updatedAt: firestore.FieldValue.serverTimestamp(),
     });
   },

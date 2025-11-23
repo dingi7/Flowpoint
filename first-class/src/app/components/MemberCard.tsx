@@ -2,33 +2,43 @@ import { Scissors } from "lucide-react";
 import { FadeInView } from "./FadeInView";
 import { useTranslation } from "@/lib/useTranslation";
 import { Member } from "@/core";
-import Image from 'next/image';
+import Image from "next/image";
 import { useBookingModalStore } from "@/stores/booking-modal-store";
 import { Barber } from "@/stores/types/booking-modal.types";
 import { getLocalizedMemberValue } from "@/lib/member-localization";
 
-export function MemberCard({ member, index }: { member: Member, index: number }) {
-    const { t, locale } = useTranslation();
-    const { setInitialBarber, openModal } = useBookingModalStore();
+export function MemberCard({
+  member,
+  index,
+}: {
+  member: Member;
+  index: number;
+}) {
+  const { t, locale } = useTranslation();
+  const { setInitialBarber, openModal } = useBookingModalStore();
 
-    // Get localized name and description with fallback chain
-    const localizedName = getLocalizedMemberValue(member, "name", locale);
-    const localizedDescription = getLocalizedMemberValue(member, "description", locale);
+  // Get localized name and description with fallback chain
+  const localizedName = getLocalizedMemberValue(member, "name", locale);
+  const localizedDescription = getLocalizedMemberValue(
+    member,
+    "description",
+    locale
+  );
 
-    const handleBookNow = () => {
-        // Convert Member to Barber format
-        const barber: Barber = {
-            id: member.id,
-            name: localizedName,
-            image: member.image,
-            description: localizedDescription,
-            working: true, // Assume all members are working
-        };
-        
-        // Set the initial barber and open the modal
-        setInitialBarber(barber);
-        openModal();
+  const handleBookNow = () => {
+    // Convert Member to Barber format
+    const barber: Barber = {
+      id: member.id,
+      name: localizedName,
+      image: member.image,
+      description: localizedDescription,
+      working: true, // Assume all members are working
     };
+
+    // Set the initial barber and open the modal
+    setInitialBarber(barber);
+    openModal();
+  };
 
   return (
     <FadeInView key={member.id} delay={index * 0.2}>
@@ -48,16 +58,16 @@ export function MemberCard({ member, index }: { member: Member, index: number })
             {localizedName}
           </h3>
           <div className="flex justify-center space-x-4 mb-6">
-            <span>
-              {localizedDescription}
-            </span>
+            <span>{localizedDescription}</span>
           </div>
-          <button
-            onClick={handleBookNow}
-            className="cursor-pointer w-full bg-[#B5A48A] text-[#0A0A0A] py-2 font-semibold hover:bg-[#C8B79D] transition-colors duration-300"
-          >
-            {t("team.bookNow")}
-          </button>
+          {member.status === "active" && (
+            <button
+              onClick={handleBookNow}
+              className="cursor-pointer w-full bg-[#B5A48A] text-[#0A0A0A] py-2 font-semibold hover:bg-[#C8B79D] transition-colors duration-300"
+            >
+              {t("team.bookNow")}
+            </button>
+          )}
         </div>
       </div>
     </FadeInView>
