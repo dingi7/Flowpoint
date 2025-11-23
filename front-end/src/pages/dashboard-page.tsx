@@ -32,7 +32,7 @@ import {
   Plus,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
@@ -46,6 +46,43 @@ export default function DashboardPage() {
   const customersQuery = useCustomers({ pagination: { limit: 1000 } });
   const servicesQuery = useServices({ pagination: { limit: 1000 } });
   const allAppointmentsQuery = useGetAllAppointments();
+
+  // Calculate top services from completed appointments only
+  const topServices = useMemo(() => {
+    if (!allAppointmentsQuery.data || !servicesQuery.data) return [];
+
+    // Get all services as a map for quick lookup
+    const servicesMap = new Map(
+      servicesQuery.data.pages.flatMap(page => page).map(service => [service.id, service])
+    );
+
+    // Calculate service statistics from COMPLETED appointments only
+    const serviceStats = new Map<string, { name: string; bookings: number; revenue: number }>();
+
+    allAppointmentsQuery.data
+      .filter(appointment => appointment.status === APPOINTMENT_STATUS.COMPLETED)
+      .forEach(appointment => {
+        const service = servicesMap.get(appointment.serviceId);
+        if (service) {
+          const existing = serviceStats.get(appointment.serviceId) || {
+            name: service.name,
+            bookings: 0,
+            revenue: 0,
+          };
+
+          serviceStats.set(appointment.serviceId, {
+            name: existing.name,
+            bookings: existing.bookings + 1,
+            revenue: existing.revenue + (appointment.fee || 0),
+          });
+        }
+      });
+
+    // Convert to array and sort by bookings (descending), take top 5
+    return Array.from(serviceStats.values())
+      .sort((a, b) => b.bookings - a.bookings)
+      .slice(0, 5);
+  }, [allAppointmentsQuery.data, servicesQuery.data]);
 
   // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
@@ -99,11 +136,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Appointments Today */}
+        {/* Total Appointments */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Appointments Today
+              Total Appointments
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -246,66 +283,33 @@ export default function DashboardPage() {
                 <Skeleton className="h-16 w-full mb-3" />
                 <Skeleton className="h-16 w-full" />
               </>
-            ) : (() => {
-              // Calculate service statistics from appointments
-              const serviceStats = new Map<string, { name: string; bookings: number; revenue: number }>();
-
-              // Get all services as a map for quick lookup
-              const servicesMap = new Map(
-                servicesQuery.data?.pages.flatMap(page => page).map(service => [service.id, service]) || []
-              );
-
-              // Aggregate data from appointments
-              allAppointmentsQuery.data?.forEach(appointment => {
-                const service = servicesMap.get(appointment.serviceId);
-                if (service) {
-                  const existing = serviceStats.get(appointment.serviceId) || {
-                    name: service.name,
-                    bookings: 0,
-                    revenue: 0,
-                  };
-
-                  serviceStats.set(appointment.serviceId, {
-                    name: existing.name,
-                    bookings: existing.bookings + 1,
-                    revenue: existing.revenue + (appointment.fee || 0),
-                  });
-                }
-              });
-
-              // Convert to array and sort by bookings (descending)
-              const topServices = Array.from(serviceStats.values())
-                .sort((a, b) => b.bookings - a.bookings)
-                .slice(0, 5);
-
-              return topServices.length > 0 ? (
-                <div className="space-y-3">
-                  {topServices.map((service, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
-                    >
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{service.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {service.bookings} {service.bookings === 1 ? 'booking' : 'bookings'}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-sm">
-                          ${formatPrice(service.revenue, true)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">revenue</p>
-                      </div>
+            ) : topServices.length > 0 ? (
+              <div className="space-y-3">
+                {topServices.map((service, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{service.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {service.bookings} {service.bookings === 1 ? 'booking' : 'bookings'}
+                      </p>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  No service data available yet
-                </p>
-              );
-            })()}
+                    <div className="text-right">
+                      <p className="font-semibold text-sm">
+                        ${formatPrice(service.revenue, true)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">revenue</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No service data available yet
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -363,55 +367,68 @@ export default function DashboardPage() {
                 <Skeleton className="h-20 w-full" />
                 <Skeleton className="h-20 w-full" />
               </>
-            ) : allAppointmentsQuery.data?.length ? (
-              allAppointmentsQuery.data?.map((appointment) => {
-                const startTime = new Date(appointment.startTime);
-                const statusBadgeColor =
-                  appointment.status === APPOINTMENT_STATUS.COMPLETED
-                    ? "bg-accent text-accent-foreground"
-                    : appointment.status === APPOINTMENT_STATUS.CANCELLED
-                      ? "bg-destructive text-destructive-foreground"
-                      : "bg-yellow-100 text-yellow-800";
+            ) : (() => {
+              // Filter for today's appointments only
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const tomorrow = new Date(today);
+              tomorrow.setDate(tomorrow.getDate() + 1);
 
-                return (
-                  <div
-                    key={appointment.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex flex-col items-center">
-                        <span className="text-sm font-medium">
-                          {format(startTime, "h:mm")}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {format(startTime, "a")}
-                        </span>
+              const todaysAppointments = allAppointmentsQuery.data?.filter(appointment => {
+                const appointmentDate = new Date(appointment.startTime);
+                return appointmentDate >= today && appointmentDate < tomorrow;
+              }) || [];
+
+              return todaysAppointments.length ? (
+                todaysAppointments.map((appointment) => {
+                  const startTime = new Date(appointment.startTime);
+                  const statusBadgeColor =
+                    appointment.status === APPOINTMENT_STATUS.COMPLETED
+                      ? "bg-accent text-accent-foreground"
+                      : appointment.status === APPOINTMENT_STATUS.CANCELLED
+                        ? "bg-destructive text-destructive-foreground"
+                        : "bg-yellow-100 text-yellow-800";
+
+                  return (
+                    <div
+                      key={appointment.id}
+                      className="flex items-center justify-between p-4 border border-border rounded-lg"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-center">
+                          <span className="text-sm font-medium">
+                            {format(startTime, "h:mm")}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(startTime, "a")}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium">{appointment.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Duration: {appointment.duration} min
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{appointment.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Duration: {appointment.duration} min
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {appointment.duration} min
+                        </Badge>
+                        <Badge className={statusBadgeColor}>
+                          {appointment.status.charAt(0).toUpperCase() +
+                            appointment.status.slice(1)}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {appointment.duration} min
-                      </Badge>
-                      <Badge className={statusBadgeColor}>
-                        {appointment.status.charAt(0).toUpperCase() +
-                          appointment.status.slice(1)}
-                      </Badge>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No appointments scheduled for today
-              </p>
-            )}
+                  );
+                })
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No appointments scheduled for today
+                </p>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>
