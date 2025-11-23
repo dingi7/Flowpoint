@@ -91,6 +91,7 @@ export async function createMemberFn(
       name,
       image: image || "",
       description: description || "",
+      status: "active",
     },
   });
 

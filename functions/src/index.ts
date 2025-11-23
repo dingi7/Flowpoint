@@ -7,7 +7,8 @@ if (!getApps().length) {
   initializeApp();
 }
 
-export { onClerkWebhookEvent } from "./functions/clerk/on-clerk-event-webhook";
+export { onClerkWebhookEvent } from "./functions/clerk/on-clerk-event-webhook-dev";
+export { onClerkWebhookEventProd } from "./functions/clerk/on-clerk-event-webhook-prod";
 export { onClerkUserCreated } from "./functions/clerk/on-clerk-user-created";
 export { onClerkUserDeleted } from "./functions/clerk/on-clerk-user-deleted";
 

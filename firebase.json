@@ -21,33 +21,33 @@
       ]
     }
   ],
-  "hosting": [{
-    "site": "brogrammers-crm",
-    "public": "./front-end/dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
+  "hosting": [
+    {
+      "site": "brogrammers-crm",
+      "public": "./front-end/dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "site": "firstclass-barbershop",
+      "source": "first-class",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "frameworksBackend": {
+        "region": "europe-west1"
       }
-    ]
-  },{
-    "site": "firstclass-barbershop",
-    "public": "./first-class/dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }]
+    }
+  ]
 }
