@@ -11,12 +11,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd front-end
+          cd flowpoint
           npm ci
 
       - name: Build project
         run: |
-          cd front-end
+          cd flowpoint
           npm run build
 
       - uses: FirebaseExtended/action-hosting-deploy@v0

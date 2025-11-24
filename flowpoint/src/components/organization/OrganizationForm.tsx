@@ -363,7 +363,7 @@ export function OrganizationForm({
                       } else {
                         setValue(
                           "settings.workingDays",
-                          workingDays.filter((d) => d !== day),
+                          workingDays.filter((d: DAY_OF_WEEK) => d !== day),
                         );
                       }
                     }}
@@ -477,13 +477,13 @@ export function OrganizationForm({
                   onCheckedChange={(checked) => {
                     setValue("settings.smsNotifications", !!checked);
                   }}
-                  disabled={isLoading}
+                  disabled={true}
                 />
                 <Label
                   htmlFor="smsNotifications"
                   className="text-sm font-medium cursor-pointer"
                 >
-                  SMS Notifications
+                  SMS Notifications (Coming Soon)
                 </Label>
               </div>
               <p className="text-xs text-muted-foreground ml-6">

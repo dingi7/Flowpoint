@@ -194,7 +194,6 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className="text-2xl font-bold">
-                  $
                   {formatPrice(
                     allAppointmentsQuery.data?.reduce(
                       (sum, apt) => sum + (apt.fee || 0),

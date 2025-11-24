@@ -76,7 +76,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
         name: getLocalizedMemberValue(member, "name", locale),
         image: member.image,
         description: getLocalizedMemberValue(member, "description", locale),
-        working: true, // Assume all fetched members are working
+        working: member.status === "active", // Assume all fetched members are working
     }));
 
     // Fetch available timeslots when date and service are selected
