@@ -235,15 +235,15 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                     className={cn(
                         'bg-background',
                         step === 'success'
-                            ? 'w-[80%] md:w-fit h-fit'
+                            ? 'w-[90%] md:w-[600px] h-fit'
                             : step === 'userInfo'
-                            ? 'w-[90%] md:w-fit h-fit'
+                            ? 'w-[95%] md:w-[700px] h-fit'
                             : step === 'barber'
-                            ? ''
-                            : 'md:max-w-[90vw] lg:max-w-[70vw] lg:h-fit h-[85vh] ' +
+                            ? 'w-[90%] md:w-[800px]'
+                            : 'md:max-w-[95vw] lg:max-w-[90vw] lg:h-fit h-[85vh] ' +
                               (selectedDate && selectedService
-                                  ? 'lg:w-full'
-                                  : 'lg:w-[50vw]')
+                                  ? 'lg:w-[90vw]'
+                                  : 'lg:w-[70vw]')
                     )}
                 >
                     <DialogTitle className="sr-only">
