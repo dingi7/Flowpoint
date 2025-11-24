@@ -8,7 +8,7 @@ export default function Team() {
     const { data } = useMembers({
         pagination: { limit: 50 },
     });
-    const barbers = data?.pages.flatMap(page => page.filter(member => member.status !== "hidden")) || [];
+    const barbers = data?.pages.flatMap(page => page.filter(member => member.status !== "hidden")).sort((a, b) => a.name.localeCompare(b.name)) || [];
     const { t } = useTranslation();
 
     return (
