@@ -87,11 +87,11 @@ export function InvitationNotifications() {
 
   return (
     <>
-      <ScrollArea className="h-80">
+      <ScrollArea className="h-100">
         <div className="p-2 space-y-3">
           {/* Pending Invitations */}
           {pendingInvitations.length > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-2 px-3">
               <div className="flex items-center gap-2 text-xs font-medium text-foreground px-2">
                 <Mail className="h-4 w-4" />
                 Pending Invitations ({pendingInvitations.length})
