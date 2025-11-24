@@ -95,6 +95,8 @@ export function UserInfoForm({
                                 className='w-10 h-10 md:w-12 md:h-12 rounded-full object-cover'
                                 width={60}
                                 height={60}
+                                priority
+                                fetchPriority="high"
                             />
                             <div>
                                 <h3 className='font-medium'>

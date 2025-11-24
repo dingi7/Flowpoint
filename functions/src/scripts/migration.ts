@@ -209,7 +209,7 @@ function parseUsers(content: string): SQLUser[] {
 }
 
 async function main() {
-  const isDryRun = true; // Default to dry-run unless --live flag is present
+  const isDryRun = false; 
 
   console.log("Starting appointment migration...");
   console.log(`Mode: ${isDryRun ? "DRY RUN" : "LIVE"}`);

@@ -49,6 +49,10 @@ export function MemberCard({
             alt={localizedName}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 640px) 90vw, (max-width: 768px) 85vw, 28rem"
+            priority={index < 3}
+            loading={index < 3 ? undefined : "lazy"}
+            fetchPriority={index < 3 ? "high" : "auto"}
           />
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300" />
         </div>

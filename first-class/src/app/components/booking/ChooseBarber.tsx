@@ -50,6 +50,7 @@ export const ChooseBarber = ({ direction, barbers, handleBarberSelect }: ChooseB
                   fill
                   className="object-cover rounded-lg"
                   sizes="(max-width: 768px) 50vw, 33vw"
+                  loading="lazy"
                 />
               </div>
               <h3 className="font-semibold text-lg">{barber.name}</h3>
