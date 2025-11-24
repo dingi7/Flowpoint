@@ -18,7 +18,6 @@ import {
   OWNER_TYPE,
 } from "@/core";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
-import { useCurrentUserId } from "@/stores/user-store";
 import {
   convertLocalTimeStringToUtc,
   convertUtcTimeToLocal,
@@ -32,6 +31,7 @@ interface MemberCalendarFormProps {
   onSubmit: (data: CalendarData) => void | Promise<void>;
   onCancel?: () => void;
   isLoading?: boolean;
+  memberId: string;
 }
 
 interface WorkingHoursSlot {
@@ -44,8 +44,8 @@ export function MemberCalendarForm({
   onSubmit,
   onCancel,
   isLoading = false,
+  memberId,
 }: MemberCalendarFormProps) {
-  const currentUserId = useCurrentUserId();
   const organizationId = useCurrentOrganizationId();
 
   const [workingHours, setWorkingHours] = useState<
@@ -165,7 +165,7 @@ export function MemberCalendarForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUserId || !organizationId) return;
+    if (!memberId || !organizationId) return;
 
     try {
       const utcWorkingHours: Record<DAY_OF_WEEK, WorkingHoursSlot[]> =
@@ -181,8 +181,8 @@ export function MemberCalendarForm({
 
       const calendarData: CalendarData = {
         ownerType: OWNER_TYPE.MEMBER,
-        ownerId: currentUserId,
-        name: `${currentUserId}'s Calendar`,
+        ownerId: memberId,
+        name: `${memberId}'s Calendar`,
         workingHours: utcWorkingHours,
         bufferTime,
         timeZone: "UTC",

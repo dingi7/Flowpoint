@@ -62,7 +62,7 @@ const data = {
       icon: LayoutDashboard,
     },
     {
-      title: "My Calendar",
+      title: "Calendar",
       url: "/calendar",
       icon: Calendar,
     },

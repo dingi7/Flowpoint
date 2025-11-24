@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Appointment, APPOINTMENT_STATUS, TimeOff } from "@/core";
+import { Appointment, APPOINTMENT_STATUS, TimeOff, OWNER_TYPE } from "@/core";
 import {
   useGetAppointmentsByAssignee,
   useGetAppointmentsByAssigneeAndDate,
@@ -23,7 +23,6 @@ import {
   isToday as isTodayUtil,
   normalizeDateToNoon,
 } from "@/utils/date-time";
-import { useUser } from "@clerk/clerk-react";
 import { format, isWithinInterval, parseISO } from "date-fns";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { useState } from "react";
@@ -33,6 +32,7 @@ import { AppointmentDetails } from "../appointment/AppointmentDetails";
 interface CalendarViewProps {
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
+  memberId: string;
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -54,6 +54,7 @@ const MONTHS = [
 export function CalendarView({
   selectedDate,
   onDateSelect,
+  memberId,
 }: CalendarViewProps) {
   const [currentMonth, setCurrentMonth] = useState(selectedDate);
   const [selectedAppointment, setSelectedAppointment] =
@@ -63,15 +64,15 @@ export function CalendarView({
   const organizationId = useCurrentOrganizationId();
   const updateAppointment = useUpdateAppointment();
 
-  const { user } = useUser();
-
-  const { data: appointmentsData } = useGetAppointmentsByAssignee(
-    user?.id || "",
-  );
+  const { data: appointmentsData } = useGetAppointmentsByAssignee(memberId);
   const { data: selectedDateAppointmentsData } =
-    useGetAppointmentsByAssigneeAndDate(user?.id || "", selectedDate);
+    useGetAppointmentsByAssigneeAndDate(memberId, selectedDate);
   const { data: timeOffsData } = useTimeOffs({
     pagination: { limit: 1000 },
+    queryConstraints: [
+      { field: "ownerType", operator: "==", value: OWNER_TYPE.MEMBER },
+      { field: "ownerId", operator: "==", value: memberId },
+    ],
     orderBy: { field: "startAt", direction: "asc" },
   });
 
