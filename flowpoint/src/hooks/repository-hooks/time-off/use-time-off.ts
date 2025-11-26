@@ -45,7 +45,7 @@ export function useCreateTimeOff() {
       return timeOffRepository.create(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["timeOffs", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["timeOffs"] });
     },
   });
 }
@@ -59,7 +59,7 @@ export function useUpdateTimeOff() {
       return timeOffRepository.update(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["timeOffs", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["timeOffs"] });
     },
   });
 }
@@ -73,7 +73,7 @@ export function useDeleteTimeOff() {
       return timeOffRepository.delete(params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["timeOffs", "get"] });
+      queryClient.invalidateQueries({ queryKey: ["timeOffs"] });
     },
   });
 }

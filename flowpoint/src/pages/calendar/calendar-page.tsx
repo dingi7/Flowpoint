@@ -2,6 +2,8 @@
 
 import { CalendarView } from "@/components/calendar/CalendarView";
 import { MemberCalendarForm } from "@/components/calendar/MemberCalendarForm";
+import { TimeOffForm } from "@/components/calendar/TimeOffForm";
+import { TimeOffList } from "@/components/calendar/TimeOffList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -11,17 +13,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarData, Calendar as CalendarType } from "@/core";
+import { CalendarData, Calendar as CalendarType, TimeOffData } from "@/core";
 import {
   useCalendars,
   useCreateCalendar,
   useUpdateCalendar,
 } from "@/hooks/repository-hooks/calendar/use-calendar";
 import { useMembers } from "@/hooks/repository-hooks/member/use-member";
+import { useCreateTimeOff } from "@/hooks/repository-hooks/time-off/use-time-off";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { useCurrentUserId } from "@/stores/user-store";
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { Calendar as CalendarIcon, CalendarX, Clock } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export default function CalendarPage() {
@@ -35,6 +39,8 @@ export default function CalendarPage() {
   const { data: calendarsData, isLoading } = useCalendars();
   const createCalendar = useCreateCalendar();
   const updateCalendar = useUpdateCalendar();
+  const createTimeOff = useCreateTimeOff();
+  const { t } = useTranslation();
 
   // Fetch members for the select dropdown
   const { data: membersData } = useMembers({
@@ -86,10 +92,10 @@ export default function CalendarPage() {
         organizationId: currentOrganizationId!,
       });
 
-      toast.success("Calendar updated successfully");
+      toast.success(t("calendar.updatedSuccess"));
     } catch (error) {
       console.error("Failed to update calendar:", error);
-      toast.error("Failed to update calendar");
+      toast.error(t("calendar.updateError"));
     }
   };
 
@@ -100,10 +106,24 @@ export default function CalendarPage() {
         organizationId: currentOrganizationId!,
       });
 
-      toast.success("Calendar created successfully");
+      toast.success(t("calendar.createdSuccess"));
     } catch (error) {
       console.error("Failed to create calendar:", error);
-      toast.error("Failed to create calendar");
+      toast.error(t("calendar.createError"));
+    }
+  };
+
+  const handleCreateTimeOff = async (data: TimeOffData) => {
+    try {
+      await createTimeOff.mutateAsync({
+        data,
+        organizationId: currentOrganizationId!,
+      });
+
+      toast.success(t("calendar.timeOffAddedSuccess"));
+    } catch (error) {
+      console.error("Failed to create time off:", error);
+      toast.error(t("calendar.timeOffAddError"));
     }
   };
 
@@ -112,7 +132,7 @@ export default function CalendarPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading calendar...</p>
+          <p className="text-muted-foreground">{t("calendar.loading")}</p>
         </div>
       </div>
     );
@@ -124,29 +144,30 @@ export default function CalendarPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
-            Calendar
+            {t("calendar.title")}
           </h2>
-          <p className="text-muted-foreground">
-            Manage working schedule and view appointments
-          </p>
+          <p className="text-muted-foreground">{t("calendar.subtitle")}</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <label htmlFor="member-select" className="text-sm text-muted-foreground">
-              Member:
+            <label
+              htmlFor="member-select"
+              className="text-sm text-muted-foreground"
+            >
+              {t("calendar.member")}
             </label>
             <Select
               value={displayMemberId}
               onValueChange={(value) => setSelectedMemberId(value)}
             >
               <SelectTrigger id="member-select" className="w-[200px]">
-                <SelectValue placeholder="Select member" />
+                <SelectValue placeholder={t("calendar.selectMember")} />
               </SelectTrigger>
               <SelectContent>
                 {currentUserId && (
                   <SelectItem value={currentUserId}>
                     {members.find((m) => m.id === currentUserId)?.name ||
-                      "My Calendar"}
+                      t("calendar.myCalendar")}
                   </SelectItem>
                 )}
                 {members
@@ -168,14 +189,18 @@ export default function CalendarPage() {
           defaultValue="calendar"
           className="space-y-6 max-w-[100rem] mx-auto"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="calendar" className="gap-2">
               <CalendarIcon className="h-4 w-4" />
-              Calendar View
+              {t("calendar.calendarView")}
             </TabsTrigger>
             <TabsTrigger value="schedule" className="gap-2">
               <Clock className="h-4 w-4" />
-              Working Schedule
+              {t("calendar.workingSchedule")}
+            </TabsTrigger>
+            <TabsTrigger value="time-off" className="gap-2">
+              <CalendarX className="h-4 w-4" />
+              {t("calendar.timeOff")}
             </TabsTrigger>
           </TabsList>
 
@@ -191,7 +216,7 @@ export default function CalendarPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  Working Schedule
+                  {t("calendar.workingSchedule")}
                   {selectedMember && (
                     <span className="text-muted-foreground font-normal text-base ml-2">
                       - {selectedMember.name}
@@ -204,7 +229,9 @@ export default function CalendarPage() {
                   calendar={selectedMemberCalendar}
                   memberId={displayMemberId || ""}
                   onSubmit={
-                    selectedMemberCalendar ? handleUpdateCalendar : handleCreateCalendar
+                    selectedMemberCalendar
+                      ? handleUpdateCalendar
+                      : handleCreateCalendar
                   }
                   isLoading={
                     selectedMemberCalendar
@@ -214,6 +241,46 @@ export default function CalendarPage() {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="time-off" className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {t("calendar.addTimeOff")}
+                    {selectedMember && (
+                      <span className="text-muted-foreground font-normal text-base ml-2">
+                        - {selectedMember.name}
+                      </span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TimeOffForm
+                    memberId={displayMemberId || ""}
+                    onSubmit={handleCreateTimeOff}
+                    isLoading={createTimeOff.isPending}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {t("calendar.scheduledTimeOffs")}
+                    {selectedMember && (
+                      <span className="text-muted-foreground font-normal text-base ml-2">
+                        - {selectedMember.name}
+                      </span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TimeOffList memberId={displayMemberId || ""} />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

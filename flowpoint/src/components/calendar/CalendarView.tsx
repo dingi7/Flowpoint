@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Appointment, APPOINTMENT_STATUS, TimeOff, OWNER_TYPE } from "@/core";
+import { Appointment, APPOINTMENT_STATUS, OWNER_TYPE, TimeOff } from "@/core";
 import {
   useGetAppointmentsByAssignee,
   useGetAppointmentsByAssigneeAndDate,
@@ -23,7 +23,7 @@ import {
   isToday as isTodayUtil,
   normalizeDateToNoon,
 } from "@/utils/date-time";
-import { format, isWithinInterval, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { useState } from "react";
 import { AppointmentCard } from "../appointment/AppointmentCard";
@@ -75,7 +75,6 @@ export function CalendarView({
     ],
     orderBy: { field: "startAt", direction: "asc" },
   });
-
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
 
@@ -118,7 +117,10 @@ export function CalendarView({
   };
 
   const hasTimeOff = (day: number) => {
-    const date = new Date(year, month, day);
+    // Create date at start of day in local timezone
+    const date = new Date(year, month, day, 0, 0, 0, 0);
+    // Create date at end of day in local timezone
+    const dateEnd = new Date(year, month, day, 23, 59, 59, 999);
 
     return timeOffs.some((timeOff) => {
       if (!timeOff.startAt || !timeOff.endAt) return false;
@@ -126,8 +128,9 @@ export function CalendarView({
       const startDate = parseISO(timeOff.startAt);
       const endDate = parseISO(timeOff.endAt);
 
-      // Check if the day falls within the time off period
-      return isWithinInterval(date, { start: startDate, end: endDate });
+      // Check if the day overlaps with the time off period
+      // A day overlaps if: date <= endDate && dateEnd >= startDate
+      return date <= endDate && dateEnd >= startDate;
     });
   };
 
@@ -143,13 +146,34 @@ export function CalendarView({
   };
 
   const getSelectedDateTimeOff = () => {
+    // Normalize selected date to start and end of day
+    const selectedDateStart = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const selectedDateEnd = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+
     return timeOffs.find((timeOff) => {
       if (!timeOff.startAt || !timeOff.endAt) return false;
 
       const startDate = parseISO(timeOff.startAt);
       const endDate = parseISO(timeOff.endAt);
 
-      return isWithinInterval(selectedDate, { start: startDate, end: endDate });
+      // Check if the selected day overlaps with the time off period
+      return selectedDateStart <= endDate && selectedDateEnd >= startDate;
     });
   };
 

@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
 import { InvitationNotifications } from "@/components/invitation/InvitationNotifications";
@@ -127,9 +128,11 @@ function NavMain({ items }: { items: typeof data.navMain }) {
     );
   };
 
+  const { t } = useTranslation();
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("navigation.label")}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
@@ -158,9 +161,11 @@ function NotificationsDropdown() {
     (inv) => inv.status === InviteStatus.PENDING,
   ).length;
 
+  const { t } = useTranslation();
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Notifications</SidebarGroupLabel>
+      <SidebarGroupLabel>{t("notifications.label")}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -176,14 +181,16 @@ function NotificationsDropdown() {
                       </span>
                     )}
                   </div>
-                  <span>Invitations</span>
+                  <span>{t("notifications.invitations")}</span>
                 </SidebarMenuButton>
               </PopoverTrigger>
               <PopoverContent className="w-100 p-0" side="right" align="start">
                 <div className="p-4 border-b">
-                  <h4 className="font-semibold">Organization Invitations</h4>
+                  <h4 className="font-semibold">
+                    {t("notifications.orgInvitations")}
+                  </h4>
                   <p className="text-sm text-muted-foreground">
-                    Manage your organization invitations
+                    {t("notifications.manageInvitations")}
                   </p>
                 </div>
                 <InvitationNotifications />
@@ -237,6 +244,45 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setSelectedOrganization, setCurrentOrganizationId } =
     useOrganizationActions();
   const [showCreateModal, setShowCreateModal] = React.useState(false);
+  const { t } = useTranslation();
+
+  const navMain = [
+    {
+      title: t("navigation.dashboard"),
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: t("navigation.calendar"),
+      url: "/calendar",
+      icon: Calendar,
+    },
+    {
+      title: t("navigation.team"),
+      url: "/team",
+      icon: Users,
+    },
+    {
+      title: t("navigation.customers"),
+      url: "/customers",
+      icon: UserRound,
+    },
+    {
+      title: t("navigation.appointments"),
+      url: "/appointments",
+      icon: Calendar,
+    },
+    {
+      title: t("navigation.services"),
+      url: "/services",
+      icon: NotebookTabs,
+    },
+    {
+      title: t("navigation.organization"),
+      url: "/organization",
+      icon: Settings,
+    },
+  ];
 
   // Sync selectedOrganization with currentOrganizationId when organizations are updated
   useEffect(() => {
@@ -284,7 +330,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           {selectedOrganization?.name || "No Organization"}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          Organization
+                          {t("organization.label")}
                         </span>
                       </div>
                       <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -324,7 +370,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                               {org.name}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              Switch to this organization
+                              {t("organization.switch")}
                             </span>
                           </div>
                           {selectedOrganization?.id === org.id && (
@@ -342,10 +388,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className="font-medium text-sm text-foreground block truncate">
-                            Create Organization
+                            {t("organization.create")}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            Add a new organization
+                            {t("organization.add")}
                           </span>
                         </div>
                       </DropdownMenuItem>
@@ -361,10 +407,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className="font-medium text-base text-foreground block truncate">
-                          No Organization
+                          {t("organization.noOrganization")}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          Create one to get started
+                          {t("organization.createStart")}
                         </span>
                       </div>
                       <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -384,10 +430,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className="font-medium text-sm text-foreground block truncate">
-                            Create Organization
+                            {t("organization.create")}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            Add a new organization
+                            {t("organization.add")}
                           </span>
                         </div>
                       </DropdownMenuItem>
@@ -400,9 +446,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain
-          items={organizations.length > 0 ? data.navMain : [data.navMain[0]]}
-        />
+        <NavMain items={organizations.length > 0 ? navMain : [navMain[0]]} />
         {organizations.length > 0 && <NotificationsDropdown />}
       </SidebarContent>
       <SidebarFooter className="flex items-center justify-between flex-row">

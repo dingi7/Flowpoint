@@ -33,6 +33,7 @@ import {
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
@@ -41,6 +42,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [isBookAppointmentOpen, setIsBookAppointmentOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Fetch dashboard data using existing hooks
   const customersQuery = useCustomers({ pagination: { limit: 1000 } });
@@ -101,7 +103,7 @@ export default function DashboardPage() {
       {/* Welcome Section */}
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-foreground font-sans mb-2">
-          Welcome back
+          {t("dashboard.welcome")}
           {user?.firstName
             ? `, ${user.firstName}`
             : user?.lastName
@@ -109,9 +111,7 @@ export default function DashboardPage() {
               : ""}
           !
         </h2>
-        <p className="text-muted-foreground">
-          Here's what's happening with your business today.
-        </p>
+        <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
       </div>
 
       {/* Stats Cards */}
@@ -120,7 +120,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Customers
+              {t("dashboard.totalCustomers")}
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
                   {customersQuery.data?.pages[0]?.length || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Active customers in your organization
+                  {t("dashboard.activeCustomers")}
                 </p>
               </>
             )}
@@ -147,7 +147,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Appointments
+              {t("dashboard.totalAppointments")}
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -166,13 +166,13 @@ export default function DashboardPage() {
                   {allAppointmentsQuery.data?.filter(
                     (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED,
                   ).length || 0}{" "}
-                  completed,{" "}
+                  {t("dashboard.completed")},{" "}
                   {allAppointmentsQuery.data?.filter(
                     (apt) =>
                       apt.status !== APPOINTMENT_STATUS.COMPLETED &&
                       apt.status !== APPOINTMENT_STATUS.CANCELLED,
                   ).length || 0}{" "}
-                  upcoming
+                  {t("dashboard.upcoming")}
                 </p>
               </>
             )}
@@ -182,7 +182,9 @@ export default function DashboardPage() {
         {/* Total Revenue */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.totalRevenue")}
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -203,7 +205,7 @@ export default function DashboardPage() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  From completed appointments
+                  {t("dashboard.fromCompleted")}
                 </p>
               </>
             )}
@@ -214,7 +216,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Services
+              {t("dashboard.activeServices")}
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -230,7 +232,7 @@ export default function DashboardPage() {
                   {servicesQuery.data?.pages[0]?.length || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Services available for booking
+                  {t("dashboard.servicesAvailable")}
                 </p>
               </>
             )}
@@ -243,8 +245,12 @@ export default function DashboardPage() {
         {/* Quick Actions */}
         <Card>
           <CardHeader>
-            <CardTitle className="font-sans">Quick Actions</CardTitle>
-            <CardDescription>Common tasks to get you started</CardDescription>
+            <CardTitle className="font-sans">
+              {t("dashboard.quickActions")}
+            </CardTitle>
+            <CardDescription>
+              {t("dashboard.quickActionsSubtitle")}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button
@@ -253,7 +259,7 @@ export default function DashboardPage() {
               onClick={() => setIsBookAppointmentOpen(true)}
             >
               <Plus className="h-4 w-4" />
-              Schedule New Appointment
+              {t("dashboard.scheduleAppointment")}
             </Button>
             <Button
               variant="outline"
@@ -262,7 +268,7 @@ export default function DashboardPage() {
               onClick={() => setIsAddCustomerOpen(true)}
             >
               <Users className="h-4 w-4" />
-              Add New Customer
+              {t("dashboard.addCustomer")}
             </Button>
             <Button
               variant="outline"
@@ -271,7 +277,7 @@ export default function DashboardPage() {
               onClick={() => navigate("/calendar")}
             >
               <Calendar className="h-4 w-4" />
-              View Today's Schedule
+              {t("dashboard.viewSchedule")}
             </Button>
           </CardContent>
         </Card>
@@ -279,9 +285,11 @@ export default function DashboardPage() {
         {/* Most Popular Services */}
         <Card>
           <CardHeader>
-            <CardTitle className="font-sans">Most Popular Services</CardTitle>
+            <CardTitle className="font-sans">
+              {t("dashboard.popularServices")}
+            </CardTitle>
             <CardDescription>
-              Top services by bookings and revenue
+              {t("dashboard.popularServicesSubtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -302,21 +310,25 @@ export default function DashboardPage() {
                       <p className="font-medium text-sm">{service.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {service.bookings}{" "}
-                        {service.bookings === 1 ? "booking" : "bookings"}
+                        {service.bookings === 1
+                          ? t("dashboard.booking")
+                          : t("dashboard.bookings")}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-sm">
                         ${formatPrice(service.revenue, true)}
                       </p>
-                      <p className="text-xs text-muted-foreground">revenue</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("dashboard.revenue")}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-8">
-                No service data available yet
+                {t("dashboard.noServiceData")}
               </p>
             )}
           </CardContent>
@@ -331,7 +343,7 @@ export default function DashboardPage() {
         <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="text-xl font-semibold">
-              Book New Appointment
+              {t("dashboard.scheduleAppointment")}
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-hidden">
@@ -346,7 +358,7 @@ export default function DashboardPage() {
       <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
         <DialogContent className="sm:min-w-2xl">
           <DialogHeader>
-            <DialogTitle>Add New Customer</DialogTitle>
+            <DialogTitle>{t("dashboard.addCustomer")}</DialogTitle>
           </DialogHeader>
           <CustomerForm onSuccess={() => setIsAddCustomerOpen(false)} />
         </DialogContent>
@@ -356,15 +368,17 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="font-sans">Today's Appointments</CardTitle>
-            <CardDescription>Your schedule for today</CardDescription>
+            <CardTitle className="font-sans">
+              {t("dashboard.todaysAppointments")}
+            </CardTitle>
+            <CardDescription>{t("dashboard.todaysSchedule")}</CardDescription>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate("/calendar")}
           >
-            View Calendar
+            {t("dashboard.viewCalendar")}
             <ArrowUpRight className="h-4 w-4 ml-1" />
           </Button>
         </CardHeader>
@@ -419,14 +433,15 @@ export default function DashboardPage() {
                           <div>
                             <p className="font-medium">{appointment.title}</p>
                             <p className="text-sm text-muted-foreground">
-                              Duration: {appointment.duration} min
+                              {t("dashboard.duration")}: {appointment.duration}{" "}
+                              {t("dashboard.min")}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">
                             <Clock className="h-3 w-3 mr-1" />
-                            {appointment.duration} min
+                            {appointment.duration} {t("dashboard.min")}
                           </Badge>
                           <Badge className={statusBadgeColor}>
                             {appointment.status.charAt(0).toUpperCase() +
@@ -438,7 +453,7 @@ export default function DashboardPage() {
                   })
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-8">
-                    No appointments scheduled for today
+                    {t("dashboard.noAppointmentsToday")}
                   </p>
                 );
               })()

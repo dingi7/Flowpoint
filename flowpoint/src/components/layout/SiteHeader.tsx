@@ -1,10 +1,18 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Appointment, Customer } from "@/core";
 import { useSearchAppointments, useSearchCustomers } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { Calendar, Search, User } from "lucide-react";
+import { Calendar, Globe, Search, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Logo } from "../ui/logo";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -16,6 +24,11 @@ export function SiteHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   // Debounce search query
   useEffect(() => {
@@ -63,7 +76,7 @@ export function SiteHeader() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none z-10" />
                 <Input
                   ref={inputRef}
-                  placeholder="Search customers, appointments..."
+                  placeholder={t("search.placeholder")}
                   className="pl-10 bg-background"
                   value={searchQuery}
                   onChange={(e) => {
@@ -86,18 +99,18 @@ export function SiteHeader() {
               >
                 {isLoading ? (
                   <div className="p-4 text-center text-sm text-muted-foreground">
-                    Searching...
+                    {t("search.searching")}
                   </div>
                 ) : !hasResults ? (
                   <div className="p-4 text-center text-sm text-muted-foreground">
-                    No results found for "{debouncedQuery}"
+                    {t("search.noResults", { query: debouncedQuery })}
                   </div>
                 ) : (
                   <div className="max-h-[400px] overflow-y-auto">
                     {customers.length > 0 && (
                       <div className="p-2">
                         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                          Customers
+                          {t("search.customers")}
                         </div>
                         {customers.map((customer) => (
                           <div
@@ -126,7 +139,7 @@ export function SiteHeader() {
                           <div className="h-px bg-border mx-2 my-2" />
                         )}
                         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                          Appointments
+                          {t("search.appointments")}
                         </div>
                         {appointments.map((appointment) => (
                           <div
@@ -142,7 +155,8 @@ export function SiteHeader() {
                                 {appointment.title}
                               </div>
                               <div className="text-xs text-muted-foreground truncate">
-                                {appointment.description || "No description"}
+                                {appointment.description ||
+                                  t("search.noDescription")}
                               </div>
                             </div>
                           </div>
@@ -155,7 +169,23 @@ export function SiteHeader() {
             )}
           </Popover>
         </div>
-        <div className="flex items-center h-full pb-2">
+        <div className="flex items-center h-full pb-2 gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Globe className="h-4 w-4" />
+                <span className="sr-only">{t("common.language")}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => changeLanguage("en")}>
+                {t("common.english")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage("bg")}>
+                {t("common.bulgarian")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Logo className="object-contain" width={140} height={45} />
         </div>
       </div>

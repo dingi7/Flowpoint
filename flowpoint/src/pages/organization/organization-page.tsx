@@ -9,6 +9,7 @@ import { OrganizationData } from "@/core";
 import { useUpdateOrganization } from "@/hooks/repository-hooks/organization/use-organization";
 import { useOrganizationActions, useSelectedOrganization } from "@/stores";
 import { Building } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export default function OrganizationPage() {
@@ -16,6 +17,7 @@ export default function OrganizationPage() {
   const { updateOrganization: updateOrganizationStore } =
     useOrganizationActions();
   const updateOrganizationMutation = useUpdateOrganization();
+  const { t } = useTranslation();
 
   const handleUpdateOrganization = async (data: OrganizationData) => {
     if (!selectedOrganization) return;
@@ -29,10 +31,10 @@ export default function OrganizationPage() {
       // Update the organization store immediately for instant UI updates
       updateOrganizationStore(selectedOrganization.id, data);
 
-      toast.success("Organization updated successfully");
+      toast.success(t("organization.updatedSuccess"));
     } catch (error) {
       console.error("Failed to update organization:", error);
-      toast.error("Failed to update organization");
+      toast.error(t("organization.updateError"));
     }
   };
 
@@ -43,10 +45,10 @@ export default function OrganizationPage() {
           <div className="text-center">
             <Building className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">
-              No Organization Selected
+              {t("organization.noOrgTitle")}
             </h2>
             <p className="text-muted-foreground">
-              Please select an organization to view its information.
+              {t("organization.noOrgSubtitle")}
             </p>
           </div>
         </div>
@@ -60,11 +62,9 @@ export default function OrganizationPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
-            Organization Information
+            {t("organization.title")}
           </h2>
-          <p className="text-muted-foreground">
-            View and manage your organization details
-          </p>
+          <p className="text-muted-foreground">{t("organization.subtitle")}</p>
         </div>
       </div>
 
@@ -72,9 +72,13 @@ export default function OrganizationPage() {
       <div className="space-y-6">
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="templates">Email Templates</TabsTrigger>
-            <TabsTrigger value="api">API</TabsTrigger>
+            <TabsTrigger value="overview">
+              {t("organization.overview")}
+            </TabsTrigger>
+            <TabsTrigger value="templates">
+              {t("organization.templates")}
+            </TabsTrigger>
+            <TabsTrigger value="api">{t("organization.api")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">

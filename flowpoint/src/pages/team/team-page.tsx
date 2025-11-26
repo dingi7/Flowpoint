@@ -24,11 +24,13 @@ import {
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Mail, Plus, Search, Shield, UserCheck, Users } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
+  const { t } = useTranslation();
 
   const currentOrganizationId = useCurrentOrganizationId();
 
@@ -74,11 +76,9 @@ export default function TeamPage() {
       <div className="flex flex-col sm:flex sm:flex-row sm:items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
-            Team Management
+            {t("team.title")}
           </h2>
-          <p className="text-muted-foreground">
-            Manage your team members and roles
-          </p>
+          <p className="text-muted-foreground">{t("team.subtitle")}</p>
         </div>
 
         <div className="flex gap-2 mt-4 sm:mt-0">
@@ -86,12 +86,12 @@ export default function TeamPage() {
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <Plus className="h-4 w-4" />
-                Invite Member
+                {t("team.inviteMember")}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:min-w-2xl">
               <DialogHeader>
-                <DialogTitle>Invite New Member</DialogTitle>
+                <DialogTitle>{t("team.inviteNewMember")}</DialogTitle>
               </DialogHeader>
               <MemberForm
                 onSuccess={() => setIsAddMemberOpen(false)}
@@ -104,12 +104,12 @@ export default function TeamPage() {
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
-                Add Role
+                {t("team.addRole")}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:min-w-2xl">
               <DialogHeader>
-                <DialogTitle>Add New Role</DialogTitle>
+                <DialogTitle>{t("team.addNewRole")}</DialogTitle>
               </DialogHeader>
               <RoleForm
                 onSubmit={async (data) => {
@@ -131,39 +131,15 @@ export default function TeamPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("team.totalMembers")}
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalMembers}</div>
-            <p className="text-xs text-muted-foreground">Active team members</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Invites
-            </CardTitle>
-            <Mail className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingInvites}</div>
-            <p className="text-xs text-muted-foreground">Awaiting response</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Available Roles
-            </CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalRoles}</div>
             <p className="text-xs text-muted-foreground">
-              Defined roles in system
+              {t("team.activeMembers")}
             </p>
           </CardContent>
         </Card>
@@ -171,13 +147,45 @@ export default function TeamPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Accepted Invites
+              {t("team.pendingInvites")}
+            </CardTitle>
+            <Mail className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{pendingInvites}</div>
+            <p className="text-xs text-muted-foreground">
+              {t("team.awaitingResponse")}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("team.availableRoles")}
+            </CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalRoles}</div>
+            <p className="text-xs text-muted-foreground">
+              {t("team.definedRoles")}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("team.acceptedInvites")}
             </CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{acceptedInvites}</div>
-            <p className="text-xs text-muted-foreground">Successfully joined</p>
+            <p className="text-xs text-muted-foreground">
+              {t("team.successfullyJoined")}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -187,11 +195,11 @@ export default function TeamPage() {
         <TabsList>
           <TabsTrigger value="members" className="gap-2">
             <Users className="h-4 w-4" />
-            Members
+            {t("team.members")}
           </TabsTrigger>
           <TabsTrigger value="invites" className="gap-2">
             <Mail className="h-4 w-4" />
-            Invites
+            {t("team.invites")}
             {pendingInvites > 0 && (
               <span className="ml-1 px-1.5 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded-full">
                 {pendingInvites}
@@ -200,7 +208,7 @@ export default function TeamPage() {
           </TabsTrigger>
           <TabsTrigger value="roles" className="gap-2">
             <Shield className="h-4 w-4" />
-            Roles
+            {t("team.roles")}
           </TabsTrigger>
         </TabsList>
 
@@ -210,7 +218,7 @@ export default function TeamPage() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search members..."
+                placeholder={t("team.searchMembers")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -228,7 +236,7 @@ export default function TeamPage() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search invites..."
+                placeholder={t("team.searchInvites")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -246,7 +254,7 @@ export default function TeamPage() {
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search roles..."
+                placeholder={t("team.searchRoles")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"

@@ -32,16 +32,18 @@ import {
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function AppointmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [isBookAppointmentOpen, setIsBookAppointmentOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Fetch appointments data
   const { data: appointmentsData } = useAppointments({
-    pagination: { limit: 1000 },
+    pagination: { limit: 50 },
     orderBy: { field: "startTime", direction: "asc" },
   });
 
@@ -164,11 +166,9 @@ export default function AppointmentsPage() {
       <div className="flex sm:items-center justify-between mb-6 sm:flex-row flex-col">
         <div>
           <h2 className="text-2xl font-bold text-foreground font-sans">
-            Appointment Management
+            {t("appointments.title")}
           </h2>
-          <p className="text-muted-foreground">
-            Schedule and manage customer appointments
-          </p>
+          <p className="text-muted-foreground">{t("appointments.subtitle")}</p>
         </div>
         <div className="mt-4 sm:mt-0">
           <Dialog
@@ -178,13 +178,13 @@ export default function AppointmentsPage() {
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
-                Book Appointment
+                {t("appointments.book")}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
               <DialogHeader className="px-6 pt-6 pb-4">
                 <DialogTitle className="text-xl font-semibold">
-                  Book New Appointment
+                  {t("appointments.bookNew")}
                 </DialogTitle>
                 <Separator />
               </DialogHeader>
@@ -203,28 +203,15 @@ export default function AppointmentsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Today's Appointments
+              {t("appointments.todaysAppointments")}
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.today}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.todayCompleted} completed, {stats.todayUpcoming} upcoming
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.thisWeek}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.weekPercentageChange > 0 ? "+" : ""}
-              {stats.weekPercentageChange}% from last week
+              {stats.todayCompleted} {t("dashboard.completed")},{" "}
+              {stats.todayUpcoming} {t("dashboard.upcoming")}
             </p>
           </CardContent>
         </Card>
@@ -232,7 +219,23 @@ export default function AppointmentsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Pending Confirmation
+              {t("appointments.thisWeek")}
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.thisWeek}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.weekPercentageChange > 0 ? "+" : ""}
+              {stats.weekPercentageChange}% {t("appointments.fromLastWeek")}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("appointments.pendingConfirmation")}
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -240,8 +243,8 @@ export default function AppointmentsPage() {
             <div className="text-2xl font-bold">{stats.pending}</div>
             <p className="text-xs text-muted-foreground">
               {stats.overduePending > 0
-                ? `${stats.overduePending} overdue`
-                : "Require attention"}
+                ? `${stats.overduePending} ${t("appointments.overdue")}`
+                : t("appointments.requireAttention")}
             </p>
           </CardContent>
         </Card>
@@ -249,13 +252,15 @@ export default function AppointmentsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Completed
+              {t("appointments.totalCompleted")}
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.thisMonthCompleted}</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <p className="text-xs text-muted-foreground">
+              {t("appointments.thisMonth")}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -265,7 +270,7 @@ export default function AppointmentsPage() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search appointments by customer or service..."
+            placeholder={t("appointments.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -275,16 +280,20 @@ export default function AppointmentsPage() {
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-48">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder={t("appointments.filterByStatus")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Appointments</SelectItem>
-            <SelectItem value={APPOINTMENT_STATUS.PENDING}>Pending</SelectItem>
+            <SelectItem value="all">
+              {t("appointments.allAppointments")}
+            </SelectItem>
+            <SelectItem value={APPOINTMENT_STATUS.PENDING}>
+              {t("appointments.pending")}
+            </SelectItem>
             <SelectItem value={APPOINTMENT_STATUS.COMPLETED}>
-              Completed
+              {t("appointments.completed")}
             </SelectItem>
             <SelectItem value={APPOINTMENT_STATUS.CANCELLED}>
-              Cancelled
+              {t("appointments.cancelled")}
             </SelectItem>
           </SelectContent>
         </Select>
@@ -292,14 +301,16 @@ export default function AppointmentsPage() {
         <Select value={dateFilter} onValueChange={setDateFilter}>
           <SelectTrigger className="w-48">
             <Calendar className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filter by date" />
+            <SelectValue placeholder={t("appointments.filterByDate")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Time</SelectItem>
-            <SelectItem value="today">Today</SelectItem>
-            <SelectItem value="tomorrow">Tomorrow</SelectItem>
-            <SelectItem value="week">This Week</SelectItem>
-            <SelectItem value="month">This Month</SelectItem>
+            <SelectItem value="all">{t("appointments.allTime")}</SelectItem>
+            <SelectItem value="today">{t("appointments.today")}</SelectItem>
+            <SelectItem value="tomorrow">
+              {t("appointments.tomorrow")}
+            </SelectItem>
+            <SelectItem value="week">{t("appointments.week")}</SelectItem>
+            <SelectItem value="month">{t("appointments.month")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -307,10 +318,14 @@ export default function AppointmentsPage() {
       {/* Appointment Tabs */}
       <Tabs defaultValue="all" className="mb-6">
         <TabsList>
-          <TabsTrigger value="all">All Appointments</TabsTrigger>
-          <TabsTrigger value="today">Today</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="all">
+            {t("appointments.allAppointments")}
+          </TabsTrigger>
+          <TabsTrigger value="today">{t("appointments.today")}</TabsTrigger>
+          <TabsTrigger value="upcoming">
+            {t("appointments.upcoming")}
+          </TabsTrigger>
+          <TabsTrigger value="pending">{t("appointments.pending")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-6">

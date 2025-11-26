@@ -207,10 +207,11 @@ export function AppointmentForm({
             fee: data.fee, // Function now accepts null
             title: data.title,
             description: data.description,
-            additionalCustomerFields: {
-              customerId: customer.id,
-              customerName: customer.name,
-              // Add any additional customer fields if needed
+            customerData: {
+              name: customer.name,
+              phone: customer.phone || "",
+              address: customer.address || "",
+              notes: customer.notes || "",
             },
           };
           await bookAppointment.mutateAsync(bookingPayload);

@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import { AppLayout } from "./components/layout";
+import { LanguageProvider } from "./components/providers/LanguageProvider";
 import UserInitializer from "./components/utils/UserInitializer";
 import AppointmentsPage from "./pages/appointments/appointments-page";
 import SignInPage from "./pages/auth/sign-in-page";
@@ -146,9 +147,11 @@ function App() {
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <QueryClientProvider client={queryClient}>
         <FirebaseTokenProvider>
-          <UserInitializer>
-            <AppContent />
-          </UserInitializer>
+          <LanguageProvider>
+            <UserInitializer>
+              <AppContent />
+            </UserInitializer>
+          </LanguageProvider>
         </FirebaseTokenProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
