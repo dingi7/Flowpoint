@@ -9,6 +9,7 @@ export const functionsService: FunctionsService = {
         serviceId: string;
         date: string;
         organizationId: string;
+        assigneeId: string;
       },
       {
         start: string;

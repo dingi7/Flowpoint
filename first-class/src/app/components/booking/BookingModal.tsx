@@ -91,7 +91,8 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
     } = useAvailableTimeslots({
         serviceId: selectedService?.id || '',
         date: formattedDate,
-        enabled: !!selectedService && !!selectedDate,
+        assigneeId: selectedBarber?.id || undefined,
+        enabled: !!selectedService && !!selectedDate && !!selectedBarber,
     });
     
     // Convert timeslots to the format expected by the UI

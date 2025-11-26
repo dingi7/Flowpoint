@@ -260,6 +260,7 @@ export function AppointmentForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Fetch available timeslots dynamically
+  const assigneeId = watch("assigneeId");
   const {
     data: timeslotsData,
     isLoading: isTimeslotsLoading,
@@ -267,7 +268,8 @@ export function AppointmentForm({
   } = useAvailableTimeslots({
     serviceId: formData.serviceId,
     date: formData.date,
-    enabled: !!formData.serviceId && !!formData.date,
+    assigneeId: assigneeId || undefined,
+    enabled: !!formData.serviceId && !!formData.date && !!assigneeId,
   });
 
   // Map of display time (HH:mm) to UTC timeslot ISO string

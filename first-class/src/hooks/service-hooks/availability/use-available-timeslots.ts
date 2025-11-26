@@ -5,6 +5,7 @@ import { ORGANIZATION_ID } from "@/constants";
 interface UseAvailableTimeslotsProps {
   serviceId?: string;
   date?: string;
+  assigneeId?: string;
   enabled?: boolean;
 }
 
@@ -20,15 +21,16 @@ interface AvailableTimeslotsResponse {
 export function useAvailableTimeslots({
   serviceId,
   date,
+  assigneeId,
   enabled = true,
 }: UseAvailableTimeslotsProps) {
   const functionsService = serviceHost.getFunctionsService();
   const organizationId = ORGANIZATION_ID;
 
   return useQuery<AvailableTimeslotsResponse, Error>({
-    queryKey: ["availableTimeslots", serviceId, date, organizationId],
+    queryKey: ["availableTimeslots", serviceId, date, assigneeId, organizationId],
     queryFn: async () => {
-      if (!serviceId || !date || !organizationId) {
+      if (!serviceId || !date || !organizationId || !assigneeId) {
         throw new Error("Missing required parameters");
       }
 
@@ -36,9 +38,10 @@ export function useAvailableTimeslots({
         serviceId,
         date,
         organizationId,
+        assigneeId,
       });
     },
-    enabled: enabled && !!serviceId && !!date && !!organizationId,
+    enabled: enabled && !!serviceId && !!date && !!assigneeId && !!organizationId,
     staleTime: 1 * 60 * 1000, // 1 minute
     gcTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,

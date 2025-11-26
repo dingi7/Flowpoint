@@ -35,6 +35,7 @@ export interface FunctionsService {
     serviceId: string;
     date: string;
     organizationId: string;
+    assigneeId: string;
   }): Promise<{
     result: {
       start: string;
