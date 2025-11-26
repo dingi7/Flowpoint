@@ -79,7 +79,7 @@ export async function getAvailableTimeslotsFn(
 
   const existingAppointments = await appointmentRepository.getAll({
     queryConstraints: [
-      { field: "calendarId", operator: "==", value: calendar.id },
+      { field: "assigneeId", operator: "==", value: assigneeId },
     ],
     organizationId,
   });

@@ -3,7 +3,6 @@ import { getDayOfWeek } from "@/app/availability/util/helpers";
 import {
   APPOINTMENT_STATUS,
   AppointmentRepository,
-  Calendar,
   CalendarRepository,
   CustomerRepository,
   LoggerService,
@@ -51,7 +50,6 @@ interface ValidationResult {
   validatedPayload: BookAppointmentPayload;
   service: Service;
   customerId: string;
-  calendar: Calendar;
   startTime: Date;
   assigneeId: string;
   assigneeType: OWNER_TYPE;
@@ -194,7 +192,7 @@ export async function validateBookingRequest(
   // 7. Get existing appointments and time-offs for conflict checking
   const existingAppointments = await appointmentRepository.getAll({
     queryConstraints: [
-      { field: "calendarId", operator: "==", value: calendar.id },
+      { field: "assigneeId", operator: "==", value: validatedPayload.assigneeId },
       { field: "status", operator: "!=", value: APPOINTMENT_STATUS.CANCELLED },
     ],
     organizationId: validatedPayload.organizationId,
@@ -235,7 +233,6 @@ export async function validateBookingRequest(
     validatedPayload,
     service,
     customerId,
-    calendar,
     startTime,
     assigneeId: validatedPayload.assigneeId,
     assigneeType: calendar.ownerType,

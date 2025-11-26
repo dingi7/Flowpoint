@@ -219,8 +219,12 @@
   // Format time slot
   function formatTimeSlot(timeslot) {
     const start = new Date(timeslot.start);
-    const hours = start.getHours();
-    const minutes = start.getMinutes();
+    if (isNaN(start.getTime())) {
+      return "Invalid time";
+    }
+    // Use UTC methods since timeslot is in UTC
+    const hours = start.getUTCHours();
+    const minutes = start.getUTCMinutes();
     const ampm = hours >= 12 ? "PM" : "AM";
     const displayHours = hours % 12 || 12;
     const displayMinutes = minutes.toString().padStart(2, "0");
@@ -280,6 +284,8 @@
       if (updates.success !== undefined) success = updates.success;
       if (updates.selectedService !== undefined)
         selectedService = updates.selectedService;
+      if (updates.selectedAssignee !== undefined)
+        selectedAssignee = updates.selectedAssignee;
       if (updates.selectedDate !== undefined)
         selectedDate = updates.selectedDate;
       if (updates.selectedTimeslot !== undefined)
@@ -390,9 +396,20 @@
       const assigneeId = selectedAssignee.id;
 
       // Combine date and time
+      // Parse the timeslot ISO string to get the time portion
+      const timeslotDate = new Date(selectedTimeslot.start);
+      if (isNaN(timeslotDate.getTime())) {
+        setState({ error: "Invalid time slot selected" });
+        return;
+      }
+      
+      // Get hours and minutes from the timeslot (in UTC)
+      const hours = timeslotDate.getUTCHours();
+      const minutes = timeslotDate.getUTCMinutes();
+      
+      // Create a new date using the selected date and timeslot time
       const startTime = new Date(selectedDate);
-      const [hours, minutes] = selectedTimeslot.start.split(":").map(Number);
-      startTime.setHours(hours, minutes, 0, 0);
+      startTime.setUTCHours(hours, minutes, 0, 0);
 
       try {
         setState({ isLoading: true, error: null, success: null });
@@ -649,12 +666,23 @@
             const option = e.target.options[e.target.selectedIndex];
             if (option.value) {
               const service = services.find((s) => s.id === option.value);
-              setState({
-                selectedService: service,
-                selectedAssignee: null, // Reset assignee when service changes
-                selectedTimeslot: null,
-                availableTimeslots: [],
-              });
+              if (!service) return;
+              
+              // Update state directly first to avoid re-render issues
+              selectedService = service;
+              selectedAssignee = null;
+              selectedTimeslot = null;
+              availableTimeslots = [];
+              
+              // Then trigger render
+              setTimeout(() => {
+                setState({
+                  selectedService: service,
+                  selectedAssignee: null, // Reset assignee when service changes
+                  selectedTimeslot: null,
+                  availableTimeslots: [],
+                });
+              }, 0);
             } else {
               setState({
                 selectedService: null,
@@ -668,36 +696,29 @@
         // Assignee change handler
         const assigneeSelect = form.querySelector('select[name="assigneeId"]');
         if (assigneeSelect) {
-          // Store the current value before attaching listener to prevent re-render issues
-          const currentValue = assigneeSelect.value;
-          if (currentValue && !selectedAssignee) {
-            // If there's a value but no selectedAssignee, restore it
-            const assignee = members.find((m) => m.id === currentValue);
-            if (assignee) {
-              selectedAssignee = assignee;
-            }
-          }
-          
           assigneeSelect.addEventListener("change", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
             const option = e.target.options[e.target.selectedIndex];
             if (option.value) {
               const assignee = members.find((m) => m.id === option.value);
               if (!assignee) return;
               
               const currentDate = selectedDate; // Capture current date before state update
-              setState({
-                selectedAssignee: assignee,
-                selectedTimeslot: null,
-              });
-              // Use captured date to check if we should load timeslots
-              if (currentDate) {
-                // Use setTimeout to ensure state is updated before calling loadTimeslots
-                setTimeout(() => {
+              
+              // Update state directly first to avoid re-render issues
+              selectedAssignee = assignee;
+              selectedTimeslot = null;
+              
+              // Then trigger render and load timeslots
+              setTimeout(() => {
+                setState({
+                  selectedAssignee: assignee,
+                  selectedTimeslot: null,
+                });
+                // Use captured date to check if we should load timeslots
+                if (currentDate) {
                   loadTimeslots();
-                }, 0);
-              }
+                }
+              }, 0);
             } else {
               setState({
                 selectedAssignee: null,

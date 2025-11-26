@@ -1,5 +1,6 @@
 import {
   APPOINTMENT_STATUS,
+  AppointmentData,
   AppointmentRepository,
   CalendarRepository,
   CloudTasksService,
@@ -99,19 +100,17 @@ export async function bookAppointmentFn(
     validatedPayload,
     service,
     customerId,
-    calendar,
     startTime,
     assigneeType,
     endTime,
   } = validationResult;
 
   // 2. Create appointment
-  const appointmentData = {
+  const appointmentData: AppointmentData = {
     assigneeId: validatedPayload.assigneeId,
     assigneeType,
     customerId,
     serviceId: validatedPayload.serviceId,
-    calendarId: calendar.id,
     title: validatedPayload.title || service.name,
     description:
       validatedPayload.description || `Appointment for ${service.name}`,
