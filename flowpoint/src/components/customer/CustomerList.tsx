@@ -78,7 +78,7 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
 
   // Fetch customers using the hook
   const { data, error } = useCustomers({
-    pagination: { limit: 50 },
+    pagination: { limit: 500 },
     queryConstraints: searchQuery
       ? [
           { field: "name", operator: ">=", value: searchQuery },
