@@ -33,6 +33,12 @@ const appointmentRepository =
 const bookAppointmentRequestSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
   customerEmail: z.string().email("Invalid email address"),
+  customerData: z.object({
+    name: z.string().min(1, "Customer NAME is required"),
+    phone: z.string().min(1, "Customer PHONE is required"),
+    address: z.string().optional(),
+    notes: z.string().optional(),
+  }),
   startTime: z.string().datetime("Invalid start time format"),
   assigneeId: z.string().min(1, "Assignee ID is required"),
   title: z.string().optional(),

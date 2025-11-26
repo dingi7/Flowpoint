@@ -99,9 +99,9 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
   // Filter customers based on search (client-side filtering as fallback)
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (customer.phone && customer.phone.includes(searchQuery));
+      customer.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (customer.phone && customer.phone?.includes(searchQuery));
 
     return matchesSearch;
   });
@@ -156,7 +156,7 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                         />
                         <AvatarFallback>
                           {customer.name
-                            .split(" ")
+                            ?.split(" ")
                             .map((n) => n[0])
                             .join("")}
                         </AvatarFallback>

@@ -20,6 +20,10 @@ import z from "zod";
 const bookAppointmentPayloadSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
   customerEmail: z.string().min(1, "Customer EMAIL is required"),
+  customerName: z.string().min(1, "Customer NAME is required"),
+  customerPhone: z.string().min(1, "Customer PHONE is required"),
+  customerAddress: z.string().optional(),
+  customerNotes: z.string().optional(),
   organizationId: z.string().min(1, "Organization ID is required"),
   startTime: z.string().refine((val) => !isNaN(new Date(val).getTime()), {
     message: "Invalid start time format",
@@ -117,6 +121,10 @@ export async function validateBookingRequest(
       {
         organizationId: validatedPayload.organizationId,
         email: validatedPayload.customerEmail,
+        name: validatedPayload.customerName,
+        phone: validatedPayload.customerPhone,
+        address: validatedPayload.customerAddress,
+        notes: validatedPayload.customerNotes,
         timezone,
       },
       validatedPayload.additionalCustomerFields || {},

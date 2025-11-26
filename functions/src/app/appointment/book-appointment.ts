@@ -24,9 +24,9 @@ interface Payload {
   title?: string;
   description?: string;
   timezone?: string;
-  customerData?: {
-    name?: string;
-    phone?: string;
+  customerData: {
+    name: string;
+    phone: string;
     address?: string;
     notes?: string;
     customFields?: Record<string, unknown>;
@@ -82,7 +82,7 @@ export async function bookAppointmentFn(
 
   // 1. Comprehensive validation
   const validationResult = await validateBookingRequest(
-    payload,
+    { customerName: payload.customerData.name, customerPhone: payload.customerData.phone, customerAddress: payload.customerData.address, customerNotes: payload.customerData.notes, ...payload},
     {
       serviceRepository,
       customerRepository,

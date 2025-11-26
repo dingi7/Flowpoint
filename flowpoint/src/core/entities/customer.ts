@@ -35,6 +35,7 @@ const customerDataBaseSchema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   notes: z.string().optional(),
+  timezone: z.string().optional(),
   customFields: z.record(z.string(), z.unknown()),
 });
 

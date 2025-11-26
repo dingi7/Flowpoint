@@ -18,7 +18,7 @@ const userRepository = repositoryHost.getUserRepository(databaseService);
 const calendarRepository = repositoryHost.getCalendarRepository(databaseService);
 
 const TARGET_ORGANIZATION_ID = "WYzeYoqP6YoqOVuZJ5Yr";
-const SQL_DUMP_PATH = path.join(__dirname, "../../../CRMbackup.sql");
+const SQL_DUMP_PATH = path.join(__dirname, "../../../CRMbackup_latest.sql");
 
 // Service name mapping: SQL name -> Firestore name
 const SERVICE_NAME_MAP: Record<string, string> = {
@@ -423,22 +423,17 @@ async function main() {
 
       if (!customerId) {
         // Try to find existing customer by searching through all customers
-        // Note: Firestore doesn't support querying nested customFields easily,
-        // so we'll fetch all and filter in memory (for small datasets this is fine)
+        // Search by name and phone directly (not in customFields)
         const allCustomers = await customerRepository.getAll({
           organizationId: TARGET_ORGANIZATION_ID,
           pagination: { limit: 1000 },
         });
 
         let customer = allCustomers.find((c) => {
-          const name = c.customFields?.name as string;
-          const phone =
-            (c.customFields?.phone as string) ||
-            (c.customFields?.["phone number"] as string);
           return (
-            name === sqlAppointment.client_name &&
-            (phone === sqlAppointment.client_phonenumber ||
-              (!phone && !sqlAppointment.client_phonenumber))
+            c.name === sqlAppointment.client_name &&
+            (c.phone === sqlAppointment.client_phonenumber ||
+              (!c.phone && !sqlAppointment.client_phonenumber))
           );
         });
 
@@ -449,12 +444,11 @@ async function main() {
           const customerData = {
             organizationId: TARGET_ORGANIZATION_ID,
             email: customerEmail,
-            customFields: {
-              name: sqlAppointment.client_name,
-              ...(sqlAppointment.client_phonenumber && {
-                phone: sqlAppointment.client_phonenumber,
-              }),
-            },
+            name: sqlAppointment.client_name,
+            ...(sqlAppointment.client_phonenumber && {
+              phone: sqlAppointment.client_phonenumber,
+            }),
+            customFields: {},
           };
 
           if (!isDryRun) {

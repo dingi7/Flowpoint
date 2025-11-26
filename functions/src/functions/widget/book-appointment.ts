@@ -27,6 +27,12 @@ const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
 interface Payload {
   serviceId: string;
   customerEmail: string;
+  customerData: {
+    name: string;
+    phone: string;
+    address?: string;
+    notes?: string;
+  };
   organizationId: string;
   startTime: string;
   assigneeId: string;
