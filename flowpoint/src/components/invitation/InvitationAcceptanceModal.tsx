@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Building, Loader2, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateFormError } from "@/utils/translate-form-errors";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -89,9 +90,9 @@ export function InvitationAcceptanceModal({
   // Set error when upload fails
   useEffect(() => {
     if (imageUpload.error) {
-      setError(imageUpload.error.message || "Failed to upload image");
+      setError(imageUpload.error.message || t("team.invitation.acceptModal.imageUploadError"));
     }
-  }, [imageUpload.error]);
+  }, [imageUpload.error, t]);
 
   const onSubmit = async (data: AcceptanceFormData) => {
     if (!invitation) return;
@@ -112,7 +113,7 @@ export function InvitationAcceptanceModal({
       onSuccess();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to accept invitation",
+        err instanceof Error ? err.message : t("team.invitation.acceptModal.acceptError"),
       );
     }
   };
@@ -167,7 +168,7 @@ export function InvitationAcceptanceModal({
                   />
                   {errors.name && (
                     <p className="text-sm text-destructive">
-                      {errors.name.message}
+                      {translateFormError(errors.name.message, t)}
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">

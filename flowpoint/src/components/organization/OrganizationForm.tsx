@@ -27,6 +27,7 @@ import {
 import { Bell, Clock, MapPin, Plus, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateFormError } from "@/utils/translate-form-errors";
 
 interface OrganizationFormProps {
   organization?: Organization;
@@ -160,7 +161,7 @@ export function OrganizationForm({
             />
             {formState.errors.name && (
               <p className="text-sm text-red-500">
-                {formState.errors.name.message}
+                {translateFormError(formState.errors.name.message, t)}
               </p>
             )}
           </div>
@@ -186,7 +187,7 @@ export function OrganizationForm({
               />
               {formState.errors.industry && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.industry.message}
+                  {translateFormError(formState.errors.industry.message, t)}
                 </p>
               )}
             </div>
@@ -216,7 +217,7 @@ export function OrganizationForm({
               </Select>
               {formState.errors.currency && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.currency.message}
+                  {translateFormError(formState.errors.currency.message, t)}
                 </p>
               )}
             </div>
@@ -305,7 +306,7 @@ export function OrganizationForm({
             </p>
             {formState.errors.settings?.timezone && (
               <p className="text-sm text-red-500">
-                {formState.errors.settings.timezone.message}
+                {translateFormError(formState.errors.settings.timezone.message, t)}
               </p>
             )}
           </div>
@@ -439,10 +440,10 @@ export function OrganizationForm({
             </p>
             {formState.errors.settings?.appointmentReminderHoursBefore && (
               <p className="text-sm text-red-500">
-                {
-                  formState.errors.settings.appointmentReminderHoursBefore
-                    .message
-                }
+                {translateFormError(
+                  formState.errors.settings.appointmentReminderHoursBefore.message,
+                  t
+                )}
               </p>
             )}
           </div>

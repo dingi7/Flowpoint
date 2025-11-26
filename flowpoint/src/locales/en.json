@@ -247,6 +247,67 @@
         "loadMore": "Load More",
         "loadingMore": "Loading..."
     },
+    "validation": {
+        "required": "This field is required",
+        "email": {
+            "invalid": "Invalid email format",
+            "required": "Email is required"
+        },
+        "phone": {
+            "invalid": "Invalid phone number format",
+            "required": "Phone number is required"
+        },
+        "name": {
+            "required": "Name is required",
+            "length": "Name must be between 2 and 100 characters"
+        },
+        "startTime": {
+            "invalid": "Start time must be a valid date",
+            "past": "Appointment cannot be scheduled in the past",
+            "required": "Start time is required"
+        },
+        "duration": {
+            "range": "Duration must be between 15 minutes and 8 hours",
+            "positive": "Duration must be a positive number"
+        },
+        "title": {
+            "length": "Title must be between 3 and 200 characters",
+            "required": "Title is required"
+        },
+        "fee": {
+            "negative": "Fee cannot be negative"
+        },
+        "status": {
+            "cancelPast": "Cannot cancel appointments that are more than 24 hours in the past"
+        },
+        "service": {
+            "name": {
+                "required": "Service name is required"
+            }
+        },
+        "price": {
+            "positive": "Price must be a positive number"
+        },
+        "organization": {
+            "name": {
+                "required": "Organization name is required"
+            }
+        },
+        "timezone": {
+            "invalid": "Invalid timezone"
+        },
+        "format": {
+            "invalid": "Invalid format"
+        },
+        "number": {
+            "required": "Must be a number"
+        },
+        "string": {
+            "required": "Must be a string"
+        },
+        "min": "Value is too small",
+        "max": "Value is too large"
+    },
     "search": {
         "placeholder": "Search customers, appointments...",
         "searching": "Searching...",
@@ -654,7 +715,9 @@
                 "cancel": "Cancel",
                 "accepting": "Accepting...",
                 "uploadingImage": "Uploading image...",
-                "acceptInvitation": "Accept Invitation"
+                "acceptInvitation": "Accept Invitation",
+                "imageUploadError": "Failed to upload image",
+                "acceptError": "Failed to accept invitation"
             },
             "card": {
                 "invitedTo": "Invited to organization:",

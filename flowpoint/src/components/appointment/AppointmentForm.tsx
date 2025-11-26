@@ -52,6 +52,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translateFormError } from "@/utils/translate-form-errors";
 
 interface AppointmentFormProps {
   appointment?: Appointment;
@@ -450,7 +451,7 @@ export function AppointmentForm({
                 </div>
                 {errors.customerId && (
                   <p className="text-sm text-red-500">
-                    {errors.customerId.message}
+                    {translateFormError(errors.customerId.message, t)}
                   </p>
                 )}
               </div>
@@ -643,7 +644,7 @@ export function AppointmentForm({
                 {errors.startTime && (
                   <p className="text-sm text-red-500 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
-                    {errors.startTime.message}
+                    {translateFormError(errors.startTime.message, t)}
                   </p>
                 )}
                 {timeslotsError && !errors.startTime && (

@@ -10,6 +10,7 @@ import { useCreateCustomer, useCustomerForm, useUpdateCustomer } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { translateFormError } from "@/utils/translate-form-errors";
 import { Separator } from "../ui/separator";
 
 interface CustomerFormProps {
@@ -82,7 +83,9 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
                 placeholder={t("customers.form.namePlaceholder")}
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
+                <p className="text-sm text-red-500">
+                  {translateFormError(errors.name.message, t)}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -94,7 +97,9 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
                 placeholder={t("customers.form.emailPlaceholder")}
               />
               {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
+                <p className="text-sm text-red-500">
+                  {translateFormError(errors.email.message, t)}
+                </p>
               )}
             </div>
           </div>
@@ -106,6 +111,11 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
               {...register("phone")}
               placeholder={t("customers.form.phonePlaceholder")}
             />
+            {errors.phone && (
+              <p className="text-sm text-red-500">
+                {translateFormError(errors.phone.message, t)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
