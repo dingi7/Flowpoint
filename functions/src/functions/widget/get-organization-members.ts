@@ -1,4 +1,4 @@
-import { getOrganizationServicesFn } from "@/app/widget/get-oranization-services";
+import { getOrganizationMembersFn } from "@/app/widget/get-organization-members";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { handleCorsPreflight, setCorsHeaders } from "@/utils/cors";
@@ -7,9 +7,9 @@ import { onRequest } from "firebase-functions/v2/https";
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
 
-const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const memberRepository = repositoryHost.getMemberRepository(databaseService);
 
-export const widgetGetOrganizationServices = onRequest(
+export const widgetGetOrganizationMembers = onRequest(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
@@ -37,20 +37,21 @@ export const widgetGetOrganizationServices = onRequest(
         return;
       }
 
-      const services = await getOrganizationServicesFn(payload, {
-        serviceRepository,
+      const members = await getOrganizationMembersFn(payload, {
+        memberRepository,
       });
 
       res.status(200).json({
-        services,
+        members,
         success: true,
       });
     } catch (error) {
-      loggerService.error("Error fetching services:", error);
+      loggerService.error("Error fetching members:", error);
       res.status(500).json({
-        error: "Failed to fetch services",
+        error: "Failed to fetch members",
         success: false,
       });
     }
   },
 );
+

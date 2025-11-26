@@ -1,6 +1,7 @@
 import { bookAppointmentFn } from "@/app/appointment/book-appointment";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { handleCorsPreflight, setCorsHeaders } from "@/utils/cors";
 import { getClientIp, getTimezoneFromIp } from "@/utils/ip-timezone";
 import { onRequest } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
@@ -48,8 +49,9 @@ export const widgetBookAppointment = onRequest(
     secrets: [mailgunApiKeySecret, mailgunDomainSecret, mailgunUrlSecret],
   },
   async (req, res) => {
-    if (req.method === "OPTIONS") {
-      res.status(200).send("");
+    setCorsHeaders(res);
+
+    if (handleCorsPreflight(req, res)) {
       return;
     }
 

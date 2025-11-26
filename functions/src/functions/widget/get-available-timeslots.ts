@@ -1,6 +1,7 @@
 import { getAvailableTimeslotsFn } from "@/app/availability/get-available-timeslots";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { handleCorsPreflight, setCorsHeaders } from "@/utils/cors";
 import { onRequest } from "firebase-functions/v2/https";
 
 const databaseService = serviceHost.getDatabaseService();
@@ -25,6 +26,12 @@ export const widgetGetAvailableTimeslots = onRequest(
     ingressSettings: "ALLOW_ALL",
   },
   async (req, res) => {
+    setCorsHeaders(res);
+
+    if (handleCorsPreflight(req, res)) {
+      return;
+    }
+
     try {
       const payload = req.body as Payload;
 

@@ -42,6 +42,7 @@ export { onInviteChange } from "./functions/webhooks/on-invite-change";
 
 // <-- Widget Public API -->
 export { widgetGetOrganizationServices } from "./functions/widget/get-organization-services";
+export { widgetGetOrganizationMembers } from "./functions/widget/get-organization-members";
 export { widgetGetAvailableTimeslots } from "./functions/widget/get-available-timeslots";
 export { widgetBookAppointment } from "./functions/widget/book-appointment";
 
