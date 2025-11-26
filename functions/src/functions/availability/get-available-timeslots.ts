@@ -7,6 +7,7 @@ interface Payload {
   serviceId: string;
   date: string;
   organizationId: string;
+  assigneeId: string;
 }
 
 const databaseService = serviceHost.getDatabaseService();

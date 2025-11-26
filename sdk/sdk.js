@@ -1,8 +1,9 @@
-(function() {
-  'use strict';
+(function () {
+  "use strict";
 
   // Default API base URL - can be overridden via config
-  const DEFAULT_API_BASE_URL = 'http://127.0.0.1:5001/brogrammers-crm/us-central1';
+  const DEFAULT_API_BASE_URL =
+    "https://us-central1-brogrammers-crm.cloudfunctions.net";
 
   // Inline CSS for styling
   const STYLES = `
@@ -133,9 +134,9 @@
 
   // Inject styles
   function injectStyles() {
-    if (document.getElementById('flowpoint-sdk-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'flowpoint-sdk-styles';
+    if (document.getElementById("flowpoint-sdk-styles")) return;
+    const style = document.createElement("style");
+    style.id = "flowpoint-sdk-styles";
     style.textContent = STYLES;
     document.head.appendChild(style);
   }
@@ -145,65 +146,70 @@
     return {
       async getServices(organizationId) {
         const response = await fetch(
-          `${baseUrl}/widgetGetOrganizationServices?organizationId=${encodeURIComponent(organizationId)}`
+          `${baseUrl}/widgetGetOrganizationServices?organizationId=${encodeURIComponent(
+            organizationId
+          )}`
         );
         if (!response.ok) {
-          throw new Error('Failed to fetch services');
+          throw new Error("Failed to fetch services");
         }
         const data = await response.json();
         if (!data.success) {
-          throw new Error(data.error || 'Failed to fetch services');
+          throw new Error(data.error || "Failed to fetch services");
         }
         return data.services || [];
       },
 
       async getMembers(organizationId) {
         const response = await fetch(
-          `${baseUrl}/widgetGetOrganizationMembers?organizationId=${encodeURIComponent(organizationId)}`
+          `${baseUrl}/widgetGetOrganizationMembers?organizationId=${encodeURIComponent(
+            organizationId
+          )}`
         );
         if (!response.ok) {
-          throw new Error('Failed to fetch members');
+          throw new Error("Failed to fetch members");
         }
         const data = await response.json();
         if (!data.success) {
-          throw new Error(data.error || 'Failed to fetch members');
+          throw new Error(data.error || "Failed to fetch members");
         }
         return data.members || [];
       },
 
-      async getAvailableTimeslots(organizationId, serviceId, date) {
+      async getAvailableTimeslots(organizationId, serviceId, assigneeId, date) {
         const response = await fetch(`${baseUrl}/widgetGetAvailableTimeslots`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             organizationId,
             serviceId,
-            date: date.toISOString().split('T')[0],
+            assigneeId,
+            date: date.toISOString().split("T")[0],
           }),
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch available timeslots');
+          throw new Error("Failed to fetch available timeslots");
         }
         const data = await response.json();
         if (!data.success) {
-          throw new Error(data.error || 'Failed to fetch available timeslots');
+          throw new Error(data.error || "Failed to fetch available timeslots");
         }
         return data.timeslots || [];
       },
 
       async bookAppointment(payload) {
         const response = await fetch(`${baseUrl}/widgetBookAppointment`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
         });
         const data = await response.json();
         if (!response.ok || !data.success) {
-          throw new Error(data.error || 'Failed to book appointment');
+          throw new Error(data.error || "Failed to book appointment");
         }
         return data;
       },
@@ -215,19 +221,19 @@
     const start = new Date(timeslot.start);
     const hours = start.getHours();
     const minutes = start.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     const displayHours = hours % 12 || 12;
-    const displayMinutes = minutes.toString().padStart(2, '0');
+    const displayMinutes = minutes.toString().padStart(2, "0");
     return `${displayHours}:${displayMinutes} ${ampm}`;
   }
 
   // Format date for display
   function formatDate(date) {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   }
 
@@ -241,15 +247,14 @@
     const { organizationId, target, apiBaseUrl } = config;
 
     if (!organizationId) {
-      throw new Error('organizationId is required');
+      throw new Error("organizationId is required");
     }
 
-    const targetElement = typeof target === 'string' 
-      ? document.querySelector(target) 
-      : target;
+    const targetElement =
+      typeof target === "string" ? document.querySelector(target) : target;
 
     if (!targetElement) {
-      throw new Error('Target element not found');
+      throw new Error("Target element not found");
     }
 
     injectStyles();
@@ -260,6 +265,7 @@
     let services = [];
     let members = [];
     let selectedService = null;
+    let selectedAssignee = null;
     let selectedDate = null;
     let selectedTimeslot = null;
     let availableTimeslots = [];
@@ -272,10 +278,14 @@
       if (updates.isLoading !== undefined) isLoading = updates.isLoading;
       if (updates.error !== undefined) error = updates.error;
       if (updates.success !== undefined) success = updates.success;
-      if (updates.selectedService !== undefined) selectedService = updates.selectedService;
-      if (updates.selectedDate !== undefined) selectedDate = updates.selectedDate;
-      if (updates.selectedTimeslot !== undefined) selectedTimeslot = updates.selectedTimeslot;
-      if (updates.availableTimeslots !== undefined) availableTimeslots = updates.availableTimeslots;
+      if (updates.selectedService !== undefined)
+        selectedService = updates.selectedService;
+      if (updates.selectedDate !== undefined)
+        selectedDate = updates.selectedDate;
+      if (updates.selectedTimeslot !== undefined)
+        selectedTimeslot = updates.selectedTimeslot;
+      if (updates.availableTimeslots !== undefined)
+        availableTimeslots = updates.availableTimeslots;
       if (updates.services !== undefined) services = updates.services;
       if (updates.members !== undefined) members = updates.members;
       render();
@@ -289,22 +299,22 @@
           api.getServices(organizationId),
           api.getMembers(organizationId),
         ]);
-        setState({ 
-          isLoading: false, 
-          services: loadedServices, 
-          members: loadedMembers 
+        setState({
+          isLoading: false,
+          services: loadedServices,
+          members: loadedMembers,
         });
       } catch (err) {
-        setState({ 
-          isLoading: false, 
-          error: err.message || 'Failed to load data. Please try again later.' 
+        setState({
+          isLoading: false,
+          error: err.message || "Failed to load data. Please try again later.",
         });
       }
     }
 
-    // Load timeslots when service and date are selected
+    // Load timeslots when service, assignee and date are selected
     async function loadTimeslots() {
-      if (!selectedService || !selectedDate) {
+      if (!selectedService || !selectedAssignee || !selectedDate) {
         setState({ availableTimeslots: [] });
         return;
       }
@@ -314,69 +324,79 @@
         const timeslots = await api.getAvailableTimeslots(
           organizationId,
           selectedService.id,
+          selectedAssignee.id,
           selectedDate
         );
-        setState({ 
-          isLoading: false, 
+        setState({
+          isLoading: false,
           selectedTimeslot: null,
-          availableTimeslots: timeslots
+          availableTimeslots: timeslots,
         });
       } catch (err) {
-        setState({ 
-          isLoading: false, 
-          error: err.message || 'Failed to load available timeslots' 
+        setState({
+          isLoading: false,
+          error: err.message || "Failed to load available timeslots",
         });
       }
+    }
+
+    // Get available assignees for selected service
+    function getAvailableAssignees() {
+      return members;
     }
 
     // Handle form submission
     async function handleSubmit(e) {
       e.preventDefault();
-      
+
       const formData = new FormData(e.target);
-      const customerName = formData.get('customerName');
-      const customerEmail = formData.get('customerEmail');
-      const customerPhone = formData.get('customerPhone');
-      const customerAddress = formData.get('customerAddress') || '';
-      const customerNotes = formData.get('customerNotes') || '';
+      const customerName = formData.get("customerName");
+      const customerEmail = formData.get("customerEmail");
+      const customerPhone = formData.get("customerPhone");
+      const customerAddress = formData.get("customerAddress") || "";
+      const customerNotes = formData.get("customerNotes") || "";
 
       // Validation
       if (!customerName || !customerEmail || !customerPhone) {
-        setState({ error: 'Please fill in all required fields' });
+        setState({ error: "Please fill in all required fields" });
         return;
       }
 
       if (!isValidEmail(customerEmail)) {
-        setState({ error: 'Please enter a valid email address' });
+        setState({ error: "Please enter a valid email address" });
         return;
       }
 
       if (!selectedService) {
-        setState({ error: 'Please select a service' });
+        setState({ error: "Please select a service" });
+        return;
+      }
+
+      if (!selectedAssignee) {
+        setState({ error: "Please select an assignee" });
         return;
       }
 
       if (!selectedDate) {
-        setState({ error: 'Please select a date' });
+        setState({ error: "Please select a date" });
         return;
       }
 
       if (!selectedTimeslot) {
-        setState({ error: 'Please select a time slot' });
+        setState({ error: "Please select a time slot" });
         return;
       }
 
-      // Find assignee from selected service
-      const assigneeId = selectedService.ownerId;
+      const assigneeId = selectedAssignee.id;
 
       // Combine date and time
       const startTime = new Date(selectedDate);
-      const [hours, minutes] = selectedTimeslot.start.split(':').map(Number);
+      const [hours, minutes] = selectedTimeslot.start.split(":").map(Number);
       startTime.setHours(hours, minutes, 0, 0);
 
       try {
         setState({ isLoading: true, error: null, success: null });
-        
+
         await api.bookAppointment({
           organizationId,
           serviceId: selectedService.id,
@@ -390,30 +410,32 @@
           },
           startTime: startTime.toISOString(),
           title: selectedService.name,
-          description: selectedService.description || '',
+          description: selectedService.description || "",
         });
 
         // Reset form
         e.target.reset();
-        
-        setState({ 
-          isLoading: false, 
-          success: 'Appointment booked successfully! You will receive a confirmation email shortly.',
+
+        setState({
+          isLoading: false,
+          success:
+            "Appointment booked successfully! You will receive a confirmation email shortly.",
           error: null,
           selectedService: null,
+          selectedAssignee: null,
           selectedDate: null,
           selectedTimeslot: null,
-          availableTimeslots: []
+          availableTimeslots: [],
         });
-        
+
         // Clear success message after 5 seconds
         setTimeout(() => {
           setState({ success: null });
         }, 5000);
       } catch (err) {
-        setState({ 
-          isLoading: false, 
-          error: err.message || 'Failed to book appointment. Please try again.' 
+        setState({
+          isLoading: false,
+          error: err.message || "Failed to book appointment. Please try again.",
         });
       }
     }
@@ -422,13 +444,13 @@
     function render() {
       const html = `
         <div class="flowpoint-form-container">
-          ${error ? `<div class="flowpoint-error">${error}</div>` : ''}
-          ${success ? `<div class="flowpoint-success">${success}</div>` : ''}
+          ${error ? `<div class="flowpoint-error">${error}</div>` : ""}
+          ${success ? `<div class="flowpoint-success">${success}</div>` : ""}
           
-          ${isLoading && !selectedService ? (
-            '<div class="flowpoint-loading">Loading...</div>'
-          ) : (
-            `<form onsubmit="return false;" id="flowpoint-booking-form">
+          ${
+            isLoading && !selectedService
+              ? '<div class="flowpoint-loading">Loading...</div>'
+              : `<form onsubmit="return false;" id="flowpoint-booking-form">
               <div class="flowpoint-form-group">
                 <label class="flowpoint-form-label">
                   Service <span class="required">*</span>
@@ -437,16 +459,57 @@
                   class="flowpoint-form-select" 
                   name="serviceId" 
                   required
-                  ${isLoading ? 'disabled' : ''}
+                  ${isLoading ? "disabled" : ""}
                 >
                   <option value="">Select a service</option>
-                  ${services.map(service => `
-                    <option value="${service.id}" data-owner-id="${service.ownerId}">
-                      ${service.name}${service.price > 0 ? ` - $${service.price.toFixed(2)}` : ''}
+                  ${services
+                    .map(
+                      (service) => `
+                    <option value="${service.id}" data-owner-id="${
+                        service.ownerId
+                      }" ${selectedService && selectedService.id === service.id ? "selected" : ""}>
+                      ${service.name}${
+                        service.price > 0
+                          ? ` - $${service.price.toFixed(2)}`
+                          : ""
+                      }
                     </option>
-                  `).join('')}
+                  `
+                    )
+                    .join("")}
                 </select>
               </div>
+
+              ${
+                selectedService
+                  ? `<div class="flowpoint-form-group">
+                  <label class="flowpoint-form-label">
+                    Assignee <span class="required">*</span>
+                  </label>
+                  <select 
+                    class="flowpoint-form-select" 
+                    name="assigneeId" 
+                    required
+                    ${isLoading ? "disabled" : ""}
+                  >
+                    <option value="">Select an assignee</option>
+                    ${getAvailableAssignees()
+                      .map(
+                        (member) => `
+                      <option value="${member.id}" ${
+                          selectedAssignee && selectedAssignee.id === member.id
+                            ? "selected"
+                            : ""
+                        }>
+                        ${member.name}
+                      </option>
+                    `
+                      )
+                      .join("")}
+                  </select>
+                </div>`
+                  : ""
+              }
 
               <div class="flowpoint-form-group">
                 <label class="flowpoint-form-label">
@@ -457,32 +520,50 @@
                   class="flowpoint-form-input" 
                   name="appointmentDate" 
                   required
-                  min="${new Date().toISOString().split('T')[0]}"
-                  ${isLoading ? 'disabled' : ''}
+                  min="${new Date().toISOString().split("T")[0]}"
+                  value="${selectedDate ? selectedDate.toISOString().split("T")[0] : ""}"
+                  ${isLoading ? "disabled" : ""}
                 />
               </div>
 
-              ${selectedService && selectedDate && availableTimeslots.length > 0 ? (
-                `<div class="flowpoint-form-group">
+              ${
+                selectedService &&
+                selectedAssignee &&
+                selectedDate &&
+                availableTimeslots.length > 0
+                  ? `<div class="flowpoint-form-group">
                   <label class="flowpoint-form-label">
                     Time Slot <span class="required">*</span>
                   </label>
                   <div class="flowpoint-timeslot-grid">
-                    ${availableTimeslots.map(timeslot => `
+                    ${availableTimeslots
+                      .map(
+                        (timeslot) => `
                       <button 
                         type="button"
-                        class="flowpoint-timeslot-button ${selectedTimeslot && selectedTimeslot.start === timeslot.start ? 'selected' : ''}"
+                        class="flowpoint-timeslot-button ${
+                          selectedTimeslot &&
+                          selectedTimeslot.start === timeslot.start
+                            ? "selected"
+                            : ""
+                        }"
                         data-start="${timeslot.start}"
-                        ${isLoading ? 'disabled' : ''}
+                        ${isLoading ? "disabled" : ""}
                       >
                         ${formatTimeSlot(timeslot)}
                       </button>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                   </div>
                 </div>`
-              ) : selectedService && selectedDate && !isLoading ? (
-                '<div class="flowpoint-error" style="margin-top: 8px;">No available time slots for this date</div>'
-              ) : ''}
+                  : selectedService &&
+                    selectedAssignee &&
+                    selectedDate &&
+                    !isLoading
+                  ? '<div class="flowpoint-error" style="margin-top: 8px;">No available time slots for this date</div>'
+                  : ""
+              }
 
               <div class="flowpoint-form-group">
                 <label class="flowpoint-form-label">
@@ -493,7 +574,7 @@
                   class="flowpoint-form-input" 
                   name="customerName" 
                   required
-                  ${isLoading ? 'disabled' : ''}
+                  ${isLoading ? "disabled" : ""}
                 />
               </div>
 
@@ -506,7 +587,7 @@
                   class="flowpoint-form-input" 
                   name="customerEmail" 
                   required
-                  ${isLoading ? 'disabled' : ''}
+                  ${isLoading ? "disabled" : ""}
                 />
               </div>
 
@@ -519,7 +600,7 @@
                   class="flowpoint-form-input" 
                   name="customerPhone" 
                   required
-                  ${isLoading ? 'disabled' : ''}
+                  ${isLoading ? "disabled" : ""}
                 />
               </div>
 
@@ -529,7 +610,7 @@
                   type="text" 
                   class="flowpoint-form-input" 
                   name="customerAddress"
-                  ${isLoading ? 'disabled' : ''}
+                  ${isLoading ? "disabled" : ""}
                 />
               </div>
 
@@ -538,47 +619,89 @@
                 <textarea 
                   class="flowpoint-form-textarea" 
                   name="customerNotes"
-                  ${isLoading ? 'disabled' : ''}
+                  ${isLoading ? "disabled" : ""}
                 ></textarea>
               </div>
 
               <button 
                 type="submit" 
                 class="flowpoint-form-button"
-                ${isLoading ? 'disabled' : ''}
+                ${isLoading ? "disabled" : ""}
               >
-                ${isLoading ? 'Booking...' : 'Book Appointment'}
+                ${isLoading ? "Booking..." : "Book Appointment"}
               </button>
             </form>`
-          )}
+          }
         </div>
       `;
 
       targetElement.innerHTML = html;
 
       // Attach event listeners
-      const form = targetElement.querySelector('#flowpoint-booking-form');
+      const form = targetElement.querySelector("#flowpoint-booking-form");
       if (form) {
-        form.addEventListener('submit', handleSubmit);
+        form.addEventListener("submit", handleSubmit);
 
         // Service change handler
         const serviceSelect = form.querySelector('select[name="serviceId"]');
         if (serviceSelect) {
-          serviceSelect.addEventListener('change', (e) => {
+          serviceSelect.addEventListener("change", (e) => {
             const option = e.target.options[e.target.selectedIndex];
             if (option.value) {
-              const service = services.find(s => s.id === option.value);
-              setState({ 
-                selectedService: service, 
-                selectedTimeslot: null 
+              const service = services.find((s) => s.id === option.value);
+              setState({
+                selectedService: service,
+                selectedAssignee: null, // Reset assignee when service changes
+                selectedTimeslot: null,
+                availableTimeslots: [],
               });
-              if (selectedDate) {
-                loadTimeslots();
+            } else {
+              setState({
+                selectedService: null,
+                selectedAssignee: null,
+                availableTimeslots: [],
+              });
+            }
+          });
+        }
+
+        // Assignee change handler
+        const assigneeSelect = form.querySelector('select[name="assigneeId"]');
+        if (assigneeSelect) {
+          // Store the current value before attaching listener to prevent re-render issues
+          const currentValue = assigneeSelect.value;
+          if (currentValue && !selectedAssignee) {
+            // If there's a value but no selectedAssignee, restore it
+            const assignee = members.find((m) => m.id === currentValue);
+            if (assignee) {
+              selectedAssignee = assignee;
+            }
+          }
+          
+          assigneeSelect.addEventListener("change", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const option = e.target.options[e.target.selectedIndex];
+            if (option.value) {
+              const assignee = members.find((m) => m.id === option.value);
+              if (!assignee) return;
+              
+              const currentDate = selectedDate; // Capture current date before state update
+              setState({
+                selectedAssignee: assignee,
+                selectedTimeslot: null,
+              });
+              // Use captured date to check if we should load timeslots
+              if (currentDate) {
+                // Use setTimeout to ensure state is updated before calling loadTimeslots
+                setTimeout(() => {
+                  loadTimeslots();
+                }, 0);
               }
             } else {
-              setState({ 
-                selectedService: null, 
-                availableTimeslots: [] 
+              setState({
+                selectedAssignee: null,
+                availableTimeslots: [],
               });
             }
           });
@@ -587,25 +710,32 @@
         // Date change handler
         const dateInput = form.querySelector('input[name="appointmentDate"]');
         if (dateInput) {
-          dateInput.addEventListener('change', (e) => {
+          dateInput.addEventListener("change", (e) => {
             const date = new Date(e.target.value);
-            setState({ 
-              selectedDate: date, 
-              selectedTimeslot: null 
+            const currentAssignee = selectedAssignee; // Capture current assignee before state update
+            setState({
+              selectedDate: date,
+              selectedTimeslot: null,
             });
-            if (selectedService) {
-              loadTimeslots();
+            // Use captured assignee to check if we should load timeslots
+            if (currentAssignee) {
+              // Use setTimeout to ensure state is updated before calling loadTimeslots
+              setTimeout(() => {
+                loadTimeslots();
+              }, 0);
             }
           });
         }
 
         // Timeslot button handlers
-        const timeslotButtons = form.querySelectorAll('.flowpoint-timeslot-button');
-        timeslotButtons.forEach(button => {
-          button.addEventListener('click', (e) => {
+        const timeslotButtons = form.querySelectorAll(
+          ".flowpoint-timeslot-button"
+        );
+        timeslotButtons.forEach((button) => {
+          button.addEventListener("click", (e) => {
             e.preventDefault();
-            const start = e.target.getAttribute('data-start');
-            const timeslot = availableTimeslots.find(t => t.start === start);
+            const start = e.target.getAttribute("data-start");
+            const timeslot = availableTimeslots.find((t) => t.start === start);
             setState({ selectedTimeslot: timeslot });
           });
         });
@@ -619,9 +749,8 @@
   }
 
   // Initialize Flowpoint namespace
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     window.flowpoint = window.flowpoint || {};
     window.flowpoint.renderForm = renderForm;
   }
 })();
-

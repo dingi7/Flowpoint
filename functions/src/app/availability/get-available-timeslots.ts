@@ -11,6 +11,7 @@ interface Payload {
   serviceId: string;
   date: string;
   organizationId: string;
+  assigneeId: string;
 }
 
 interface Dependencies {
@@ -33,7 +34,7 @@ export async function getAvailableTimeslotsFn(
   payload: Payload,
   dependencies: Dependencies,
 ) {
-  const { serviceId, date, organizationId } = payload;
+  const { serviceId, date, organizationId, assigneeId } = payload;
   const {
     serviceRepository,
     calendarRepository,
@@ -56,13 +57,13 @@ export async function getAvailableTimeslotsFn(
 
   const calendars = await calendarRepository.getAll({
     queryConstraints: [
-      { field: "ownerId", operator: "==", value: service.ownerId },
+      { field: "ownerId", operator: "==", value: assigneeId },
     ],
     organizationId,
   });
   if (!calendars || calendars.length === 0) {
     loggerService.error("Calendar not found", {
-      calendarOwnerId: service.ownerId,
+      calendarOwnerId: assigneeId,
     });
     throw new Error("Calendar not found");
   }
@@ -71,7 +72,7 @@ export async function getAvailableTimeslotsFn(
 
   const timeOffs = await timeOffRepository.getAll({
     queryConstraints: [
-      { field: "ownerId", operator: "==", value: service.ownerId },
+      { field: "ownerId", operator: "==", value: assigneeId },
     ],
     organizationId,
   });

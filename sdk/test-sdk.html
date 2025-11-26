@@ -116,7 +116,7 @@
     <div id="crm-form-container"></div>
   </div>
 
-  <script src="/sdk.js"></script>
+  <script src="./sdk.js"></script>
   <script>
     function showError(message) {
       const errorContainer = document.getElementById('error-container');
@@ -143,13 +143,9 @@
 
       try {
         const config = {
-          organizationId: organizationId,
+          organizationId: "WYzeYoqP6YoqOVuZJ5Yr",
           target: '#crm-form-container'
         };
-
-        if (apiBaseUrl) {
-          config.apiBaseUrl = apiBaseUrl;
-        }
 
         window.flowpoint.renderForm(config);
       } catch (error) {

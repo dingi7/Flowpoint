@@ -18,6 +18,7 @@ interface Payload {
   organizationId: string;
   serviceId: string;
   date: string;
+  assigneeId: string;
 }
 
 export const widgetGetAvailableTimeslots = onRequest(
@@ -56,6 +57,14 @@ export const widgetGetAvailableTimeslots = onRequest(
       if (!payload.date || typeof payload.date !== "string") {
         res.status(400).json({
           error: "Missing or invalid date parameter",
+          success: false,
+        });
+        return;
+      }
+
+      if (!payload.assigneeId || typeof payload.assigneeId !== "string") {
+        res.status(400).json({
+          error: "Missing or invalid assigneeId parameter",
           success: false,
         });
         return;
