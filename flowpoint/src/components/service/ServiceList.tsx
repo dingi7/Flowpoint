@@ -27,6 +27,7 @@ import {
   MoreHorizontal,
   Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ServiceListProps {
   searchQuery?: string;
@@ -53,6 +54,7 @@ export function ServiceList({
   isLoading = false,
   error,
 }: ServiceListProps) {
+  const { t } = useTranslation();
   // Get services from the hook data or fallback to mock data
   const services =
     servicesData?.pages?.flatMap((page: Service[]) => page) || [];
@@ -64,7 +66,7 @@ export function ServiceList({
         <CardContent className="p-6">
           <div className="flex items-center justify-center h-32">
             <div className="text-destructive">
-              Error loading services: {error.message}
+              {t("services.errorLoading")}: {error.message}
             </div>
           </div>
         </CardContent>
@@ -127,9 +129,9 @@ export function ServiceList({
 
   const getOwnerTypeBadge = (ownerType: string) => {
     return ownerType === OWNER_TYPE.ORGANIZATION ? (
-      <Badge variant="secondary">Organization</Badge>
+      <Badge variant="secondary">{t("services.organization")}</Badge>
     ) : (
-      <Badge variant="outline">Member</Badge>
+      <Badge variant="outline">{t("services.member")}</Badge>
     );
   };
 
@@ -138,7 +140,7 @@ export function ServiceList({
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center h-32">
-            <div className="text-muted-foreground">Loading services...</div>
+            <div className="text-muted-foreground">{t("services.loading")}</div>
           </div>
         </CardContent>
       </Card>
@@ -152,12 +154,12 @@ export function ServiceList({
           <div className="flex flex-col items-center justify-center h-32 text-center">
             <div className="text-muted-foreground mb-2">
               {searchQuery
-                ? "No services found matching your search."
-                : "No services found."}
+                ? t("services.noResultsSearch")
+                : t("services.noResults")}
             </div>
             {searchQuery && (
               <div className="text-sm text-muted-foreground">
-                Try adjusting your search terms.
+                {t("services.tryAdjusting")}
               </div>
             )}
           </div>
@@ -167,42 +169,42 @@ export function ServiceList({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-sans">
-          Services ({filteredServices.length})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Service Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <DollarSign className="h-4 w-4" />
-                    Price
-                  </div>
-                </TableHead>
-                <TableHead className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    Duration
-                  </div>
-                </TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-sans">
+            {t("services.title")} ({filteredServices.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("services.tableHeaders.serviceName")}</TableHead>
+                  <TableHead>{t("services.tableHeaders.description")}</TableHead>
+                  <TableHead className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <DollarSign className="h-4 w-4" />
+                      {t("services.tableHeaders.price")}
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {t("services.tableHeaders.duration")}
+                    </div>
+                  </TableHead>
+                  <TableHead>{t("services.tableHeaders.owner")}</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {filteredServices.map((service) => (
                 <TableRow key={service.id}>
                   <TableCell className="font-medium">{service.name}</TableCell>
                   <TableCell className="max-w-xs">
                     <div className="truncate text-muted-foreground">
-                      {service.description || "No description"}
+                      {service.description || t("services.noDescription")}
                     </div>
                   </TableCell>
                   <TableCell className="text-center font-medium">
@@ -216,7 +218,7 @@ export function ServiceList({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">{t("services.actions.openMenu")}</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -224,13 +226,13 @@ export function ServiceList({
                         {onView && (
                           <DropdownMenuItem onClick={() => onView(service)}>
                             <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                            {t("services.actions.viewDetails")}
                           </DropdownMenuItem>
                         )}
                         {onEdit && (
                           <DropdownMenuItem onClick={() => onEdit(service)}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit Service
+                            {t("services.actions.edit")}
                           </DropdownMenuItem>
                         )}
                         {onDelete && (
@@ -239,7 +241,7 @@ export function ServiceList({
                             className="text-red-600"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Service
+                            {t("services.actions.delete")}
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>

@@ -13,6 +13,7 @@ import { serviceHost } from "@/services";
 import { useAuth } from "@clerk/clerk-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CreateOrganizationModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ export function CreateOrganizationModal({
   open,
   onOpenChange,
 }: CreateOrganizationModalProps) {
+  const { t } = useTranslation();
   const functionsService = serviceHost.getFunctionsService();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -77,11 +79,9 @@ export function CreateOrganizationModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col overflow-y-auto">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle>Create Your Organization</DialogTitle>
+          <DialogTitle>{t("organization.createModal.title")}</DialogTitle>
           <DialogDescription>
-            To get started, please create your organization. This will be your
-            workspace where you can manage customers, appointments, and
-            services.
+            {t("organization.createModal.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1">
@@ -89,7 +89,7 @@ export function CreateOrganizationModal({
             <div className="flex flex-col gap-4 p-6">
               <div className="flex gap-3">
                 <Button onClick={handleCreateClick} className="w-full">
-                  Create Organization
+                  {t("organization.createModal.createButton")}
                 </Button>
               </div>
             </div>

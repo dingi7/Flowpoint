@@ -45,6 +45,7 @@ import {
 import { PermissionKey, Role } from "@/core";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Edit, MoreHorizontal, Shield, Trash2, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RoleForm } from "./RoleForm";
 
 interface RoleListProps {
@@ -52,6 +53,7 @@ interface RoleListProps {
 }
 
 export function RoleList({ searchQuery }: RoleListProps) {
+  const { t } = useTranslation();
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [deletingRole, setDeletingRole] = useState<Role | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -119,11 +121,11 @@ export function RoleList({ searchQuery }: RoleListProps) {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Shield className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No roles found</h3>
+          <h3 className="text-lg font-semibold mb-2">{t("team.role.noResults")}</h3>
           <p className="text-muted-foreground text-center">
             {searchQuery
-              ? `No roles match "${searchQuery}". Try adjusting your search.`
-              : "Get started by creating your first role."}
+              ? t("team.role.noResultsSearch", { query: searchQuery })
+              : t("team.role.getStarted")}
           </p>
         </CardContent>
       </Card>
@@ -136,17 +138,17 @@ export function RoleList({ searchQuery }: RoleListProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Roles ({filteredRoles.length})
+            {t("team.roles")} ({filteredRoles.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Role</TableHead>
-                <TableHead>Permissions</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Updated</TableHead>
+                <TableHead>{t("team.role.tableHeaders.role")}</TableHead>
+                <TableHead>{t("team.role.tableHeaders.permissions")}</TableHead>
+                <TableHead>{t("team.role.tableHeaders.created")}</TableHead>
+                <TableHead>{t("team.role.tableHeaders.updated")}</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -166,7 +168,7 @@ export function RoleList({ searchQuery }: RoleListProps) {
                         </p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          Role
+                          {t("team.roles")}
                         </p>
                       </div>
                     </div>
@@ -185,7 +187,7 @@ export function RoleList({ searchQuery }: RoleListProps) {
                         ))
                       ) : (
                         <span className="text-sm text-muted-foreground">
-                          No permissions
+                          {t("team.role.noPermissions")}
                         </span>
                       )}
                     </div>
@@ -193,12 +195,12 @@ export function RoleList({ searchQuery }: RoleListProps) {
                   <TableCell>
                     {role.createdAt
                       ? new Date(role.createdAt).toLocaleDateString()
-                      : "N/A"}
+                      : t("common.notAvailable")}
                   </TableCell>
                   <TableCell>
                     {role.updatedAt
                       ? new Date(role.updatedAt).toLocaleDateString()
-                      : "N/A"}
+                      : t("common.notAvailable")}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -208,18 +210,18 @@ export function RoleList({ searchQuery }: RoleListProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("team.role.actions.label")}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => handleEdit(role)}>
                           <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          {t("team.role.actions.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDelete(role)}
                           className="text-red-600"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          {t("team.role.actions.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -235,7 +237,7 @@ export function RoleList({ searchQuery }: RoleListProps) {
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="min-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Role</DialogTitle>
+            <DialogTitle>{t("team.role.editTitle")}</DialogTitle>
           </DialogHeader>
           {editingRole && (
             <RoleForm
@@ -264,23 +266,21 @@ export function RoleList({ searchQuery }: RoleListProps) {
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Role</AlertDialogTitle>
+            <AlertDialogTitle>{t("team.role.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the role "{deletingRole?.name}"?
-              This action cannot be undone and will remove this role from all
-              members who have it assigned.
+              {t("team.role.deleteDescription", { name: deletingRole?.name || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setDeletingRole(null)}>
-              Cancel
+              {t("team.role.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeletingRole}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeletingRole ? "Deleting..." : "Delete Role"}
+              {isDeletingRole ? t("team.role.deleting") : t("team.role.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -30,12 +30,222 @@
         "templates": "Email Templates",
         "api": "API",
         "updatedSuccess": "Organization updated successfully",
-        "updateError": "Failed to update organization"
+        "updateError": "Failed to update organization",
+        "createModal": {
+            "title": "Create Your Organization",
+            "description": "To get started, please create your organization. This will be your workspace where you can manage customers, appointments, and services.",
+            "createButton": "Create Organization"
+        },
+        "form": {
+            "basicInformation": "Basic Information",
+            "organizationName": "Organization Name",
+            "organizationNamePlaceholder": "Enter organization name",
+            "organizationLogo": "Organization Logo (Optional)",
+            "industry": "Industry",
+            "industryPlaceholder": "Enter industry (optional)",
+            "currency": "Currency",
+            "selectCurrency": "Select currency",
+            "contactInformation": "Contact Information",
+            "address": "Address",
+            "addressPlaceholder": "Enter organization address",
+            "phone": "Phone",
+            "phonePlaceholder": "Enter phone number",
+            "email": "Email",
+            "emailPlaceholder": "Enter email address",
+            "googleMapsUrl": "Google Maps URL",
+            "googleMapsUrlPlaceholder": "https://maps.google.com/...",
+            "workingHours": "Working Hours",
+            "timezone": "Timezone",
+            "selectTimezone": "Select timezone",
+            "timezoneDescription": "All times are stored in UTC. Working hours will be converted automatically.",
+            "workingHoursStart": "Working Hours Start",
+            "workingHoursStartDescription": "Start time for your organization's working hours",
+            "workingHoursEnd": "Working Hours End",
+            "workingHoursEndDescription": "End time for your organization's working hours",
+            "workingDays": "Working Days",
+            "bufferTime": "Buffer Time (minutes)",
+            "bufferTimePlaceholder": "0",
+            "cancellationPolicy": "Cancellation Policy (hours)",
+            "cancellationPolicyPlaceholder": "24",
+            "appointmentReminders": "Appointment Reminders",
+            "reminderHoursBefore": "Reminder Hours Before Appointment",
+            "reminderHoursBeforePlaceholder": "24",
+            "reminderHoursBeforeDescription": "How many hours before the appointment should reminders be sent",
+            "notificationMethods": "Notification Methods",
+            "emailNotifications": "Email Notifications",
+            "emailNotificationsDescription": "Send email notifications for appointments",
+            "smsNotifications": "SMS Notifications",
+            "smsNotificationsDescription": "Send SMS notifications for appointments",
+            "customFields": "Custom Customer Fields",
+            "field": "Field",
+            "fieldName": "Field Name",
+            "fieldNamePlaceholder": "Enter field name",
+            "fieldType": "Field Type",
+            "placeholder": "Placeholder (Optional)",
+            "placeholderPlaceholder": "Enter placeholder text",
+            "requiredField": "Required field",
+            "addField": "Add Custom Field",
+            "removeField": "Remove",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "uploadingImage": "Uploading image...",
+            "updateOrganization": "Update Organization",
+            "createOrganization": "Create Organization"
+        },
+        "emailTemplates": {
+            "title": "Email Templates",
+            "description": "Customize the email notifications sent to customers for appointment confirmations and reminders. Use variables like {{customerName}} to insert dynamic content.",
+            "confirmationEmail": "Confirmation Email",
+            "reminderEmail": "Reminder Email",
+            "emailSubject": "Email Subject",
+            "emailSubjectPlaceholder": "e.g., Appointment Confirmed - {{serviceName}}",
+            "htmlTemplate": "HTML Template",
+            "htmlTemplatePlaceholder": "Enter HTML template...",
+            "plainTextTemplate": "Plain Text Template",
+            "plainTextTemplatePlaceholder": "Enter plain text template...",
+            "saveTemplate": "Save Template",
+            "saving": "Saving...",
+            "resetToDefault": "Reset to Default",
+            "availableVariables": "Available Variables",
+            "conditionalBlocks": "Conditional Blocks",
+            "conditionalBlocksDescription": "Use conditional blocks to show content only when a variable exists:",
+            "conditionalBlocksSupported": "Supported: fee, organizationAddress, organizationPhone, organizationEmail",
+            "savedSuccess": "email template saved successfully",
+            "saveError": "Failed to save template:",
+            "resetInfo": "Template reset to default",
+            "organizationIdRequired": "Organization ID is required"
+        },
+        "apiKeys": {
+            "title": "API Keys",
+            "apiDocumentation": "API Documentation",
+            "createApiKey": "Create API Key",
+            "noApiKeys": "No API keys created yet. Create your first API key to get started.",
+            "tableHeaders": {
+                "name": "Name",
+                "apiKey": "API Key",
+                "status": "Status",
+                "created": "Created",
+                "actions": "Actions"
+            },
+            "createDialog": {
+                "title": "Create API Key",
+                "description": "Create a new API key for your organization.",
+                "name": "Name",
+                "namePlaceholder": "e.g., Production API Key",
+                "cancel": "Cancel",
+                "creating": "Creating...",
+                "create": "Create API Key"
+            },
+            "successDialog": {
+                "title": "API Key Created Successfully",
+                "description": "Your API key has been created. Please copy it now as you won't be able to see it again.",
+                "important": "Important: Copy your API key now",
+                "importantDescription": "This is the only time you'll be able to see the full API key. Make sure to copy and store it securely.",
+                "apiKey": "API Key",
+                "copied": "I've copied the API key"
+            },
+            "revokeDialog": {
+                "title": "Revoke API Key",
+                "description": "Are you sure you want to revoke this API key? This action cannot be undone. The key will immediately stop working and cannot be restored.",
+                "cancel": "Cancel",
+                "revoking": "Revoking...",
+                "revoke": "Revoke API Key"
+            },
+            "status": {
+                "active": "Active",
+                "revoked": "Revoked"
+            },
+            "errors": {
+                "nameRequired": "Please enter a name for the API key",
+                "organizationIdRequired": "Organization ID is required",
+                "createError": "Failed to create API key",
+                "revokeError": "Failed to revoke API key",
+                "revokeSuccess": "API key revoked successfully",
+                "copySuccess": "API key copied to clipboard"
+            }
+        },
+        "webhooks": {
+            "title": "Webhook Subscriptions",
+            "createWebhook": "Create Webhook",
+            "loading": "Loading webhook subscriptions...",
+            "noWebhooks": "No webhook subscriptions created yet. Create your first webhook to receive real-time event notifications.",
+            "tableHeaders": {
+                "callbackUrl": "Callback URL",
+                "status": "Status",
+                "created": "Created",
+                "actions": "Actions"
+            },
+            "createDialog": {
+                "title": "Create Webhook Subscription",
+                "description": "Set up a webhook to receive real-time notifications when events occur in your organization.",
+                "callbackUrl": "Callback URL",
+                "callbackUrlPlaceholder": "https://your-server.com/webhook",
+                "callbackUrlDescription": "The URL where webhook events will be sent. Must be a valid HTTPS URL.",
+                "eventTypes": "Event Types",
+                "eventTypesDescription": "Select one or more event types to subscribe to. You'll receive notifications for all selected events.",
+                "cancel": "Cancel",
+                "creating": "Creating...",
+                "create": "Create Webhook"
+            },
+            "detailsDialog": {
+                "title": "Webhook Subscription Details",
+                "description": "View details of your webhook subscription.",
+                "callbackUrl": "Callback URL",
+                "status": "Status",
+                "eventTypes": "Event Types",
+                "noEventTypes": "No event types",
+                "created": "Created",
+                "lastUpdated": "Last Updated",
+                "close": "Close"
+            },
+            "deleteDialog": {
+                "title": "Delete Webhook Subscription",
+                "description": "Are you sure you want to delete this webhook subscription? This action cannot be undone.",
+                "cancel": "Cancel",
+                "deleting": "Deleting...",
+                "delete": "Delete"
+            },
+            "status": {
+                "active": "Active",
+                "inactive": "Inactive"
+            },
+            "errors": {
+                "callbackUrlRequired": "Please enter a callback URL",
+                "eventTypeRequired": "Please select at least one event type",
+                "organizationIdRequired": "Organization ID is required",
+                "invalidUrl": "Please enter a valid URL",
+                "createError": "Failed to create webhook subscription:",
+                "createSuccess": "Webhook subscription created successfully",
+                "deleteError": "Failed to remove webhook subscription:",
+                "deleteSuccess": "Webhook subscription removed successfully"
+            },
+            "eventTypes": {
+                "customerCreated": "Customer Created",
+                "customerUpdated": "Customer Updated",
+                "customerDeleted": "Customer Deleted",
+                "appointmentCreated": "Appointment Created",
+                "appointmentUpdated": "Appointment Updated",
+                "appointmentDeleted": "Appointment Deleted",
+                "serviceCreated": "Service Created",
+                "serviceUpdated": "Service Updated",
+                "serviceDeleted": "Service Deleted",
+                "memberCreated": "Member Created",
+                "memberUpdated": "Member Updated",
+                "memberDeleted": "Member Deleted",
+                "inviteCreated": "Invite Created",
+                "inviteUpdated": "Invite Updated",
+                "inviteDeleted": "Invite Deleted"
+            }
+        }
     },
     "common": {
         "language": "Language",
         "english": "English",
-        "bulgarian": "Bulgarian"
+        "bulgarian": "Bulgarian",
+        "notAvailable": "N/A",
+        "min": "min",
+        "loadMore": "Load More",
+        "loadingMore": "Loading..."
     },
     "search": {
         "placeholder": "Search customers, appointments...",
@@ -100,14 +310,166 @@
         "tomorrow": "Tomorrow",
         "week": "This Week",
         "month": "This Month",
-        "upcoming": "Upcoming"
+        "upcoming": "Upcoming",
+        "loading": "Loading appointments...",
+        "noResults": "No appointments found matching your criteria.",
+        "unknownCustomer": "Unknown Customer",
+        "noEmail": "No email",
+        "unknownService": "Unknown Service",
+        "tableHeaders": {
+            "customer": "Customer",
+            "service": "Service",
+            "dateTime": "Date & Time",
+            "duration": "Duration",
+            "price": "Price",
+            "status": "Status"
+        },
+        "actions": {
+            "label": "Actions",
+            "viewDetails": "View Details",
+            "edit": "Edit Appointment",
+            "markComplete": "Mark Complete",
+            "cancel": "Cancel",
+            "delete": "Delete Appointment"
+        },
+        "status": {
+            "confirmed": "Confirmed"
+        },
+        "edit": "Edit Appointment",
+        "form": {
+            "selectCustomer": "Select Customer",
+            "selectService": "Select Service",
+            "selectAssignee": "Select Assignee",
+            "status": "Status",
+            "date": "Date",
+            "time": "Time",
+            "notes": "Notes",
+            "chooseCustomer": "Choose a customer",
+            "chooseService": "Choose a service",
+            "chooseAssignee": "Choose an assignee",
+            "pickDate": "Pick a date",
+            "selectTime": "Select time",
+            "selectServiceAndDate": "Select service and date first",
+            "loadingTimes": "Loading available times...",
+            "errorLoadingTimes": "Error loading times",
+            "noAvailableTimes": "No available times",
+            "createNewCustomer": "Create New Customer",
+            "cancel": "Cancel",
+            "book": "Book Appointment",
+            "update": "Update Appointment",
+            "booking": "Booking...",
+            "failedToBook": "Failed to book appointment",
+            "customerEmailRequired": "Customer email is required to book an appointment",
+            "assigneeRequired": "Assignee is required to book an appointment",
+            "serviceRequired": "Service is required to book an appointment",
+            "startTimeRequired": "Start time is required",
+            "notesPlaceholder": "Any special requests, preferences, or notes for this appointment...",
+            "failedToUpdate": "Failed to update appointment",
+            "organizationIdMissing": "Organization ID is missing",
+            "appointmentIdMissing": "Appointment ID is missing",
+            "unexpectedError": "An unexpected error occurred",
+            "error": "Error"
+        },
+        "card": {
+            "assignedTo": "Assigned to:",
+            "tbd": "TBD"
+        },
+        "details": {
+            "title": "Appointment Details",
+            "loading": "Loading appointment details...",
+            "unknownCustomer": "Unknown Customer",
+            "bookedOn": "Booked on",
+            "complete": "Complete",
+            "cancel": "Cancel",
+            "customerInformation": "Customer Information",
+            "customer": "Customer",
+            "email": "Email",
+            "phone": "Phone",
+            "serviceDetails": "Service Details",
+            "service": "Service",
+            "duration": "Duration",
+            "minutes": "minutes",
+            "price": "Price",
+            "scheduleInformation": "Schedule Information",
+            "date": "Date",
+            "time": "Time",
+            "endTime": "End Time",
+            "notes": "Notes"
+        },
+        "delete": {
+            "title": "Delete Appointment",
+            "description": "Are you sure you want to delete this appointment? This action cannot be undone.",
+            "untitled": "Untitled Appointment",
+            "cancel": "Cancel",
+            "delete": "Delete Appointment",
+            "deleting": "Deleting..."
+        }
     },
     "customers": {
         "title": "Customer Management",
         "subtitle": "Manage your customer relationships and information",
         "add": "Add Customer",
         "addNew": "Add New Customer",
-        "searchPlaceholder": "Search customers by name..."
+        "searchPlaceholder": "Search customers by name...",
+        "noResults": "No customers found matching your criteria.",
+        "loading": "Loading customers...",
+        "tableHeaders": {
+            "customer": "Customer",
+            "contact": "Contact",
+            "created": "Created",
+            "updated": "Updated"
+        },
+        "actions": {
+            "label": "Actions",
+            "viewDetails": "View Details",
+            "edit": "Edit Customer",
+            "delete": "Delete Customer"
+        },
+        "details": "Customer Details",
+        "edit": "Edit Customer",
+        "form": {
+            "basicInformation": "Basic Information",
+            "fullName": "Full Name",
+            "emailAddress": "Email Address",
+            "phoneNumber": "Phone Number",
+            "address": "Address",
+            "additionalInformation": "Additional Information",
+            "notes": "Notes",
+            "namePlaceholder": "Enter customer name",
+            "emailPlaceholder": "customer@example.com",
+            "phonePlaceholder": "+1 (555) 123-4567",
+            "addressPlaceholder": "123 Main St, City, State, ZIP",
+            "notesPlaceholder": "Additional notes about the customer...",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saving": "Saving..."
+        },
+        "notAvailable": "N/A",
+        "detailsDialog": {
+            "editCustomer": "Edit Customer",
+            "contactInformation": "Contact Information",
+            "email": "Email",
+            "phone": "Phone",
+            "address": "Address",
+            "customerStats": "Customer Stats",
+            "totalAppointments": "Total Appointments",
+            "loading": "Loading...",
+            "appointment": "appointment",
+            "appointments": "appointments",
+            "notes": "Notes",
+            "appointmentsTitle": "Appointments",
+            "loadingAppointments": "Loading appointments...",
+            "noAppointments": "No appointments found for this customer",
+            "unknownService": "Unknown Service",
+            "tbd": "TBD"
+        },
+        "delete": {
+            "title": "Delete Customer",
+            "description": "Are you sure you want to delete this customer? This action cannot be undone.",
+            "cancel": "Cancel",
+            "delete": "Delete Customer",
+            "deleting": "Deleting..."
+        }
     },
     "services": {
         "title": "Service Management",
@@ -138,7 +500,44 @@
         "savedSuccess": "Service saved successfully",
         "deletedSuccess": "Service deleted successfully",
         "deleteError": "Failed to delete service",
-        "noOrgError": "No organization selected"
+        "noOrgError": "No organization selected",
+        "loading": "Loading services...",
+        "noResults": "No services found.",
+        "noResultsSearch": "No services found matching your search.",
+        "tryAdjusting": "Try adjusting your search terms.",
+        "tableHeaders": {
+            "serviceName": "Service Name",
+            "description": "Description",
+            "price": "Price",
+            "duration": "Duration",
+            "owner": "Owner"
+        },
+        "actions": {
+            "viewDetails": "View Details",
+            "edit": "Edit Service",
+            "delete": "Delete Service",
+            "openMenu": "Open menu"
+        },
+        "noDescription": "No description",
+        "organization": "Organization",
+        "member": "Member",
+        "form": {
+            "serviceInformation": "Service Information",
+            "serviceName": "Service Name",
+            "price": "Price (BGN)",
+            "duration": "Duration (minutes)",
+            "description": "Description",
+            "image": "Service Image",
+            "ownerType": "Owner Type",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saving": "Saving...",
+            "namePlaceholder": "Enter service name",
+            "pricePlaceholder": "0.00",
+            "durationPlaceholder": "30",
+            "descriptionPlaceholder": "Enter service description"
+        },
+        "errorLoading": "Error loading services"
     },
     "team": {
         "title": "Team Management",
@@ -160,7 +559,153 @@
         "roles": "Roles",
         "searchMembers": "Search members...",
         "searchInvites": "Search invites...",
-        "searchRoles": "Search roles..."
+        "searchRoles": "Search roles...",
+        "tableHeaders": {
+            "member": "Member",
+            "roles": "Roles",
+            "created": "Created",
+            "updated": "Updated"
+        },
+        "actions": {
+            "label": "Actions",
+            "viewDetails": "View Details",
+            "edit": "Edit Member",
+            "delete": "Delete Member"
+        },
+        "teamMember": "Team Member",
+        "you": "You",
+        "noRolesAssigned": "No roles assigned",
+        "noResults": "No members found matching your criteria.",
+        "details": "Member Details",
+        "edit": "Edit Member",
+        "delete": {
+            "title": "Delete Member",
+            "description": "Are you sure you want to delete the member \"{{name}}\"? This action cannot be undone and will remove this member from the organization.",
+            "cancel": "Cancel",
+            "confirm": "Delete Member",
+            "deleting": "Deleting..."
+        },
+        "role": {
+            "tableHeaders": {
+                "role": "Role",
+                "permissions": "Permissions",
+                "created": "Created",
+                "updated": "Updated"
+            },
+            "actions": {
+                "label": "Actions",
+                "edit": "Edit",
+                "delete": "Delete"
+            },
+            "noResults": "No roles found",
+            "noResultsSearch": "No roles match \"{{query}}\". Try adjusting your search.",
+            "getStarted": "Get started by creating your first role.",
+            "noPermissions": "No permissions",
+            "editTitle": "Edit Role",
+            "deleteTitle": "Delete Role",
+            "deleteDescription": "Are you sure you want to delete the role \"{{name}}\"? This action cannot be undone and will remove this role from all members who have it assigned.",
+            "cancel": "Cancel",
+            "confirm": "Delete Role",
+            "deleting": "Deleting...",
+            "form": {
+                "roleName": "Role Name",
+                "namePlaceholder": "Enter role name (e.g., Manager, Assistant)",
+                "permissions": "Permissions",
+                "permissionsDescription": "Select the permissions this role should have",
+                "cancel": "Cancel",
+                "saving": "Saving...",
+                "update": "Update Role",
+                "create": "Create Role",
+                "permissionDescriptions": {
+                    "MANAGE_MEMBERS": "Create, edit, and delete team members",
+                    "MANAGE_APPOINTMENTS": "Create, edit, and delete appointments",
+                    "MANAGE_CALENDARS": "Manage calendar settings and availability",
+                    "VIEW_REPORTS": "Access reports and analytics",
+                    "MANAGE_ORGANIZATION": "Manage organization settings and configuration"
+                }
+            }
+        },
+        "invite": {
+            "form": {
+                "emailAddress": "Email Address",
+                "emailPlaceholder": "Enter email address",
+                "validFor": "Valid For (days)",
+                "validForPlaceholder": "Enter valid for days",
+                "roles": "Roles",
+                "noRolesAvailable": "No roles available",
+                "cancel": "Cancel",
+                "sending": "Sending Invite...",
+                "send": "Send Invite"
+            }
+        },
+        "invitation": {
+            "acceptModal": {
+                "title": "Accept Organization Invitation",
+                "description": "Complete your profile to join the organization",
+                "personalInformation": "Personal Information",
+                "fullName": "Full Name",
+                "fullNamePlaceholder": "Enter your full name",
+                "fullNameDescription": "This is how your name will appear to other members",
+                "description": "Description (Optional)",
+                "descriptionPlaceholder": "Tell us a bit about yourself and your role...",
+                "descriptionHelp": "A brief description about yourself and your role in the organization",
+                "profileImage": "Profile Image (Optional)",
+                "profileImageDescription": "Add a profile picture to help others recognize you",
+                "cancel": "Cancel",
+                "accepting": "Accepting...",
+                "uploadingImage": "Uploading image...",
+                "acceptInvitation": "Accept Invitation"
+            },
+            "card": {
+                "invitedTo": "Invited to organization:",
+                "loading": "Loading...",
+                "expiresOn": "Expires on:",
+                "acceptInvitation": "Accept Invitation",
+                "declining": "Declining...",
+                "decline": "Decline",
+                "declined": "This invitation has been declined",
+                "accepted": "This invitation has been accepted"
+            },
+            "notifications": {
+                "loading": "Loading invitations...",
+                "failedToLoad": "Failed to load invitations. Please try again.",
+                "noInvitations": "No invitations found",
+                "pendingInvitations": "Pending Invitations",
+                "recentActivity": "Recent Activity"
+            },
+            "list": {
+                "loading": "Loading invites...",
+                "failedToLoad": "Failed to load invites",
+                "tryAgain": "Try Again",
+                "noInvites": "No invites found",
+                "noInvitesDescription": "Invites will appear here when you send them to new members",
+                "invites": "Invites",
+                "tableHeaders": {
+                    "invitee": "Invitee",
+                    "status": "Status",
+                    "roles": "Roles",
+                    "created": "Created",
+                    "expires": "Expires",
+                    "actions": "Actions"
+                },
+                "status": {
+                    "expired": "Expired",
+                    "pending": "Pending",
+                    "accepted": "Accepted",
+                    "declined": "Declined",
+                    "unknown": "Unknown"
+                },
+                "invitedMember": "Invited Member",
+                "noRolesAssigned": "No roles assigned",
+                "daysLeft": "day",
+                "daysLeftPlural": "days left",
+                "expired": "Expired",
+                "actions": "Actions",
+                "declining": "Declining...",
+                "cancelInvite": "Cancel Invite",
+                "noResults": "No invites found matching your criteria."
+            }
+        }
     },
     "calendar": {
         "title": "Calendar",
@@ -179,6 +724,95 @@
         "createdSuccess": "Calendar created successfully",
         "createError": "Failed to create calendar",
         "timeOffAddedSuccess": "Time off added successfully",
-        "timeOffAddError": "Failed to add time off"
+        "timeOffAddError": "Failed to add time off",
+        "appointments": "Appointments",
+        "noAppointmentsToday": "No appointments scheduled for this day",
+        "appointmentDetails": "Appointment Details",
+        "days": {
+            "sun": "Sun",
+            "mon": "Mon",
+            "tue": "Tue",
+            "wed": "Wed",
+            "thu": "Thu",
+            "fri": "Fri",
+            "sat": "Sat"
+        },
+        "months": {
+            "january": "January",
+            "february": "February",
+            "march": "March",
+            "april": "April",
+            "may": "May",
+            "june": "June",
+            "july": "July",
+            "august": "August",
+            "september": "September",
+            "october": "October",
+            "november": "November",
+            "december": "December"
+        },
+        "timeOffForm": {
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "reason": "Reason",
+            "pickStartDate": "Pick start date",
+            "pickEndDate": "Pick end date",
+            "enterReason": "Enter reason for time off...",
+            "clear": "Clear",
+            "cancel": "Cancel",
+            "adding": "Adding...",
+            "addTimeOff": "Add Time Off"
+        },
+        "workingScheduleForm": {
+            "generalSettings": "General Settings",
+            "bufferTime": "Buffer Time (minutes)",
+            "bufferTimeDescription": "Time gap between appointments",
+            "weeklyHours": "Weekly Hours",
+            "setAvailability": "Set your availability for each day",
+            "unavailable": "Unavailable",
+            "addInterval": "Add Interval",
+            "copyToAllDays": "Copy to all days",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "saveChanges": "Save Changes",
+            "days": {
+                "monday": "Monday",
+                "tuesday": "Tuesday",
+                "wednesday": "Wednesday",
+                "thursday": "Thursday",
+                "friday": "Friday",
+                "saturday": "Saturday",
+                "sunday": "Sunday"
+            }
+        },
+        "dayAppointments": {
+            "appointmentsFor": "Appointments for",
+            "appointmentScheduled": "appointment",
+            "appointmentsScheduled": "appointments scheduled",
+            "newAppointment": "New Appointment",
+            "noAppointments": "No Appointments",
+            "noAppointmentsScheduled": "No appointments scheduled for this day.",
+            "scheduleAppointment": "Schedule Appointment",
+            "createNewAppointment": "Create New Appointment",
+            "editAppointment": "Edit Appointment",
+            "customer": "Customer:",
+            "service": "Service:",
+            "pending": "Pending",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "timeOffList": {
+            "loading": "Loading time offs...",
+            "noTimeOffs": "No time offs scheduled",
+            "dateRange": "Date Range",
+            "reason": "Reason",
+            "actions": "Actions",
+            "deleteTimeOff": "Delete Time Off",
+            "deleteConfirm": "Are you sure you want to delete this time off? This action cannot be undone.",
+            "cancel": "Cancel",
+            "delete": "Delete",
+            "deletedSuccess": "Time off deleted successfully",
+            "deleteError": "Failed to delete time off"
+        }
     }
 }

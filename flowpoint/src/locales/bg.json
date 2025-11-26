@@ -30,12 +30,222 @@
         "templates": "Имейл шаблони",
         "api": "API",
         "updatedSuccess": "Организацията е обновена успешно",
-        "updateError": "Грешка при обновяване на организацията"
+        "updateError": "Грешка при обновяване на организацията",
+        "createModal": {
+            "title": "Създайте вашата организация",
+            "description": "За да започнете, моля създайте вашата организация. Това ще бъде вашето работно пространство, където можете да управлявате клиенти, резервации и услуги.",
+            "createButton": "Създай организация"
+        },
+        "form": {
+            "basicInformation": "Основна информация",
+            "organizationName": "Име на организация",
+            "organizationNamePlaceholder": "Въведете име на организация",
+            "organizationLogo": "Лого на организация (По избор)",
+            "industry": "Отрасъл",
+            "industryPlaceholder": "Въведете отрасъл (по избор)",
+            "currency": "Валута",
+            "selectCurrency": "Избери валута",
+            "contactInformation": "Контактна информация",
+            "address": "Адрес",
+            "addressPlaceholder": "Въведете адрес на организация",
+            "phone": "Телефон",
+            "phonePlaceholder": "Въведете телефонен номер",
+            "email": "Имейл",
+            "emailPlaceholder": "Въведете имейл адрес",
+            "googleMapsUrl": "Google Maps URL",
+            "googleMapsUrlPlaceholder": "https://maps.google.com/...",
+            "workingHours": "Работни часове",
+            "timezone": "Часова зона",
+            "selectTimezone": "Избери часова зона",
+            "timezoneDescription": "Всички времена се съхраняват в UTC. Работните часове ще бъдат конвертирани автоматично.",
+            "workingHoursStart": "Начало на работни часове",
+            "workingHoursStartDescription": "Начален час за работните часове на вашата организация",
+            "workingHoursEnd": "Край на работни часове",
+            "workingHoursEndDescription": "Краен час за работните часове на вашата организация",
+            "workingDays": "Работни дни",
+            "bufferTime": "Буферно време (минути)",
+            "bufferTimePlaceholder": "0",
+            "cancellationPolicy": "Политика за отмяна (часове)",
+            "cancellationPolicyPlaceholder": "24",
+            "appointmentReminders": "Напомняния за резервации",
+            "reminderHoursBefore": "Часове преди резервация за напомняне",
+            "reminderHoursBeforePlaceholder": "24",
+            "reminderHoursBeforeDescription": "Колко часа преди резервацията да се изпращат напомняния",
+            "notificationMethods": "Методи за известия",
+            "emailNotifications": "Имейл известия",
+            "emailNotificationsDescription": "Изпращане на имейл известия за резервации",
+            "smsNotifications": "SMS известия",
+            "smsNotificationsDescription": "Изпращане на SMS известия за резервации",
+            "customFields": "Персонализирани полета за клиенти",
+            "field": "Поле",
+            "fieldName": "Име на поле",
+            "fieldNamePlaceholder": "Въведете име на поле",
+            "fieldType": "Тип поле",
+            "placeholder": "Placeholder (По избор)",
+            "placeholderPlaceholder": "Въведете placeholder текст",
+            "requiredField": "Задължително поле",
+            "addField": "Добави персонализирано поле",
+            "removeField": "Премахни",
+            "cancel": "Отмени",
+            "saving": "Запазване...",
+            "uploadingImage": "Качване на изображение...",
+            "updateOrganization": "Обнови организация",
+            "createOrganization": "Създай организация"
+        },
+        "emailTemplates": {
+            "title": "Имейл шаблони",
+            "description": "Персонализирайте имейл известията, изпращани на клиенти за потвърждения и напомняния за резервации. Използвайте променливи като {{customerName}}, за да вмъкнете динамично съдържание.",
+            "confirmationEmail": "Имейл за потвърждение",
+            "reminderEmail": "Имейл за напомняне",
+            "emailSubject": "Тема на имейла",
+            "emailSubjectPlaceholder": "напр., Резервация потвърдена - {{serviceName}}",
+            "htmlTemplate": "HTML шаблон",
+            "htmlTemplatePlaceholder": "Въведете HTML шаблон...",
+            "plainTextTemplate": "Обикновен текстов шаблон",
+            "plainTextTemplatePlaceholder": "Въведете обикновен текстов шаблон...",
+            "saveTemplate": "Запази шаблон",
+            "saving": "Запазване...",
+            "resetToDefault": "Върни към по подразбиране",
+            "availableVariables": "Налични променливи",
+            "conditionalBlocks": "Условни блокове",
+            "conditionalBlocksDescription": "Използвайте условни блокове, за да покажете съдържание само когато променлива съществува:",
+            "conditionalBlocksSupported": "Поддържани: fee, organizationAddress, organizationPhone, organizationEmail",
+            "savedSuccess": "имейл шаблонът е запазен успешно",
+            "saveError": "Грешка при запазване на шаблон:",
+            "resetInfo": "Шаблонът е върнат към стойностите по подразбиране",
+            "organizationIdRequired": "Изисква се ID на организация"
+        },
+        "apiKeys": {
+            "title": "API ключове",
+            "apiDocumentation": "API документация",
+            "createApiKey": "Създай API ключ",
+            "noApiKeys": "Все още няма създадени API ключове. Създайте първия си API ключ, за да започнете.",
+            "tableHeaders": {
+                "name": "Име",
+                "apiKey": "API ключ",
+                "status": "Статус",
+                "created": "Създаден",
+                "actions": "Действия"
+            },
+            "createDialog": {
+                "title": "Създай API ключ",
+                "description": "Създайте нов API ключ за вашата организация.",
+                "name": "Име",
+                "namePlaceholder": "напр., Production API Key",
+                "cancel": "Отмени",
+                "creating": "Създаване...",
+                "create": "Създай API ключ"
+            },
+            "successDialog": {
+                "title": "API ключът е създаден успешно",
+                "description": "Вашият API ключ е създаден. Моля, копирайте го сега, тъй като няма да можете да го видите отново.",
+                "important": "Важно: Копирайте вашия API ключ сега",
+                "importantDescription": "Това е единственият път, когато ще можете да видите пълния API ключ. Уверете се, че го копирате и съхранявате сигурно.",
+                "apiKey": "API ключ",
+                "copied": "Копирах API ключа"
+            },
+            "revokeDialog": {
+                "title": "Отмени API ключ",
+                "description": "Сигурни ли сте, че искате да отмените този API ключ? Това действие не може да бъде отменено. Ключът веднага ще спре да работи и не може да бъде възстановен.",
+                "cancel": "Отмени",
+                "revoking": "Отменяне...",
+                "revoke": "Отмени API ключ"
+            },
+            "status": {
+                "active": "Активен",
+                "revoked": "Отменен"
+            },
+            "errors": {
+                "nameRequired": "Моля, въведете име за API ключа",
+                "organizationIdRequired": "Изисква се ID на организация",
+                "createError": "Грешка при създаване на API ключ",
+                "revokeError": "Грешка при отменяне на API ключ",
+                "revokeSuccess": "API ключът е отменен успешно",
+                "copySuccess": "API ключът е копиран в клипборда"
+            }
+        },
+        "webhooks": {
+            "title": "Webhook абонаменти",
+            "createWebhook": "Създай Webhook",
+            "loading": "Зареждане на webhook абонаменти...",
+            "noWebhooks": "Все още няма създадени webhook абонаменти. Създайте първия си webhook, за да получавате известия за събития в реално време.",
+            "tableHeaders": {
+                "callbackUrl": "Callback URL",
+                "status": "Статус",
+                "created": "Създаден",
+                "actions": "Действия"
+            },
+            "createDialog": {
+                "title": "Създай Webhook абонамент",
+                "description": "Настройте webhook, за да получавате известия в реално време, когато се случват събития във вашата организация.",
+                "callbackUrl": "Callback URL",
+                "callbackUrlPlaceholder": "https://your-server.com/webhook",
+                "callbackUrlDescription": "URL адресът, където ще се изпращат webhook събитията. Трябва да бъде валиден HTTPS URL.",
+                "eventTypes": "Типове събития",
+                "eventTypesDescription": "Изберете един или повече типове събития, за да се абонирате. Ще получавате известия за всички избрани събития.",
+                "cancel": "Отмени",
+                "creating": "Създаване...",
+                "create": "Създай Webhook"
+            },
+            "detailsDialog": {
+                "title": "Детайли за Webhook абонамент",
+                "description": "Преглед на детайлите на вашия webhook абонамент.",
+                "callbackUrl": "Callback URL",
+                "status": "Статус",
+                "eventTypes": "Типове събития",
+                "noEventTypes": "Няма типове събития",
+                "created": "Създаден",
+                "lastUpdated": "Последно обновен",
+                "close": "Затвори"
+            },
+            "deleteDialog": {
+                "title": "Изтрий Webhook абонамент",
+                "description": "Сигурни ли сте, че искате да изтриете този webhook абонамент? Това действие не може да бъде отменено.",
+                "cancel": "Отмени",
+                "deleting": "Изтриване...",
+                "delete": "Изтрий"
+            },
+            "status": {
+                "active": "Активен",
+                "inactive": "Неактивен"
+            },
+            "errors": {
+                "callbackUrlRequired": "Моля, въведете callback URL",
+                "eventTypeRequired": "Моля, изберете поне един тип събитие",
+                "organizationIdRequired": "Изисква се ID на организация",
+                "invalidUrl": "Моля, въведете валиден URL",
+                "createError": "Грешка при създаване на webhook абонамент:",
+                "createSuccess": "Webhook абонаментът е създаден успешно",
+                "deleteError": "Грешка при премахване на webhook абонамент:",
+                "deleteSuccess": "Webhook абонаментът е премахнат успешно"
+            },
+            "eventTypes": {
+                "customerCreated": "Клиент създаден",
+                "customerUpdated": "Клиент обновен",
+                "customerDeleted": "Клиент изтрит",
+                "appointmentCreated": "Резервация създадена",
+                "appointmentUpdated": "Резервация обновена",
+                "appointmentDeleted": "Резервация изтрита",
+                "serviceCreated": "Услуга създадена",
+                "serviceUpdated": "Услуга обновена",
+                "serviceDeleted": "Услуга изтрита",
+                "memberCreated": "Член създаден",
+                "memberUpdated": "Член обновен",
+                "memberDeleted": "Член изтрит",
+                "inviteCreated": "Покана създадена",
+                "inviteUpdated": "Покана обновена",
+                "inviteDeleted": "Покана изтрита"
+            }
+        }
     },
     "common": {
         "language": "Език",
         "english": "Английски",
-        "bulgarian": "Български"
+        "bulgarian": "Български",
+        "notAvailable": "Н/Д",
+        "min": "мин",
+        "loadMore": "Зареди още",
+        "loadingMore": "Зареждане..."
     },
     "search": {
         "placeholder": "Търсене на клиенти, резервации...",
@@ -100,14 +310,166 @@
         "tomorrow": "Утре",
         "week": "Тази седмица",
         "month": "Този месец",
-        "upcoming": "Предстоящи"
+        "upcoming": "Предстоящи",
+        "loading": "Зареждане на резервации...",
+        "noResults": "Няма намерени резервации, отговарящи на критериите ви.",
+        "unknownCustomer": "Неизвестен клиент",
+        "noEmail": "Няма имейл",
+        "unknownService": "Неизвестна услуга",
+        "tableHeaders": {
+            "customer": "Клиент",
+            "service": "Услуга",
+            "dateTime": "Дата и час",
+            "duration": "Продължителност",
+            "price": "Цена",
+            "status": "Статус"
+        },
+        "actions": {
+            "label": "Действия",
+            "viewDetails": "Виж детайли",
+            "edit": "Редактирай резервация",
+            "markComplete": "Маркирай като завършена",
+            "cancel": "Отмени",
+            "delete": "Изтрий резервация"
+        },
+        "status": {
+            "confirmed": "Потвърдена"
+        },
+        "edit": "Редактирай резервация",
+        "form": {
+            "selectCustomer": "Избери клиент",
+            "selectService": "Избери услуга",
+            "selectAssignee": "Избери изпълнител",
+            "status": "Статус",
+            "date": "Дата",
+            "time": "Час",
+            "notes": "Бележки",
+            "chooseCustomer": "Избери клиент",
+            "chooseService": "Избери услуга",
+            "chooseAssignee": "Избери изпълнител",
+            "pickDate": "Избери дата",
+            "selectTime": "Избери час",
+            "selectServiceAndDate": "Първо изберете услуга и дата",
+            "loadingTimes": "Зареждане на налични часове...",
+            "errorLoadingTimes": "Грешка при зареждане на часове",
+            "noAvailableTimes": "Няма налични часове",
+            "createNewCustomer": "Създай нов клиент",
+            "cancel": "Отмени",
+            "book": "Насрочи резервация",
+            "update": "Обнови резервация",
+            "booking": "Насрочване...",
+            "failedToBook": "Грешка при насрочване на резервация",
+            "customerEmailRequired": "Имейлът на клиента е задължителен за насрочване на резервация",
+            "assigneeRequired": "Изпълнителът е задължителен за насрочване на резервация",
+            "serviceRequired": "Услугата е задължителна за насрочване на резервация",
+            "startTimeRequired": "Началният час е задължителен",
+            "notesPlaceholder": "Специални заявки, предпочитания или бележки за тази резервация...",
+            "failedToUpdate": "Грешка при обновяване на резервация",
+            "organizationIdMissing": "Липсва ID на организация",
+            "appointmentIdMissing": "Липсва ID на резервация",
+            "unexpectedError": "Възникна неочаквана грешка",
+            "error": "Грешка"
+        },
+        "card": {
+            "assignedTo": "Назначен на:",
+            "tbd": "Да бъде определено"
+        },
+        "details": {
+            "title": "Детайли за резервация",
+            "loading": "Зареждане на детайли за резервация...",
+            "unknownCustomer": "Неизвестен клиент",
+            "bookedOn": "Резервирано на",
+            "complete": "Завърши",
+            "cancel": "Отмени",
+            "customerInformation": "Информация за клиент",
+            "customer": "Клиент",
+            "email": "Имейл",
+            "phone": "Телефон",
+            "serviceDetails": "Детайли за услугата",
+            "service": "Услуга",
+            "duration": "Продължителност",
+            "minutes": "минути",
+            "price": "Цена",
+            "scheduleInformation": "Информация за графика",
+            "date": "Дата",
+            "time": "Час",
+            "endTime": "Краен час",
+            "notes": "Бележки"
+        },
+        "delete": {
+            "title": "Изтрий резервация",
+            "description": "Сигурни ли сте, че искате да изтриете тази резервация? Това действие не може да бъде отменено.",
+            "untitled": "Резервация без заглавие",
+            "cancel": "Отмени",
+            "delete": "Изтрий резервация",
+            "deleting": "Изтриване..."
+        }
     },
     "customers": {
         "title": "Управление на клиенти",
         "subtitle": "Управление на взаимоотношенията с клиенти и информация",
         "add": "Добави клиент",
         "addNew": "Добави нов клиент",
-        "searchPlaceholder": "Търсене на клиенти по име..."
+        "searchPlaceholder": "Търсене на клиенти по име...",
+        "noResults": "Няма намерени клиенти, отговарящи на критериите ви.",
+        "loading": "Зареждане на клиенти...",
+        "tableHeaders": {
+            "customer": "Клиент",
+            "contact": "Контакт",
+            "created": "Създаден",
+            "updated": "Обновен"
+        },
+        "actions": {
+            "label": "Действия",
+            "viewDetails": "Виж детайли",
+            "edit": "Редактирай клиент",
+            "delete": "Изтрий клиент"
+        },
+        "details": "Детайли за клиент",
+        "edit": "Редактирай клиент",
+        "form": {
+            "basicInformation": "Основна информация",
+            "fullName": "Пълно име",
+            "emailAddress": "Имейл адрес",
+            "phoneNumber": "Телефонен номер",
+            "address": "Адрес",
+            "additionalInformation": "Допълнителна информация",
+            "notes": "Бележки",
+            "namePlaceholder": "Въведете име на клиент",
+            "emailPlaceholder": "клиент@example.com",
+            "phonePlaceholder": "+359 888 123 456",
+            "addressPlaceholder": "ул. Главна 123, Град, Област, ПК",
+            "notesPlaceholder": "Допълнителни бележки за клиента...",
+            "cancel": "Отмени",
+            "save": "Запази",
+            "saving": "Запазване..."
+        },
+        "notAvailable": "Н/Д",
+        "detailsDialog": {
+            "editCustomer": "Редактирай клиент",
+            "contactInformation": "Контактна информация",
+            "email": "Имейл",
+            "phone": "Телефон",
+            "address": "Адрес",
+            "customerStats": "Статистика за клиент",
+            "totalAppointments": "Общо резервации",
+            "loading": "Зареждане...",
+            "appointment": "резервация",
+            "appointments": "резервации",
+            "notes": "Бележки",
+            "appointmentsTitle": "Резервации",
+            "loadingAppointments": "Зареждане на резервации...",
+            "noAppointments": "Няма намерени резервации за този клиент",
+            "unknownService": "Неизвестна услуга",
+            "tbd": "Да бъде определено"
+        },
+        "delete": {
+            "title": "Изтрий клиент",
+            "description": "Сигурни ли сте, че искате да изтриете този клиент? Това действие не може да бъде отменено.",
+            "cancel": "Отмени",
+            "delete": "Изтрий клиент",
+            "deleting": "Изтриване..."
+        }
     },
     "services": {
         "title": "Управление на услуги",
@@ -138,7 +500,44 @@
         "savedSuccess": "Услугата е запазена успешно",
         "deletedSuccess": "Услугата е изтрита успешно",
         "deleteError": "Грешка при изтриване на услугата",
-        "noOrgError": "Няма избрана организация"
+        "noOrgError": "Няма избрана организация",
+        "loading": "Зареждане на услуги...",
+        "noResults": "Няма намерени услуги.",
+        "noResultsSearch": "Няма намерени услуги, отговарящи на търсенето ви.",
+        "tryAdjusting": "Опитайте да промените условията за търсене.",
+        "tableHeaders": {
+            "serviceName": "Име на услуга",
+            "description": "Описание",
+            "price": "Цена",
+            "duration": "Продължителност",
+            "owner": "Собственик"
+        },
+        "actions": {
+            "viewDetails": "Виж детайли",
+            "edit": "Редактирай услуга",
+            "delete": "Изтрий услуга",
+            "openMenu": "Отвори меню"
+        },
+        "noDescription": "Няма описание",
+        "organization": "Организация",
+        "member": "Член",
+        "form": {
+            "serviceInformation": "Информация за услугата",
+            "serviceName": "Име на услуга",
+            "price": "Цена (лв)",
+            "duration": "Продължителност (минути)",
+            "description": "Описание",
+            "image": "Изображение на услугата",
+            "ownerType": "Тип собственик",
+            "cancel": "Отмени",
+            "save": "Запази",
+            "saving": "Запазване...",
+            "namePlaceholder": "Въведете име на услуга",
+            "pricePlaceholder": "0.00",
+            "durationPlaceholder": "30",
+            "descriptionPlaceholder": "Въведете описание на услугата"
+        },
+        "errorLoading": "Грешка при зареждане на услуги"
     },
     "team": {
         "title": "Управление на екип",
@@ -160,7 +559,153 @@
         "roles": "Роли",
         "searchMembers": "Търсене на членове...",
         "searchInvites": "Търсене на покани...",
-        "searchRoles": "Търсене на роли..."
+        "searchRoles": "Търсене на роли...",
+        "tableHeaders": {
+            "member": "Член",
+            "roles": "Роли",
+            "created": "Създаден",
+            "updated": "Обновен"
+        },
+        "actions": {
+            "label": "Действия",
+            "viewDetails": "Виж детайли",
+            "edit": "Редактирай член",
+            "delete": "Изтрий член"
+        },
+        "teamMember": "Член на екипа",
+        "you": "Вие",
+        "noRolesAssigned": "Няма назначени роли",
+        "noResults": "Няма намерени членове, отговарящи на критериите ви.",
+        "details": "Детайли за член",
+        "edit": "Редактирай член",
+        "delete": {
+            "title": "Изтрий член",
+            "description": "Сигурни ли сте, че искате да изтриете члена \"{{name}}\"? Това действие не може да бъде отменено и ще премахне този член от организацията.",
+            "cancel": "Отмени",
+            "confirm": "Изтрий член",
+            "deleting": "Изтриване..."
+        },
+        "role": {
+            "tableHeaders": {
+                "role": "Роля",
+                "permissions": "Разрешения",
+                "created": "Създадена",
+                "updated": "Обновена"
+            },
+            "actions": {
+                "label": "Действия",
+                "edit": "Редактирай",
+                "delete": "Изтрий"
+            },
+            "noResults": "Няма намерени роли",
+            "noResultsSearch": "Няма роли, отговарящи на \"{{query}}\". Опитайте да промените търсенето.",
+            "getStarted": "Започнете като създадете първата си роля.",
+            "noPermissions": "Няма разрешения",
+            "editTitle": "Редактирай роля",
+            "deleteTitle": "Изтрий роля",
+            "deleteDescription": "Сигурни ли сте, че искате да изтриете ролята \"{{name}}\"? Това действие не може да бъде отменено и ще премахне тази роля от всички членове, на които е назначена.",
+            "cancel": "Отмени",
+            "confirm": "Изтрий роля",
+            "deleting": "Изтриване...",
+            "form": {
+                "roleName": "Име на роля",
+                "namePlaceholder": "Въведете име на роля (напр. Мениджър, Асистент)",
+                "permissions": "Разрешения",
+                "permissionsDescription": "Изберете разрешенията, които тази роля трябва да има",
+                "cancel": "Отмени",
+                "saving": "Запазване...",
+                "update": "Обнови роля",
+                "create": "Създай роля",
+                "permissionDescriptions": {
+                    "MANAGE_MEMBERS": "Създаване, редактиране и изтриване на членове на екипа",
+                    "MANAGE_APPOINTMENTS": "Създаване, редактиране и изтриване на резервации",
+                    "MANAGE_CALENDARS": "Управление на настройките на календара и наличността",
+                    "VIEW_REPORTS": "Достъп до отчети и анализи",
+                    "MANAGE_ORGANIZATION": "Управление на настройките и конфигурацията на организацията"
+                }
+            }
+        },
+        "invite": {
+            "form": {
+                "emailAddress": "Имейл адрес",
+                "emailPlaceholder": "Въведете имейл адрес",
+                "validFor": "Валидно за (дни)",
+                "validForPlaceholder": "Въведете валидно за дни",
+                "roles": "Роли",
+                "noRolesAvailable": "Няма налични роли",
+                "cancel": "Отмени",
+                "sending": "Изпращане на покана...",
+                "send": "Изпрати покана"
+            }
+        },
+        "invitation": {
+            "acceptModal": {
+                "title": "Приеми покана за организация",
+                "description": "Попълнете профила си, за да се присъедините към организацията",
+                "personalInformation": "Лична информация",
+                "fullName": "Пълно име",
+                "fullNamePlaceholder": "Въведете вашето пълно име",
+                "fullNameDescription": "Така вашето име ще се показва на другите членове",
+                "description": "Описание (По избор)",
+                "descriptionPlaceholder": "Разкажете ни малко за себе си и ролята си...",
+                "descriptionHelp": "Кратко описание за вас и ролята ви в организацията",
+                "profileImage": "Профилна снимка (По избор)",
+                "profileImageDescription": "Добавете профилна снимка, за да ви разпознават по-лесно",
+                "cancel": "Отмени",
+                "accepting": "Приемане...",
+                "uploadingImage": "Качване на снимка...",
+                "acceptInvitation": "Приеми покана"
+            },
+            "card": {
+                "invitedTo": "Поканен в организация:",
+                "loading": "Зареждане...",
+                "expiresOn": "Изтича на:",
+                "acceptInvitation": "Приеми покана",
+                "declining": "Отказване...",
+                "decline": "Откажи",
+                "declined": "Тази покана е отхвърлена",
+                "accepted": "Тази покана е приета"
+            },
+            "notifications": {
+                "loading": "Зареждане на покани...",
+                "failedToLoad": "Грешка при зареждане на покани. Моля, опитайте отново.",
+                "noInvitations": "Няма намерени покани",
+                "pendingInvitations": "Чакащи покани",
+                "recentActivity": "Скорошна активност"
+            },
+            "list": {
+                "loading": "Зареждане на покани...",
+                "failedToLoad": "Грешка при зареждане на покани",
+                "tryAgain": "Опитай отново",
+                "noInvites": "Няма намерени покани",
+                "noInvitesDescription": "Поканите ще се появят тук, когато ги изпратите на нови членове",
+                "invites": "Покани",
+                "tableHeaders": {
+                    "invitee": "Поканен",
+                    "status": "Статус",
+                    "roles": "Роли",
+                    "created": "Създадена",
+                    "expires": "Изтича",
+                    "actions": "Действия"
+                },
+                "status": {
+                    "expired": "Изтекла",
+                    "pending": "Чакаща",
+                    "accepted": "Приета",
+                    "declined": "Отказана",
+                    "unknown": "Неизвестна"
+                },
+                "invitedMember": "Поканен член",
+                "noRolesAssigned": "Няма назначени роли",
+                "daysLeft": "ден",
+                "daysLeftPlural": "дни остават",
+                "expired": "Изтекла",
+                "actions": "Действия",
+                "declining": "Отказване...",
+                "cancelInvite": "Отмени покана",
+                "noResults": "Няма намерени покани, отговарящи на критериите ви."
+            }
+        }
     },
     "calendar": {
         "title": "Календар",
@@ -179,6 +724,95 @@
         "createdSuccess": "Календарът е създаден успешно",
         "createError": "Грешка при създаване на календара",
         "timeOffAddedSuccess": "Почивният ден е добавен успешно",
-        "timeOffAddError": "Грешка при добавяне на почивен ден"
+        "timeOffAddError": "Грешка при добавяне на почивен ден",
+        "appointments": "Резервации",
+        "noAppointmentsToday": "Няма насрочени резервации за този ден",
+        "appointmentDetails": "Детайли за резервация",
+        "days": {
+            "sun": "Нед",
+            "mon": "Пон",
+            "tue": "Вто",
+            "wed": "Сря",
+            "thu": "Чет",
+            "fri": "Пет",
+            "sat": "Съб"
+        },
+        "months": {
+            "january": "Януари",
+            "february": "Февруари",
+            "march": "Март",
+            "april": "Април",
+            "may": "Май",
+            "june": "Юни",
+            "july": "Юли",
+            "august": "Август",
+            "september": "Септември",
+            "october": "Октомври",
+            "november": "Ноември",
+            "december": "Декември"
+        },
+        "timeOffForm": {
+            "startDate": "Начална дата",
+            "endDate": "Крайна дата",
+            "reason": "Причина",
+            "pickStartDate": "Избери начална дата",
+            "pickEndDate": "Избери крайна дата",
+            "enterReason": "Въведете причина за почивен ден...",
+            "clear": "Изчисти",
+            "cancel": "Отмени",
+            "adding": "Добавяне...",
+            "addTimeOff": "Добави почивен ден"
+        },
+        "workingScheduleForm": {
+            "generalSettings": "Общи настройки",
+            "bufferTime": "Буферно време (минути)",
+            "bufferTimeDescription": "Времеви интервал между резервации",
+            "weeklyHours": "Седмични часове",
+            "setAvailability": "Задайте наличността си за всеки ден",
+            "unavailable": "Недостъпен",
+            "addInterval": "Добави интервал",
+            "copyToAllDays": "Копирай към всички дни",
+            "cancel": "Отмени",
+            "saving": "Запазване...",
+            "saveChanges": "Запази промените",
+            "days": {
+                "monday": "Понеделник",
+                "tuesday": "Вторник",
+                "wednesday": "Сряда",
+                "thursday": "Четвъртък",
+                "friday": "Петък",
+                "saturday": "Събота",
+                "sunday": "Неделя"
+            }
+        },
+        "dayAppointments": {
+            "appointmentsFor": "Резервации за",
+            "appointmentScheduled": "резервация",
+            "appointmentsScheduled": "резервации насрочени",
+            "newAppointment": "Нова резервация",
+            "noAppointments": "Няма резервации",
+            "noAppointmentsScheduled": "Няма насрочени резервации за този ден.",
+            "scheduleAppointment": "Насрочи резервация",
+            "createNewAppointment": "Създай нова резервация",
+            "editAppointment": "Редактирай резервация",
+            "customer": "Клиент:",
+            "service": "Услуга:",
+            "pending": "Чакаща",
+            "completed": "Завършена",
+            "cancelled": "Отказана"
+        },
+        "timeOffList": {
+            "loading": "Зареждане на почивни дни...",
+            "noTimeOffs": "Няма насрочени почивни дни",
+            "dateRange": "Период",
+            "reason": "Причина",
+            "actions": "Действия",
+            "deleteTimeOff": "Изтрий почивен ден",
+            "deleteConfirm": "Сигурни ли сте, че искате да изтриете този почивен ден? Това действие не може да бъде отменено.",
+            "cancel": "Отмени",
+            "delete": "Изтрий",
+            "deletedSuccess": "Почивният ден е изтрит успешно",
+            "deleteError": "Грешка при изтриване на почивен ден"
+        }
     }
 }

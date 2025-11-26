@@ -28,6 +28,7 @@ import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { addDays, format } from "date-fns";
 import { AlertCircle, Clock, Mail, MoreHorizontal, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface PendingInvitesListProps {
   searchQuery?: string;
@@ -36,6 +37,7 @@ interface PendingInvitesListProps {
 export function PendingInvitesList({
   searchQuery = "",
 }: PendingInvitesListProps) {
+  const { t } = useTranslation();
   const currentOrganizationId = useCurrentOrganizationId();
   const [decliningInviteId, setDecliningInviteId] = useState<string | null>(
     null,
@@ -78,7 +80,7 @@ export function PendingInvitesList({
 
   const getStatusBadge = (status: InviteStatus, isExpired: boolean) => {
     if (isExpired && status === InviteStatus.PENDING) {
-      return <Badge variant="destructive">Expired</Badge>;
+      return <Badge variant="destructive">{t("team.invitation.list.status.expired")}</Badge>;
     }
 
     switch (status) {
@@ -88,19 +90,19 @@ export function PendingInvitesList({
             variant="outline"
             className="text-yellow-600 border-yellow-200"
           >
-            Pending
+            {t("team.invitation.list.status.pending")}
           </Badge>
         );
       case InviteStatus.ACCEPTED:
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
-            Accepted
+            {t("team.invitation.list.status.accepted")}
           </Badge>
         );
       case InviteStatus.DECLINED:
-        return <Badge variant="destructive">Declined</Badge>;
+        return <Badge variant="destructive">{t("team.invitation.list.status.declined")}</Badge>;
       default:
-        return <Badge variant="secondary">Unknown</Badge>;
+        return <Badge variant="secondary">{t("team.invitation.list.status.unknown")}</Badge>;
     }
   };
 
@@ -140,7 +142,7 @@ export function PendingInvitesList({
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Mail className="h-4 w-4 animate-pulse" />
-          Loading invites...
+          {t("team.invitation.list.loading")}
         </div>
       </div>
     );
@@ -152,14 +154,14 @@ export function PendingInvitesList({
         <Card>
           <CardContent className="p-6 text-center">
             <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
-            <p className="text-sm text-destructive">Failed to load invites</p>
+            <p className="text-sm text-destructive">{t("team.invitation.list.failedToLoad")}</p>
             <Button
               variant="outline"
               size="sm"
               onClick={() => refetch()}
               className="mt-2"
             >
-              Try Again
+              {t("team.invitation.list.tryAgain")}
             </Button>
           </CardContent>
         </Card>
@@ -172,9 +174,9 @@ export function PendingInvitesList({
       <Card>
         <CardContent className="p-6 text-center">
           <Mail className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No invites found</p>
+          <p className="text-sm text-muted-foreground">{t("team.invitation.list.noInvites")}</p>
           <p className="text-xs text-muted-foreground">
-            Invites will appear here when you send them to new members
+            {t("team.invitation.list.noInvitesDescription")}
           </p>
         </CardContent>
       </Card>
@@ -186,18 +188,18 @@ export function PendingInvitesList({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mail className="h-5 w-5" />
-          Invites ({filteredInvites.length})
+          {t("team.invitation.list.invites")} ({filteredInvites.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Invitee</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Roles</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Expires</TableHead>
+              <TableHead>{t("team.invitation.list.tableHeaders.invitee")}</TableHead>
+              <TableHead>{t("team.invitation.list.tableHeaders.status")}</TableHead>
+              <TableHead>{t("team.invitation.list.tableHeaders.roles")}</TableHead>
+              <TableHead>{t("team.invitation.list.tableHeaders.created")}</TableHead>
+              <TableHead>{t("team.invitation.list.tableHeaders.expires")}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -220,7 +222,7 @@ export function PendingInvitesList({
                         <p className="font-medium">{invite.inviteeEmail}</p>
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Mail className="h-3 w-3" />
-                          Invited Member
+                          {t("team.invitation.list.invitedMember")}
                         </p>
                       </div>
                     </div>
@@ -241,7 +243,7 @@ export function PendingInvitesList({
                       ))}
                       {(!invite.roleIds || invite.roleIds.length === 0) && (
                         <span className="text-sm text-muted-foreground">
-                          No roles assigned
+                          {t("team.invitation.list.noRolesAssigned")}
                         </span>
                       )}
                     </div>
@@ -249,24 +251,24 @@ export function PendingInvitesList({
                   <TableCell>
                     {invite.createdAt
                       ? format(new Date(invite.createdAt), "MMM d, yyyy")
-                      : "N/A"}
+                      : t("common.notAvailable")}
                   </TableCell>
                   <TableCell>
                     {invite.validFor && invite.createdAt ? (
                       expired ? (
                         <span className="text-sm text-destructive">
-                          Expired
+                          {t("team.invitation.list.expired")}
                         </span>
                       ) : daysLeft !== null ? (
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          {daysLeft} day{daysLeft !== 1 ? "s" : ""} left
+                          {daysLeft} {daysLeft !== 1 ? t("team.invitation.list.daysLeftPlural") : t("team.invitation.list.daysLeft")}
                         </div>
                       ) : (
-                        "N/A"
+                        t("common.notAvailable")
                       )
                     ) : (
-                      "N/A"
+                      t("common.notAvailable")
                     )}
                   </TableCell>
                   <TableCell>
@@ -278,7 +280,7 @@ export function PendingInvitesList({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>{t("team.invitation.list.actions")}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
@@ -287,8 +289,8 @@ export function PendingInvitesList({
                           >
                             <X className="h-4 w-4 mr-2" />
                             {decliningInviteId === invite.id
-                              ? "Declining..."
-                              : "Cancel Invite"}
+                              ? t("team.invitation.list.declining")
+                              : t("team.invitation.list.cancelInvite")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -303,7 +305,7 @@ export function PendingInvitesList({
         {filteredInvites.length === 0 && (
           <div className="text-center py-8">
             <p className="text-muted-foreground">
-              No invites found matching your criteria.
+              {t("team.invitation.list.noResults")}
             </p>
           </div>
         )}

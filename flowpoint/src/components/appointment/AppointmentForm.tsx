@@ -51,6 +51,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface AppointmentFormProps {
   appointment?: Appointment;
@@ -63,6 +64,7 @@ export function AppointmentForm({
   onSuccess,
   onSubmit,
 }: AppointmentFormProps) {
+  const { t } = useTranslation();
   // Get organization ID for updates
   const organizationId = useCurrentOrganizationId();
 
@@ -93,7 +95,7 @@ export function AppointmentForm({
       onSuccess();
     },
     onError: (error) => {
-      alert(`Failed to book appointment: ${error.message}`);
+      alert(`${t("appointments.form.failedToBook")}: ${error.message}`);
     },
   });
 
@@ -106,10 +108,10 @@ export function AppointmentForm({
       const errorMessage =
         updateAppointment.error instanceof Error
           ? updateAppointment.error.message
-          : "Failed to update appointment";
+          : t("appointments.form.failedToUpdate");
       setSubmitError(errorMessage);
     }
-  }, [updateAppointment.isError, updateAppointment.error]);
+  }, [updateAppointment.isError, updateAppointment.error, t]);
 
   const {
     handleSubmit: formHandleSubmit,
@@ -127,19 +129,19 @@ export function AppointmentForm({
           // Handle updating existing appointment
           if (appointment) {
             if (!organizationId) {
-              const error = new Error("Organization ID is missing");
+              const error = new Error(t("appointments.form.organizationIdMissing"));
               throw error;
             }
 
             if (!appointment.id) {
-              const error = new Error("Appointment ID is missing");
+              const error = new Error(t("appointments.form.appointmentIdMissing"));
               throw error;
             }
 
             // Get form data for date/time - startTime is already in UTC ISO format
             const startTime = watch("startTime") || appointment.startTime;
             if (!startTime) {
-              throw new Error("Start time is required");
+              throw new Error(t("appointments.form.startTimeRequired"));
             }
 
             const updatePayload = {
@@ -173,21 +175,21 @@ export function AppointmentForm({
 
           if (!customer?.email) {
             const error = new Error(
-              "Customer email is required to book an appointment",
+              t("appointments.form.customerEmailRequired"),
             );
             throw error;
           }
 
           if (!data.assigneeId) {
             const error = new Error(
-              "Assignee is required to book an appointment",
+              t("appointments.form.assigneeRequired"),
             );
             throw error;
           }
 
           if (!data.serviceId) {
             const error = new Error(
-              "Service is required to book an appointment",
+              t("appointments.form.serviceRequired"),
             );
             throw error;
           }
@@ -196,7 +198,7 @@ export function AppointmentForm({
           // startTime is already in UTC ISO format from the timeslot selection
           const startTime = watch("startTime");
           if (!startTime) {
-            throw new Error("Start time is required");
+            throw new Error(t("appointments.form.startTimeRequired"));
           }
 
           const bookingPayload = {
@@ -219,7 +221,7 @@ export function AppointmentForm({
           const errorMessage =
             error instanceof Error
               ? error.message
-              : "An unexpected error occurred";
+              : t("appointments.form.unexpectedError");
 
           // Set error state for UI display
           setSubmitError(errorMessage);
@@ -372,7 +374,7 @@ export function AppointmentForm({
           {submitError && (
             <Alert variant="destructive" className="mb-6">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>{t("appointments.form.error")}</AlertTitle>
               <AlertDescription>{submitError}</AlertDescription>
             </Alert>
           )}
@@ -388,14 +390,14 @@ export function AppointmentForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Customer Selection */}
               <div className="space-y-2">
-                <Label htmlFor="customer">Select Customer *</Label>
+                <Label htmlFor="customer">{t("appointments.form.selectCustomer")} *</Label>
                 <div className="flex gap-2">
                   <Select
                     value={formData.customerId}
                     onValueChange={handleCustomerSelect}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose a customer" />
+                      <SelectValue placeholder={t("appointments.form.chooseCustomer")} />
                     </SelectTrigger>
                     <SelectContent>
                       {customers.map((customer) => (
@@ -434,7 +436,7 @@ export function AppointmentForm({
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
-                        <DialogTitle>Create New Customer</DialogTitle>
+                        <DialogTitle>{t("appointments.form.createNewCustomer")}</DialogTitle>
                       </DialogHeader>
                       <CustomerForm
                         onSuccess={async () => {
@@ -455,13 +457,13 @@ export function AppointmentForm({
 
               {/* Service Selection */}
               <div className="space-y-2">
-                <Label htmlFor="service">Select Service *</Label>
+                <Label htmlFor="service">{t("appointments.form.selectService")} *</Label>
                 <Select
                   value={formData.serviceId}
                   onValueChange={handleServiceSelect}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a service" />
+                    <SelectValue placeholder={t("appointments.form.chooseService")} />
                   </SelectTrigger>
                   <SelectContent>
                     {services.map((service) => (
@@ -480,13 +482,13 @@ export function AppointmentForm({
 
               {/* Assignee Selection */}
               <div className="space-y-2">
-                <Label htmlFor="assignee">Select Assignee *</Label>
+                <Label htmlFor="assignee">{t("appointments.form.selectAssignee")} *</Label>
                 <Select
                   value={watch("assigneeId") || ""}
                   onValueChange={(value) => handleChange("assigneeId", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose an assignee" />
+                    <SelectValue placeholder={t("appointments.form.chooseAssignee")} />
                   </SelectTrigger>
                   <SelectContent>
                     {members.length > 0 ? (
@@ -507,7 +509,7 @@ export function AppointmentForm({
                       ))
                     ) : (
                       <SelectItem value="no-members" disabled>
-                        No members available
+                        {t("team.members")}
                       </SelectItem>
                     )}
                   </SelectContent>
@@ -516,7 +518,7 @@ export function AppointmentForm({
 
               {/* Status */}
               <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">{t("appointments.form.status")}</Label>
                 <Select
                   value={formData.status}
                   onValueChange={(value) => handleChange("status", value)}
@@ -528,19 +530,19 @@ export function AppointmentForm({
                     <SelectItem value={APPOINTMENT_STATUS.PENDING}>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                        Pending
+                        {t("appointments.pending")}
                       </div>
                     </SelectItem>
                     <SelectItem value={APPOINTMENT_STATUS.COMPLETED}>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        Completed
+                        {t("appointments.completed")}
                       </div>
                     </SelectItem>
                     <SelectItem value={APPOINTMENT_STATUS.CANCELLED}>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                        Cancelled
+                        {t("appointments.cancelled")}
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -549,7 +551,7 @@ export function AppointmentForm({
 
               {/* Date Selection */}
               <div className="space-y-2">
-                <Label htmlFor="date">Date *</Label>
+                <Label htmlFor="date">{t("appointments.form.date")} *</Label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <Button
@@ -563,7 +565,7 @@ export function AppointmentForm({
                       {formData.date ? (
                         format(new Date(formData.date + "T00:00:00"), "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>{t("appointments.form.pickDate")}</span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -592,7 +594,7 @@ export function AppointmentForm({
 
               {/* Time Selection */}
               <div className="space-y-2">
-                <Label htmlFor="time">Time *</Label>
+                <Label htmlFor="time">{t("appointments.form.time")} *</Label>
                 <Select
                   value={formData.time || undefined}
                   onValueChange={(value) => {
@@ -606,14 +608,14 @@ export function AppointmentForm({
                     <SelectValue
                       placeholder={
                         !formData.serviceId || !formData.date
-                          ? "Select service and date first"
+                          ? t("appointments.form.selectServiceAndDate")
                           : isTimeslotsLoading
-                            ? "Loading available times..."
+                            ? t("appointments.form.loadingTimes")
                             : timeslotsError
-                              ? "Error loading times"
+                              ? t("appointments.form.errorLoadingTimes")
                               : timeSlots.length === 0
-                                ? "No available times"
-                                : "Select time"
+                                ? t("appointments.form.noAvailableTimes")
+                                : t("appointments.form.selectTime")
                       }
                     />
                   </SelectTrigger>
@@ -630,10 +632,10 @@ export function AppointmentForm({
                     ) : (
                       <div className="px-2 py-4 text-sm text-muted-foreground">
                         {timeslotsError
-                          ? "Error loading available times"
+                          ? t("appointments.form.errorLoadingTimes")
                           : isTimeslotsLoading
-                            ? "Loading..."
-                            : "No available times for this date"}
+                            ? t("appointments.form.loadingTimes")
+                            : t("appointments.form.noAvailableTimes")}
                       </div>
                     )}
                   </SelectContent>
@@ -647,19 +649,19 @@ export function AppointmentForm({
                 {timeslotsError && !errors.startTime && (
                   <p className="text-sm text-red-500 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
-                    Failed to load available times. Please try again.
+                    {t("appointments.form.errorLoadingTimes")}
                   </p>
                 )}
               </div>
 
               {/* Notes - Full Width */}
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="notes">{t("appointments.form.notes")}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
-                  placeholder="Any special requests, preferences, or notes for this appointment..."
+                  placeholder={t("appointments.form.notesPlaceholder")}
                   rows={3}
                 />
               </div>
@@ -675,7 +677,7 @@ export function AppointmentForm({
             disabled={isSubmitting || bookAppointment.isPending}
           >
             <X className="h-4 w-4 mr-2" />
-            Cancel
+            {t("appointments.form.cancel")}
           </Button>
           <Button
             type="submit"
@@ -695,12 +697,12 @@ export function AppointmentForm({
             {isSubmitting || bookAppointment.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Booking...
+                {t("appointments.form.booking")}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                {appointment ? "Update Appointment" : "Book Appointment"}
+                {appointment ? t("appointments.form.update") : t("appointments.form.book")}
               </>
             )}
           </Button>

@@ -20,6 +20,7 @@ import {
 } from "@/stores/organization-store";
 import { Mail, RotateCcw, Save } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 interface EmailTemplatesTabProps {
@@ -210,6 +211,7 @@ Best regards,
 };
 
 export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
   const { updateOrganization: updateOrganizationStore } =
     useOrganizationActions();
@@ -231,7 +233,7 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
 
   const handleSave = async () => {
     if (!organizationId) {
-      toast.error("Organization ID is required");
+      toast.error(t("organization.emailTemplates.organizationIdRequired"));
       return;
     }
 
@@ -261,19 +263,19 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
       });
 
       toast.success(
-        `${activeTab === "confirmation" ? "Confirmation" : "Reminder"} email template saved successfully`,
+        `${activeTab === "confirmation" ? t("organization.emailTemplates.confirmationEmail") : t("organization.emailTemplates.reminderEmail")} ${t("organization.emailTemplates.savedSuccess")}`,
       );
     } catch (error) {
       console.error("Failed to save email template:", error);
       toast.error(
-        `Failed to save template: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `${t("organization.emailTemplates.saveError")} ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   };
 
   const handleReset = () => {
     setTemplate(DEFAULT_TEMPLATES[activeTab]);
-    toast.info("Template reset to default");
+    toast.info(t("organization.emailTemplates.resetInfo"));
   };
 
   const insertVariable = (variable: string) => {
@@ -304,12 +306,10 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Email Templates
+            {t("organization.emailTemplates.title")}
           </CardTitle>
           <CardDescription>
-            Customize the email notifications sent to customers for appointment
-            confirmations and reminders. Use variables like {"{{customerName}}"}{" "}
-            to insert dynamic content.
+            {t("organization.emailTemplates.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -320,15 +320,15 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
             }
           >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="confirmation">Confirmation Email</TabsTrigger>
-              <TabsTrigger value="reminder">Reminder Email</TabsTrigger>
+              <TabsTrigger value="confirmation">{t("organization.emailTemplates.confirmationEmail")}</TabsTrigger>
+              <TabsTrigger value="reminder">{t("organization.emailTemplates.reminderEmail")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab} className="space-y-4 mt-4">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Email Subject</Label>
+                    <Label htmlFor="subject">{t("organization.emailTemplates.emailSubject")}</Label>
                     <Input
                       id="subject"
                       name="subject"
@@ -339,12 +339,12 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
                           subject: e.target.value,
                         }))
                       }
-                      placeholder="e.g., Appointment Confirmed - {{serviceName}}"
+                      placeholder={t("organization.emailTemplates.emailSubjectPlaceholder")}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="html">HTML Template</Label>
+                    <Label htmlFor="html">{t("organization.emailTemplates.htmlTemplate")}</Label>
                     <Textarea
                       id="html"
                       name="html"
@@ -357,12 +357,12 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
                       }
                       rows={20}
                       className="font-mono text-sm"
-                      placeholder="Enter HTML template..."
+                      placeholder={t("organization.emailTemplates.htmlTemplatePlaceholder")}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="text">Plain Text Template</Label>
+                    <Label htmlFor="text">{t("organization.emailTemplates.plainTextTemplate")}</Label>
                     <Textarea
                       id="text"
                       name="text"
@@ -375,7 +375,7 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
                       }
                       rows={10}
                       className="font-mono text-sm"
-                      placeholder="Enter plain text template..."
+                      placeholder={t("organization.emailTemplates.plainTextTemplatePlaceholder")}
                     />
                   </div>
 
@@ -386,12 +386,12 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
                     >
                       <Save className="h-4 w-4 mr-2" />
                       {updateOrganizationMutation.isPending
-                        ? "Saving..."
-                        : "Save Template"}
+                        ? t("organization.emailTemplates.saving")
+                        : t("organization.emailTemplates.saveTemplate")}
                     </Button>
                     <Button onClick={handleReset} variant="outline">
                       <RotateCcw className="h-4 w-4 mr-2" />
-                      Reset to Default
+                      {t("organization.emailTemplates.resetToDefault")}
                     </Button>
                   </div>
                 </div>
@@ -400,7 +400,7 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm">
-                        Available Variables
+                        {t("organization.emailTemplates.availableVariables")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
@@ -429,13 +429,12 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm">
-                        Conditional Blocks
+                        {t("organization.emailTemplates.conditionalBlocks")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm text-muted-foreground">
                       <p>
-                        Use conditional blocks to show content only when a
-                        variable exists:
+                        {t("organization.emailTemplates.conditionalBlocksDescription")}
                       </p>
                       <pre className="bg-muted p-2 rounded text-xs font-mono">
                         {`{{#if fee}}
@@ -443,8 +442,7 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
 {{/if}}`}
                       </pre>
                       <p className="text-xs">
-                        Supported: fee, organizationAddress, organizationPhone,
-                        organizationEmail
+                        {t("organization.emailTemplates.conditionalBlocksSupported")}
                       </p>
                     </CardContent>
                   </Card>

@@ -9,6 +9,7 @@ import { formatUtcDateTime } from "@/utils/date-time";
 import { formatPrice } from "@/utils/price-format";
 import { Calendar, Clock, Edit, Mail, MapPin, Phone } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CustomerDetailsProps {
   customer: Customer;
@@ -16,6 +17,7 @@ interface CustomerDetailsProps {
 }
 
 export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
+  const { t } = useTranslation();
   // Fetch appointments for this customer
   const {
     data: appointments = [],
@@ -60,19 +62,19 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
             variant="outline"
             className="border-yellow-500 text-yellow-600 bg-yellow-50"
           >
-            Pending
+            {t("appointments.pending")}
           </Badge>
         );
       case APPOINTMENT_STATUS.CONFIRMED:
-        return <Badge className="bg-blue-500 text-white">Confirmed</Badge>;
+        return <Badge className="bg-blue-500 text-white">{t("appointments.status.confirmed")}</Badge>;
       case APPOINTMENT_STATUS.COMPLETED:
         return (
           <Badge className="bg-primary text-primary-foreground">
-            Completed
+            {t("appointments.completed")}
           </Badge>
         );
       case APPOINTMENT_STATUS.CANCELLED:
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t("appointments.cancelled")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -89,7 +91,7 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
         </div>
         <Button onClick={onEdit} className="gap-2">
           <Edit className="h-4 w-4" />
-          Edit Customer
+          {t("customers.detailsDialog.editCustomer")}
         </Button>
       </div>
 
@@ -98,14 +100,14 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-sans">
-              Contact Information
+              {t("customers.detailsDialog.contactInformation")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Email</p>
+                <p className="text-sm font-medium">{t("customers.detailsDialog.email")}</p>
                 <p className="text-sm text-muted-foreground">
                   {customer.email}
                 </p>
@@ -114,7 +116,7 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
             <div className="flex items-center gap-3">
               <Phone className="h-4 w-4 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Phone</p>
+                <p className="text-sm font-medium">{t("customers.detailsDialog.phone")}</p>
                 <p className="text-sm text-muted-foreground">
                   {customer.phone}
                 </p>
@@ -123,7 +125,7 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Address</p>
+                <p className="text-sm font-medium">{t("customers.detailsDialog.address")}</p>
                 <p className="text-sm text-muted-foreground">
                   {customer.address}
                 </p>
@@ -135,17 +137,17 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
         {/* Customer Stats */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-sans">Customer Stats</CardTitle>
+            <CardTitle className="text-lg font-sans">{t("customers.detailsDialog.customerStats")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Total Appointments</p>
+                <p className="text-sm font-medium">{t("customers.detailsDialog.totalAppointments")}</p>
                 <p className="text-sm text-muted-foreground">
                   {isLoadingAppointments
-                    ? "Loading..."
-                    : `${appointments.length} appointment${appointments.length !== 1 ? "s" : ""}`}
+                    ? t("customers.detailsDialog.loading")
+                    : `${appointments.length} ${appointments.length !== 1 ? t("customers.detailsDialog.appointments") : t("customers.detailsDialog.appointment")}`}
                 </p>
               </div>
             </div>
@@ -157,7 +159,7 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
       {customer.notes && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-sans">Notes</CardTitle>
+            <CardTitle className="text-lg font-sans">{t("customers.detailsDialog.notes")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">{customer.notes}</p>
@@ -168,20 +170,20 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
       {/* Recent Appointments */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-sans">Appointments</CardTitle>
+          <CardTitle className="text-lg font-sans">{t("customers.detailsDialog.appointmentsTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoadingAppointments ? (
             <div className="text-center py-8">
               <p className="text-sm text-muted-foreground">
-                Loading appointments...
+                {t("customers.detailsDialog.loadingAppointments")}
               </p>
             </div>
           ) : sortedAppointments.length === 0 ? (
             <div className="text-center py-8">
               <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
               <p className="text-sm text-muted-foreground">
-                No appointments found for this customer
+                {t("customers.detailsDialog.noAppointments")}
               </p>
             </div>
           ) : (
@@ -189,13 +191,13 @@ export function CustomerDetails({ customer, onEdit }: CustomerDetailsProps) {
               {sortedAppointments.map((appointment) => {
                 const service = servicesMap[appointment.serviceId];
                 const serviceName =
-                  service?.name || appointment.title || "Unknown Service";
+                  service?.name || appointment.title || t("customers.detailsDialog.unknownService");
                 const appointmentDate = appointment.startTime
                   ? formatUtcDateTime(appointment.startTime, "MMM dd, yyyy")
-                  : "TBD";
+                  : t("customers.detailsDialog.tbd");
                 const appointmentTime = appointment.startTime
                   ? formatUtcDateTime(appointment.startTime, "h:mm a")
-                  : "TBD";
+                  : t("customers.detailsDialog.tbd");
                 const amount = appointment.fee ?? service?.price ?? 0;
 
                 return (

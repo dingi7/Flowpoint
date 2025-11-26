@@ -21,6 +21,7 @@ import { useOrganizationActions } from "@/stores/organization-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Building, Loader2, User } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -45,6 +46,7 @@ export function InvitationAcceptanceModal({
   onClose,
   onSuccess,
 }: InvitationAcceptanceModalProps) {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const acceptInviteMutation = useAcceptOrganizationInvite();
   const imageUpload = useMemberImageUpload();
@@ -129,10 +131,10 @@ export function InvitationAcceptanceModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building className="h-5 w-5" />
-            Accept Organization Invitation
+            {t("team.invitation.acceptModal.title")}
           </DialogTitle>
           <DialogDescription>
-            Complete your profile to join the organization
+            {t("team.invitation.acceptModal.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -151,16 +153,16 @@ export function InvitationAcceptanceModal({
               <CardHeader>
                 <CardTitle className="text-lg font-sans flex items-center gap-2">
                   <User className="h-5 w-5" />
-                  Personal Information
+                  {t("team.invitation.acceptModal.personalInformation")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name *</Label>
+                  <Label htmlFor="name">{t("team.invitation.acceptModal.fullName")} *</Label>
                   <Input
                     id="name"
                     {...register("name")}
-                    placeholder="Enter your full name"
+                    placeholder={t("team.invitation.acceptModal.fullNamePlaceholder")}
                     disabled={isSubmitting}
                   />
                   {errors.name && (
@@ -169,28 +171,27 @@ export function InvitationAcceptanceModal({
                     </p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    This is how your name will appear to other members
+                    {t("team.invitation.acceptModal.fullNameDescription")}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description (Optional)</Label>
+                  <Label htmlFor="description">{t("team.invitation.acceptModal.description")}</Label>
                   <Textarea
                     id="description"
                     {...register("description")}
-                    placeholder="Tell us a bit about yourself and your role..."
+                    placeholder={t("team.invitation.acceptModal.descriptionPlaceholder")}
                     rows={3}
                     disabled={isSubmitting}
                   />
                   <p className="text-xs text-muted-foreground">
-                    A brief description about yourself and your role in the
-                    organization
+                    {t("team.invitation.acceptModal.descriptionHelp")}
                   </p>
                 </div>
 
                 <ImageUpload
-                  label="Profile Image (Optional)"
-                  description="Add a profile picture to help others recognize you"
+                  label={t("team.invitation.acceptModal.profileImage")}
+                  description={t("team.invitation.acceptModal.profileImageDescription")}
                   currentImage={watch("image")}
                   uploadState={imageUpload}
                   onImageRemove={handleImageRemove}
@@ -210,7 +211,7 @@ export function InvitationAcceptanceModal({
                 disabled={isSubmitting}
                 className="flex-1"
               >
-                Cancel
+                {t("team.invitation.acceptModal.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -222,15 +223,15 @@ export function InvitationAcceptanceModal({
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Accepting...
+                    {t("team.invitation.acceptModal.accepting")}
                   </>
                 ) : imageUpload.isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Uploading image...
+                    {t("team.invitation.acceptModal.uploadingImage")}
                   </>
                 ) : (
-                  "Accept Invitation"
+                  t("team.invitation.acceptModal.acceptInvitation")
                 )}
               </Button>
             </div>

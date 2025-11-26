@@ -18,6 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -28,6 +29,7 @@ export function AppointmentCard({
   appointment,
   onClick,
 }: AppointmentCardProps) {
+  const { t } = useTranslation();
   const { data: customer } = useCustomer(appointment.customerId);
   const { data: service } = useService(appointment.serviceId);
 
@@ -53,11 +55,11 @@ export function AppointmentCard({
 
   const appointmentDate = appointment.startTime
     ? formatUtcDateTime(appointment.startTime, "MMM dd, yyyy")
-    : "TBD";
+    : t("appointments.card.tbd");
   const appointmentTime = appointment.startTime
     ? formatUtcDateTime(appointment.startTime, "h:mm a")
-    : "TBD";
-  const duration = appointment.duration ? `${appointment.duration} min` : "TBD";
+    : t("appointments.card.tbd");
+  const duration = appointment.duration ? `${appointment.duration} ${t("common.min")}` : t("appointments.card.tbd");
 
   // Calculate end time
   const endTime =
@@ -77,17 +79,17 @@ export function AppointmentCard({
             variant="outline"
             className="border-yellow-500 text-yellow-600 bg-yellow-50"
           >
-            Pending
+            {t("appointments.pending")}
           </Badge>
         );
       case APPOINTMENT_STATUS.COMPLETED:
         return (
           <Badge className="bg-primary text-primary-foreground">
-            Completed
+            {t("appointments.completed")}
           </Badge>
         );
       case APPOINTMENT_STATUS.CANCELLED:
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t("appointments.cancelled")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -139,7 +141,7 @@ export function AppointmentCard({
           <div className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-muted-foreground">
-              Assigned to:{" "}
+              {t("appointments.card.assignedTo")}{" "}
               <span className="font-medium text-foreground">
                 {assigneeMember.name}
               </span>
@@ -150,7 +152,7 @@ export function AppointmentCard({
           <div className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-muted-foreground">
-              Assigned to:{" "}
+              {t("appointments.card.assignedTo")}{" "}
               <span className="font-medium text-foreground">
                 {assigneeOrganization.name}
               </span>

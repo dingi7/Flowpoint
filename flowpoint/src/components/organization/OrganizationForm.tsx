@@ -26,6 +26,7 @@ import {
 } from "@/utils/date-time";
 import { Bell, Clock, MapPin, Plus, Trash2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface OrganizationFormProps {
   organization?: Organization;
@@ -40,6 +41,7 @@ export function OrganizationForm({
   onCancel,
   isLoading = false,
 }: OrganizationFormProps) {
+  const { t } = useTranslation();
   const { handleSubmit, register, setValue, watch, formState } =
     useOrganizationForm({
       organization,
@@ -145,14 +147,14 @@ export function OrganizationForm({
       {/* Basic Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle>{t("organization.form.basicInformation")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="name">Organization Name *</Label>
+            <Label htmlFor="name">{t("organization.form.organizationName")} *</Label>
             <Input
               id="name"
-              placeholder="Enter organization name"
+              placeholder={t("organization.form.organizationNamePlaceholder")}
               {...register("name")}
               disabled={isLoading}
             />
@@ -164,7 +166,7 @@ export function OrganizationForm({
           </div>
 
           <ImageUpload
-            label="Organization Logo (Optional)"
+            label={t("organization.form.organizationLogo")}
             currentImage={currentImage}
             uploadState={uploadState}
             onImageRemove={handleImageRemove}
@@ -175,10 +177,10 @@ export function OrganizationForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="industry">Industry</Label>
+              <Label htmlFor="industry">{t("organization.form.industry")}</Label>
               <Input
                 id="industry"
-                placeholder="Enter industry (optional)"
+                placeholder={t("organization.form.industryPlaceholder")}
                 {...register("industry")}
                 disabled={isLoading}
               />
@@ -190,7 +192,7 @@ export function OrganizationForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
+              <Label htmlFor="currency">{t("organization.form.currency")}</Label>
               <Select
                 value={currency}
                 onValueChange={(value) =>
@@ -202,7 +204,7 @@ export function OrganizationForm({
                 disabled={isLoading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
+                  <SelectValue placeholder={t("organization.form.selectCurrency")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="EUR">EUR (€)</SelectItem>
@@ -227,15 +229,15 @@ export function OrganizationForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Contact Information
+            {t("organization.form.contactInformation")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">{t("organization.form.address")}</Label>
             <Textarea
               id="address"
-              placeholder="Enter organization address"
+              placeholder={t("organization.form.addressPlaceholder")}
               {...register("settings.contactInfo.address")}
               disabled={isLoading}
             />
@@ -243,21 +245,21 @@ export function OrganizationForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t("organization.form.phone")}</Label>
               <Input
                 id="phone"
-                placeholder="Enter phone number"
+                placeholder={t("organization.form.phonePlaceholder")}
                 {...register("settings.contactInfo.phone")}
                 disabled={isLoading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("organization.form.email")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter email address"
+                placeholder={t("organization.form.emailPlaceholder")}
                 {...register("settings.contactInfo.email")}
                 disabled={isLoading}
               />
@@ -265,11 +267,11 @@ export function OrganizationForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="googleMapsUrl">Google Maps URL</Label>
+            <Label htmlFor="googleMapsUrl">{t("organization.form.googleMapsUrl")}</Label>
             <Input
               id="googleMapsUrl"
               type="url"
-              placeholder="https://maps.google.com/..."
+              placeholder={t("organization.form.googleMapsUrlPlaceholder")}
               {...register("settings.contactInfo.googleMapsUrl")}
               disabled={isLoading}
             />
@@ -282,15 +284,15 @@ export function OrganizationForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Working Schedule
+            {t("organization.form.workingHours")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="timezone">Timezone</Label>
+            <Label htmlFor="timezone">{t("organization.form.timezone")}</Label>
             <Select value="UTC" disabled={true}>
               <SelectTrigger>
-                <SelectValue placeholder="Select timezone" />
+                <SelectValue placeholder={t("organization.form.selectTimezone")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="UTC">
@@ -299,8 +301,7 @@ export function OrganizationForm({
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              All organizations use UTC timezone. Working hours are displayed in
-              your local timezone.
+              {t("organization.form.timezoneDescription")}
             </p>
             {formState.errors.settings?.timezone && (
               <p className="text-sm text-red-500">
@@ -311,7 +312,7 @@ export function OrganizationForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="workingHoursStart">Working Hours Start</Label>
+              <Label htmlFor="workingHoursStart">{t("organization.form.workingHoursStart")}</Label>
               <Input
                 id="workingHoursStart"
                 type="time"
@@ -325,12 +326,12 @@ export function OrganizationForm({
                 disabled={isLoading}
               />
               <p className="text-xs text-muted-foreground">
-                Displayed in your local timezone (stored as UTC)
+                {t("organization.form.workingHoursStartDescription")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="workingHoursEnd">Working Hours End</Label>
+              <Label htmlFor="workingHoursEnd">{t("organization.form.workingHoursEnd")}</Label>
               <Input
                 id="workingHoursEnd"
                 type="time"
@@ -344,13 +345,13 @@ export function OrganizationForm({
                 disabled={isLoading}
               />
               <p className="text-xs text-muted-foreground">
-                Displayed in your local timezone (stored as UTC)
+                {t("organization.form.workingHoursEndDescription")}
               </p>
             </div>
           </div>
 
           <div className="space-y-3">
-            <Label>Working Days</Label>
+            <Label>{t("organization.form.workingDays")}</Label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Object.values(DAY_OF_WEEK).map((day) => (
                 <div key={day} className="flex items-center space-x-2">
@@ -370,7 +371,7 @@ export function OrganizationForm({
                     disabled={isLoading}
                   />
                   <Label htmlFor={day} className="text-sm">
-                    {day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()}
+                    {t(`calendar.workingScheduleForm.days.${day.toLowerCase()}`)}
                   </Label>
                 </div>
               ))}
@@ -379,12 +380,12 @@ export function OrganizationForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="bufferTime">Buffer Time (minutes)</Label>
+              <Label htmlFor="bufferTime">{t("organization.form.bufferTime")}</Label>
               <Input
                 id="bufferTime"
                 type="number"
                 min="0"
-                placeholder="0"
+                placeholder={t("organization.form.bufferTimePlaceholder")}
                 {...register("settings.defaultBufferTime", {
                   valueAsNumber: true,
                 })}
@@ -394,13 +395,13 @@ export function OrganizationForm({
 
             <div className="space-y-2">
               <Label htmlFor="cancellationPolicy">
-                Cancellation Policy (hours)
+                {t("organization.form.cancellationPolicy")}
               </Label>
               <Input
                 id="cancellationPolicy"
                 type="number"
                 min="0"
-                placeholder="24"
+                placeholder={t("organization.form.cancellationPolicyPlaceholder")}
                 {...register("settings.appointmentCancellationPolicyHours", {
                   valueAsNumber: true,
                 })}
@@ -415,27 +416,26 @@ export function OrganizationForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Appointment Notifications
+            {t("organization.form.appointmentReminders")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="reminderHoursBefore">
-              Reminder Hours Before Appointment
+              {t("organization.form.reminderHoursBefore")}
             </Label>
             <Input
               id="reminderHoursBefore"
               type="number"
               min="0"
-              placeholder="24"
+              placeholder={t("organization.form.reminderHoursBeforePlaceholder")}
               {...register("settings.appointmentReminderHoursBefore", {
                 valueAsNumber: true,
               })}
               disabled={isLoading}
             />
             <p className="text-xs text-muted-foreground">
-              How many hours before the appointment should reminder
-              notifications be sent
+              {t("organization.form.reminderHoursBeforeDescription")}
             </p>
             {formState.errors.settings?.appointmentReminderHoursBefore && (
               <p className="text-sm text-red-500">
@@ -448,7 +448,7 @@ export function OrganizationForm({
           </div>
 
           <div className="space-y-3">
-            <Label>Notification Methods</Label>
+            <Label>{t("organization.form.notificationMethods")}</Label>
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -463,11 +463,11 @@ export function OrganizationForm({
                   htmlFor="emailNotifications"
                   className="text-sm font-medium cursor-pointer"
                 >
-                  Email Notifications
+                  {t("organization.form.emailNotifications")}
                 </Label>
               </div>
               <p className="text-xs text-muted-foreground ml-6">
-                Send appointment confirmation and reminder emails to customers
+                {t("organization.form.emailNotificationsDescription")}
               </p>
 
               <div className="flex items-center space-x-2">
@@ -483,12 +483,11 @@ export function OrganizationForm({
                   htmlFor="smsNotifications"
                   className="text-sm font-medium cursor-pointer"
                 >
-                  SMS Notifications (Coming Soon)
+                  {t("organization.form.smsNotifications")} (Coming Soon)
                 </Label>
               </div>
               <p className="text-xs text-muted-foreground ml-6">
-                Send appointment confirmation and reminder SMS messages to
-                customers
+                {t("organization.form.smsNotificationsDescription")}
               </p>
             </div>
           </div>
@@ -499,14 +498,14 @@ export function OrganizationForm({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Custom Customer Fields
+            {t("organization.form.customFields")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {customerFields.map((field, index) => (
             <div key={field.id} className="p-4 border rounded-lg space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium">Field {index + 1}</h4>
+                <h4 className="font-medium">{t("organization.form.field")} {index + 1}</h4>
                 <Button
                   type="button"
                   variant="outline"
@@ -520,7 +519,7 @@ export function OrganizationForm({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Field Name</Label>
+                  <Label>{t("organization.form.fieldName")}</Label>
                   <Input
                     value={field.name}
                     onChange={(e) =>
@@ -529,13 +528,13 @@ export function OrganizationForm({
                         name: e.target.value,
                       })
                     }
-                    placeholder="Enter field name"
+                    placeholder={t("organization.form.fieldNamePlaceholder")}
                     disabled={isLoading}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Field Type</Label>
+                  <Label>{t("organization.form.fieldType")}</Label>
                   <Select
                     value={field.type}
                     onValueChange={(value) =>
@@ -574,7 +573,7 @@ export function OrganizationForm({
               </div>
 
               <div className="space-y-2">
-                <Label>Placeholder (Optional)</Label>
+                <Label>{t("organization.form.placeholder")}</Label>
                 <Input
                   value={field.placeholder || ""}
                   onChange={(e) =>
@@ -583,7 +582,7 @@ export function OrganizationForm({
                       placeholder: e.target.value,
                     })
                   }
-                  placeholder="Enter placeholder text"
+                  placeholder={t("organization.form.placeholderPlaceholder")}
                   disabled={isLoading}
                 />
               </div>
@@ -600,7 +599,7 @@ export function OrganizationForm({
                   }
                   disabled={isLoading}
                 />
-                <Label htmlFor={`required-${field.id}`}>Required field</Label>
+                <Label htmlFor={`required-${field.id}`}>{t("organization.form.requiredField")}</Label>
               </div>
             </div>
           ))}
@@ -613,7 +612,7 @@ export function OrganizationForm({
             className="w-full"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Customer Field
+            {t("organization.form.addField")}
           </Button>
         </CardContent>
       </Card>
@@ -626,7 +625,7 @@ export function OrganizationForm({
             onClick={onCancel}
             disabled={isLoading || isUploading}
           >
-            Cancel
+            {t("organization.form.cancel")}
           </Button>
         )}
         <Button
@@ -634,10 +633,10 @@ export function OrganizationForm({
           disabled={isLoading || !formState.isValid || isUploading}
         >
           {isLoading
-            ? "Saving..."
+            ? t("organization.form.saving")
             : isUploading
-              ? "Uploading image..."
-              : `${organization ? "Update" : "Create"} Organization`}
+              ? t("organization.form.uploadingImage")
+              : organization ? t("organization.form.updateOrganization") : t("organization.form.createOrganization")}
         </Button>
       </div>
     </form>

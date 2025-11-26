@@ -24,8 +24,9 @@ import {
   normalizeDateToNoon,
 } from "@/utils/date-time";
 import { format, parseISO } from "date-fns";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { CalendarOff, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AppointmentCard } from "../appointment/AppointmentCard";
 import { AppointmentDetails } from "../appointment/AppointmentDetails";
 
@@ -35,27 +36,28 @@ interface CalendarViewProps {
   memberId: string;
 }
 
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const DAYS_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const MONTHS_KEYS = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+] as const;
 
 export function CalendarView({
   selectedDate,
   onDateSelect,
   memberId,
 }: CalendarViewProps) {
+  const { t } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(selectedDate);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
@@ -246,7 +248,7 @@ export function CalendarView({
           !isSelected(day) && "text-foreground",
           hasTimeOff(day) &&
             !isSelected(day) &&
-            "bg-red-100 text-red-700 hover:bg-red-200",
+            "bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200 border-dashed dark:bg-amber-950/30 dark:text-amber-400 dark:hover:bg-amber-950/50 dark:border-amber-800",
         )}
       >
         <span>{day}</span>
@@ -272,7 +274,7 @@ export function CalendarView({
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-foreground">
-            {MONTHS[month]} {year}
+            {t(`calendar.months.${MONTHS_KEYS[month]}`)} {year}
           </h2>
           <div className="flex gap-2">
             <Button
@@ -296,12 +298,12 @@ export function CalendarView({
 
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-2 mb-2">
-          {DAYS.map((day) => (
+          {DAYS_KEYS.map((day) => (
             <div
               key={day}
               className="text-center text-xs font-medium text-muted-foreground py-2"
             >
-              {day}
+              {t(`calendar.days.${day}`)}
             </div>
           ))}
         </div>
@@ -313,7 +315,7 @@ export function CalendarView({
       {/* Appointments Section */}
       <Card className="p-6 lg:sticky lg:top-6 h-fit">
         <h3 className="text-lg font-semibold text-foreground mb-4">
-          Appointments
+          {t("calendar.appointments")}
         </h3>
 
         <div className="mb-4 pb-4 border-b border-border">
@@ -321,11 +323,20 @@ export function CalendarView({
             {formatSelectedDate()}
           </p>
           {getSelectedDateTimeOff() && (
-            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-700 font-medium">Time Off</p>
-              <p className="text-xs text-red-600">
-                {getSelectedDateTimeOff()?.reason}
-              </p>
+            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 rounded-full bg-amber-100 p-1.5 dark:bg-amber-900/50">
+                  <CalendarOff className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-400">
+                    {t("calendar.timeOff")}
+                  </p>
+                  <p className="mt-1 text-sm text-amber-700 dark:text-amber-500">
+                    {getSelectedDateTimeOff()?.reason}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -348,7 +359,7 @@ export function CalendarView({
               <Clock className="h-8 w-8 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground">
-              No appointments scheduled for this day
+              {t("calendar.noAppointmentsToday")}
             </p>
           </div>
         )}
@@ -358,7 +369,7 @@ export function CalendarView({
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="min-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Appointment Details</DialogTitle>
+            <DialogTitle>{t("calendar.appointmentDetails")}</DialogTitle>
           </DialogHeader>
           {selectedAppointment && (
             <AppointmentDetails

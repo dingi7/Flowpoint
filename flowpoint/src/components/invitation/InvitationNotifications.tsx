@@ -7,10 +7,12 @@ import { useInvitesByEmail } from "@/hooks";
 import { useUser } from "@clerk/clerk-react";
 import { AlertCircle, CheckCircle, Mail } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { InvitationAcceptanceModal } from "./InvitationAcceptanceModal";
 import { InvitationCard } from "./InvitationCard";
 
 export function InvitationNotifications() {
+  const { t } = useTranslation();
   const { user } = useUser();
   const [selectedInvitation, setSelectedInvitation] = useState<Invite | null>(
     null,
@@ -55,7 +57,7 @@ export function InvitationNotifications() {
       <div className="p-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Mail className="h-4 w-4 animate-pulse" />
-          Loading invitations...
+          {t("team.invitation.notifications.loading")}
         </div>
       </div>
     );
@@ -67,7 +69,7 @@ export function InvitationNotifications() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load invitations. Please try again.
+            {t("team.invitation.notifications.failedToLoad")}
           </AlertDescription>
         </Alert>
       </div>
@@ -79,7 +81,7 @@ export function InvitationNotifications() {
       <div className="p-4">
         <div className="text-center text-sm text-muted-foreground">
           <Mail className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          No invitations found
+          {t("team.invitation.notifications.noInvitations")}
         </div>
       </div>
     );
@@ -94,7 +96,7 @@ export function InvitationNotifications() {
             <div className="space-y-2 px-3">
               <div className="flex items-center gap-2 text-xs font-medium text-foreground px-2">
                 <Mail className="h-4 w-4" />
-                Pending Invitations ({pendingInvitations.length})
+                {t("team.invitation.notifications.pendingInvitations")} ({pendingInvitations.length})
               </div>
               {invitations.map((invitation) => (
                 <InvitationCard
@@ -115,7 +117,7 @@ export function InvitationNotifications() {
               )}
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground px-2">
                 <CheckCircle className="h-4 w-4" />
-                Recent Activity ({processedInvitations.length})
+                {t("team.invitation.notifications.recentActivity")} ({processedInvitations.length})
               </div>
               {processedInvitations.map((invitation) => (
                 <InvitationCard

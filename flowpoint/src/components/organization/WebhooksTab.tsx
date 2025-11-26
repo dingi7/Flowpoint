@@ -42,36 +42,38 @@ import { convertFirestoreTimestampToDateWithFallback } from "@/utils/date-time";
 import { format } from "date-fns";
 import { Eye, Plus, Trash2, Webhook } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-const WEBHOOK_EVENT_OPTIONS = [
-  { value: WEBHOOK_EVENT_TYPE.CUSTOMER_CREATED, label: "Customer Created" },
-  { value: WEBHOOK_EVENT_TYPE.CUSTOMER_UPDATED, label: "Customer Updated" },
-  { value: WEBHOOK_EVENT_TYPE.CUSTOMER_DELETED, label: "Customer Deleted" },
+const getWebhookEventOptions = (t: (key: string) => string) => [
+  { value: WEBHOOK_EVENT_TYPE.CUSTOMER_CREATED, label: t("organization.webhooks.eventTypes.customerCreated") },
+  { value: WEBHOOK_EVENT_TYPE.CUSTOMER_UPDATED, label: t("organization.webhooks.eventTypes.customerUpdated") },
+  { value: WEBHOOK_EVENT_TYPE.CUSTOMER_DELETED, label: t("organization.webhooks.eventTypes.customerDeleted") },
   {
     value: WEBHOOK_EVENT_TYPE.APPOINTMENT_CREATED,
-    label: "Appointment Created",
+    label: t("organization.webhooks.eventTypes.appointmentCreated"),
   },
   {
     value: WEBHOOK_EVENT_TYPE.APPOINTMENT_UPDATED,
-    label: "Appointment Updated",
+    label: t("organization.webhooks.eventTypes.appointmentUpdated"),
   },
   {
     value: WEBHOOK_EVENT_TYPE.APPOINTMENT_DELETED,
-    label: "Appointment Deleted",
+    label: t("organization.webhooks.eventTypes.appointmentDeleted"),
   },
-  { value: WEBHOOK_EVENT_TYPE.SERVICE_CREATED, label: "Service Created" },
-  { value: WEBHOOK_EVENT_TYPE.SERVICE_UPDATED, label: "Service Updated" },
-  { value: WEBHOOK_EVENT_TYPE.SERVICE_DELETED, label: "Service Deleted" },
-  { value: WEBHOOK_EVENT_TYPE.MEMBER_CREATED, label: "Member Created" },
-  { value: WEBHOOK_EVENT_TYPE.MEMBER_UPDATED, label: "Member Updated" },
-  { value: WEBHOOK_EVENT_TYPE.MEMBER_DELETED, label: "Member Deleted" },
-  { value: WEBHOOK_EVENT_TYPE.INVITE_CREATED, label: "Invite Created" },
-  { value: WEBHOOK_EVENT_TYPE.INVITE_UPDATED, label: "Invite Updated" },
-  { value: WEBHOOK_EVENT_TYPE.INVITE_DELETED, label: "Invite Deleted" },
+  { value: WEBHOOK_EVENT_TYPE.SERVICE_CREATED, label: t("organization.webhooks.eventTypes.serviceCreated") },
+  { value: WEBHOOK_EVENT_TYPE.SERVICE_UPDATED, label: t("organization.webhooks.eventTypes.serviceUpdated") },
+  { value: WEBHOOK_EVENT_TYPE.SERVICE_DELETED, label: t("organization.webhooks.eventTypes.serviceDeleted") },
+  { value: WEBHOOK_EVENT_TYPE.MEMBER_CREATED, label: t("organization.webhooks.eventTypes.memberCreated") },
+  { value: WEBHOOK_EVENT_TYPE.MEMBER_UPDATED, label: t("organization.webhooks.eventTypes.memberUpdated") },
+  { value: WEBHOOK_EVENT_TYPE.MEMBER_DELETED, label: t("organization.webhooks.eventTypes.memberDeleted") },
+  { value: WEBHOOK_EVENT_TYPE.INVITE_CREATED, label: t("organization.webhooks.eventTypes.inviteCreated") },
+  { value: WEBHOOK_EVENT_TYPE.INVITE_UPDATED, label: t("organization.webhooks.eventTypes.inviteUpdated") },
+  { value: WEBHOOK_EVENT_TYPE.INVITE_DELETED, label: t("organization.webhooks.eventTypes.inviteDeleted") },
 ];
 
 export function WebhooksTab() {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
@@ -82,6 +84,8 @@ export function WebhooksTab() {
     useState<WebhookSubscription | null>(null);
   const [callbackUrl, setCallbackUrl] = useState("");
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+  
+  const WEBHOOK_EVENT_OPTIONS = getWebhookEventOptions(t);
 
   // Fetch webhook subscriptions from repository
   const { data: webhookSubscriptionsData, isLoading } = useWebhookSubscriptions(
@@ -107,17 +111,17 @@ export function WebhooksTab() {
     });
 
     if (!callbackUrl.trim()) {
-      toast.error("Please enter a callback URL");
+      toast.error(t("organization.webhooks.errors.callbackUrlRequired"));
       return;
     }
 
     if (selectedEventTypes.length === 0) {
-      toast.error("Please select at least one event type");
+      toast.error(t("organization.webhooks.errors.eventTypeRequired"));
       return;
     }
 
     if (!organizationId) {
-      toast.error("Organization ID is required");
+      toast.error(t("organization.webhooks.errors.organizationIdRequired"));
       return;
     }
 
@@ -126,7 +130,7 @@ export function WebhooksTab() {
       new URL(callbackUrl.trim());
     } catch (error) {
       console.error("URL validation error:", error);
-      toast.error("Please enter a valid URL");
+      toast.error(t("organization.webhooks.errors.invalidUrl"));
       return;
     }
 
@@ -148,11 +152,11 @@ export function WebhooksTab() {
       setCallbackUrl("");
       setSelectedEventTypes([]);
       setIsCreateDialogOpen(false);
-      toast.success("Webhook subscription created successfully");
+      toast.success(t("organization.webhooks.errors.createSuccess"));
     } catch (error) {
       console.error("Failed to create webhook subscription:", error);
       toast.error(
-        `Failed to create webhook subscription: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `${t("organization.webhooks.errors.createError")} ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   };
@@ -192,13 +196,13 @@ export function WebhooksTab() {
         organizationId,
         subscriptionId: webhookToDelete.id,
       });
-      toast.success("Webhook subscription removed successfully");
+      toast.success(t("organization.webhooks.errors.deleteSuccess"));
       setIsDeleteDialogOpen(false);
       setWebhookToDelete(null);
     } catch (error) {
       console.error("Failed to remove webhook subscription:", error);
       toast.error(
-        `Failed to remove webhook subscription: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `${t("organization.webhooks.errors.deleteError")} ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   };
@@ -210,7 +214,7 @@ export function WebhooksTab() {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Webhook className="h-5 w-5" />
-              Webhook Subscriptions
+              {t("organization.webhooks.title")}
             </CardTitle>
             <Button
               onClick={() => setIsCreateDialogOpen(true)}
@@ -218,7 +222,7 @@ export function WebhooksTab() {
               variant="default"
             >
               <Plus className="h-4 w-4" />
-              Create Webhook
+              {t("organization.webhooks.createWebhook")}
             </Button>
           </div>
         </CardHeader>
@@ -226,25 +230,24 @@ export function WebhooksTab() {
           {isLoading ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                Loading webhook subscriptions...
+                {t("organization.webhooks.loading")}
               </p>
             </div>
           ) : webhookSubscriptions.length === 0 ? (
             <div className="text-center py-8">
               <Webhook className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">
-                No webhook subscriptions created yet. Create your first webhook
-                to receive real-time event notifications.
+                {t("organization.webhooks.noWebhooks")}
               </p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Callback URL</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("organization.webhooks.tableHeaders.callbackUrl")}</TableHead>
+                  <TableHead>{t("organization.webhooks.tableHeaders.status")}</TableHead>
+                  <TableHead>{t("organization.webhooks.tableHeaders.created")}</TableHead>
+                  <TableHead>{t("organization.webhooks.tableHeaders.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -261,7 +264,9 @@ export function WebhooksTab() {
                             : "secondary"
                         }
                       >
-                        {subscription.status}
+                        {subscription.status === "active" 
+                          ? t("organization.webhooks.status.active")
+                          : t("organization.webhooks.status.inactive")}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -315,10 +320,9 @@ export function WebhooksTab() {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create Webhook Subscription</DialogTitle>
+            <DialogTitle>{t("organization.webhooks.createDialog.title")}</DialogTitle>
             <DialogDescription>
-              Set up a webhook to receive real-time notifications when events
-              occur in your organization.
+              {t("organization.webhooks.createDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <form
@@ -329,11 +333,11 @@ export function WebhooksTab() {
             className="space-y-4"
           >
             <div className="space-y-2">
-              <Label htmlFor="callbackUrl">Callback URL</Label>
+              <Label htmlFor="callbackUrl">{t("organization.webhooks.createDialog.callbackUrl")}</Label>
               <Input
                 id="callbackUrl"
                 type="url"
-                placeholder="https://your-server.com/webhook"
+                placeholder={t("organization.webhooks.createDialog.callbackUrlPlaceholder")}
                 value={callbackUrl}
                 onChange={(e) => setCallbackUrl(e.target.value)}
                 onKeyDown={(e) => {
@@ -344,12 +348,11 @@ export function WebhooksTab() {
                 }}
               />
               <p className="text-xs text-muted-foreground">
-                The URL where webhook events will be sent. Must be a valid HTTPS
-                URL.
+                {t("organization.webhooks.createDialog.callbackUrlDescription")}
               </p>
             </div>
             <div className="space-y-2">
-              <Label>Event Types</Label>
+              <Label>{t("organization.webhooks.createDialog.eventTypes")}</Label>
               <div className="border rounded-lg p-4 max-h-64 overflow-y-auto">
                 <div className="space-y-2">
                   {WEBHOOK_EVENT_OPTIONS.map((option) => (
@@ -375,8 +378,7 @@ export function WebhooksTab() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Select one or more event types to subscribe to. You'll receive
-                notifications for all selected events.
+                {t("organization.webhooks.createDialog.eventTypesDescription")}
               </p>
             </div>
             <div className="flex justify-end gap-2">
@@ -388,7 +390,7 @@ export function WebhooksTab() {
                   setSelectedEventTypes([]);
                 }}
               >
-                Cancel
+                {t("organization.webhooks.createDialog.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -399,8 +401,8 @@ export function WebhooksTab() {
                 }
               >
                 {createWebhookSubscriptionMutation.isPending
-                  ? "Creating..."
-                  : "Create Webhook"}
+                  ? t("organization.webhooks.createDialog.creating")
+                  : t("organization.webhooks.createDialog.create")}
               </Button>
             </div>
           </form>
@@ -419,21 +421,21 @@ export function WebhooksTab() {
       >
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Webhook Subscription Details</DialogTitle>
+            <DialogTitle>{t("organization.webhooks.detailsDialog.title")}</DialogTitle>
             <DialogDescription>
-              View details of your webhook subscription.
+              {t("organization.webhooks.detailsDialog.description")}
             </DialogDescription>
           </DialogHeader>
           {selectedWebhook && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Callback URL</Label>
+                <Label>{t("organization.webhooks.detailsDialog.callbackUrl")}</Label>
                 <div className="p-3 bg-muted rounded-md font-mono text-sm break-all">
                   {selectedWebhook.callbackUrl}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Status</Label>
+                <Label>{t("organization.webhooks.detailsDialog.status")}</Label>
                 <div>
                   <Badge
                     variant={
@@ -442,16 +444,18 @@ export function WebhooksTab() {
                         : "secondary"
                     }
                   >
-                    {selectedWebhook.status}
+                    {selectedWebhook.status === "active"
+                      ? t("organization.webhooks.status.active")
+                      : t("organization.webhooks.status.inactive")}
                   </Badge>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Event Types</Label>
+                <Label>{t("organization.webhooks.detailsDialog.eventTypes")}</Label>
                 <div className="flex flex-wrap gap-2 p-3 bg-muted rounded-md">
                   {selectedWebhook.eventTypes.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      No event types
+                      {t("organization.webhooks.detailsDialog.noEventTypes")}
                     </p>
                   ) : (
                     selectedWebhook.eventTypes.map((eventType) => (
@@ -469,7 +473,7 @@ export function WebhooksTab() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Created</Label>
+                <Label>{t("organization.webhooks.detailsDialog.created")}</Label>
                 <div className="p-3 bg-muted rounded-md text-sm">
                   {(() => {
                     try {
@@ -489,7 +493,7 @@ export function WebhooksTab() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Last Updated</Label>
+                <Label>{t("organization.webhooks.detailsDialog.lastUpdated")}</Label>
                 <div className="p-3 bg-muted rounded-md text-sm">
                   {(() => {
                     try {
@@ -513,7 +517,7 @@ export function WebhooksTab() {
                   variant="outline"
                   onClick={() => setIsDetailsDialogOpen(false)}
                 >
-                  Close
+                  {t("organization.webhooks.detailsDialog.close")}
                 </Button>
               </div>
             </div>
@@ -528,10 +532,9 @@ export function WebhooksTab() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Webhook Subscription</AlertDialogTitle>
+            <AlertDialogTitle>{t("organization.webhooks.deleteDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this webhook subscription? This
-              action cannot be undone.
+              {t("organization.webhooks.deleteDialog.description")}
               {webhookToDelete && (
                 <div className="mt-2 p-2 bg-muted rounded-md">
                   <p className="text-sm font-mono text-xs break-all">
@@ -549,7 +552,7 @@ export function WebhooksTab() {
               }}
               disabled={removeWebhookSubscriptionMutation.isPending}
             >
-              Cancel
+              {t("organization.webhooks.deleteDialog.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
@@ -557,8 +560,8 @@ export function WebhooksTab() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {removeWebhookSubscriptionMutation.isPending
-                ? "Deleting..."
-                : "Delete"}
+                ? t("organization.webhooks.deleteDialog.deleting")
+                : t("organization.webhooks.deleteDialog.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

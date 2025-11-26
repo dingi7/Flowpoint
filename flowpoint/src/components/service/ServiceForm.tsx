@@ -22,6 +22,7 @@ import { useUserStore } from "@/stores";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ServiceFormProps {
   service?: Service;
@@ -34,6 +35,7 @@ export function ServiceForm({
   onSuccess,
   onCancel,
 }: ServiceFormProps) {
+  const { t } = useTranslation();
   const createServiceMutation = useCreateService();
   const updateServiceMutation = useUpdateService();
   const currentOrganizationId = useCurrentOrganizationId();
@@ -127,17 +129,17 @@ export function ServiceForm({
       <Card className="border-none">
         <CardHeader>
           <CardTitle className="text-lg font-sans">
-            Service Information
+            {t("services.form.serviceInformation")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Service Name *</Label>
+              <Label htmlFor="name">{t("services.form.serviceName")} *</Label>
               <Input
                 id="name"
                 {...register("name")}
-                placeholder="Enter service name"
+                placeholder={t("services.form.namePlaceholder")}
               />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -145,14 +147,14 @@ export function ServiceForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price">Price (BGN) *</Label>
+              <Label htmlFor="price">{t("services.form.price")} *</Label>
               <Input
                 id="price"
                 type="number"
                 min="0"
                 step="0.01"
                 {...register("price", { valueAsNumber: true })}
-                placeholder="0.00"
+                placeholder={t("services.form.pricePlaceholder")}
               />
               {errors.price && (
                 <p className="text-sm text-red-500">{errors.price.message}</p>
@@ -162,13 +164,13 @@ export function ServiceForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration (minutes) *</Label>
+              <Label htmlFor="duration">{t("services.form.duration")} *</Label>
               <Input
                 id="duration"
                 type="number"
                 min="1"
                 {...register("duration", { valueAsNumber: true })}
-                placeholder="60"
+                placeholder={t("services.form.durationPlaceholder")}
               />
               {errors.duration && (
                 <p className="text-sm text-red-500">
@@ -178,7 +180,7 @@ export function ServiceForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ownerType">Owner Type</Label>
+              <Label htmlFor="ownerType">{t("services.form.ownerType")}</Label>
               <Select
                 value={ownerType}
                 onValueChange={(value) =>
@@ -186,13 +188,13 @@ export function ServiceForm({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select owner type" />
+                  <SelectValue placeholder={t("services.form.ownerType")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={OWNER_TYPE.ORGANIZATION}>
-                    Organization
+                    {t("services.organization")}
                   </SelectItem>
-                  <SelectItem value={OWNER_TYPE.MEMBER}>Member</SelectItem>
+                  <SelectItem value={OWNER_TYPE.MEMBER}>{t("services.member")}</SelectItem>
                 </SelectContent>
               </Select>
               {errors.ownerType && (
@@ -204,11 +206,11 @@ export function ServiceForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("services.form.description")}</Label>
             <Textarea
               id="description"
               {...register("description")}
-              placeholder="Enter service description..."
+              placeholder={t("services.form.descriptionPlaceholder")}
               rows={3}
             />
             {errors.description && (
@@ -219,7 +221,7 @@ export function ServiceForm({
           </div>
 
           <ImageUpload
-            label="Service Image (Optional)"
+            label={t("services.form.image")}
             currentImage={currentImage}
             uploadState={uploadState}
             onImageRemove={handleImageRemove}
@@ -247,16 +249,16 @@ export function ServiceForm({
             disabled={isSubmitting}
           >
             <X className="h-4 w-4 mr-2" />
-            Cancel
+            {t("services.form.cancel")}
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
           <Save className="h-4 w-4 mr-2" />
           {isSubmitting
-            ? "Saving..."
+            ? t("services.form.saving")
             : service
-              ? "Update Service"
-              : "Create Service"}
+              ? t("services.edit")
+              : t("services.addNew")}
         </Button>
       </div>
     </form>

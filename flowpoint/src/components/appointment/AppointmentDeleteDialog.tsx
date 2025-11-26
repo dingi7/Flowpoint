@@ -10,6 +10,7 @@ import {
 import { Appointment } from "@/core";
 import { useDeleteAppointment } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useTranslation } from "react-i18next";
 
 interface AppointmentDeleteDialogProps {
   appointment: Appointment | null;
@@ -22,6 +23,7 @@ export function AppointmentDeleteDialog({
   isOpen,
   onClose,
 }: AppointmentDeleteDialogProps) {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
   const deleteAppointment = useDeleteAppointment();
 
@@ -46,17 +48,16 @@ export function AppointmentDeleteDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Appointment</DialogTitle>
+          <DialogTitle>{t("appointments.delete.title")}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <p className="text-sm text-muted-foreground mb-4">
-            Are you sure you want to delete this appointment? This action cannot
-            be undone.
+            {t("appointments.delete.description")}
           </p>
           {appointment && (
             <div className="bg-muted p-3 rounded-md space-y-1">
               <p className="font-medium">
-                {appointment.title || "Untitled Appointment"}
+                {appointment.title || t("appointments.delete.untitled")}
               </p>
               <p className="text-sm text-muted-foreground">
                 {appointment.description}
@@ -72,14 +73,14 @@ export function AppointmentDeleteDialog({
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("appointments.delete.cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteAppointment.isPending}
           >
-            {deleteAppointment.isPending ? "Deleting..." : "Delete Appointment"}
+            {deleteAppointment.isPending ? t("appointments.delete.deleting") : t("appointments.delete.delete")}
           </Button>
         </div>
       </DialogContent>

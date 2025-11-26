@@ -10,6 +10,7 @@ import {
 import { Customer } from "@/core";
 import { useDeleteCustomer } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useTranslation } from "react-i18next";
 
 interface CustomerDeleteDialogProps {
   customer: Customer | null;
@@ -22,6 +23,7 @@ export function CustomerDeleteDialog({
   isOpen,
   onClose,
 }: CustomerDeleteDialogProps) {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
   const deleteCustomer = useDeleteCustomer();
 
@@ -46,12 +48,11 @@ export function CustomerDeleteDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Customer</DialogTitle>
+          <DialogTitle>{t("customers.delete.title")}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <p className="text-sm text-muted-foreground mb-4">
-            Are you sure you want to delete this customer? This action cannot be
-            undone.
+            {t("customers.delete.description")}
           </p>
           {customer && (
             <div className="bg-muted p-3 rounded-md">
@@ -62,14 +63,14 @@ export function CustomerDeleteDialog({
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("customers.delete.cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteCustomer.isPending}
           >
-            {deleteCustomer.isPending ? "Deleting..." : "Delete Customer"}
+            {deleteCustomer.isPending ? t("customers.delete.deleting") : t("customers.delete.delete")}
           </Button>
         </div>
       </DialogContent>

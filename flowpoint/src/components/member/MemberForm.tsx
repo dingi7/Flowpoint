@@ -9,6 +9,7 @@ import {
   useRoles,
 } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useTranslation } from "react-i18next";
 
 interface MemberFormProps {
   onSuccess?: () => void;
@@ -16,6 +17,7 @@ interface MemberFormProps {
 }
 
 export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
+  const { t } = useTranslation();
   const currentOrganizationId = useCurrentOrganizationId();
   const createInviteMutation = useCreateOrganizationInvite();
 
@@ -58,11 +60,11 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="inviteeEmail">Email Address</Label>
+        <Label htmlFor="inviteeEmail">{t("team.invite.form.emailAddress")}</Label>
         <Input
           id="inviteeEmail"
           type="email"
-          placeholder="Enter email address"
+          placeholder={t("team.invite.form.emailPlaceholder")}
           {...register("inviteeEmail")}
           disabled={isSubmitting}
         />
@@ -72,11 +74,11 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="validFor">Valid For (days)</Label>
+        <Label htmlFor="validFor">{t("team.invite.form.validFor")}</Label>
         <Input
           id="validFor"
           type="number"
-          placeholder="Enter valid for days"
+          placeholder={t("team.invite.form.validForPlaceholder")}
           {...register("validFor", { valueAsNumber: true })}
           disabled={isSubmitting}
         />
@@ -86,10 +88,10 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label>Roles</Label>
+        <Label>{t("team.invite.form.roles")}</Label>
         <div className="space-y-2">
           {roles.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No roles available</p>
+            <p className="text-sm text-muted-foreground">{t("team.invite.form.noRolesAvailable")}</p>
           ) : (
             <div className="grid grid-cols-1 gap-3 max-h-40 overflow-y-auto border rounded-md p-3">
               {roles.map((role) => (
@@ -128,11 +130,11 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            {t("team.invite.form.cancel")}
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting || !isValid}>
-          {isSubmitting ? "Sending Invite..." : "Send Invite"}
+          {isSubmitting ? t("team.invite.form.sending") : t("team.invite.form.send")}
         </Button>
       </div>
     </form>

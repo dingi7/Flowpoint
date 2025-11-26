@@ -21,6 +21,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface AppointmentDetailsProps {
   appointment: Appointment;
@@ -31,6 +32,7 @@ export function AppointmentDetails({
   appointment,
   onStatusChange,
 }: AppointmentDetailsProps) {
+  const { t } = useTranslation();
   // Fetch customer and service data
   const { data: customer, isLoading: isLoadingCustomer } = useCustomer(
     appointment.customerId,
@@ -54,7 +56,7 @@ export function AppointmentDetails({
       <div className="space-y-6">
         <div className="flex items-center justify-center py-8">
           <p className="text-muted-foreground">
-            Loading appointment details...
+            {t("appointments.details.loading")}
           </p>
         </div>
       </div>
@@ -64,9 +66,9 @@ export function AppointmentDetails({
   // Fallback data if customer or service is not found
   const customerData = customer || {
     id: appointment.customerId,
-    name: "Unknown Customer",
-    email: "N/A",
-    phone: "N/A",
+    name: t("appointments.details.unknownCustomer"),
+    email: t("common.notAvailable"),
+    phone: t("common.notAvailable"),
   };
 
   const serviceData = service || {
@@ -89,17 +91,17 @@ export function AppointmentDetails({
             variant="outline"
             className="border-yellow-500 text-yellow-600"
           >
-            Pending
+            {t("appointments.pending")}
           </Badge>
         );
       case APPOINTMENT_STATUS.COMPLETED:
         return (
           <Badge className="bg-primary text-primary-foreground">
-            Completed
+            {t("appointments.completed")}
           </Badge>
         );
       case APPOINTMENT_STATUS.CANCELLED:
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t("appointments.cancelled")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -134,7 +136,7 @@ export function AppointmentDetails({
           <div className="flex items-center gap-2 mt-2">
             {getStatusBadge(appointment.status)}
             <span className="text-sm text-muted-foreground">
-              Booked on {new Date(appointment.createdAt).toLocaleDateString()}
+              {t("appointments.details.bookedOn")} {new Date(appointment.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
@@ -149,7 +151,7 @@ export function AppointmentDetails({
               className="bg-transparent"
             >
               <CheckCircle className="h-4 w-4 mr-2" />
-              Complete
+              {t("appointments.details.complete")}
             </Button>
           )}
           {appointment.status === APPOINTMENT_STATUS.PENDING && (
@@ -162,7 +164,7 @@ export function AppointmentDetails({
               className="bg-transparent text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
             >
               <X className="h-4 w-4 mr-2" />
-              Cancel
+              {t("appointments.details.cancel")}
             </Button>
           )}
         </div>
@@ -174,7 +176,7 @@ export function AppointmentDetails({
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
               <User className="h-5 w-5" />
-              Customer Information
+              {t("appointments.details.customerInformation")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -194,7 +196,7 @@ export function AppointmentDetails({
               </Avatar>
               <div>
                 <h4 className="font-semibold">{customerData.name}</h4>
-                <p className="text-sm text-muted-foreground">Customer</p>
+                <p className="text-sm text-muted-foreground">{t("appointments.details.customer")}</p>
               </div>
             </div>
 
@@ -204,7 +206,7 @@ export function AppointmentDetails({
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Email</p>
+                  <p className="text-sm font-medium">{t("appointments.details.email")}</p>
                   <p className="text-sm text-muted-foreground">
                     {customerData.email}
                   </p>
@@ -214,7 +216,7 @@ export function AppointmentDetails({
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Phone</p>
+                    <p className="text-sm font-medium">{t("appointments.details.phone")}</p>
                     <p className="text-sm text-muted-foreground">
                       {customerData.phone}
                     </p>
@@ -230,14 +232,14 @@ export function AppointmentDetails({
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
-              Service Details
+              {t("appointments.details.serviceDetails")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <h4 className="font-semibold">{serviceData.name}</h4>
               <p className="text-sm text-muted-foreground">
-                {serviceData.description || "Service"}
+                {serviceData.description || t("appointments.details.service")}
               </p>
             </div>
 
@@ -247,16 +249,16 @@ export function AppointmentDetails({
               <div className="flex items-center gap-3">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Duration</p>
+                  <p className="text-sm font-medium">{t("appointments.details.duration")}</p>
                   <p className="text-sm text-muted-foreground">
-                    {serviceData.duration} minutes
+                    {serviceData.duration} {t("appointments.details.minutes")}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Price</p>
+                  <p className="text-sm font-medium">{t("appointments.details.price")}</p>
                   <p className="text-sm text-muted-foreground">
                     {formatPrice(serviceData.price)}
                   </p>
@@ -272,7 +274,7 @@ export function AppointmentDetails({
         <CardHeader>
           <CardTitle className="text-lg font-sans flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Schedule Information
+            {t("appointments.details.scheduleInformation")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -280,7 +282,7 @@ export function AppointmentDetails({
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Date
+                  {t("appointments.details.date")}
                 </p>
                 <p className="text-lg font-semibold">
                   {formatDate(appointmentDate)}
@@ -288,7 +290,7 @@ export function AppointmentDetails({
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Time
+                  {t("appointments.details.time")}
                 </p>
                 <p className="text-lg font-semibold">
                   {formatTime(appointmentTime)}
@@ -298,15 +300,15 @@ export function AppointmentDetails({
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Duration
+                  {t("appointments.details.duration")}
                 </p>
                 <p className="text-lg font-semibold">
-                  {serviceData.duration} minutes
+                  {serviceData.duration} {t("appointments.details.minutes")}
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  End Time
+                  {t("appointments.details.endTime")}
                 </p>
                 <p className="text-lg font-semibold">
                   {(() => {
@@ -336,7 +338,7 @@ export function AppointmentDetails({
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Notes
+              {t("appointments.details.notes")}
             </CardTitle>
           </CardHeader>
           <CardContent>

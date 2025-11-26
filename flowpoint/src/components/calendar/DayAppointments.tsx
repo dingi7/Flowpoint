@@ -16,6 +16,7 @@ import { formatUtcDateTime } from "@/utils/date-time";
 import { format } from "date-fns";
 import { Clock, Edit, Plus, Trash2, User } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DayAppointmentsProps {
   date: Date;
@@ -23,6 +24,7 @@ interface DayAppointmentsProps {
 }
 
 export function DayAppointments({ date, onClose }: DayAppointmentsProps) {
+  const { t } = useTranslation();
   const [editingAppointment, setEditingAppointment] = useState<string | null>(
     null,
   );
@@ -50,17 +52,17 @@ export function DayAppointments({ date, onClose }: DayAppointmentsProps) {
             variant="outline"
             className="border-yellow-500 text-yellow-600"
           >
-            Pending
+            {t("calendar.dayAppointments.pending")}
           </Badge>
         );
       case APPOINTMENT_STATUS.COMPLETED:
         return (
           <Badge className="bg-primary text-primary-foreground">
-            Completed
+            {t("calendar.dayAppointments.completed")}
           </Badge>
         );
       case APPOINTMENT_STATUS.CANCELLED:
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t("calendar.dayAppointments.cancelled")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -90,7 +92,7 @@ export function DayAppointments({ date, onClose }: DayAppointmentsProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Appointments for {format(date, "EEEE, MMMM do, yyyy")}
+            {t("calendar.dayAppointments.appointmentsFor")} {format(date, "EEEE, MMMM do, yyyy")}
           </DialogTitle>
         </DialogHeader>
 
@@ -98,12 +100,14 @@ export function DayAppointments({ date, onClose }: DayAppointmentsProps) {
           {/* Header Actions */}
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              {dayAppointments.length} appointment
-              {dayAppointments.length !== 1 ? "s" : ""} scheduled
+              {dayAppointments.length}{" "}
+              {dayAppointments.length === 1
+                ? t("calendar.dayAppointments.appointmentScheduled")
+                : t("calendar.dayAppointments.appointmentsScheduled")}
             </div>
             <Button onClick={handleCreateAppointment} className="gap-2">
               <Plus className="h-4 w-4" />
-              New Appointment
+              {t("calendar.dayAppointments.newAppointment")}
             </Button>
           </div>
 
@@ -115,13 +119,13 @@ export function DayAppointments({ date, onClose }: DayAppointmentsProps) {
           ) : dayAppointments.length === 0 ? (
             <div className="text-center py-8">
               <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Appointments</h3>
+              <h3 className="text-lg font-medium mb-2">{t("calendar.dayAppointments.noAppointments")}</h3>
               <p className="text-muted-foreground mb-4">
-                No appointments scheduled for this day.
+                {t("calendar.dayAppointments.noAppointmentsScheduled")}
               </p>
               <Button onClick={handleCreateAppointment} className="gap-2">
                 <Plus className="h-4 w-4" />
-                Schedule Appointment
+                {t("calendar.dayAppointments.scheduleAppointment")}
               </Button>
             </div>
           ) : (
@@ -160,11 +164,11 @@ export function DayAppointments({ date, onClose }: DayAppointmentsProps) {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <User className="h-4 w-4" />
-                            <span>Customer: {appointment.customerId}</span>
+                            <span>{t("calendar.dayAppointments.customer")} {appointment.customerId}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            <span>Service: {appointment.serviceId}</span>
+                            <span>{t("calendar.dayAppointments.service")} {appointment.serviceId}</span>
                           </div>
                         </div>
                       </div>
@@ -203,8 +207,8 @@ export function DayAppointments({ date, onClose }: DayAppointmentsProps) {
               <DialogHeader>
                 <DialogTitle>
                   {isCreatingAppointment
-                    ? "Create New Appointment"
-                    : "Edit Appointment"}
+                    ? t("calendar.dayAppointments.createNewAppointment")
+                    : t("calendar.dayAppointments.editAppointment")}
                 </DialogTitle>
               </DialogHeader>
               <AppointmentForm

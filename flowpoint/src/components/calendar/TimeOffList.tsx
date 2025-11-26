@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { parseISO } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -33,6 +34,7 @@ interface TimeOffListProps {
 }
 
 export function TimeOffList({ memberId }: TimeOffListProps) {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
   const [timeOffToDelete, setTimeOffToDelete] = useState<TimeOff | null>(null);
   const deleteTimeOff = useDeleteTimeOff();
@@ -56,11 +58,11 @@ export function TimeOffList({ memberId }: TimeOffListProps) {
         id: timeOffToDelete.id,
         organizationId,
       });
-      toast.success("Time off deleted successfully");
+      toast.success(t("calendar.timeOffList.deletedSuccess"));
       setTimeOffToDelete(null);
     } catch (error) {
       console.error("Failed to delete time off:", error);
-      toast.error("Failed to delete time off");
+      toast.error(t("calendar.timeOffList.deleteError"));
     }
   };
 
@@ -81,7 +83,7 @@ export function TimeOffList({ memberId }: TimeOffListProps) {
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading time offs...</p>
+          <p className="text-muted-foreground">{t("calendar.timeOffList.loading")}</p>
         </div>
       </div>
     );
@@ -90,7 +92,7 @@ export function TimeOffList({ memberId }: TimeOffListProps) {
   if (timeOffs.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">No time offs scheduled</p>
+        <p className="text-muted-foreground">{t("calendar.timeOffList.noTimeOffs")}</p>
       </div>
     );
   }
@@ -101,9 +103,9 @@ export function TimeOffList({ memberId }: TimeOffListProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date Range</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("calendar.timeOffList.dateRange")}</TableHead>
+              <TableHead>{t("calendar.timeOffList.reason")}</TableHead>
+              <TableHead className="text-right">{t("calendar.timeOffList.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -137,19 +139,18 @@ export function TimeOffList({ memberId }: TimeOffListProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Time Off</AlertDialogTitle>
+            <AlertDialogTitle>{t("calendar.timeOffList.deleteTimeOff")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this time off? This action cannot
-              be undone.
+              {t("calendar.timeOffList.deleteConfirm")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("calendar.timeOffList.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t("calendar.timeOffList.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

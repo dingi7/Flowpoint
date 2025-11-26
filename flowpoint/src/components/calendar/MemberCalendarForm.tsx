@@ -24,6 +24,7 @@ import {
 } from "@/utils/date-time";
 import { Clock, Copy, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 interface MemberCalendarFormProps {
@@ -46,6 +47,7 @@ export function MemberCalendarForm({
   isLoading = false,
   memberId,
 }: MemberCalendarFormProps) {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
 
   const [workingHours, setWorkingHours] = useState<
@@ -160,7 +162,7 @@ export function MemberCalendarForm({
       });
       return newHours;
     });
-    toast.success(`Copied ${sourceDay.toLowerCase()} schedule to all days`);
+    toast.success(t("calendar.workingScheduleForm.copyToAllDays"));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -210,10 +212,10 @@ export function MemberCalendarForm({
       <div className="space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b">
           <Clock className="h-5 w-5 text-muted-foreground" />
-          <h3 className="font-medium">General Settings</h3>
+          <h3 className="font-medium">{t("calendar.workingScheduleForm.generalSettings")}</h3>
         </div>
         <div className="max-w-xs">
-          <Label htmlFor="bufferTime">Buffer Time (minutes)</Label>
+          <Label htmlFor="bufferTime">{t("calendar.workingScheduleForm.bufferTime")}</Label>
           <div className="mt-1.5">
             <Input
               id="bufferTime"
@@ -224,7 +226,7 @@ export function MemberCalendarForm({
               disabled={isLoading}
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Time gap between appointments
+              {t("calendar.workingScheduleForm.bufferTimeDescription")}
             </p>
           </div>
         </div>
@@ -235,10 +237,10 @@ export function MemberCalendarForm({
         <div className="flex items-center justify-between pb-2 border-b">
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-muted-foreground" />
-            <h3 className="font-medium">Weekly Hours</h3>
+            <h3 className="font-medium">{t("calendar.workingScheduleForm.weeklyHours")}</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Set your availability for each day
+            {t("calendar.workingScheduleForm.setAvailability")}
           </p>
         </div>
 
@@ -258,8 +260,8 @@ export function MemberCalendarForm({
                       onCheckedChange={(checked) => toggleDay(day, checked)}
                       disabled={isLoading}
                     />
-                    <span className="font-medium capitalize">
-                      {day.toLowerCase()}
+                    <span className="font-medium">
+                      {t(`calendar.workingScheduleForm.days.${day.toLowerCase()}`)}
                     </span>
                   </div>
                 </div>
@@ -267,7 +269,7 @@ export function MemberCalendarForm({
                 <div className="flex-1 space-y-3">
                   {!isOpen ? (
                     <div className="pt-2 text-sm text-muted-foreground italic">
-                      Unavailable
+                      {t("calendar.workingScheduleForm.unavailable")}
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -326,7 +328,7 @@ export function MemberCalendarForm({
                         className="text-xs h-8"
                       >
                         <Plus className="h-3 w-3 mr-1" />
-                        Add Interval
+                        {t("calendar.workingScheduleForm.addInterval")}
                       </Button>
                     </div>
                   )}
@@ -349,7 +351,7 @@ export function MemberCalendarForm({
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Copy to all days</p>
+                          <p>{t("calendar.workingScheduleForm.copyToAllDays")}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -372,11 +374,11 @@ export function MemberCalendarForm({
             onClick={onCancel}
             disabled={isLoading}
           >
-            Cancel
+            {t("calendar.workingScheduleForm.cancel")}
           </Button>
         )}
         <Button type="submit" disabled={isLoading} className="min-w-[120px]">
-          {isLoading ? "Saving..." : "Save Changes"}
+          {isLoading ? t("calendar.workingScheduleForm.saving") : t("calendar.workingScheduleForm.saveChanges")}
         </Button>
       </div>
     </form>

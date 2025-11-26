@@ -40,6 +40,7 @@ import {
   Clock,
   Edit,
   Eye,
+  Loader2,
   MoreHorizontal,
   Trash2,
   User,
@@ -47,6 +48,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AppointmentDeleteDialog } from "./AppointmentDeleteDialog";
 import { AppointmentDetails } from "./AppointmentDetails";
 import { AppointmentForm } from "./AppointmentForm";
@@ -62,6 +64,7 @@ export function AppointmentList({
   statusFilter,
   dateFilter,
 }: AppointmentListProps) {
+  const { t } = useTranslation();
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const [editingAppointment, setEditingAppointment] =
@@ -78,10 +81,16 @@ export function AppointmentList({
   const organizationId = useCurrentOrganizationId();
 
   // Fetch real data from repositories
-  const { data: appointmentsData, isLoading: appointmentsLoading } =
+  const { 
+    data: appointmentsData, 
+    isLoading: appointmentsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } =
     useAppointments({
-      pagination: { limit: 1000 },
-      orderBy: { field: "startTime", direction: "asc" },
+      pagination: { limit: 10 },
+      orderBy: { field: "startTime", direction: "desc" },
     });
 
   const { data: customersData, isLoading: customersLoading } = useCustomers({
@@ -209,7 +218,7 @@ export function AppointmentList({
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-4 animate-spin" />
-          <p className="text-muted-foreground">Loading appointments...</p>
+          <p className="text-muted-foreground">{t("appointments.loading")}</p>
         </div>
       </div>
     );
@@ -223,23 +232,23 @@ export function AppointmentList({
             variant="outline"
             className="border-yellow-500 text-yellow-600"
           >
-            Pending
+            {t("appointments.pending")}
           </Badge>
         );
       }
       case APPOINTMENT_STATUS.COMPLETED: {
         return (
           <Badge className="bg-primary text-primary-foreground">
-            Completed
+            {t("appointments.completed")}
           </Badge>
         );
       }
       case APPOINTMENT_STATUS.CANCELLED: {
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t("appointments.cancelled")}</Badge>;
       }
       case "confirmed": {
         return (
-          <Badge className="bg-accent text-accent-foreground">Confirmed</Badge>
+          <Badge className="bg-accent text-accent-foreground">{t("appointments.status.confirmed")}</Badge>
         );
       }
       default: {
@@ -298,24 +307,27 @@ export function AppointmentList({
     setAppointmentToDelete(null);
   };
 
+  // Total count (for display, with + if more pages available)
+  const totalCount = filteredAppointments.length;
+
   return (
     <>
       <Card>
         <CardHeader>
           <CardTitle className="font-sans">
-            Appointments ({filteredAppointments.length})
+            {t("appointments.title")} ({totalCount}{hasNextPage ? "+" : ""})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Date & Time</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("appointments.tableHeaders.customer")}</TableHead>
+                <TableHead>{t("appointments.tableHeaders.service")}</TableHead>
+                <TableHead>{t("appointments.tableHeaders.dateTime")}</TableHead>
+                <TableHead>{t("appointments.tableHeaders.duration")}</TableHead>
+                <TableHead>{t("appointments.tableHeaders.price")}</TableHead>
+                <TableHead>{t("appointments.tableHeaders.status")}</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -325,10 +337,10 @@ export function AppointmentList({
                 const service = servicesMap[appointment.serviceId];
                 const appointmentDate = appointment.startTime
                   ? formatUtcDateTime(appointment.startTime, "MMM dd, yyyy")
-                  : "N/A";
+                  : t("common.notAvailable");
                 const appointmentTime = appointment.startTime
                   ? formatUtcDateTime(appointment.startTime, "HH:mm")
-                  : "N/A";
+                  : t("common.notAvailable");
 
                 return (
                   <TableRow key={appointment.id}>
@@ -339,10 +351,10 @@ export function AppointmentList({
                         </div>
                         <div>
                           <p className="font-medium">
-                            {customer?.name || "Unknown Customer"}
+                            {customer?.name || t("appointments.unknownCustomer")}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {customer?.email || "No email"}
+                            {customer?.email || t("appointments.noEmail")}
                           </p>
                         </div>
                       </div>
@@ -352,7 +364,7 @@ export function AppointmentList({
                         <p className="font-medium">
                           {service?.name ||
                             appointment.title ||
-                            "Unknown Service"}
+                            t("appointments.unknownService")}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {appointment.description &&
@@ -373,7 +385,7 @@ export function AppointmentList({
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {appointment.duration} min
+                        {appointment.duration} {t("common.min")}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -390,19 +402,19 @@ export function AppointmentList({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>{t("appointments.actions.label")}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleViewDetails(appointment)}
                           >
                             <Eye className="h-4 w-4 mr-2" />
-                            View Details
+                            {t("appointments.actions.viewDetails")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleEdit(appointment)}
                           >
                             <Edit className="h-4 w-4 mr-2" />
-                            Edit Appointment
+                            {t("appointments.actions.edit")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {appointment.status ===
@@ -416,7 +428,7 @@ export function AppointmentList({
                               }
                             >
                               <CheckCircle className="h-4 w-4 mr-2" />
-                              Mark Complete
+                              {t("appointments.actions.markComplete")}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
@@ -429,7 +441,7 @@ export function AppointmentList({
                             }
                           >
                             <X className="h-4 w-4 mr-2" />
-                            Cancel
+                            {t("appointments.actions.cancel")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
@@ -437,7 +449,7 @@ export function AppointmentList({
                             onClick={() => handleDeleteAppointment(appointment)}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Appointment
+                            {t("appointments.actions.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -451,8 +463,27 @@ export function AppointmentList({
           {filteredAppointments.length === 0 && (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                No appointments found matching your criteria.
+                {t("appointments.noResults")}
               </p>
+            </div>
+          )}
+
+          {hasNextPage && (
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="outline"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t("common.loadingMore")}
+                  </>
+                ) : (
+                  t("common.loadMore")
+                )}
+              </Button>
             </div>
           )}
         </CardContent>
@@ -470,7 +501,7 @@ export function AppointmentList({
       >
         <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Appointment Details</DialogTitle>
+            <DialogTitle>{t("appointments.details.title")}</DialogTitle>
           </DialogHeader>
           {selectedAppointment && (
             <AppointmentDetails
@@ -495,7 +526,7 @@ export function AppointmentList({
         <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 !grid !grid-rows-[auto_1fr] !gap-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle className="text-xl font-semibold">
-              Edit Appointment
+              {t("appointments.edit")}
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-hidden">

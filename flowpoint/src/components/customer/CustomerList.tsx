@@ -33,12 +33,14 @@ import { Customer } from "@/core";
 import {
   Edit,
   Eye,
+  Loader2,
   Mail,
   MapPin,
   MoreHorizontal,
   Phone,
   Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { CustomerDeleteDialog } from "./CustomerDeleteDialog";
 import { CustomerDetails } from "./CustomerDetails";
 import { CustomerForm } from "./CustomerForm";
@@ -48,6 +50,7 @@ interface CustomerListProps {
 }
 
 export function CustomerList({ searchQuery }: CustomerListProps) {
+  const { t } = useTranslation();
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
@@ -77,8 +80,15 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
   }, [customerFromUrl, customerIdFromUrl, searchParams, setSearchParams]);
 
   // Fetch customers using the hook
-  const { data, error } = useCustomers({
-    pagination: { limit: 50 },
+  const { 
+    data, 
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useCustomers({
+    pagination: { limit: 10 },
     queryConstraints: searchQuery
       ? [
           { field: "name", operator: ">=", value: searchQuery },
@@ -95,6 +105,9 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
 
   // Flatten the infinite query data
   const customers = data?.pages.flatMap((page) => page) || [];
+  
+  // Total count from all pages (for display)
+  const totalCount = customers.length;
 
   // Filter customers based on search (client-side filtering as fallback)
   const filteredCustomers = customers.filter((customer) => {
@@ -126,22 +139,33 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
     setCustomerToDelete(null);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 text-muted-foreground mx-auto mb-4 animate-spin" />
+          <p className="text-muted-foreground">{t("customers.loading")}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Card>
         <CardHeader>
           <CardTitle className="font-sans">
-            Customers ({filteredCustomers.length})
+            {t("customers.title")} ({totalCount}{hasNextPage ? "+" : ""})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Updated</TableHead>
+                <TableHead>{t("customers.tableHeaders.customer")}</TableHead>
+                <TableHead>{t("customers.tableHeaders.contact")}</TableHead>
+                <TableHead>{t("customers.tableHeaders.created")}</TableHead>
+                <TableHead>{t("customers.tableHeaders.updated")}</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -166,7 +190,7 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                         {customer.address && (
                           <p className="text-sm text-muted-foreground flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
-                            {customer.address.split(",")[1]?.trim() || "N/A"}
+                            {customer.address.split(",")[1]?.trim() || t("customers.notAvailable")}
                           </p>
                         )}
                       </div>
@@ -188,12 +212,12 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                   <TableCell>
                     {customer.createdAt
                       ? new Date(customer.createdAt).toLocaleDateString()
-                      : "N/A"}
+                      : t("customers.notAvailable")}
                   </TableCell>
                   <TableCell>
                     {customer.updatedAt
                       ? new Date(customer.updatedAt).toLocaleDateString()
-                      : "N/A"}
+                      : t("customers.notAvailable")}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -203,17 +227,17 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("customers.actions.label")}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleViewDetails(customer)}
                         >
                           <Eye className="h-4 w-4 mr-2" />
-                          View Details
+                          {t("customers.actions.viewDetails")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(customer)}>
                           <Edit className="h-4 w-4 mr-2" />
-                          Edit Customer
+                          {t("customers.actions.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -221,7 +245,7 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
                           onClick={() => handleDeleteCustomer(customer)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Delete Customer
+                          {t("customers.actions.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -234,8 +258,27 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
           {filteredCustomers.length === 0 && (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                No customers found matching your criteria.
+                {t("customers.noResults")}
               </p>
+            </div>
+          )}
+
+          {hasNextPage && (
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="outline"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t("common.loadingMore")}
+                  </>
+                ) : (
+                  t("common.loadMore")
+                )}
+              </Button>
             </div>
           )}
         </CardContent>
@@ -245,7 +288,7 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="min-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Customer Details</DialogTitle>
+            <DialogTitle>{t("customers.details")}</DialogTitle>
           </DialogHeader>
           {selectedCustomer && (
             <CustomerDetails
@@ -263,7 +306,7 @@ export function CustomerList({ searchQuery }: CustomerListProps) {
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="min-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Customer</DialogTitle>
+            <DialogTitle>{t("customers.edit")}</DialogTitle>
           </DialogHeader>
           {editingCustomer && (
             <CustomerForm

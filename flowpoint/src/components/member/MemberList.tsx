@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/table";
 import { Member } from "@/core";
 import { Edit, Eye, MoreHorizontal, Trash2, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { MemberDetails } from "./MemberDetails";
 import { MemberEditForm } from "./MemberEditForm";
 
@@ -56,6 +57,7 @@ interface MemberListProps {
 }
 
 export function MemberList({ searchQuery }: MemberListProps) {
+  const { t } = useTranslation();
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const currentUser = useUser();
   const [editingMember, setEditingMember] = useState<Member | null>(null);
@@ -168,17 +170,17 @@ export function MemberList({ searchQuery }: MemberListProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Members ({filteredMembers.length})
+            {t("team.members")} ({filteredMembers.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Roles</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Updated</TableHead>
+                <TableHead>{t("team.tableHeaders.member")}</TableHead>
+                <TableHead>{t("team.tableHeaders.roles")}</TableHead>
+                <TableHead>{t("team.tableHeaders.created")}</TableHead>
+                <TableHead>{t("team.tableHeaders.updated")}</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -205,7 +207,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
                         <p className="font-medium">{member.name}</p>
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          Team Member{member.id === currentUser?.id && " (You)"}
+                          {t("team.teamMember")}{member.id === currentUser?.id && ` (${t("team.you")})`}
                         </p>
                       </div>
                     </div>
@@ -223,7 +225,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
                       ))}
                       {(!member.roleIds || member.roleIds.length === 0) && (
                         <span className="text-sm text-muted-foreground">
-                          No roles assigned
+                          {t("team.noRolesAssigned")}
                         </span>
                       )}
                     </div>
@@ -231,12 +233,12 @@ export function MemberList({ searchQuery }: MemberListProps) {
                   <TableCell>
                     {member.createdAt
                       ? new Date(member.createdAt).toLocaleDateString()
-                      : "N/A"}
+                      : t("common.notAvailable")}
                   </TableCell>
                   <TableCell>
                     {member.updatedAt
                       ? new Date(member.updatedAt).toLocaleDateString()
-                      : "N/A"}
+                      : t("common.notAvailable")}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -246,17 +248,17 @@ export function MemberList({ searchQuery }: MemberListProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("team.actions.label")}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleViewDetails(member)}
                         >
                           <Eye className="h-4 w-4 mr-2" />
-                          View Details
+                          {t("team.actions.viewDetails")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(member)}>
                           <Edit className="h-4 w-4 mr-2" />
-                          Edit Member
+                          {t("team.actions.edit")}
                         </DropdownMenuItem>
                         {canDeleteMember(member) && (
                           <>
@@ -266,7 +268,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
                               onClick={() => handleDelete(member)}
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Delete Member
+                              {t("team.actions.delete")}
                             </DropdownMenuItem>
                           </>
                         )}
@@ -281,7 +283,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
           {filteredMembers.length === 0 && (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                No members found matching your criteria.
+                {t("team.noResults")}
               </p>
             </div>
           )}
@@ -292,7 +294,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Member Details</DialogTitle>
+            <DialogTitle>{t("team.details")}</DialogTitle>
           </DialogHeader>
           {selectedMember && (
             <MemberDetails
@@ -310,7 +312,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Member</DialogTitle>
+            <DialogTitle>{t("team.edit")}</DialogTitle>
           </DialogHeader>
           {editingMember && (
             <MemberEditForm
@@ -342,11 +344,9 @@ export function MemberList({ searchQuery }: MemberListProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Member</AlertDialogTitle>
+            <AlertDialogTitle>{t("team.delete.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the member "{deletingMember?.name}
-              "? This action cannot be undone and will remove this member from
-              the organization.
+              {t("team.delete.description", { name: deletingMember?.name || "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -356,14 +356,14 @@ export function MemberList({ searchQuery }: MemberListProps) {
                 setDeletingMember(null);
               }}
             >
-              Cancel
+              {t("team.delete.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeletingMember}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isDeletingMember ? "Deleting..." : "Delete Member"}
+              {isDeletingMember ? t("team.delete.deleting") : t("team.delete.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

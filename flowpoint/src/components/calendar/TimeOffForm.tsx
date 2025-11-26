@@ -15,6 +15,7 @@ import { useCurrentUserId } from "@/stores/user-store";
 import { format } from "date-fns";
 import { Calendar, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface TimeOffFormProps {
   memberId: string;
@@ -29,6 +30,7 @@ export function TimeOffForm({
   onCancel,
   isLoading = false,
 }: TimeOffFormProps) {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
   const currentUserId = useCurrentUserId();
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -84,7 +86,7 @@ export function TimeOffForm({
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Start Date */}
           <div className="space-y-2">
-            <Label htmlFor="start-date">Start Date *</Label>
+            <Label htmlFor="start-date">{t("calendar.timeOffForm.startDate")} *</Label>
             <Popover open={isStartCalendarOpen} onOpenChange={setIsStartCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -95,7 +97,7 @@ export function TimeOffForm({
                   }`}
                 >
                   <Calendar className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "PPP") : "Pick start date"}
+                  {startDate ? format(startDate, "PPP") : t("calendar.timeOffForm.pickStartDate")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -118,7 +120,7 @@ export function TimeOffForm({
 
           {/* End Date */}
           <div className="space-y-2">
-            <Label htmlFor="end-date">End Date *</Label>
+            <Label htmlFor="end-date">{t("calendar.timeOffForm.endDate")} *</Label>
             <Popover open={isEndCalendarOpen} onOpenChange={setIsEndCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -129,7 +131,7 @@ export function TimeOffForm({
                   }`}
                 >
                   <Calendar className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "PPP") : "Pick end date"}
+                  {endDate ? format(endDate, "PPP") : t("calendar.timeOffForm.pickEndDate")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -156,12 +158,12 @@ export function TimeOffForm({
 
         {/* Reason */}
         <div className="space-y-2">
-          <Label htmlFor="reason">Reason *</Label>
+          <Label htmlFor="reason">{t("calendar.timeOffForm.reason")} *</Label>
           <Textarea
             id="reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Enter reason for time off..."
+            placeholder={t("calendar.timeOffForm.enterReason")}
             className="min-h-[100px] resize-none"
             disabled={isLoading}
             required
@@ -178,7 +180,7 @@ export function TimeOffForm({
           disabled={isLoading}
         >
           <X className="mr-2 h-4 w-4" />
-          Clear
+          {t("calendar.timeOffForm.clear")}
         </Button>
         {onCancel && (
           <Button
@@ -187,7 +189,7 @@ export function TimeOffForm({
             onClick={onCancel}
             disabled={isLoading}
           >
-            Cancel
+            {t("calendar.timeOffForm.cancel")}
           </Button>
         )}
         <Button
@@ -202,7 +204,7 @@ export function TimeOffForm({
           }
           className="min-w-[120px]"
         >
-          {isLoading ? "Adding..." : "Add Time Off"}
+          {isLoading ? t("calendar.timeOffForm.adding") : t("calendar.timeOffForm.addTimeOff")}
         </Button>
       </div>
     </form>

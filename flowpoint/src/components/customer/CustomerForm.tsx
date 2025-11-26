@@ -9,6 +9,7 @@ import { Customer } from "@/core";
 import { useCreateCustomer, useCustomerForm, useUpdateCustomer } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { Save, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Separator } from "../ui/separator";
 
 interface CustomerFormProps {
@@ -17,6 +18,7 @@ interface CustomerFormProps {
 }
 
 export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
+  const { t } = useTranslation();
   const createCustomerMutation = useCreateCustomer();
   const updateCustomerMutation = useUpdateCustomer();
   const currentOrganizationId = useCurrentOrganizationId();
@@ -67,29 +69,29 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       {/* Basic Information */}
       <Card className="border-none shadow-none bg-transparent">
         <CardHeader>
-          <CardTitle className="text-lg font-sans">Basic Information</CardTitle>
+          <CardTitle className="text-lg font-sans">{t("customers.form.basicInformation")}</CardTitle>
           <Separator />
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name">{t("customers.form.fullName")} *</Label>
               <Input
                 id="name"
                 {...register("name")}
-                placeholder="Enter customer name"
+                placeholder={t("customers.form.namePlaceholder")}
               />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email">{t("customers.form.emailAddress")} *</Label>
               <Input
                 id="email"
                 type="email"
                 {...register("email")}
-                placeholder="customer@example.com"
+                placeholder={t("customers.form.emailPlaceholder")}
               />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -98,20 +100,20 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
+            <Label htmlFor="phone">{t("customers.form.phoneNumber")}</Label>
             <Input
               id="phone"
               {...register("phone")}
-              placeholder="+1 (555) 123-4567"
+              placeholder={t("customers.form.phonePlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">{t("customers.form.address")}</Label>
             <Input
               id="address"
               {...register("address")}
-              placeholder="123 Main St, City, State, ZIP"
+              placeholder={t("customers.form.addressPlaceholder")}
             />
           </div>
         </CardContent>
@@ -121,17 +123,17 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       <Card className="border-none bg-transparent shadow-none p-0 pb-4">
         <CardHeader className="space-y-0 ">
           <CardTitle className="text-lg font-sans">
-            Additional Information
+            {t("customers.form.additionalInformation")}
           </CardTitle>
           <Separator />
         </CardHeader>
         <CardContent className="space-y-0">
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">{t("customers.form.notes")}</Label>
             <Textarea
               id="notes"
               {...register("notes")}
-              placeholder="Additional notes about the customer..."
+              placeholder={t("customers.form.notesPlaceholder")}
               rows={3}
             />
           </div>
@@ -142,15 +144,15 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
       <div className="flex items-center justify-end gap-3">
         <Button type="button" variant="outline" onClick={onSuccess}>
           <X className="h-4 w-4 mr-2" />
-          Cancel
+          {t("customers.form.cancel")}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           <Save className="h-4 w-4 mr-2" />
           {isSubmitting
-            ? "Saving..."
+            ? t("customers.form.saving")
             : customer
-              ? "Update Customer"
-              : "Add Customer"}
+              ? t("customers.add")
+              : t("customers.addNew")}
         </Button>
       </div>
     </form>

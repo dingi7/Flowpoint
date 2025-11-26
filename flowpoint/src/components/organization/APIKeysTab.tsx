@@ -48,6 +48,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 interface APIKeysTabProps {
@@ -55,6 +56,7 @@ interface APIKeysTabProps {
 }
 
 export function APIKeysTab({ organization }: APIKeysTabProps) {
+  const { t } = useTranslation();
   const organizationId = useCurrentOrganizationId();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [apiKeyName, setApiKeyName] = useState("");
@@ -82,12 +84,12 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
 
   const handleCreateApiKey = async () => {
     if (!apiKeyName.trim()) {
-      toast.error("Please enter a name for the API key");
+      toast.error(t("organization.apiKeys.errors.nameRequired"));
       return;
     }
 
     if (!organizationId) {
-      toast.error("Organization ID is required");
+      toast.error(t("organization.apiKeys.errors.organizationIdRequired"));
       return;
     }
 
@@ -110,7 +112,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
       setIsSuccessDialogOpen(true);
     } catch (error) {
       console.error("Failed to create API key:", error);
-      toast.error("Failed to create API key");
+      toast.error(t("organization.apiKeys.errors.createError"));
     }
   };
 
@@ -118,7 +120,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
     if (newlyCreatedApiKey) {
       navigator.clipboard.writeText(newlyCreatedApiKey);
       setCopiedInModal(true);
-      toast.success("API key copied to clipboard");
+      toast.success(t("organization.apiKeys.errors.copySuccess"));
       setTimeout(() => setCopiedInModal(false), 2000);
     }
   };
@@ -148,12 +150,12 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
         ),
       );
 
-      toast.success("API key revoked successfully");
+      toast.success(t("organization.apiKeys.errors.revokeSuccess"));
       setIsRevokeDialogOpen(false);
       setRevokingKeyId(null);
     } catch (error) {
       console.error("Failed to revoke API key:", error);
-      toast.error("Failed to revoke API key");
+      toast.error(t("organization.apiKeys.errors.revokeError"));
     }
   };
 
@@ -164,7 +166,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              API Keys
+              {t("organization.apiKeys.title")}
             </CardTitle>
             <div className="flex items-center gap-2">
               <Button
@@ -175,7 +177,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                 variant="outline"
               >
                 <ExternalLink className="h-4 w-4" />
-                API Documentation
+                {t("organization.apiKeys.apiDocumentation")}
               </Button>
               <Button
                 onClick={() => setIsCreateDialogOpen(true)}
@@ -183,7 +185,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                 variant="default"
               >
                 <Plus className="h-4 w-4" />
-                Create API Key
+                {t("organization.apiKeys.createApiKey")}
               </Button>
             </div>
           </div>
@@ -193,19 +195,18 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
             <div className="text-center py-8">
               <Key className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">
-                No API keys created yet. Create your first API key to get
-                started.
+                {t("organization.apiKeys.noApiKeys")}
               </p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>API Key</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("organization.apiKeys.tableHeaders.name")}</TableHead>
+                  <TableHead>{t("organization.apiKeys.tableHeaders.apiKey")}</TableHead>
+                  <TableHead>{t("organization.apiKeys.tableHeaders.status")}</TableHead>
+                  <TableHead>{t("organization.apiKeys.tableHeaders.created")}</TableHead>
+                  <TableHead>{t("organization.apiKeys.tableHeaders.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -228,7 +229,9 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                               : "destructive"
                           }
                         >
-                          {apiKey.status}
+                          {apiKey.status === "active"
+                            ? t("organization.apiKeys.status.active")
+                            : t("organization.apiKeys.status.revoked")}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -276,17 +279,17 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create API Key</DialogTitle>
+            <DialogTitle>{t("organization.apiKeys.createDialog.title")}</DialogTitle>
             <DialogDescription>
-              Create a new API key for your organization.
+              {t("organization.apiKeys.createDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="apiKeyName">Name</Label>
+              <Label htmlFor="apiKeyName">{t("organization.apiKeys.createDialog.name")}</Label>
               <Input
                 id="apiKeyName"
-                placeholder="e.g., Production API Key"
+                placeholder={t("organization.apiKeys.createDialog.namePlaceholder")}
                 value={apiKeyName}
                 onChange={(e) => setApiKeyName(e.target.value)}
                 onKeyDown={(e) => {
@@ -304,15 +307,15 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                   setApiKeyName("");
                 }}
               >
-                Cancel
+                {t("organization.apiKeys.createDialog.cancel")}
               </Button>
               <Button
                 onClick={handleCreateApiKey}
                 disabled={!apiKeyName.trim() || createApiKeyMutation.isPending}
               >
                 {createApiKeyMutation.isPending
-                  ? "Creating..."
-                  : "Create API Key"}
+                  ? t("organization.apiKeys.createDialog.creating")
+                  : t("organization.apiKeys.createDialog.create")}
               </Button>
             </div>
           </div>
@@ -323,10 +326,9 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
       <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>API Key Created Successfully</DialogTitle>
+            <DialogTitle>{t("organization.apiKeys.successDialog.title")}</DialogTitle>
             <DialogDescription>
-              Your API key has been created. Please copy it now as you won't be
-              able to see it again.
+              {t("organization.apiKeys.successDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -334,16 +336,15 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
               <div className="flex items-start gap-2 mb-2">
                 <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
                 <p className="text-sm text-destructive font-medium">
-                  Important: Copy your API key now
+                  {t("organization.apiKeys.successDialog.important")}
                 </p>
               </div>
               <p className="text-sm text-muted-foreground">
-                This is the only time you'll be able to see the full API key.
-                Make sure to copy and store it securely.
+                {t("organization.apiKeys.successDialog.importantDescription")}
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="apiKeyValue">API Key</Label>
+              <Label htmlFor="apiKeyValue">{t("organization.apiKeys.successDialog.apiKey")}</Label>
               <div className="flex gap-2">
                 <Input
                   id="apiKeyValue"
@@ -356,7 +357,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                   size="icon"
                   onClick={handleCopyApiKeyFromModal}
                   className="shrink-0"
-                  title="Copy API key"
+                  title={t("organization.apiKeys.successDialog.apiKey")}
                 >
                   {copiedInModal ? (
                     <Check className="h-4 w-4" />
@@ -374,7 +375,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                   setCopiedInModal(false);
                 }}
               >
-                I've copied the API key
+                {t("organization.apiKeys.successDialog.copied")}
               </Button>
             </div>
           </div>
@@ -388,11 +389,9 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Revoke API Key</AlertDialogTitle>
+            <AlertDialogTitle>{t("organization.apiKeys.revokeDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to revoke this API key? This action cannot
-              be undone. The key will immediately stop working and cannot be
-              restored.
+              {t("organization.apiKeys.revokeDialog.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -402,7 +401,7 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
                 setRevokingKeyId(null);
               }}
             >
-              Cancel
+              {t("organization.apiKeys.revokeDialog.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRevokeConfirm}
@@ -410,8 +409,8 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {revokeApiKeyMutation.isPending
-                ? "Revoking..."
-                : "Revoke API Key"}
+                ? t("organization.apiKeys.revokeDialog.revoking")
+                : t("organization.apiKeys.revokeDialog.revoke")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

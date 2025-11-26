@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { PermissionKey, Role, RoleData } from "@/core";
 import { useRoleForm } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useTranslation } from "react-i18next";
 
 interface RoleFormProps {
   role?: Role;
@@ -19,6 +20,7 @@ export function RoleForm({
   onCancel,
   isLoading = false,
 }: RoleFormProps) {
+  const { t } = useTranslation();
   const currentOrganizationId = useCurrentOrganizationId();
 
   const { handleSubmit, register, setValue, watch, formState, touchedFields } =
@@ -57,23 +59,20 @@ export function RoleForm({
 
   // Permission descriptions for better UX
   const permissionDescriptions: Record<PermissionKey, string> = {
-    [PermissionKey.MANAGE_MEMBERS]: "Create, edit, and delete team members",
-    [PermissionKey.MANAGE_APPOINTMENTS]:
-      "Create, edit, and delete appointments",
-    [PermissionKey.MANAGE_CALENDARS]:
-      "Manage calendar settings and availability",
-    [PermissionKey.VIEW_REPORTS]: "Access reports and analytics",
-    [PermissionKey.MANAGE_ORGANIZATION]:
-      "Manage organization settings and configuration",
+    [PermissionKey.MANAGE_MEMBERS]: t("team.role.form.permissionDescriptions.MANAGE_MEMBERS"),
+    [PermissionKey.MANAGE_APPOINTMENTS]: t("team.role.form.permissionDescriptions.MANAGE_APPOINTMENTS"),
+    [PermissionKey.MANAGE_CALENDARS]: t("team.role.form.permissionDescriptions.MANAGE_CALENDARS"),
+    [PermissionKey.VIEW_REPORTS]: t("team.role.form.permissionDescriptions.VIEW_REPORTS"),
+    [PermissionKey.MANAGE_ORGANIZATION]: t("team.role.form.permissionDescriptions.MANAGE_ORGANIZATION"),
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="name">Role Name</Label>
+        <Label htmlFor="name">{t("team.role.form.roleName")}</Label>
         <Input
           id="name"
-          placeholder="Enter role name (e.g., Manager, Assistant)"
+          placeholder={t("team.role.form.namePlaceholder")}
           {...register("name")}
           disabled={isLoading}
         />
@@ -85,9 +84,9 @@ export function RoleForm({
       </div>
 
       <div className="space-y-2">
-        <Label>Permissions</Label>
+        <Label>{t("team.role.form.permissions")}</Label>
         <p className="text-sm text-muted-foreground">
-          Select the permissions this role should have
+          {t("team.role.form.permissionsDescription")}
         </p>
         <div className="space-y-3 border rounded-md p-4">
           {Object.values(PermissionKey).map((permission) => (
@@ -133,11 +132,11 @@ export function RoleForm({
             onClick={onCancel}
             disabled={isLoading}
           >
-            Cancel
+            {t("team.role.form.cancel")}
           </Button>
         )}
         <Button type="submit" disabled={isLoading || !formState.isValid}>
-          {isLoading ? "Saving..." : role ? "Update Role" : "Create Role"}
+          {isLoading ? t("team.role.form.saving") : role ? t("team.role.form.update") : t("team.role.form.create")}
         </Button>
       </div>
     </form>
