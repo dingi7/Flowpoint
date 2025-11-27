@@ -455,7 +455,10 @@
             "date": "Дата",
             "time": "Час",
             "endTime": "Краен час",
-            "notes": "Бележки"
+            "notes": "Бележки",
+            "assigneeInformation": "Информация за изпълнител",
+            "assignee": "Изпълнител",
+            "organization": "Организация"
         },
         "delete": {
             "title": "Изтрий резервация",

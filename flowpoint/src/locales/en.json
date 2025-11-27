@@ -455,7 +455,10 @@
             "date": "Date",
             "time": "Time",
             "endTime": "End Time",
-            "notes": "Notes"
+            "notes": "Notes",
+            "assigneeInformation": "Assignee Information",
+            "assignee": "Assignee",
+            "organization": "Organization"
         },
         "delete": {
             "title": "Delete Appointment",

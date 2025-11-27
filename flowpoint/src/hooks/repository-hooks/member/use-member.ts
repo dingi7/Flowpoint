@@ -5,6 +5,7 @@ import { useCurrentOrganizationId } from "@/stores/organization-store";
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { getNextPageParam } from "../utils/page-params";
@@ -27,6 +28,20 @@ export const useCreateMember = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members", "get"] });
     },
+  });
+};
+
+export const useMemberById = (id: string) => {
+  const currentOrganizationId = useCurrentOrganizationId();
+
+  return useQuery({
+    queryKey: ["member", "get", id, currentOrganizationId],
+    queryFn: () =>
+      memberRepository.get({
+        id,
+        organizationId: currentOrganizationId!,
+      }),
+    enabled: !!id && !!currentOrganizationId,
   });
 };
 

@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Appointment, APPOINTMENT_STATUS } from "@/core";
-import { useCustomer, useService } from "@/hooks";
+import { Appointment, APPOINTMENT_STATUS, ASSIGNEE_TYPE } from "@/core";
+import { useCustomer, useService, useMemberById, useGetOrganizationById } from "@/hooks";
 import { formatUtcDateTime } from "@/utils/date-time";
 import { formatPrice } from "@/utils/price-format";
 import {
@@ -19,6 +19,7 @@ import {
   Mail,
   Phone,
   User,
+  Users,
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -41,6 +42,20 @@ export function AppointmentDetails({
     appointment.serviceId,
   );
 
+  // Fetch assignee member if it's a member
+  const { data: assigneeMember, isLoading: isLoadingMember } = useMemberById(
+    appointment.assigneeType === ASSIGNEE_TYPE.MEMBER
+      ? appointment.assigneeId
+      : "",
+  );
+
+  // Fetch organization if assignee is organization
+  const { data: assigneeOrganization, isLoading: isLoadingOrganization } = useGetOrganizationById(
+    appointment.assigneeType === ASSIGNEE_TYPE.ORGANIZATION
+      ? appointment.assigneeId
+      : "",
+  );
+
   // Appointment date and time (derived from startTime) - convert from UTC to local
   const appointmentDate = appointment.startTime
     ? formatUtcDateTime(appointment.startTime, "yyyy-MM-dd")
@@ -51,7 +66,7 @@ export function AppointmentDetails({
   const notes = appointment.description || null;
 
   // Loading state
-  if (isLoadingCustomer || isLoadingService) {
+  if (isLoadingCustomer || isLoadingService || isLoadingMember || isLoadingOrganization) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-center py-8">
@@ -268,6 +283,57 @@ export function AppointmentDetails({
           </CardContent>
         </Card>
       </div>
+
+      {/* Assignee Information */}
+      {(assigneeMember || assigneeOrganization) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-sans flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              {t("appointments.details.assigneeInformation")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {assigneeMember && (
+              <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={assigneeMember.image} />
+                  <AvatarFallback>
+                    {assigneeMember.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h4 className="font-semibold">{assigneeMember.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {t("appointments.details.assignee")}
+                  </p>
+                  {assigneeMember.description && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {assigneeMember.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+            {assigneeOrganization && (
+              <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={assigneeOrganization.image} />
+                  <AvatarFallback>
+                    {assigneeOrganization.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h4 className="font-semibold">{assigneeOrganization.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {t("appointments.details.organization")}
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Appointment Schedule */}
       <Card>
