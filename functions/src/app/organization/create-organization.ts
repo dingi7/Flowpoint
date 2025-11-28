@@ -68,6 +68,7 @@ const fullAccessRoleId = await roleRepository.create({
       PermissionKey.MANAGE_CALENDARS,
       PermissionKey.MANAGE_MEMBERS,
       PermissionKey.VIEW_REPORTS,
+      PermissionKey.MANAGE_ORGANIZATION,
     ],
     organizationId,
   },
