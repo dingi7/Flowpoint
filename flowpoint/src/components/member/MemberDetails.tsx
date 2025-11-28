@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Member } from "@/core";
 import { useRoles } from "@/hooks/repository-hooks/role/use-role";
 import { Clock, Edit, Shield, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface MemberDetailsProps {
   member: Member;
@@ -14,6 +15,8 @@ interface MemberDetailsProps {
 }
 
 export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
+  const { t } = useTranslation();
+  
   // Fetch roles for display
   const { data: rolesData } = useRoles({
     pagination: { limit: 100 },
@@ -54,13 +57,13 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
             <h3 className="text-2xl font-bold font-sans">{member.name}</h3>
             <p className="text-muted-foreground flex items-center gap-1">
               <Users className="h-4 w-4" />
-              Team Member
+              {t("team.teamMember")}
             </p>
           </div>
         </div>
         <Button onClick={onEdit} className="gap-2 mt-4 sm:mt-0">
           <Edit className="h-4 w-4" />
-          Edit Member
+          {t("team.edit")}
         </Button>
       </div>
 
@@ -69,31 +72,31 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-sans">
-              Member Information
+              {t("team.detailsDialog.memberInformation")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Name:</span>
+              <span className="font-medium">{t("team.detailsDialog.name")}</span>
               <span>{member.name}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Member Since:</span>
+              <span className="font-medium">{t("team.detailsDialog.memberSince")}</span>
               <span>
                 {member.createdAt
                   ? new Date(member.createdAt).toLocaleDateString()
-                  : "N/A"}
+                  : t("common.notAvailable")}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Last Updated:</span>
+              <span className="font-medium">{t("team.detailsDialog.lastUpdated")}</span>
               <span>
                 {member.updatedAt
                   ? new Date(member.updatedAt).toLocaleDateString()
-                  : "N/A"}
+                  : t("common.notAvailable")}
               </span>
             </div>
           </CardContent>
@@ -104,13 +107,13 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
           <CardHeader>
             <CardTitle className="text-lg font-sans flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              Roles & Permissions
+              {t("team.detailsDialog.rolesAndPermissions")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div>
-                <span className="font-medium">Assigned Roles:</span>
+                <span className="font-medium">{t("team.detailsDialog.assignedRoles")}</span>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {memberRoles.length > 0 ? (
                     memberRoles.map((role) => (
@@ -120,7 +123,7 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
                     ))
                   ) : (
                     <span className="text-muted-foreground">
-                      No roles assigned
+                      {t("team.detailsDialog.noRolesAssigned")}
                     </span>
                   )}
                 </div>
@@ -128,7 +131,7 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
 
               {memberRoles.length > 0 && (
                 <div>
-                  <span className="font-medium">Permissions:</span>
+                  <span className="font-medium">{t("team.detailsDialog.permissions")}</span>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {memberRoles
                       .flatMap((role) => role.permissions || [])
@@ -152,12 +155,12 @@ export function MemberDetails({ member, onEdit }: MemberDetailsProps) {
       {/* Activity Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-sans">Activity Summary</CardTitle>
+          <CardTitle className="text-lg font-sans">{t("team.detailsDialog.activitySummary")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
             <p className="text-muted-foreground">
-              Activity tracking will be implemented in future updates.
+              {t("team.detailsDialog.activityTrackingMessage")}
             </p>
           </div>
         </CardContent>

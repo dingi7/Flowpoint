@@ -650,6 +650,18 @@
         "noResults": "No members found matching your criteria.",
         "details": "Member Details",
         "edit": "Edit Member",
+        "detailsDialog": {
+            "memberInformation": "Member Information",
+            "name": "Name:",
+            "memberSince": "Member Since:",
+            "lastUpdated": "Last Updated:",
+            "rolesAndPermissions": "Roles & Permissions",
+            "assignedRoles": "Assigned Roles:",
+            "noRolesAssigned": "No roles assigned",
+            "permissions": "Permissions:",
+            "activitySummary": "Activity Summary",
+            "activityTrackingMessage": "Activity tracking will be implemented in future updates."
+        },
         "delete": {
             "title": "Delete Member",
             "description": "Are you sure you want to delete the member \"{{name}}\"? This action cannot be undone and will remove this member from the organization.",
