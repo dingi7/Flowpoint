@@ -36,6 +36,15 @@
           "destination": "/index.html"
         }
       ]
+    },
+    {
+      "site": "flowpoint-sdk",
+      "public": "./sdk",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
     }
   ]
 }

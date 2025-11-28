@@ -164,6 +164,14 @@
                 "copySuccess": "API key copied to clipboard"
             }
         },
+        "sdk": {
+            "title": "SDK Integration",
+            "description": "Embed the Flowpoint booking form directly into your website using our JavaScript SDK.",
+            "step1": "Step 1: Include the SDK script",
+            "step2": "Step 2: Initialize the form",
+            "note": "Note:",
+            "noteDescription": "Replace target with the CSS selector of the container where you want the form to appear in."
+        },
         "webhooks": {
             "title": "Webhook Subscriptions",
             "createWebhook": "Create Webhook",

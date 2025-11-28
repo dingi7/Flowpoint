@@ -41,6 +41,7 @@ import { format } from "date-fns";
 import {
   AlertTriangle,
   Check,
+  Code,
   Copy,
   ExternalLink,
   Key,
@@ -161,6 +162,56 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
 
   return (
     <>
+    {/* SDK Instructions Card */}
+    <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Code className="h-5 w-5" />
+            {t("organization.sdk.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            {t("organization.sdk.description")}
+          </p>
+
+          <div className="space-y-3">
+            <div>
+              <h4 className="text-sm font-semibold mb-2">
+                {t("organization.sdk.step1")}
+              </h4>
+              <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
+                <code className="text-sm">
+                  {`<script src="https://flowpoint-sdk.web.app/sdk.js"></script>`}
+                </code>
+              </pre>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold mb-2">
+                {t("organization.sdk.step2")}
+              </h4>
+              <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
+                <code className="text-sm">{`const config = {
+  organizationId: "${organizationId || "YOUR_ORGANIZATION_ID"}",
+  target: "#crm-form-container",
+};
+
+window.flowpoint.renderForm(config);`}</code>
+              </pre>
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-muted/50 p-4 border">
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">
+                {t("organization.sdk.note")}
+              </strong>{" "}
+              {t("organization.sdk.noteDescription")}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -202,11 +253,21 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("organization.apiKeys.tableHeaders.name")}</TableHead>
-                  <TableHead>{t("organization.apiKeys.tableHeaders.apiKey")}</TableHead>
-                  <TableHead>{t("organization.apiKeys.tableHeaders.status")}</TableHead>
-                  <TableHead>{t("organization.apiKeys.tableHeaders.created")}</TableHead>
-                  <TableHead>{t("organization.apiKeys.tableHeaders.actions")}</TableHead>
+                  <TableHead>
+                    {t("organization.apiKeys.tableHeaders.name")}
+                  </TableHead>
+                  <TableHead>
+                    {t("organization.apiKeys.tableHeaders.apiKey")}
+                  </TableHead>
+                  <TableHead>
+                    {t("organization.apiKeys.tableHeaders.status")}
+                  </TableHead>
+                  <TableHead>
+                    {t("organization.apiKeys.tableHeaders.created")}
+                  </TableHead>
+                  <TableHead>
+                    {t("organization.apiKeys.tableHeaders.actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -279,17 +340,23 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("organization.apiKeys.createDialog.title")}</DialogTitle>
+            <DialogTitle>
+              {t("organization.apiKeys.createDialog.title")}
+            </DialogTitle>
             <DialogDescription>
               {t("organization.apiKeys.createDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="apiKeyName">{t("organization.apiKeys.createDialog.name")}</Label>
+              <Label htmlFor="apiKeyName">
+                {t("organization.apiKeys.createDialog.name")}
+              </Label>
               <Input
                 id="apiKeyName"
-                placeholder={t("organization.apiKeys.createDialog.namePlaceholder")}
+                placeholder={t(
+                  "organization.apiKeys.createDialog.namePlaceholder",
+                )}
                 value={apiKeyName}
                 onChange={(e) => setApiKeyName(e.target.value)}
                 onKeyDown={(e) => {
@@ -326,7 +393,9 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
       <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t("organization.apiKeys.successDialog.title")}</DialogTitle>
+            <DialogTitle>
+              {t("organization.apiKeys.successDialog.title")}
+            </DialogTitle>
             <DialogDescription>
               {t("organization.apiKeys.successDialog.description")}
             </DialogDescription>
@@ -344,7 +413,9 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="apiKeyValue">{t("organization.apiKeys.successDialog.apiKey")}</Label>
+              <Label htmlFor="apiKeyValue">
+                {t("organization.apiKeys.successDialog.apiKey")}
+              </Label>
               <div className="flex gap-2">
                 <Input
                   id="apiKeyValue"
@@ -389,7 +460,9 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("organization.apiKeys.revokeDialog.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("organization.apiKeys.revokeDialog.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("organization.apiKeys.revokeDialog.description")}
             </AlertDialogDescription>
@@ -415,6 +488,8 @@ export function APIKeysTab({ organization }: APIKeysTabProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      
     </>
   );
 }
