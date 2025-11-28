@@ -1,179 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flowpoint SDK Test</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      background: #f5f5f5;
-    }
-    .test-container {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 30px;
-    }
-    h1 {
-      color: #333;
-      margin-top: 0;
-    }
-    .config-section {
-      background: #f9fafb;
-      padding: 20px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-    }
-    .config-section label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #555;
-    }
-    .config-section input {
-      width: 100%;
-      max-width: 400px;
-      padding: 8px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    .config-section button {
-      margin-top: 12px;
-      padding: 10px 20px;
-      background: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .config-section button:hover {
-      background: #2563eb;
-    }
-    .info {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      color: #1e40af;
-    }
-    .error {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      color: #dc2626;
-    }
-    #crm-form-container {
-      min-height: 400px;
-    }
-  </style>
-</head>
-<body>
-  <div class="test-container">
-    <h1>Flowpoint SDK Test Page</h1>
-    
-    <div class="info">
-      <strong>Instructions:</strong> Enter an organization ID below and click "Load Form" to test the embed SDK. 
-      Make sure you're running a local server (e.g., <code>npm run dev</code> or <code>python -m http.server</code>) 
-      to avoid CORS issues.
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flowpoint SDK Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background: #f5f5f5;
+      }
+      .test-container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+      h1 {
+        color: #333;
+        margin-top: 0;
+      }
+      .config-section {
+        background: #f9fafb;
+        padding: 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+      .config-section label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+      }
+      .config-section input {
+        width: 100%;
+        max-width: 400px;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+      .config-section button {
+        margin-top: 12px;
+        padding: 10px 20px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .config-section button:hover {
+        background: #2563eb;
+      }
+      .info {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #1e40af;
+      }
+      .error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #dc2626;
+      }
+      #crm-form-container {
+        min-height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>Flowpoint SDK Test Page</h1>
+
+      <div id="error-container"></div>
+      <div id="crm-form-container"></div>
     </div>
 
-    <div class="config-section">
-      <label for="organizationId">Organization ID:</label>
-      <input 
-        type="text" 
-        id="organizationId" 
-        placeholder="Enter organization ID"
-        value=""
-      />
-      
-      <label for="apiBaseUrl" style="margin-top: 16px;">API Base URL (optional):</label>
-      <input 
-        type="text" 
-        id="apiBaseUrl" 
-        placeholder="Leave empty to use default"
-        value=""
-      />
-      
-      <button onclick="loadForm()">Load Form</button>
-      <button onclick="clearForm()" style="background: #6b7280; margin-left: 10px;">Clear Form</button>
-    </div>
-
-    <div id="error-container"></div>
-    <div id="crm-form-container"></div>
-  </div>
-
-  <script src="./sdk.js"></script>
-  <script>
-    function showError(message) {
-      const errorContainer = document.getElementById('error-container');
-      errorContainer.innerHTML = `<div class="error">${message}</div>`;
-    }
-
-    function clearError() {
-      document.getElementById('error-container').innerHTML = '';
-    }
-
-    function loadForm() {
-      clearError();
-      
-      const organizationId = document.getElementById('organizationId').value.trim();
-      const apiBaseUrl = document.getElementById('apiBaseUrl').value.trim();
-      
-      if (!organizationId) {
-        showError('Please enter an organization ID');
-        return;
+    <script src="./sdk.js"></script>
+    <script>
+      function showError(message) {
+        const errorContainer = document.getElementById("error-container");
+        errorContainer.innerHTML = `<div class="error">${message}</div>`;
       }
 
-      const container = document.getElementById('crm-form-container');
-      container.innerHTML = '<div class="info">Loading form...</div>';
-
-      try {
-        const config = {
-          organizationId: "WYzeYoqP6YoqOVuZJ5Yr",
-          target: '#crm-form-container'
-        };
-
-        window.flowpoint.renderForm(config);
-      } catch (error) {
-        showError(`Error loading form: ${error.message}`);
-        container.innerHTML = '';
+      function clearError() {
+        document.getElementById("error-container").innerHTML = "";
       }
-    }
 
-    function clearForm() {
-      clearError();
-      document.getElementById('crm-form-container').innerHTML = '';
-      document.getElementById('organizationId').value = '';
-      document.getElementById('apiBaseUrl').value = '';
-    }
+      function loadForm() {
+        clearError();
 
-    // Allow Enter key to submit
-    document.getElementById('organizationId').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        loadForm();
+        const container = document.getElementById("crm-form-container");
+        container.innerHTML = '<div class="info">Loading form...</div>';
+
+        try {
+          const config = {
+            organizationId: "WYzeYoqP6YoqOVuZJ5Yr",
+            target: "#crm-form-container",
+          };
+
+          window.flowpoint.renderForm(config);
+        } catch (error) {
+          showError(`Error loading form: ${error.message}`);
+          container.innerHTML = "";
+        }
       }
-    });
 
-    document.getElementById('apiBaseUrl').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        loadForm();
+      function clearForm() {
+        clearError();
+        document.getElementById("crm-form-container").innerHTML = "";
+        document.getElementById("organizationId").value = "";
+        document.getElementById("apiBaseUrl").value = "";
       }
-    });
-  </script>
-</body>
+
+      loadForm();
+    </script>
+  </body>
 </html>
-

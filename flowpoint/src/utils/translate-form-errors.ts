@@ -1,5 +1,3 @@
-import { i18n } from "i18next";
-
 /**
  * Translates form validation error messages
  * Maps common zod error messages to translation keys
@@ -23,7 +21,8 @@ export function translateFormError(
     // Appointment form errors
     "Start time must be a valid date": "validation.startTime.invalid",
     "Appointment cannot be scheduled in the past": "validation.startTime.past",
-    "Duration must be between 15 minutes and 8 hours": "validation.duration.range",
+    "Duration must be between 15 minutes and 8 hours":
+      "validation.duration.range",
     "Title must be between 3 and 200 characters": "validation.title.length",
     "Fee cannot be negative": "validation.fee.negative",
     "Cannot cancel appointments that are more than 24 hours in the past":
@@ -39,7 +38,7 @@ export function translateFormError(
     "Invalid timezone": "validation.timezone.invalid",
 
     // Generic errors
-    "Required": "validation.required",
+    Required: "validation.required",
     "Invalid format": "validation.format.invalid",
     "Must be a number": "validation.number.required",
     "Must be a string": "validation.string.required",
@@ -63,4 +62,3 @@ export function translateFormError(
   // If no translation found, return original message
   return errorMessage;
 }
-
