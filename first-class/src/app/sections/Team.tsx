@@ -5,13 +5,15 @@ import { FadeInView } from "../components/FadeInView";
 import { MemberCard } from "../components/MemberCard";
 import { useMembers } from "@/hooks/repository-hooks/member/use-member";
 import { Member } from "@/core";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export default function Team() {
     const { data } = useMembers({
         pagination: { limit: 50 },
     });
-    const barbers = data?.pages.flatMap(page => page.filter(member => member.status !== "hidden")).sort((a, b) => a.name.localeCompare(b.name)) || [];
+    const barbers = useMemo(() => {
+        return data?.pages.flatMap(page => page.filter(member => member.status !== "hidden")).sort((a, b) => a.name.localeCompare(b.name)) || [];
+    }, [data?.pages]);
     const { t } = useTranslation();
 
     // Preload first 3 barber images for faster initial load

@@ -91,7 +91,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
     } = useAvailableTimeslots({
         serviceId: selectedService?.id || '',
         date: formattedDate,
-        assigneeId: selectedBarber?.id || undefined,
+        assigneeId: selectedBarber?.id || '',
         enabled: !!selectedService && !!selectedDate && !!selectedBarber,
     });
     
@@ -196,15 +196,15 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                 customerEmail: userInfo.email,
                 startTime: selectedTime, // Already in UTC ISO format
                 assigneeId: selectedBarber.id,
-                assigneeType: OWNER_TYPE.MEMBER, // Barbers are members
+                customerData: {
+                    name: userInfo.name,
+                    phone: userInfo.phone,
+                    address: '',
+                    notes: userInfo.notes || '',
+                },
                 fee: selectedService.price,
                 title: `${selectedService.name} - ${userInfo.name}`,
                 description: userInfo.notes || '',
-                additionalCustomerFields: {
-                    customerId: customerId,
-                    name: userInfo.name,
-                    phone: userInfo.phone,
-                },
             });
         } catch (error) {
             console.error('Error in booking process:', error);

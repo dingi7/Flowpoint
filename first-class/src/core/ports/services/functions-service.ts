@@ -1,5 +1,3 @@
-import { OWNER_TYPE } from "@/core/entities/calendar";
-
 export interface DeleteResponse {
   deleted: boolean;
   error?: string;
@@ -8,13 +6,19 @@ export interface DeleteResponse {
 export interface BookAppointmentPayload {
   serviceId: string;
   customerEmail: string;
+  customerData: {
+    name: string;
+    phone: string;
+    address?: string;
+    notes?: string;
+  };
   organizationId: string;
   startTime: string;
   assigneeId: string;
-  assigneeType: OWNER_TYPE;
   fee?: number;
   title?: string;
   description?: string;
+  timezone?: string;
   additionalCustomerFields?: Record<string, unknown>;
 }
 
@@ -36,5 +40,7 @@ export interface FunctionsService {
       end: string;
     }[];
   }>;
-  bookAppointment(payload: BookAppointmentPayload): Promise<BookAppointmentResponse>;
+  bookAppointment(
+    payload: BookAppointmentPayload
+  ): Promise<BookAppointmentResponse>;
 }
