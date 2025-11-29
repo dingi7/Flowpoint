@@ -17,10 +17,12 @@ A modern, full-featured Customer Relationship Management (CRM) application built
 
 ## 🏗️ Architecture
 
-The project consists of three main components:
+The project consists of two main components:
 
-### 1. Flowpoint (Frontend)
+### 1. Flowpoint (Main CRM Application)
 - **Location**: `/flowpoint`
+- **Type**: Frontend React application
+- **Purpose**: The main CRM application where users manage their business
 - **Tech Stack**: React 19, TypeScript, Vite, Tailwind CSS
 - **UI Components**: Radix UI, shadcn/ui
 - **State Management**: Zustand, React Query
@@ -29,6 +31,8 @@ The project consists of three main components:
 
 ### 2. Functions (Backend)
 - **Location**: `/functions`
+- **Type**: Backend API and services
+- **Purpose**: Powers the Flowpoint CRM and provides REST API endpoints
 - **Tech Stack**: Firebase Cloud Functions, TypeScript, Node.js 22
 - **Database**: Firestore
 - **Authentication**: Clerk Backend SDK
@@ -37,6 +41,11 @@ The project consists of three main components:
 ### 3. SDK (Widget)
 - **Location**: `/sdk`
 - **Purpose**: Embeddable booking widget for external websites
+
+### Other Directories
+
+The following directories are **demo/client websites** for demonstration purposes:
+- **`/first-class`** - Example client website integration
 
 ## 📋 Prerequisites
 
@@ -124,8 +133,8 @@ npm run build
 ## 📁 Project Structure
 
 ```
-CRM-v2/
-├── flowpoint/              # Frontend React application
+Flowpoint/
+├── flowpoint/              # Main CRM Application (Frontend)
 │   ├── src/
 │   │   ├── app/           # App-level components
 │   │   ├── components/    # Reusable UI components
@@ -137,7 +146,7 @@ CRM-v2/
 │   │   └── utils/         # Utility functions
 │   └── public/            # Static assets
 │
-├── functions/             # Firebase Cloud Functions
+├── functions/             # Backend (Firebase Cloud Functions)
 │   ├── src/
 │   │   ├── app/          # Application layer
 │   │   ├── functions/    # Cloud function handlers
@@ -147,9 +156,12 @@ CRM-v2/
 │   └── lib/              # Compiled JavaScript
 │
 ├── sdk/                   # Embeddable booking widget
-├── first-class/           # Additional frontend project
+├── first-class/           # Demo: Example client website
 └── API_DOCUMENTATION.md   # Complete API documentation
+└── test-sdk.html          # Demo: Example usage of the embedded SDK
 ```
+
+> **Note**: The `first-class` directory and test-sdk.html are demo/client websites for demonstration purposes only. The main application is `flowpoint` (CRM) and `functions` (backend).
 
 ## 🔑 Key Features Explained
 
