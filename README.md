@@ -51,7 +51,7 @@ The project consists of three main components:
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone dingi7/Flowpoint
 cd Flowpoint
 ```
 
@@ -77,19 +77,15 @@ Create a `.env` file in the `flowpoint` directory:
 
 ```env
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
 ```
+
+Set up your Firebase config
+`flowpoint/src/infrastructure/firebase/index.ts`
 
 #### Functions Environment Variables
 
-Configure Firebase environment variables:
-
-```bash
-cd functions
-firebase functions:config:set clerk.secret_key="your_clerk_secret_key"
-```
+Configure Firebase secrets, the required secrets are exposed in `/functions/src/config/secrets.ts`
+Set you GCP project inside `/functions/src/config/gcp.ts`
 
 ## 🚀 Development
 
@@ -175,8 +171,6 @@ CRM-v2/
 - Webhook subscriptions for real-time events
 - HMAC SHA256 signature verification for webhooks
 
-See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for complete API reference.
-
 ## 🌍 Internationalization
 
 The application supports multiple languages:
@@ -184,7 +178,7 @@ The application supports multiple languages:
 - Bulgarian (bg)
 - Turkish (tr)
 
-Language files are located in `flowpoint/public/locales/` and `flowpoint/src/locales/`.
+Language files are located in `flowpoint/src/locales/`.
 
 ## 🧪 Testing
 
