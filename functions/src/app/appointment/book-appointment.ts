@@ -7,10 +7,12 @@ import {
   CustomerRepository,
   LoggerService,
   MailgunService,
+  MemberRepository,
   OrganizationRepository,
   Service,
   ServiceRepository,
   TimeOffRepository,
+  UserRepository,
 } from "@/core";
 import { sendAppointmentEmailNotificationFn } from "../notification/send-appointment-email-notification";
 import { validateBookingRequest } from "./validation/booking-validation";
@@ -40,6 +42,8 @@ interface Dependencies {
   customerRepository: CustomerRepository;
   calendarRepository: CalendarRepository;
   timeOffRepository: TimeOffRepository;
+  memberRepository: MemberRepository;
+  userRepository: UserRepository;
   loggerService: LoggerService;
   organizationRepository: OrganizationRepository;
   mailgunService: MailgunService;
@@ -137,7 +141,12 @@ export async function bookAppointmentFn(
       appointmentId,
       organizationId: validatedPayload.organizationId,
     },
-    dependencies,
+    {
+      ...dependencies,
+      memberRepository: dependencies.memberRepository,
+      userRepository: dependencies.userRepository,
+      calendarRepository: dependencies.calendarRepository,
+    },
   );
 
   // 5. Prepare confirmation details
