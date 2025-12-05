@@ -11,7 +11,6 @@ export function useServiceForm({ service, onSubmit }: UseServiceFormProps) {
   const form = useForm<ServiceData>({
     resolver: zodResolver(serviceDataSchema),
     defaultValues: {
-      organizationId: service?.organizationId || "",
       ownerType: service?.ownerType || OWNER_TYPE.ORGANIZATION,
       ownerId: service?.ownerId || "",
       name: service?.name || "",

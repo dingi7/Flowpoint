@@ -86,7 +86,6 @@ export async function createMemberFn(
     organizationId,
     id: userId,
     data: {
-      organizationId,
       roleIds,
       name,
       image: image || "",

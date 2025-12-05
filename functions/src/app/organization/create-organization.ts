@@ -70,7 +70,6 @@ const fullAccessRoleId = await roleRepository.create({
       PermissionKey.VIEW_REPORTS,
       PermissionKey.MANAGE_ORGANIZATION,
     ],
-    organizationId,
   },
 });
 

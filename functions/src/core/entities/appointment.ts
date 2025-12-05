@@ -17,7 +17,6 @@ export const appointmentDataSchema = z.object({
 
   title: z.string(),
   description: z.string(),
-  organizationId: z.string(),
   startTime: z.string(),
   duration: z.number().int().min(0),
   fee: z.number().optional(),

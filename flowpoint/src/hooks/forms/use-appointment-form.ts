@@ -20,7 +20,6 @@ export function useAppointmentForm({
   const form = useForm<AppointmentData>({
     resolver: zodResolver(appointmentDataSchema),
     defaultValues: {
-      organizationId: appointment?.organizationId || "",
       assigneeType: appointment?.assigneeType || ASSIGNEE_TYPE.MEMBER,
       assigneeId: appointment?.assigneeId || "",
       customerId: appointment?.customerId || "",

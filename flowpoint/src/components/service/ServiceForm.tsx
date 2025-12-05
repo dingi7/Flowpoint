@@ -70,7 +70,6 @@ export function ServiceForm({
             id: service.id,
             data: {
               ...data,
-              organizationId: currentOrganizationId,
               ownerId: user.id,
               order: service.order, // Preserve existing order
             },
@@ -81,7 +80,6 @@ export function ServiceForm({
           await createServiceMutation.mutateAsync({
             data: {
               ...data,
-              organizationId: currentOrganizationId,
               ownerId: user.id,
               order: nextOrder, // Auto-assign next order
             },

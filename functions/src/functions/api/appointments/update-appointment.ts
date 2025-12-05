@@ -17,9 +17,7 @@ const apiKeyHashRepository =
 const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
 
-const updateAppointmentRequestSchema = appointmentDataSchema
-  .omit({ organizationId: true })
-  .partial();
+const updateAppointmentRequestSchema = appointmentDataSchema.partial();
 
 export const apiUpdateAppointment = onRequest(
   {

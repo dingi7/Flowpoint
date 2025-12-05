@@ -13,7 +13,6 @@ export function useMemberForm({ member, onSubmit }: UseMemberFormProps) {
   const form = useForm<z.input<typeof memberDataSchema>>({
     resolver: zodResolver(memberDataSchema),
     defaultValues: {
-      organizationId: member?.organizationId || "",
       name: member?.name || "",
       roleIds: member?.roleIds || [],
       image: member?.image,

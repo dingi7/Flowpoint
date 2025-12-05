@@ -29,7 +29,6 @@ export const CustomerFieldConfigSchema = z.object({
 export type CustomerFieldConfig = z.infer<typeof CustomerFieldConfigSchema>;
 
 export const customerDataSchema = z.object({
-  organizationId: z.string(),
   email: z.string(),
   name: z.string(),
   phone: z.string().optional(),

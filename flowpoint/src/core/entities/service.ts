@@ -5,7 +5,6 @@ import { OWNER_TYPE } from "./calendar";
 const localeSchema = z.record(z.string(), z.string());
 
 export const serviceDataSchema = z.object({
-  organizationId: z.string(),
   ownerType: z.nativeEnum(OWNER_TYPE),
   ownerId: z.string(),
   name: z.string(),

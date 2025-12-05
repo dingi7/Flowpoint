@@ -17,9 +17,7 @@ const apiKeyHashRepository =
 const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
 
-const createAppointmentRequestSchema = appointmentDataSchema.omit({
-  organizationId: true,
-});
+const createAppointmentRequestSchema = appointmentDataSchema;
 
 export const apiCreateAppointment = onRequest(
   {

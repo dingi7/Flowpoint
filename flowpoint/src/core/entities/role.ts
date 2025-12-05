@@ -11,7 +11,6 @@ export enum PermissionKey {
 
 export const roleDataSchema = z.object({
   name: z.string().min(1, "Role name is required"),
-  organizationId: z.string(),
   permissions: z
     .array(z.nativeEnum(PermissionKey))
     .min(1, "Please select at least one permission"),

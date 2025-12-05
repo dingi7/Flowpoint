@@ -1,21 +1,27 @@
 import { GetOptions } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { getNextPageParam } from "../utils/page-params";
 import { ORGANIZATION_ID } from "@/constants";
 
 const databaseService = serviceHost.getDatabaseService();
 
-const customerRepository = repositoryHost.getCustomerRepository(databaseService);
+const customerRepository =
+  repositoryHost.getCustomerRepository(databaseService);
 
 type CreateCustomerParams = Parameters<typeof customerRepository.create>[0];
 type UpdateCustomerParams = Parameters<typeof customerRepository.update>[0];
 type DeleteCustomerParams = Parameters<typeof customerRepository.delete>[0];
 
 export const useCreateCustomer = () => {
-    const queryClient = useQueryClient();
-  
+  const queryClient = useQueryClient();
+
   return useMutation<string, Error, CreateCustomerParams>({
     mutationKey: ["customer", "create"],
     mutationFn: async (params: CreateCustomerParams) => {
@@ -25,13 +31,30 @@ export const useCreateCustomer = () => {
       queryClient.invalidateQueries({ queryKey: ["organizations", "get"] });
     },
   });
-}
+};
+
+export const useCustomerByEmail = (email: string) => {
+  return useQuery({
+    queryKey: ["customer", "get", email],
+    queryFn: () =>
+      customerRepository.getAll({
+        queryConstraints: [{ field: "email", operator: "==", value: email }],
+        organizationId: ORGANIZATION_ID,
+      }),
+    enabled: !!email,
+  });
+};
 
 export const useCustomers = (options: GetOptions) => {
   const currentOrganizationId = ORGANIZATION_ID;
-  
+
   return useInfiniteQuery({
-    queryKey: ["customers", "get", JSON.stringify(options), currentOrganizationId],
+    queryKey: [
+      "customers",
+      "get",
+      JSON.stringify(options),
+      currentOrganizationId,
+    ],
     queryFn: ({ pageParam }) =>
       customerRepository.getAll({
         ...options,
@@ -59,7 +82,7 @@ export const useUpdateCustomer = () => {
       queryClient.invalidateQueries({ queryKey: ["customers", "get"] });
     },
   });
-}
+};
 
 export const useDeleteCustomer = () => {
   const queryClient = useQueryClient();
@@ -73,4 +96,4 @@ export const useDeleteCustomer = () => {
       queryClient.invalidateQueries({ queryKey: ["customers", "get"] });
     },
   });
-}
+};

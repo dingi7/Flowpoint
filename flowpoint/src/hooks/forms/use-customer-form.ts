@@ -11,7 +11,6 @@ export function useCustomerForm({ customer, onSubmit }: UseCustomerFormProps) {
   const form = useForm<CustomerData>({
     resolver: zodResolver(customerDataSchema),
     defaultValues: {
-      organizationId: customer?.organizationId || "",
       name: customer?.name || "",
       email: customer?.email || "",
       phone: customer?.phone || "",

@@ -16,9 +16,7 @@ const apiKeyHashRepository =
   repositoryHost.getApiKeyHashRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
 
-const createServiceRequestSchema = serviceDataSchema.omit({
-  organizationId: true,
-});
+const createServiceRequestSchema = serviceDataSchema;
 
 export const apiCreateService = onRequest(
   {

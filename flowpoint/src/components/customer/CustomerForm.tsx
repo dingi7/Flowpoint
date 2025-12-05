@@ -41,7 +41,6 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
             id: customer.id,
             data: {
               ...data,
-              organizationId: currentOrganizationId,
               customFields: data.customFields || {},
             },
             organizationId: currentOrganizationId,
@@ -51,7 +50,6 @@ export function CustomerForm({ customer, onSuccess }: CustomerFormProps) {
           await createCustomerMutation.mutateAsync({
             data: {
               ...data,
-              organizationId: currentOrganizationId,
               customFields: data.customFields || {},
             },
             organizationId: currentOrganizationId,

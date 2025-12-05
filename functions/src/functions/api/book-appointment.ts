@@ -29,6 +29,8 @@ const customerRepository =
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
 const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
+const memberRepository = repositoryHost.getMemberRepository(databaseService);
+const userRepository = repositoryHost.getUserRepository(databaseService);
 
 const bookAppointmentRequestSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
@@ -116,6 +118,8 @@ export const apiBookAppointment = onRequest(
           timeOffRepository,
           loggerService,
           organizationRepository,
+          memberRepository,
+          userRepository,
           mailgunService,
           cloudTasksService,
         },

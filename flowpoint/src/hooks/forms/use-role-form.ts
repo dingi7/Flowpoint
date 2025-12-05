@@ -12,7 +12,6 @@ export function useRoleForm({ role, onSubmit }: UseRoleFormProps) {
   const form = useForm<RoleData>({
     resolver: zodResolver(roleDataSchema),
     defaultValues: {
-      organizationId: role?.organizationId || "",
       name: role?.name || "",
       permissions: role?.permissions || [],
     },

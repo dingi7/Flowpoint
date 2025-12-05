@@ -502,7 +502,6 @@ async function main() {
         serviceId: firestoreServiceId,
         title: sqlAppointment.client_name,
         description: sqlAppointment.description || "",
-        organizationId: TARGET_ORGANIZATION_ID,
         startTime: startDate.toISOString(),
         duration: sqlAppointment.duration,
         fee: fee,

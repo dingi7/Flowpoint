@@ -24,6 +24,8 @@ const calendarRepository =
 const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
+const memberRepository = repositoryHost.getMemberRepository(databaseService);
+const userRepository = repositoryHost.getUserRepository(databaseService);
 
 interface Payload {
   serviceId: string;
@@ -101,6 +103,8 @@ export const widgetBookAppointment = onRequest(
           timezone,
         },
         {
+          memberRepository,
+          userRepository,
           appointmentRepository,
           serviceRepository,
           customerRepository,

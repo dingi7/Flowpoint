@@ -71,12 +71,7 @@ export async function bookAppointmentFn(
 ): Promise<BookingResult> {
   const {
     appointmentRepository,
-    serviceRepository,
-    customerRepository,
-    calendarRepository,
-    timeOffRepository,
     loggerService,
-    organizationRepository,
   } = dependencies;
 
   loggerService.info("Starting appointment booking process", {
@@ -87,16 +82,14 @@ export async function bookAppointmentFn(
 
   // 1. Comprehensive validation
   const validationResult = await validateBookingRequest(
-    { customerName: payload.customerData.name, customerPhone: payload.customerData.phone, customerAddress: payload.customerData.address, customerNotes: payload.customerData.notes, ...payload},
     {
-      serviceRepository,
-      customerRepository,
-      calendarRepository,
-      appointmentRepository,
-      timeOffRepository,
-      loggerService,
-      organizationRepository,
+      customerName: payload.customerData.name,
+      customerPhone: payload.customerData.phone,
+      customerAddress: payload.customerData.address,
+      customerNotes: payload.customerData.notes,
+      ...payload,
     },
+    dependencies,
     payload.timezone,
   );
 
@@ -118,7 +111,6 @@ export async function bookAppointmentFn(
     title: validatedPayload.title || service.name,
     description:
       validatedPayload.description || `Appointment for ${service.name}`,
-    organizationId: validatedPayload.organizationId,
     startTime: startTime.toISOString(),
     duration: service.duration,
     fee: validatedPayload.fee ?? service.price,
@@ -141,12 +133,7 @@ export async function bookAppointmentFn(
       appointmentId,
       organizationId: validatedPayload.organizationId,
     },
-    {
-      ...dependencies,
-      memberRepository: dependencies.memberRepository,
-      userRepository: dependencies.userRepository,
-      calendarRepository: dependencies.calendarRepository,
-    },
+    dependencies,
   );
 
   // 5. Prepare confirmation details

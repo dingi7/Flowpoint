@@ -66,6 +66,7 @@ export function MemberList({ searchQuery }: MemberListProps) {
   const [deletingMember, setDeletingMember] = useState<Member | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const currentOrganizationId = useCurrentOrganizationId();
+  
 
   const { mutateAsync: updateMember, isPending: isUpdatingMember } =
     useUpdateMember();
@@ -318,10 +319,13 @@ export function MemberList({ searchQuery }: MemberListProps) {
             <MemberEditForm
               member={editingMember}
               onSubmit={async (data) => {
+                if (!currentOrganizationId) {
+                  throw new Error("No organization selected");
+                }
                 await updateMember({
                   id: editingMember.id,
                   data,
-                  organizationId: editingMember.organizationId,
+                  organizationId: currentOrganizationId,
                 });
                 setIsEditOpen(false);
               }}

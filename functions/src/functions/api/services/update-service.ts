@@ -17,7 +17,6 @@ const apiKeyHashRepository =
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
 
 const updateServiceRequestSchema = serviceDataSchema
-  .omit({ organizationId: true })
   .partial();
 
 export const apiUpdateService = onRequest(

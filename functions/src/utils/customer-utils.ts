@@ -135,7 +135,6 @@ export function createCustomerWithFields(
   }
 
   return {
-    organizationId: baseData.organizationId,
     name: baseData.name,
     phone: baseData.phone,
     address: baseData.address || "",

@@ -11,7 +11,6 @@ export enum PermissionKey {
 
 export const roleDataSchema = z.object({
   name: z.string(),
-  organizationId: z.string(),
   permissions: z.array(z.nativeEnum(PermissionKey)),
 });
 

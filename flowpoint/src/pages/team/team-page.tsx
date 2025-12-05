@@ -113,9 +113,12 @@ export default function TeamPage() {
               </DialogHeader>
               <RoleForm
                 onSubmit={async (data) => {
+                  if (!currentOrganizationId) {
+                    throw new Error("No organization selected");
+                  }
                   await createRole({
                     data,
-                    organizationId: data.organizationId,
+                    organizationId: currentOrganizationId,
                   });
                   setIsAddRoleOpen(false);
                 }}

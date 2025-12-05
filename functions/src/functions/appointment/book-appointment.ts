@@ -22,6 +22,8 @@ const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
 const organizationRepository =
   repositoryHost.getOrganizationRepository(databaseService);
+const memberRepository = repositoryHost.getMemberRepository(databaseService);
+const userRepository = repositoryHost.getUserRepository(databaseService);
 
 interface Payload {
   serviceId: string;
@@ -77,6 +79,8 @@ export const bookAppointment = onCall<Payload>(
           timezone,
         },
         {
+          memberRepository,
+          userRepository,
           appointmentRepository,
           serviceRepository,
           customerRepository,
