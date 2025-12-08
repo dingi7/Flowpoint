@@ -8,6 +8,7 @@ import {
   Routes,
 } from "react-router-dom";
 
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { AppLayout } from "./components/layout";
 import { LanguageProvider } from "./components/providers/LanguageProvider";
 import UserInitializer from "./components/utils/UserInitializer";
@@ -55,71 +56,71 @@ function AppContent() {
           <Route
             path="/dashboard"
             element={
-              <SignedIn>
+              <ProtectedRoute>
                 <AppLayout>
                   <DashboardPage />
                 </AppLayout>
-              </SignedIn>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/calendar"
             element={
-              <SignedIn>
+              <ProtectedRoute>
                 <AppLayout>
                   <CalendarPage />
                 </AppLayout>
-              </SignedIn>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/customers"
             element={
-              <SignedIn>
+              <ProtectedRoute>
                 <AppLayout>
                   <CustomersPage />
                 </AppLayout>
-              </SignedIn>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/team"
             element={
-              <SignedIn>
+              <ProtectedRoute>
                 <AppLayout>
                   <TeamPage />
                 </AppLayout>
-              </SignedIn>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/appointments"
             element={
-              <SignedIn>
+              <ProtectedRoute>
                 <AppLayout>
                   <AppointmentsPage />
                 </AppLayout>
-              </SignedIn>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/services"
             element={
-              <SignedIn>
+              <ProtectedRoute>
                 <AppLayout>
                   <ServicesPage />
                 </AppLayout>
-              </SignedIn>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/organization"
             element={
-              <SignedIn>
+              <ProtectedRoute>
                 <AppLayout>
                   <OrganizationPage />
                 </AppLayout>
-              </SignedIn>
+              </ProtectedRoute>
             }
           />
           <Route
