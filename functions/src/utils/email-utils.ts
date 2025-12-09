@@ -52,7 +52,7 @@ export function getCustomerName(customer: Customer): string {
 }
 
 export function buildAppointmentEmailHtml(
-  type: "confirmation" | "reminder",
+  type: "confirmation" | "reminder" | "info",
   data: EmailTemplateData,
   customTemplate?: EmailTemplate,
 ): string {
@@ -65,7 +65,7 @@ export function buildAppointmentEmailHtml(
 }
 
 export function buildAppointmentEmailText(
-  type: "confirmation" | "reminder",
+  type: "confirmation" | "reminder" | "info",
   data: EmailTemplateData,
   customTemplate?: EmailTemplate,
 ): string {
@@ -78,7 +78,7 @@ export function buildAppointmentEmailText(
 }
 
 export function buildAppointmentEmailSubject(
-  type: "confirmation" | "reminder",
+  type: "confirmation" | "reminder" | "info",
   data: EmailTemplateData,
   customTemplate?: EmailTemplate,
 ): string {

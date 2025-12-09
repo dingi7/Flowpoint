@@ -315,7 +315,8 @@ export function AppointmentList({
       <Card>
         <CardHeader>
           <CardTitle className="font-sans">
-            {t("appointments.title")} ({totalCount}{hasNextPage ? "+" : ""})
+            {/* {hasNextPage ? "+" : ""} */}
+            {t("appointments.title")} ({totalCount}) 
           </CardTitle>
         </CardHeader>
         <CardContent>

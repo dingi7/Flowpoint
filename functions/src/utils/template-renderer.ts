@@ -87,15 +87,30 @@ export function renderTemplate(
  * Get default email template for a given type
  */
 export function getDefaultEmailTemplate(
-  type: "confirmation" | "reminder",
+  type: "confirmation" | "reminder" | "info",
 ): { subject: string; html: string; text: string } {
-  const subjectLine = type === "confirmation" ? "Appointment Confirmed" : "Appointment Reminder";
-  const greeting = type === "confirmation"
-    ? "Your appointment has been confirmed!"
-    : "This is a reminder about your upcoming appointment.";
+  let subjectLine: string;
+  let greeting: string;
+  let headerColor: string;
+  let borderColor: string;
 
-  const headerColor = type === "confirmation" ? "#4a90e2" : "#f39c12";
-  const borderColor = type === "confirmation" ? "#4a90e2" : "#f39c12";
+  if (type === "confirmation") {
+    subjectLine = "Appointment Confirmed";
+    greeting = "Your appointment has been confirmed!";
+    headerColor = "#4a90e2";
+    borderColor = "#4a90e2";
+  } else if (type === "reminder") {
+    subjectLine = "Appointment Reminder";
+    greeting = "This is a reminder about your upcoming appointment.";
+    headerColor = "#f39c12";
+    borderColor = "#f39c12";
+  } else {
+    // info type for assignees
+    subjectLine = "New Appointment Assigned";
+    greeting = "You have been assigned a new appointment.";
+    headerColor = "#27ae60";
+    borderColor = "#27ae60";
+  }
 
   const html = `
 <!DOCTYPE html>
@@ -119,9 +134,10 @@ export function getDefaultEmailTemplate(
       <h1>${subjectLine}</h1>
     </div>
     <div class="content">
-      <p>Dear {{customerName}},</p>
+      ${type === "info" ? "" : "<p>Dear {{customerName}},</p>"}
       <p>${greeting}</p>
       <div class="appointment-details">
+        ${type === "info" ? "<div class=\"detail-row\"><span class=\"detail-label\">Customer:</span> {{customerName}}</div>" : ""}
         <div class="detail-row">
           <span class="detail-label">Service:</span> {{serviceName}}
         </div>
@@ -143,7 +159,7 @@ export function getDefaultEmailTemplate(
       {{#if organizationPhone}}
       <p><strong>Phone:</strong> {{organizationPhone}}</p>
       {{/if}}
-      <p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>
+      ${type === "info" ? "" : "<p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>"}
     </div>
     <div class="footer">
       <p>Best regards,<br>{{organizationName}}</p>
@@ -155,27 +171,26 @@ export function getDefaultEmailTemplate(
 
   const text = `
 ${subjectLine}
-
-Dear {{customerName}},
-
+${type === "info" ? "" : "\nDear {{customerName}},\n"}
 ${greeting}
 
 Appointment Details:
-- Service: {{serviceName}}
+${type === "info" ? "- Customer: {{customerName}}\n" : ""}- Service: {{serviceName}}
 - Date & Time: {{appointmentDate}}
 - Duration: {{duration}}
 {{#if fee}}- Fee: {{fee}}{{/if}}
 {{#if organizationAddress}}- Location: {{organizationAddress}}{{/if}}
 {{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
-
-If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.
+${type === "info" ? "" : "\nIf you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}."}
 
 Best regards,
 {{organizationName}}
   `.trim();
 
   return {
-    subject: `${subjectLine} - {{serviceName}}`,
+    subject: type === "info" 
+      ? `New Appointment - {{serviceName}} with {{customerName}}`
+      : `${subjectLine} - {{serviceName}}`,
     html,
     text,
   };

@@ -42,6 +42,7 @@ export const OrganizationSettingsSchema = z.object({
     .object({
       confirmation: EmailTemplateSchema.optional(),
       reminder: EmailTemplateSchema.optional(),
+      info: EmailTemplateSchema.optional(),
     })
     .optional(),
 });

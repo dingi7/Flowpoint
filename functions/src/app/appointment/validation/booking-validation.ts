@@ -190,10 +190,26 @@ export async function validateBookingRequest(
   }
 
   // 7. Get existing appointments and time-offs for conflict checking
+  // Calculate start and end of day for the appointment date in UTC
+  // This ensures we only query appointments for the specific date, improving performance
+  const appointmentDate = new Date(startTime);
+  const year = appointmentDate.getUTCFullYear();
+  const month = appointmentDate.getUTCMonth();
+  const day = appointmentDate.getUTCDate();
+  
+  // Start of day in UTC (00:00:00.000)
+  const startOfDay = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+  
+  // Start of next day in UTC (exclusive end for range query)
+  // Using < instead of <= ensures we don't include appointments from the next day
+  const startOfNextDay = new Date(Date.UTC(year, month, day + 1, 0, 0, 0, 0));
+
   const existingAppointments = await appointmentRepository.getAll({
     queryConstraints: [
       { field: "assigneeId", operator: "==", value: validatedPayload.assigneeId },
       { field: "status", operator: "!=", value: APPOINTMENT_STATUS.CANCELLED },
+      { field: "startTime", operator: ">=", value: startOfDay },
+      { field: "startTime", operator: "<", value: startOfNextDay },
     ],
     organizationId: validatedPayload.organizationId,
   });

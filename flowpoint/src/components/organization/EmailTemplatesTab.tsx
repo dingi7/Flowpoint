@@ -59,7 +59,9 @@ const EMAIL_TEMPLATE_VARIABLES = [
   },
 ] as const;
 
-const DEFAULT_TEMPLATES = {
+type TemplateType = "confirmation" | "reminder" | "info";
+
+const DEFAULT_TEMPLATES: Record<TemplateType, EmailTemplate> = {
   confirmation: {
     subject: "Appointment Confirmed - {{serviceName}}",
     html: `<!DOCTYPE html>
@@ -208,6 +210,78 @@ If you need to reschedule or cancel your appointment, please contact us at {{org
 Best regards,
 {{organizationName}}`,
   },
+  info: {
+    subject: "New Appointment - {{serviceName}} with {{customerName}}",
+    html: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #27ae60; color: white; padding: 20px; text-align: center; }
+    .content { padding: 20px; background-color: #f9f9f9; }
+    .appointment-details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #27ae60; }
+    .detail-row { margin: 10px 0; }
+    .detail-label { font-weight: bold; color: #555; }
+    .footer { text-align: center; padding: 20px; color: #777; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>New Appointment Assigned</h1>
+    </div>
+    <div class="content">
+      <p>You have been assigned a new appointment.</p>
+      <div class="appointment-details">
+        <div class="detail-row">
+          <span class="detail-label">Customer:</span> {{customerName}}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Service:</span> {{serviceName}}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date & Time:</span> {{appointmentDate}}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Duration:</span> {{duration}}
+        </div>
+        {{#if fee}}
+        <div class="detail-row">
+          <span class="detail-label">Fee:</span> {{fee}}
+        </div>
+        {{/if}}
+      </div>
+      {{#if organizationAddress}}
+      <p><strong>Location:</strong> {{organizationAddress}}</p>
+      {{/if}}
+      {{#if organizationPhone}}
+      <p><strong>Phone:</strong> {{organizationPhone}}</p>
+      {{/if}}
+    </div>
+    <div class="footer">
+      <p>Best regards,<br>{{organizationName}}</p>
+    </div>
+  </div>
+</body>
+</html>`,
+    text: `New Appointment Assigned
+
+You have been assigned a new appointment.
+
+Appointment Details:
+- Customer: {{customerName}}
+- Service: {{serviceName}}
+- Date & Time: {{appointmentDate}}
+- Duration: {{duration}}
+{{#if fee}}- Fee: {{fee}}{{/if}}
+{{#if organizationAddress}}- Location: {{organizationAddress}}{{/if}}
+{{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
+
+Best regards,
+{{organizationName}}`,
+  },
 };
 
 export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
@@ -216,7 +290,7 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
   const { updateOrganization: updateOrganizationStore } =
     useOrganizationActions();
   const updateOrganizationMutation = useUpdateOrganization();
-  const [activeTab, setActiveTab] = useState<"confirmation" | "reminder">(
+  const [activeTab, setActiveTab] = useState<"confirmation" | "reminder" | "info">(
     "confirmation",
   );
 
@@ -262,8 +336,13 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
         },
       });
 
+      const templateName = activeTab === "confirmation" 
+        ? t("organization.emailTemplates.confirmationEmail")
+        : activeTab === "reminder"
+        ? t("organization.emailTemplates.reminderEmail")
+        : t("organization.emailTemplates.infoEmail");
       toast.success(
-        `${activeTab === "confirmation" ? t("organization.emailTemplates.confirmationEmail") : t("organization.emailTemplates.reminderEmail")} ${t("organization.emailTemplates.savedSuccess")}`,
+        `${templateName} ${t("organization.emailTemplates.savedSuccess")}`,
       );
     } catch (error) {
       console.error("Failed to save email template:", error);
@@ -316,12 +395,13 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
           <Tabs
             value={activeTab}
             onValueChange={(v) =>
-              setActiveTab(v as "confirmation" | "reminder")
+              setActiveTab(v as "confirmation" | "reminder" | "info")
             }
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="confirmation">{t("organization.emailTemplates.confirmationEmail")}</TabsTrigger>
               <TabsTrigger value="reminder">{t("organization.emailTemplates.reminderEmail")}</TabsTrigger>
+              <TabsTrigger value="info">{t("organization.emailTemplates.infoEmail")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab} className="space-y-4 mt-4">

@@ -40,3 +40,5 @@ export const firebase: Firebase = {
 };
 
 export const projectId = firebaseConfig.projectId;
+
+// connectFunctionsEmulator(firebase.functions, "localhost", 5001);

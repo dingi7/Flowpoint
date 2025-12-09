@@ -92,11 +92,12 @@
             "updateOrganization": "Update Organization",
             "createOrganization": "Create Organization"
         },
-        "emailTemplates": {
+            "emailTemplates": {
             "title": "Email Templates",
             "description": "Customize the email notifications sent to customers for appointment confirmations and reminders. Use variables like {{customerName}} to insert dynamic content.",
             "confirmationEmail": "Confirmation Email",
             "reminderEmail": "Reminder Email",
+            "infoEmail": "Assignee Info Email",
             "emailSubject": "Email Subject",
             "emailSubjectPlaceholder": "e.g., Appointment Confirmed - {{serviceName}}",
             "htmlTemplate": "HTML Template",

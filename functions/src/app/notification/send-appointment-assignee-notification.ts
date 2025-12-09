@@ -12,6 +12,7 @@ import {
 } from "@/core";
 import {
   buildAppointmentEmailHtml,
+  buildAppointmentEmailSubject,
   buildAppointmentEmailText,
   formatAppointmentDateTime,
   formatDuration,
@@ -171,23 +172,23 @@ export async function sendAppointmentAssigneeNotificationFn(
     organizationContactInfo: organization.settings.contactInfo,
   };
 
-  // Use confirmation template for assignee notification (can be customized later)
-  // Note: The template uses {{customerName}} which will show the customer's name
-  // This is appropriate as the assignee needs to know who the appointment is with
-  const customTemplate = organization.settings.emailTemplates?.confirmation;
+  // Use info template for assignee notification
+  const customTemplate = organization.settings.emailTemplates?.info;
   const html = buildAppointmentEmailHtml(
-    "confirmation",
+    "info",
     emailData,
     customTemplate,
   );
   const text = buildAppointmentEmailText(
-    "confirmation",
+    "info",
     emailData,
     customTemplate,
   );
-
-  // Customize subject for assignee
-  const subject = `New Appointment Scheduled - ${service.name} with ${customerName}`;
+  const subject = buildAppointmentEmailSubject(
+    "info",
+    emailData,
+    customTemplate,
+  );
 
   await mailgunService.sendEmail({
     from: `${organization.name} <${fromEmail}>`,

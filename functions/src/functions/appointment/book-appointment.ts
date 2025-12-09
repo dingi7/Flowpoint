@@ -49,6 +49,7 @@ export const bookAppointment = onCall<Payload>(
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
     secrets: [mailgunApiKeySecret, mailgunDomainSecret, mailgunUrlSecret],
+    memory: "512MiB",
   },
   async (request) => {
     loggerService.info("Book appointment request received", {

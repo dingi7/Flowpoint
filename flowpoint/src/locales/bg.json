@@ -92,11 +92,12 @@
             "updateOrganization": "Обнови организация",
             "createOrganization": "Създай организация"
         },
-        "emailTemplates": {
+            "emailTemplates": {
             "title": "Имейл шаблони",
             "description": "Персонализирайте имейл известията, изпращани на клиенти за потвърждения и напомняния за резервации. Използвайте променливи като {{customerName}}, за да вмъкнете динамично съдържание.",
             "confirmationEmail": "Имейл за потвърждение",
             "reminderEmail": "Имейл за напомняне",
+            "infoEmail": "Имейл за информация за назначен",
             "emailSubject": "Тема на имейла",
             "emailSubjectPlaceholder": "напр., Резервация потвърдена - {{serviceName}}",
             "htmlTemplate": "HTML шаблон",
