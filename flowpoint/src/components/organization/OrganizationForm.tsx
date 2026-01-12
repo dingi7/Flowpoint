@@ -268,6 +268,16 @@ export function OrganizationForm({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="googlePlacesId">{t("organization.form.googlePlacesId")}</Label>
+            <Input
+              id="googlePlacesId"
+              type="text"
+              placeholder={t("organization.form.googleMapsUrlPlaceholder")}
+              {...register("settings.googlePlacesId")}
+              disabled={isLoading}
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="googleMapsUrl">{t("organization.form.googleMapsUrl")}</Label>
             <Input
               id="googleMapsUrl"

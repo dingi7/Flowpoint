@@ -6,6 +6,7 @@ import {
   InviteRepository,
   MemberRepository,
   OrganizationRepository,
+  ReviewRepository,
   RoleRepository,
   ServiceRepository,
   TimeOffRepository,
@@ -26,6 +27,7 @@ export interface RepositoryHost {
   getAppointmentRepository(
     databaseService: DatabaseService,
   ): AppointmentRepository;
+  getReviewRepository(databaseService: DatabaseService): ReviewRepository;
   getTimeOffRepository(databaseService: DatabaseService): TimeOffRepository;
   getInviteRepository(databaseService: DatabaseService): InviteRepository;
   getWebhookSubscriptionRepository(

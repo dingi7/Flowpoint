@@ -24,6 +24,7 @@ export function useOrganizationForm({
       image: organization?.image,
       industry: organization?.industry,
       currency: organization?.currency || "EUR",
+      
       settings: {
         timezone: organization?.settings?.timezone || "UTC",
         workingHours: organization?.settings?.workingHours || {
@@ -45,12 +46,14 @@ export function useOrganizationForm({
         emailNotifications: organization?.settings?.emailNotifications ?? true,
         smsNotifications: organization?.settings?.smsNotifications ?? false,
         customerFields: organization?.settings?.customerFields || [],
+        googlePlacesId: organization?.settings.googlePlacesId,
         contactInfo: organization?.settings?.contactInfo || {
           address: organization?.settings?.contactInfo?.address || "",
           phone: organization?.settings?.contactInfo?.phone || "",
           email: organization?.settings?.contactInfo?.email || "",
           googleMapsUrl:
             organization?.settings?.contactInfo?.googleMapsUrl || "",
+          
         },
       },
     },

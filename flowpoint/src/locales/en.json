@@ -53,6 +53,7 @@
             "email": "Email",
             "emailPlaceholder": "Enter email address",
             "googleMapsUrl": "Google Maps URL",
+            "googlePlacesId": "Google Places ID",
             "googleMapsUrlPlaceholder": "https://maps.google.com/...",
             "workingHours": "Working Hours",
             "timezone": "Timezone",

@@ -31,6 +31,7 @@ export const OrganizationSettingsSchema = z.object({
   appointmentReminderHoursBefore: z.number().int().min(0).default(24),
   emailNotifications: z.boolean().default(true),
   smsNotifications: z.boolean().default(false),
+  googlePlacesId: z.string().optional(),
   customerFields: z.array(CustomerFieldConfigSchema).default([]),
   contactInfo: z.object({
     address: z.string().optional(),

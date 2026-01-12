@@ -5,6 +5,7 @@ export enum DatabaseCollection {
   MEMBERS = "members",
   ORGANIZATIONS = "organizations",
   ROLES = "roles",
+  REVIEWS = "reviews",
   SERVICES = "services",
   CUSTOMERS = "customers",
   TIME_OFF = "time-off",

@@ -5,6 +5,7 @@ import { getCustomerRepository } from "./customer-repository";
 import { getInviteRepository } from "./invite-repository";
 import { getMemberRepository } from "./member-repository";
 import { getOrganizationRepository } from "./organization-repository";
+import { getReviewRepository } from "./review-repository";
 import { getRoleRepository } from "./role-repository";
 import { getServiceRepository } from "./service-repository";
 import { getTimeOffRepository } from "./time-off-repository";
@@ -24,6 +25,8 @@ export const repositoryHost: RepositoryHost = {
     getServiceRepository(databaseService),
   getAppointmentRepository: (databaseService: DatabaseService) =>
     getAppointmentRepository(databaseService),
+  getReviewRepository: (databaseService: DatabaseService) =>
+    getReviewRepository(databaseService),
   getCalendarRepository: (databaseService: DatabaseService) =>
     getCalendarRepository(databaseService),
   getMemberRepository: (databaseService: DatabaseService) =>

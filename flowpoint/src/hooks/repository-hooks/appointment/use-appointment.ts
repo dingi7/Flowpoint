@@ -99,6 +99,30 @@ export function useGetAllAppointments() {
 }
 
 /**
+ * Hook to get an appointment by ID
+ * @param appointmentId - The ID of the appointment
+ * @param organizationId - The organization ID (optional, uses current organization if not provided)
+ * @returns Query result with the appointment
+ */
+export function useAppointment(
+  appointmentId: string,
+  organizationId?: string,
+) {
+  const currentOrganizationId = useCurrentOrganizationId();
+  const orgId = organizationId || currentOrganizationId;
+
+  return useQuery({
+    queryKey: ["appointment", "get", appointmentId, orgId],
+    queryFn: () =>
+      appointmentRepository.get({
+        id: appointmentId,
+        organizationId: orgId!,
+      }),
+    enabled: !!appointmentId && !!orgId,
+  });
+}
+
+/**
  * Hook to get appointments for a specific date using query constraints
  * @param date - The date to query appointments for (will be normalized to local midnight)
  * @returns Query result with appointments for the specified date
