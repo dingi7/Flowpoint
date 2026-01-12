@@ -14,6 +14,7 @@ export const EMAIL_TEMPLATE_VARIABLES = {
   organizationAddress: "{{organizationAddress}}",
   organizationPhone: "{{organizationPhone}}",
   organizationEmail: "{{organizationEmail}}",
+  reviewUrl: "{{reviewUrl}}",
 } as const;
 
 export type TemplateVariable = keyof typeof EMAIL_TEMPLATE_VARIABLES;
@@ -50,6 +51,9 @@ export function renderTemplate(
       case "organizationEmail":
         shouldInclude = !!data.organizationContactInfo?.email;
         break;
+      case "reviewUrl":
+        shouldInclude = !!data.reviewUrl;
+        break;
       default:
         shouldInclude = false;
     }
@@ -78,6 +82,10 @@ export function renderTemplate(
   rendered = rendered.replace(
     /\{\{organizationEmail\}\}/g,
     data.organizationContactInfo?.email || "",
+  );
+  rendered = rendered.replace(
+    /\{\{reviewUrl\}\}/g,
+    data.reviewUrl || "",
   );
 
   return rendered;
@@ -160,6 +168,7 @@ export function getDefaultEmailTemplate(
       <p><strong>Phone:</strong> {{organizationPhone}}</p>
       {{/if}}
       ${type === "info" ? "" : "<p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>"}
+      ${type === "confirmation" ? "{{#if reviewUrl}}<p style=\"margin-top: 20px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #4a90e2; border-radius: 4px;\"><strong>Share Your Experience:</strong><br>We'd love to hear about your experience! Please take a moment to <a href=\"{{reviewUrl}}\" style=\"color: #4a90e2; text-decoration: none; font-weight: bold;\">leave a review</a>.</p>{{/if}}" : ""}
     </div>
     <div class="footer">
       <p>Best regards,<br>{{organizationName}}</p>
@@ -182,6 +191,7 @@ ${type === "info" ? "- Customer: {{customerName}}\n" : ""}- Service: {{serviceNa
 {{#if organizationAddress}}- Location: {{organizationAddress}}{{/if}}
 {{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
 ${type === "info" ? "" : "\nIf you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}."}
+${type === "confirmation" ? "{{#if reviewUrl}}\n\nShare Your Experience:\nWe'd love to hear about your experience! Please take a moment to leave a review:\n{{reviewUrl}}{{/if}}" : ""}
 
 Best regards,
 {{organizationName}}

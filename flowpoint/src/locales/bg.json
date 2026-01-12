@@ -111,7 +111,7 @@
             "availableVariables": "Налични променливи",
             "conditionalBlocks": "Условни блокове",
             "conditionalBlocksDescription": "Използвайте условни блокове, за да покажете съдържание само когато променлива съществува:",
-            "conditionalBlocksSupported": "Поддържани: fee, organizationAddress, organizationPhone, organizationEmail",
+            "conditionalBlocksSupported": "Поддържани: fee, organizationAddress, organizationPhone, organizationEmail, reviewUrl",
             "savedSuccess": "имейл шаблонът е запазен успешно",
             "saveError": "Грешка при запазване на шаблон:",
             "resetInfo": "Шаблонът е върнат към стойностите по подразбиране",

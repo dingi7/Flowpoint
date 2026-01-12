@@ -111,7 +111,7 @@
             "availableVariables": "Available Variables",
             "conditionalBlocks": "Conditional Blocks",
             "conditionalBlocksDescription": "Use conditional blocks to show content only when a variable exists:",
-            "conditionalBlocksSupported": "Supported: fee, organizationAddress, organizationPhone, organizationEmail",
+            "conditionalBlocksSupported": "Supported: fee, organizationAddress, organizationPhone, organizationEmail, reviewUrl",
             "savedSuccess": "email template saved successfully",
             "saveError": "Failed to save template:",
             "resetInfo": "Template reset to default",

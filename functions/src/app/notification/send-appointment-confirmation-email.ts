@@ -108,6 +108,10 @@ export async function sendAppointmentConfirmationEmailFn(
   const duration = formatDuration(appointment.duration);
   const customerName = getCustomerName(customer);
 
+  // Construct review URL
+  const frontendUrl = "https://flowpoint.services";
+  const reviewUrl = `${frontendUrl}/review?appointmentId=${appointmentId}&organizationId=${organizationId}`;
+
   const emailData = {
     customerName,
     serviceName: service.name,
@@ -116,6 +120,7 @@ export async function sendAppointmentConfirmationEmailFn(
     fee: appointment.fee,
     organizationName: organization.name,
     organizationContactInfo: organization.settings.contactInfo,
+    reviewUrl,
   };
 
   const customTemplate = organization.settings.emailTemplates?.confirmation;

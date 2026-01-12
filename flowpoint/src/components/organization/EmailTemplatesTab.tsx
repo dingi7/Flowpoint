@@ -57,6 +57,11 @@ const EMAIL_TEMPLATE_VARIABLES = [
     label: "Organization Email",
     example: "contact@example.com",
   },
+  {
+    name: "reviewUrl",
+    label: "Review URL",
+    example: "https://flowpoint.app/review?appointmentId=...&organizationId=...",
+  },
 ] as const;
 
 type TemplateType = "confirmation" | "reminder" | "info";
@@ -110,6 +115,12 @@ const DEFAULT_TEMPLATES: Record<TemplateType, EmailTemplate> = {
       <p><strong>Phone:</strong> {{organizationPhone}}</p>
       {{/if}}
       <p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>
+      {{#if reviewUrl}}
+      <p style="margin-top: 20px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #4a90e2; border-radius: 4px;">
+        <strong>Share Your Experience:</strong><br>
+        We'd love to hear about your experience! Please take a moment to <a href="{{reviewUrl}}" style="color: #4a90e2; text-decoration: none; font-weight: bold;">leave a review</a>.
+      </p>
+      {{/if}}
     </div>
     <div class="footer">
       <p>Best regards,<br>{{organizationName}}</p>
@@ -132,6 +143,11 @@ Appointment Details:
 {{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
 
 If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.
+{{#if reviewUrl}}
+
+Share Your Experience:
+We'd love to hear about your experience! Please take a moment to leave a review:
+{{reviewUrl}}{{/if}}
 
 Best regards,
 {{organizationName}}`,
