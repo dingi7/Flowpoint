@@ -11,6 +11,82 @@ export const EmailTemplateSchema = z.object({
 
 export type EmailTemplate = z.infer<typeof EmailTemplateSchema>;
 
+const slugSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, "Slug must be at least 3 characters long")
+  .max(63, "Slug must be at most 63 characters long")
+  .regex(
+    /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
+    "Slug can contain only lowercase letters, numbers, and hyphens",
+  );
+
+const optionalSlugSchema = z.preprocess(
+  (value) =>
+    typeof value === "string" && value.trim() === "" ? undefined : value,
+  slugSchema.optional(),
+);
+
+export const LandingPageSettingsSchema = z.object({
+  enabled: z.boolean().default(false),
+  templateId: z.literal("first-class").default("first-class"),
+  seo: z
+    .object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      keywords: z.string().optional(),
+      ogImageUrl: z.string().optional(),
+      canonicalHost: z.string().optional(),
+    })
+    .default({}),
+  branding: z
+    .object({
+      logoUrl: z.string().optional(),
+      primaryColor: z.string().optional(),
+      secondaryColor: z.string().optional(),
+    })
+    .default({}),
+  hero: z
+    .object({
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      ctaLabel: z.string().optional(),
+      backgroundVideoUrl: z.string().optional(),
+      backgroundImageUrl: z.string().optional(),
+    })
+    .default({}),
+  gallery: z
+    .object({
+      imageUrls: z.array(z.string()).default([]),
+    })
+    .default({ imageUrls: [] }),
+  social: z
+    .object({
+      instagram: z.string().optional(),
+      facebook: z.string().optional(),
+      tiktok: z.string().optional(),
+    })
+    .default({}),
+  location: z
+    .object({
+      mapEmbedUrl: z.string().optional(),
+      sectionTitle: z.string().optional(),
+      sectionDescription: z.string().optional(),
+    })
+    .default({}),
+  copyOverrides: z
+    .object({
+      servicesTitle: z.string().optional(),
+      teamTitle: z.string().optional(),
+      teamSubtitle: z.string().optional(),
+      galleryTitle: z.string().optional(),
+    })
+    .optional(),
+});
+
+export type LandingPageSettings = z.infer<typeof LandingPageSettingsSchema>;
+
 export const OrganizationSettingsSchema = z.object({
   timezone: z.string().default("UTC"),
   workingDays: z
@@ -69,6 +145,8 @@ export const organizationDataSchema = z.object({
   image: z.string().optional(),
   industry: z.string().optional(),
   currency: z.string().default("EUR"),
+  slug: optionalSlugSchema,
+  landingPage: LandingPageSettingsSchema.optional(),
   settings: OrganizationSettingsSchema,
   apiKeys: z.array(ApiKeySchema).default([]),
 });
