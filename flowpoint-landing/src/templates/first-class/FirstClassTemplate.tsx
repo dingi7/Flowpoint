@@ -1,11 +1,11 @@
-import Header from "@/app/components/Header";
-import Footer from "@/app/components/Footer";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { BookingModalRoot } from "@/app/components/booking/BookingModalRoot";
-import { HeroSection } from "@/app/sections/HeroSection";
-import { Services } from "@/app/sections/Services";
-import Team from "@/app/sections/Team";
-import { Testimonials } from "@/app/sections/Testimonials";
-import Location from "@/app/sections/Location";
+import { HeroSection } from "./sections/HeroSection";
+import { Services } from "./sections/Services";
+import Team from "./sections/Team";
+import { Testimonials } from "./sections/Testimonials";
+import Location from "./sections/Location";
 import { TemplateProps } from "../types";
 import Script from "next/script";
 

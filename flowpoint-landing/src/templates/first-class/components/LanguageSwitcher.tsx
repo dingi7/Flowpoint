@@ -9,7 +9,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "./ui/select";
+} from "@/app/components/ui/select";
 import Image from "next/image";
 
 import BG from "@/../public/flags/bg.svg";

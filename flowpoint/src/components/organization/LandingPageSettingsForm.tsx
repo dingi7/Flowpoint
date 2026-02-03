@@ -30,20 +30,63 @@ const normalizeSlug = (value: string) =>
     .replace(/^-+|-+$/g, "");
 
 const buildLandingDefaults = (
-  landingPage?: LandingPageSettings,
-): LandingPageSettings => ({
-  enabled: landingPage?.enabled ?? false,
-  templateId: landingPage?.templateId ?? "first-class",
-  seo: landingPage?.seo ?? {},
-  branding: landingPage?.branding ?? {},
-  hero: landingPage?.hero ?? {},
-  gallery: {
-    imageUrls: landingPage?.gallery?.imageUrls ?? [],
-  },
-  social: landingPage?.social ?? {},
-  location: landingPage?.location ?? {},
-  copyOverrides: landingPage?.copyOverrides ?? {},
-});
+  organization: Organization,
+): { slug: string; landingPage: LandingPageSettings } => {
+  const landingPage = organization.landingPage;
+  const contactInfo = organization.settings?.contactInfo;
+
+  const rawSlug = organization.slug || organization.name || "";
+  const fallbackSlug = normalizeSlug(rawSlug).slice(0, 63).replace(/-+$/g, "");
+
+  const defaults: LandingPageSettings = {
+    enabled: landingPage?.enabled ?? false,
+    templateId: landingPage?.templateId ?? "first-class",
+    seo: {
+      title: landingPage?.seo?.title ?? organization.name,
+      description:
+        landingPage?.seo?.description ??
+        (organization.industry
+          ? `${organization.name} | ${organization.industry}`
+          : undefined),
+      keywords: landingPage?.seo?.keywords,
+      ogImageUrl: landingPage?.seo?.ogImageUrl ?? organization.image,
+      canonicalHost: landingPage?.seo?.canonicalHost,
+    },
+    branding: {
+      logoUrl: landingPage?.branding?.logoUrl ?? organization.image,
+      primaryColor: landingPage?.branding?.primaryColor,
+      secondaryColor: landingPage?.branding?.secondaryColor,
+    },
+    hero: {
+      title: landingPage?.hero?.title ?? organization.name,
+      subtitle: landingPage?.hero?.subtitle ?? organization.industry,
+      ctaLabel: landingPage?.hero?.ctaLabel,
+      backgroundVideoUrl: landingPage?.hero?.backgroundVideoUrl,
+      backgroundImageUrl: landingPage?.hero?.backgroundImageUrl,
+    },
+    gallery: {
+      imageUrls: landingPage?.gallery?.imageUrls ?? [],
+    },
+    social: landingPage?.social ?? {},
+    location: {
+      mapEmbedUrl:
+        landingPage?.location?.mapEmbedUrl ||
+        contactInfo?.googleMapsUrl ||
+        undefined,
+      sectionTitle: landingPage?.location?.sectionTitle ?? "Location",
+      sectionDescription:
+        landingPage?.location?.sectionDescription ??
+        contactInfo?.address ??
+        undefined,
+    },
+    copyOverrides: landingPage?.copyOverrides ?? {},
+  };
+
+  return {
+    slug: fallbackSlug,
+    landingPage: defaults,
+  };
+};
 
 interface LandingPageSettingsFormProps {
   organization: Organization;
@@ -60,11 +103,8 @@ export function LandingPageSettingsForm({
   const databaseService = serviceHost.getDatabaseService();
 
   const defaultValues = useMemo(
-    () => ({
-      slug: organization.slug || "",
-      landingPage: buildLandingDefaults(organization.landingPage),
-    }),
-    [organization.landingPage, organization.slug],
+    () => buildLandingDefaults(organization),
+    [organization],
   );
 
   const { handleSubmit, setValue, watch } = useForm<LandingPageFormValues>({
@@ -72,8 +112,9 @@ export function LandingPageSettingsForm({
   });
 
   useEffect(() => {
-    setValue("slug", organization.slug || "");
-    setValue("landingPage", buildLandingDefaults(organization.landingPage));
+    const defaults = buildLandingDefaults(organization);
+    setValue("slug", defaults.slug);
+    setValue("landingPage", defaults.landingPage);
   }, [organization, setValue]);
 
   const slug = watch("slug") || "";

@@ -10,15 +10,16 @@ const rootDomain =
 
 type LayoutProps = {
   children: React.ReactNode;
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const data = await getLandingPageData(params.slug);
+  const { slug } = await params;
+  const data = await getLandingPageData(slug);
 
   if (!data) {
     return {
@@ -32,8 +33,7 @@ export async function generateMetadata({
   const description =
     seo.description ||
     `${organization.name} powered by Flowpoint.`;
-  const canonicalHost =
-    seo.canonicalHost || `${params.slug}.${rootDomain}`;
+  const canonicalHost = seo.canonicalHost || `${slug}.${rootDomain}`;
   const metadataBase = new URL(`https://${canonicalHost}`);
 
   return {
@@ -66,7 +66,8 @@ export async function generateMetadata({
 }
 
 export default async function TenantLayout({ children, params }: LayoutProps) {
-  const data = await getLandingPageData(params.slug);
+  const { slug } = await params;
+  const data = await getLandingPageData(slug);
 
   if (!data) {
     notFound();

@@ -56,6 +56,33 @@ export default function Location({ organization, landingPage }: LocationProps) {
   const sectionDescription =
     landingPage?.location?.sectionDescription || t("location.description")
 
+  const buildEmbedUrl = (rawUrl: string, fallbackQuery?: string) => {
+    if (!rawUrl && fallbackQuery) {
+      return `https://www.google.com/maps?q=${encodeURIComponent(
+        fallbackQuery,
+      )}&output=embed`;
+    }
+
+    if (!rawUrl) return "";
+
+    const isGoogle = rawUrl.includes("google.com");
+    const hasEmbed =
+      rawUrl.includes("embed") || rawUrl.includes("output=embed");
+
+    if (!isGoogle || hasEmbed) {
+      return rawUrl;
+    }
+
+    const fallback = fallbackQuery || organization.name;
+    return fallback
+      ? `https://www.google.com/maps?q=${encodeURIComponent(
+          fallback,
+        )}&output=embed`
+      : "";
+  };
+
+  const mapEmbedUrl = buildEmbedUrl(location.mapUrl, location.address);
+
   return (
     <section className="bg-[#1C1C1C] py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -119,9 +146,9 @@ export default function Location({ organization, landingPage }: LocationProps) {
 
         {/* Right Column - Map */}
         <div className="w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
-          {location.mapUrl ? (
+          {mapEmbedUrl ? (
             <iframe
-              src={location.mapUrl}
+              src={mapEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0 }}

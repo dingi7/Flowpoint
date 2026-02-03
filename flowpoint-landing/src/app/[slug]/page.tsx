@@ -7,9 +7,10 @@ export const dynamic = "force-dynamic";
 export default async function LandingPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const data = await getLandingPageData(params.slug);
+  const { slug } = await params;
+  const data = await getLandingPageData(slug);
 
   if (!data) {
     notFound();
