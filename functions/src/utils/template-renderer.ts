@@ -95,29 +95,51 @@ export function renderTemplate(
  * Get default email template for a given type
  */
 export function getDefaultEmailTemplate(
-  type: "confirmation" | "reminder" | "info",
+  type: "confirmation" | "reminder" | "info" | "review" | "rebooking",
 ): { subject: string; html: string; text: string } {
   let subjectLine: string;
   let greeting: string;
   let headerColor: string;
   let borderColor: string;
+  let contactHtml: string;
+  let contactText: string;
 
   if (type === "confirmation") {
     subjectLine = "Appointment Confirmed";
     greeting = "Your appointment has been confirmed!";
     headerColor = "#4a90e2";
     borderColor = "#4a90e2";
+    contactHtml = "<p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>";
+    contactText = "\nIf you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.";
   } else if (type === "reminder") {
     subjectLine = "Appointment Reminder";
     greeting = "This is a reminder about your upcoming appointment.";
     headerColor = "#f39c12";
     borderColor = "#f39c12";
+    contactHtml = "<p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>";
+    contactText = "\nIf you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.";
+  } else if (type === "review") {
+    subjectLine = "How Was Your Appointment?";
+    greeting = "We hope your appointment went well! We'd love your feedback.";
+    headerColor = "#4a90e2";
+    borderColor = "#4a90e2";
+    contactHtml = "<p>If you need anything else, please contact us at {{organizationEmail}}.</p>";
+    contactText = "\nIf you need anything else, please contact us at {{organizationEmail}}.";
+  } else if (type === "rebooking") {
+    subjectLine = "Time to Book Again";
+    greeting = "It's time to book your next appointment!";
+    headerColor = "#8e44ad";
+    borderColor = "#8e44ad";
+    contactHtml = "<p>Ready to book again? Contact us at {{organizationEmail}}.</p>";
+    contactText = "\nReady to book again? Contact us at {{organizationEmail}}.";
   } else {
     // info type for assignees
     subjectLine = "New Appointment Assigned";
     greeting = "You have been assigned a new appointment.";
     headerColor = "#27ae60";
     borderColor = "#27ae60";
+    contactHtml = "";
+    contactText = "";
   }
 
   const html = `
@@ -150,7 +172,7 @@ export function getDefaultEmailTemplate(
           <span class="detail-label">Service:</span> {{serviceName}}
         </div>
         <div class="detail-row">
-          <span class="detail-label">Date & Time:</span> {{appointmentDate}}
+          <span class="detail-label">${type === "rebooking" ? "Last Appointment" : "Date & Time"}:</span> {{appointmentDate}}
         </div>
         <div class="detail-row">
           <span class="detail-label">Duration:</span> {{duration}}
@@ -167,8 +189,8 @@ export function getDefaultEmailTemplate(
       {{#if organizationPhone}}
       <p><strong>Phone:</strong> {{organizationPhone}}</p>
       {{/if}}
-      ${type === "info" ? "" : "<p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>"}
-      ${type === "confirmation" ? "{{#if reviewUrl}}<p style=\"margin-top: 20px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #4a90e2; border-radius: 4px;\"><strong>Share Your Experience:</strong><br>We'd love to hear about your experience! Please take a moment to <a href=\"{{reviewUrl}}\" style=\"color: #4a90e2; text-decoration: none; font-weight: bold;\">leave a review</a>.</p>{{/if}}" : ""}
+      ${type === "info" ? "" : contactHtml}
+      ${type === "confirmation" || type === "review" ? "{{#if reviewUrl}}<p style=\"margin-top: 20px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #4a90e2; border-radius: 4px;\"><strong>Share Your Experience:</strong><br>We'd love to hear about your experience! Please take a moment to <a href=\"{{reviewUrl}}\" style=\"color: #4a90e2; text-decoration: none; font-weight: bold;\">leave a review</a>.</p>{{/if}}" : ""}
     </div>
     <div class="footer">
       <p>Best regards,<br>{{organizationName}}</p>
@@ -185,24 +207,23 @@ ${greeting}
 
 Appointment Details:
 ${type === "info" ? "- Customer: {{customerName}}\n" : ""}- Service: {{serviceName}}
-- Date & Time: {{appointmentDate}}
+- ${type === "rebooking" ? "Last Appointment" : "Date & Time"}: {{appointmentDate}}
 - Duration: {{duration}}
 {{#if fee}}- Fee: {{fee}}{{/if}}
 {{#if organizationAddress}}- Location: {{organizationAddress}}{{/if}}
 {{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
-${type === "info" ? "" : "\nIf you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}."}
-${type === "confirmation" ? "{{#if reviewUrl}}\n\nShare Your Experience:\nWe'd love to hear about your experience! Please take a moment to leave a review:\n{{reviewUrl}}{{/if}}" : ""}
+${type === "info" ? "" : contactText}
+${type === "confirmation" || type === "review" ? "{{#if reviewUrl}}\n\nShare Your Experience:\nWe'd love to hear about your experience! Please take a moment to leave a review:\n{{reviewUrl}}{{/if}}" : ""}
 
 Best regards,
 {{organizationName}}
   `.trim();
 
   return {
-    subject: type === "info" 
+    subject: type === "info"
       ? `New Appointment - {{serviceName}} with {{customerName}}`
       : `${subjectLine} - {{serviceName}}`,
     html,
     text,
   };
 }
-

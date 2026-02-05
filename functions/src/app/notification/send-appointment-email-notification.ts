@@ -28,7 +28,9 @@ interface Dependencies {
   calendarRepository: CalendarRepository;
   mailgunService: MailgunService;
   loggerService: LoggerService;
-  cloudTasksService: CloudTasksService;
+  cloudTasksServiceReminder: CloudTasksService;
+  cloudTasksServiceReviewRequest: CloudTasksService;
+  cloudTasksServiceRebooking: CloudTasksService;
 }
 
 export async function sendAppointmentEmailNotificationFn(
@@ -39,7 +41,9 @@ export async function sendAppointmentEmailNotificationFn(
     appointmentRepository,
     organizationRepository,
     loggerService,
-    cloudTasksService,
+    cloudTasksServiceReminder,
+    cloudTasksServiceReviewRequest,
+    cloudTasksServiceRebooking,
   } = dependencies;
   const { organizationId, appointmentId } = payload;
 
@@ -86,27 +90,57 @@ export async function sendAppointmentEmailNotificationFn(
   const reminderTime = new Date(appointment.startTime);
   reminderTime.setHours(reminderTime.getHours() - reminderHoursBefore);
 
-  try {
-    if (reminderTime > new Date()) {
-      await cloudTasksService.scheduleTask({
-        payload: {
-          appointmentId,
-          organizationId,
-        },
-        scheduleTime: reminderTime,
-      });
+  const reviewRequestTime = new Date(appointment.startTime);
+  reviewRequestTime.setHours(reviewRequestTime.getHours() + 6);
 
-      loggerService.info("Reminder email scheduled", {
-        appointmentId,
-        reminderTime: reminderTime.toISOString(),
-      });
-    } else {
-      loggerService.warn("Reminder time is in the past, skipping scheduling", {
-        appointmentId,
-        reminderTime: reminderTime.toISOString(),
-      });
+  const rebookingReminderTime = new Date(appointment.startTime);
+  rebookingReminderTime.setDate(rebookingReminderTime.getDate() + 30);
+
+  const now = new Date();
+
+  const scheduleEmail = async (
+    service: CloudTasksService,
+    scheduleTime: Date,
+    label: string,
+  ) => {
+    try {
+      if (scheduleTime > now) {
+        await service.scheduleTask({
+          payload: {
+            appointmentId,
+            organizationId,
+          },
+          scheduleTime,
+        });
+
+        loggerService.info(`${label} email scheduled`, {
+          appointmentId,
+          scheduleTime: scheduleTime.toISOString(),
+        });
+      } else {
+        loggerService.warn(`${label} time is in the past, skipping scheduling`, {
+          appointmentId,
+          scheduleTime: scheduleTime.toISOString(),
+        });
+      }
+    } catch (error) {
+      loggerService.error(`Failed to schedule ${label} email`, error);
     }
-  } catch (error) {
-    loggerService.error("Failed to schedule reminder email", error);
-  }
+  };
+
+  await scheduleEmail(
+    cloudTasksServiceReminder,
+    reminderTime,
+    "Reminder",
+  );
+  await scheduleEmail(
+    cloudTasksServiceReviewRequest,
+    reviewRequestTime,
+    "Review request",
+  );
+  await scheduleEmail(
+    cloudTasksServiceRebooking,
+    rebookingReminderTime,
+    "Rebooking reminder",
+  );
 }

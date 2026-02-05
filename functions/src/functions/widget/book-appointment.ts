@@ -91,7 +91,12 @@ export const widgetBookAppointment = onRequest(
         url: mailgunUrlSecret.value() || undefined,
       });
 
-      const cloudTasksService = serviceHost.getCloudTasksService("sendAppointmentReminder");
+      const cloudTasksServiceReminder =
+        serviceHost.getCloudTasksService("sendAppointmentReminder");
+      const cloudTasksServiceReviewRequest =
+        serviceHost.getCloudTasksService("sendAppointmentReviewRequest");
+      const cloudTasksServiceRebooking =
+        serviceHost.getCloudTasksService("sendAppointmentRebookingReminder");
 
       // Get timezone from client IP
       const clientIp = getClientIp(req);
@@ -113,7 +118,9 @@ export const widgetBookAppointment = onRequest(
           loggerService,
           organizationRepository,
           mailgunService,
-          cloudTasksService,
+          cloudTasksServiceReminder,
+          cloudTasksServiceReviewRequest,
+          cloudTasksServiceRebooking,
         },
       );
 
