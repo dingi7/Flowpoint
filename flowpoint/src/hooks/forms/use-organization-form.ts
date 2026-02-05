@@ -24,6 +24,8 @@ export function useOrganizationForm({
       image: organization?.image,
       industry: organization?.industry,
       currency: organization?.currency || "EUR",
+      slug: organization?.slug || "",
+      landingPage: organization?.landingPage,
       
       settings: {
         timezone: organization?.settings?.timezone || "UTC",
@@ -67,6 +69,8 @@ export function useOrganizationForm({
         image: organization.image,
         industry: organization.industry,
         currency: organization.currency || "EUR",
+        slug: organization.slug || "",
+        landingPage: organization.landingPage,
         settings: {
           timezone: organization.settings?.timezone || "UTC",
           workingHours: organization.settings?.workingHours || {
@@ -102,11 +106,18 @@ export function useOrganizationForm({
 
   const handleSubmit = form.handleSubmit(async (data: FieldValues) => {
     try {
-      const { image, ...rest } = data as OrganizationData;
-      const sanitized =
+      const { image, slug, ...rest } = data as OrganizationData;
+      const sanitizedSlug =
+        slug && typeof slug === "string" && slug.trim() !== ""
+          ? slug.trim()
+          : undefined;
+      const withImage =
         image && typeof image === "string" && image.trim() !== ""
           ? ({ ...rest, image } as OrganizationData)
           : (rest as OrganizationData);
+      const sanitized = sanitizedSlug
+        ? ({ ...withImage, slug: sanitizedSlug } as OrganizationData)
+        : (withImage as OrganizationData);
       await onSubmit(sanitized);
     } catch (error) {
       console.error("Form submission error:", error);

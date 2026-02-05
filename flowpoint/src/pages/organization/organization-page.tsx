@@ -2,10 +2,11 @@
 
 import { APIKeysTab } from "@/components/organization/APIKeysTab";
 import { EmailTemplatesTab } from "@/components/organization/EmailTemplatesTab";
+import { LandingPageSettingsForm } from "@/components/organization/LandingPageSettingsForm";
 import { OrganizationForm } from "@/components/organization/OrganizationForm";
 import { WebhooksTab } from "@/components/organization/WebhooksTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OrganizationData } from "@/core";
+import { Organization, OrganizationData } from "@/core";
 import { useUpdateOrganization } from "@/hooks/repository-hooks/organization/use-organization";
 import { useOrganizationActions, useSelectedOrganization } from "@/stores";
 import { Building } from "lucide-react";
@@ -34,6 +35,23 @@ export default function OrganizationPage() {
       toast.success(t("organization.updatedSuccess"));
     } catch (error) {
       console.error("Failed to update organization:", error);
+      toast.error(t("organization.updateError"));
+    }
+  };
+
+  const handleUpdateLandingPage = async (data: Partial<Organization>) => {
+    if (!selectedOrganization) return;
+
+    try {
+      await updateOrganizationMutation.mutateAsync({
+        id: selectedOrganization.id,
+        data,
+      });
+
+      updateOrganizationStore(selectedOrganization.id, data);
+      toast.success(t("organization.updatedSuccess"));
+    } catch (error) {
+      console.error("Failed to update landing page:", error);
       toast.error(t("organization.updateError"));
     }
   };
@@ -71,12 +89,15 @@ export default function OrganizationPage() {
       {/* Organization Content */}
       <div className="space-y-6">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">
               {t("organization.overview")}
             </TabsTrigger>
             <TabsTrigger value="templates">
               {t("organization.templates")}
+            </TabsTrigger>
+            <TabsTrigger value="landingPage">
+              {t("organization.landingPage")}
             </TabsTrigger>
             <TabsTrigger value="api">{t("organization.api")}</TabsTrigger>
           </TabsList>
@@ -91,6 +112,14 @@ export default function OrganizationPage() {
 
           <TabsContent value="templates" className="space-y-6">
             <EmailTemplatesTab organization={selectedOrganization} />
+          </TabsContent>
+
+          <TabsContent value="landingPage" className="space-y-6">
+            <LandingPageSettingsForm
+              organization={selectedOrganization}
+              onSubmit={handleUpdateLandingPage}
+              isLoading={updateOrganizationMutation.isPending}
+            />
           </TabsContent>
 
           <TabsContent value="api" className="space-y-6">
