@@ -1,6 +1,9 @@
 import type {
+  BillingSubscription,
   DeletedObjectJSON,
   Invitation,
+  Organization,
+  OrganizationMembership,
   User,
   UserJSON,
   WebhookEvent,
@@ -51,6 +54,27 @@ type ClerkDeleteUserPayload = {
   clerkUserID: string;
 };
 
+type ClerkCreateOrganizationPayload = {
+  apiKey: string;
+  name: string;
+  slug?: string;
+  createdBy?: string;
+  publicMetadata?: Record<string, unknown>;
+  privateMetadata?: Record<string, unknown>;
+};
+
+type ClerkCreateOrganizationMembershipPayload = {
+  apiKey: string;
+  organizationId: string;
+  userId: string;
+  role: CLERK_ORGANIZATION_ROLE;
+};
+
+type ClerkGetOrganizationBillingSubscriptionPayload = {
+  apiKey: string;
+  organizationId: string;
+};
+
 export interface ClerkService {
   createClerkUser: (clerkUser: ClerkCreateUserPayload) => Promise<User | null>;
   createClerkInvitation: (
@@ -65,4 +89,13 @@ export interface ClerkService {
   ) => ClerkUser | DeletedObjectJSON | null;
 
   deleteClerkUser: (payload: ClerkDeleteUserPayload) => Promise<void>;
+  createOrganization: (
+    payload: ClerkCreateOrganizationPayload,
+  ) => Promise<Organization | null>;
+  addOrganizationMembership: (
+    payload: ClerkCreateOrganizationMembershipPayload,
+  ) => Promise<OrganizationMembership | null>;
+  getOrganizationBillingSubscription: (
+    payload: ClerkGetOrganizationBillingSubscriptionPayload,
+  ) => Promise<BillingSubscription | null>;
 }

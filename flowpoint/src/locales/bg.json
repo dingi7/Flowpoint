@@ -7,6 +7,7 @@
         "appointments": "Резервации",
         "services": "Услуги",
         "organization": "Организация",
+        "billing": "Плащане",
         "label": "Навигация"
     },
     "notifications": {
@@ -30,6 +31,8 @@
         "templates": "Имейл шаблони",
         "api": "API",
         "landingPage": "Landing Page",
+        "landingPageLockedTooltip": "Отключва се с план Business",
+        "landingPageLockedDescription": "Надградете към план Business, за да управлявате лендинг страници.",
         "updatedSuccess": "Организацията е обновена успешно",
         "updateError": "Грешка при обновяване на организацията",
         "createModal": {

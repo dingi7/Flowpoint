@@ -1,6 +1,8 @@
 import { addDays } from 'date-fns';
 import {
   CalendarRepository,
+  ClerkService,
+  CLERK_ORGANIZATION_ROLE,
   InviteRepository,
   InviteStatus,
   LoggerService,
@@ -25,6 +27,8 @@ interface Dependencies {
   userRepository: UserRepository;
   calendarRepository: CalendarRepository;
   organizationRepository: OrganizationRepository;
+  clerkService: ClerkService;
+  clerkSecretKey: string;
 }
 
 export async function acceptOrganizationInviteFn(
@@ -32,8 +36,16 @@ export async function acceptOrganizationInviteFn(
   dependencies: Dependencies,
 ) {
   const { inviteId, userId, image, description, name } = payload;
-  const { loggerService, inviteRepository, memberRepository, userRepository, calendarRepository, organizationRepository } =
-    dependencies;
+  const {
+    loggerService,
+    inviteRepository,
+    memberRepository,
+    userRepository,
+    calendarRepository,
+    organizationRepository,
+    clerkService,
+    clerkSecretKey,
+  } = dependencies;
 
   // 1. Check if the invite exists
   const invite = await inviteRepository.get({ id: inviteId });
@@ -99,6 +111,53 @@ export async function acceptOrganizationInviteFn(
       organizationRepository,
     }
   );
+
+  const organization = await organizationRepository.get({
+    id: invite.organizationId,
+  });
+
+  if (!organization) {
+    throw new Error(`Organization not found: ${invite.organizationId}`);
+  }
+
+  let clerkOrganizationId = organization.clerkOrganizationId;
+  let shouldAddMembership = true;
+
+  if (!clerkOrganizationId) {
+    const clerkOrganization = await clerkService.createOrganization({
+      apiKey: clerkSecretKey,
+      name: organization.name,
+      createdBy: userId,
+    });
+
+    if (!clerkOrganization) {
+      throw new Error("Failed to create Clerk organization");
+    }
+
+    clerkOrganizationId = clerkOrganization.id;
+
+    await organizationRepository.update({
+      id: invite.organizationId,
+      data: {
+        clerkOrganizationId,
+      },
+    });
+
+    shouldAddMembership = false;
+  }
+
+  if (clerkOrganizationId && shouldAddMembership) {
+    const membership = await clerkService.addOrganizationMembership({
+      apiKey: clerkSecretKey,
+      organizationId: clerkOrganizationId,
+      userId,
+      role: CLERK_ORGANIZATION_ROLE.MEMBER,
+    });
+
+    if (!membership) {
+      throw new Error("Failed to add Clerk organization membership");
+    }
+  }
 
   // 5. Update the invite status
   await inviteRepository.update({

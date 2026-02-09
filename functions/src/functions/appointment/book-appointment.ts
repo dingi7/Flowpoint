@@ -1,6 +1,7 @@
 import { bookAppointmentFn } from "@/app/appointment/book-appointment";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { checkBilling, isBillingRequiredError } from "@/utils/check-billing";
 import { getClientIp, getTimezoneFromIp } from "@/utils/ip-timezone";
 import { onCall } from "firebase-functions/https";
 import { defineSecret } from "firebase-functions/params";
@@ -8,6 +9,8 @@ import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const mailgunApiKeySecret = defineSecret(Secrets.MAILGUN_API_KEY);
 const mailgunDomainSecret = defineSecret(Secrets.MAILGUN_DOMAIN);
 const mailgunUrlSecret = defineSecret(Secrets.MAILGUN_URL);
@@ -48,7 +51,12 @@ export const bookAppointment = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
-    secrets: [mailgunApiKeySecret, mailgunDomainSecret, mailgunUrlSecret],
+    secrets: [
+      clerkSecretKey,
+      mailgunApiKeySecret,
+      mailgunDomainSecret,
+      mailgunUrlSecret,
+    ],
     memory: "512MiB",
   },
   async (request) => {
@@ -57,6 +65,16 @@ export const bookAppointment = onCall<Payload>(
     });
 
     try {
+      await checkBilling(
+        { organizationId: request.data.organizationId },
+        {
+          organizationRepository,
+          clerkService,
+          clerkSecretKey: clerkSecretKey.value(),
+          loggerService,
+        },
+      );
+
       const mailgunService = serviceHost.getMailgunService({
         apiKey: mailgunApiKeySecret.value(),
         domain: mailgunDomainSecret.value(),
@@ -111,6 +129,9 @@ export const bookAppointment = onCall<Payload>(
         confirmationDetails: result.confirmationDetails,
       };
     } catch (error) {
+      if (isBillingRequiredError(error)) {
+        throw error;
+      }
       loggerService.error("Book appointment error", error);
       throw new Error(
         `Booking failed: ${error instanceof Error ? error.message : "Unknown error"}`,

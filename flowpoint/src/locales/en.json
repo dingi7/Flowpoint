@@ -7,6 +7,7 @@
         "appointments": "Appointments",
         "services": "Services",
         "organization": "Organization",
+        "billing": "Billing",
         "label": "Navigation"
     },
     "notifications": {
@@ -30,6 +31,8 @@
         "templates": "Email Templates",
         "api": "API",
         "landingPage": "Landing Page",
+        "landingPageLockedTooltip": "Unlocks with Business plan",
+        "landingPageLockedDescription": "Upgrade to the Business plan to manage landing pages.",
         "updatedSuccess": "Organization updated successfully",
         "updateError": "Failed to update organization",
         "createModal": {

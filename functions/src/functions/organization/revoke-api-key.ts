@@ -3,10 +3,14 @@ import { PermissionKey } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { checkPermission } from "@/utils/check-permission";
-import { CallableRequest, onCall } from "firebase-functions/https";
+import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
+import { defineSecret } from "firebase-functions/params";
+import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const secretManagerService = serviceHost.getSecretManagerService({
   loggerService,
 });
@@ -27,6 +31,7 @@ export const revokeApiKey = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
+    secrets: [clerkSecretKey],
   },
   async (request: CallableRequest<Payload>) => {
     if (!request.auth) {
@@ -50,6 +55,9 @@ export const revokeApiKey = onCall<Payload>(
         {
           memberRepository,
           roleRepository,
+          organizationRepository,
+          clerkService,
+          clerkSecretKey: clerkSecretKey.value(),
           loggerService,
         },
       );
@@ -72,6 +80,9 @@ export const revokeApiKey = onCall<Payload>(
         secretId: data.secretId,
       });
     } catch (error) {
+      if (error instanceof HttpsError) {
+        throw error;
+      }
       loggerService.error("Revoke API key error", error);
       throw new Error(
         `Failed to revoke API key: ${error instanceof Error ? error.message : "Unknown error"}`,
