@@ -1,9 +1,12 @@
 import {
+  ClerkService,
   LoggerService,
   MemberRepository,
+  OrganizationRepository,
   PermissionKey,
   RoleRepository,
 } from "@/core";
+import { checkBilling } from "./check-billing";
 
 interface Payload {
   userId: string;
@@ -14,6 +17,9 @@ interface Payload {
 interface Dependencies {
   memberRepository: MemberRepository;
   roleRepository: RoleRepository;
+  organizationRepository: OrganizationRepository;
+  clerkService: ClerkService;
+  clerkSecretKey: string;
   loggerService: LoggerService;
 }
 
@@ -22,7 +28,14 @@ export async function checkPermission(
   dependencies: Dependencies,
 ): Promise<void> {
   const { userId, organizationId, permission } = payload;
-  const { memberRepository, roleRepository, loggerService } = dependencies;
+  const {
+    memberRepository,
+    roleRepository,
+    organizationRepository,
+    clerkService,
+    clerkSecretKey,
+    loggerService,
+  } = dependencies;
 
   // 1. Check if user is a member of the organization
   const member = await memberRepository.get({
@@ -74,5 +87,14 @@ export async function checkPermission(
     });
     throw new Error("Member does not have the required permission");
   }
-}
 
+  await checkBilling(
+    { organizationId, userId },
+    {
+      organizationRepository,
+      clerkService,
+      clerkSecretKey,
+      loggerService,
+    },
+  );
+}

@@ -1,10 +1,16 @@
 import { Request, Response } from "express";
 import {
   ApiKeyHashRepository,
+  ClerkService,
   LoggerService,
   OrganizationRepository,
   SecretManagerService,
 } from "@/core";
+import {
+  BILLING_REQUIRED_MESSAGE,
+  checkBilling,
+  isBillingRequiredError,
+} from "./check-billing";
 import { validateApiKey } from "./validate-api-key";
 
 export interface AuthenticatedRequest extends Request {
@@ -19,6 +25,8 @@ interface Dependencies {
   organizationRepository: OrganizationRepository;
   secretManagerService: SecretManagerService;
   apiKeyHashRepository: ApiKeyHashRepository;
+  clerkService: ClerkService;
+  clerkSecretKey: string;
   loggerService: LoggerService;
 }
 
@@ -31,6 +39,8 @@ export async function authenticateApiKey(
     organizationRepository,
     secretManagerService,
     apiKeyHashRepository,
+    clerkService,
+    clerkSecretKey,
     loggerService,
   } = dependencies;
 
@@ -69,6 +79,33 @@ export async function authenticateApiKey(
       },
     );
 
+    try {
+      await checkBilling(
+        { organizationId: validationResult.organization.id },
+        {
+          organizationRepository,
+          clerkService,
+          clerkSecretKey,
+          loggerService,
+        },
+      );
+    } catch (error) {
+      if (isBillingRequiredError(error)) {
+        res.status(402).json({
+          error: BILLING_REQUIRED_MESSAGE,
+          success: false,
+        });
+        return false;
+      }
+
+      loggerService.error("Billing check failed", error);
+      res.status(500).json({
+        error: "Billing check failed",
+        success: false,
+      });
+      return false;
+    }
+
     // Attach organization ID and API key metadata to request
     req.organizationId = validationResult.organization.id;
     req.apiKeyMetadata = {
@@ -86,4 +123,3 @@ export async function authenticateApiKey(
     return false;
   }
 }
-

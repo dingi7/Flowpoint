@@ -1,11 +1,12 @@
 "use client";
 
-import { useAuth, UserButton } from "@clerk/clerk-react";
+import { useAuth, UserButton, useOrganizationList } from "@clerk/clerk-react";
 import {
   Bell,
   Building,
   Calendar,
   ChevronDown,
+  CreditCard,
   LayoutDashboard,
   NotebookTabs,
   Plus,
@@ -236,7 +237,8 @@ function NavUser({ user }: { user: User }) {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { userId } = useAuth();
+  const { userId, orgId } = useAuth();
+  const { isLoaded: isOrgListLoaded, setActive } = useOrganizationList();
   const user = useUser(userId as string);
   const organizations = useOrganizations();
   const selectedOrganization = useSelectedOrganization();
@@ -282,6 +284,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/organization",
       icon: Settings,
     },
+    {
+      title: t("navigation.billing"),
+      url: "/billing",
+      icon: CreditCard,
+    },
   ];
 
   // Sync selectedOrganization with currentOrganizationId when organizations are updated
@@ -301,6 +308,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     organizations,
     setSelectedOrganization,
   ]);
+
+  useEffect(() => {
+    if (!isOrgListLoaded || !setActive) {
+      return;
+    }
+
+    const clerkOrgId = selectedOrganization?.clerkOrganizationId;
+    if (!clerkOrgId) {
+      return;
+    }
+
+    if (orgId !== clerkOrgId) {
+      void setActive({ organization: clerkOrgId });
+    }
+  }, [isOrgListLoaded, orgId, selectedOrganization, setActive]);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -347,6 +369,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           onClick={() => {
                             setSelectedOrganization(org);
                             setCurrentOrganizationId(org.id);
+                            if (isOrgListLoaded && setActive && org.clerkOrganizationId) {
+                              void setActive({ organization: org.clerkOrganizationId });
+                            }
                           }}
                           className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 border-0 ${
                             selectedOrganization?.id === org.id

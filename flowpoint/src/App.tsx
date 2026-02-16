@@ -9,12 +9,16 @@ import {
 } from "react-router-dom";
 
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { BillingGuard } from "./components/billing/BillingGuard";
+import { FeatureGuard } from "./components/billing/FeatureGuard";
 import { AppLayout } from "./components/layout";
 import { LanguageProvider } from "./components/providers/LanguageProvider";
 import UserInitializer from "./components/utils/UserInitializer";
+import { FEATURES } from "./billing/config";
 import AppointmentsPage from "./pages/appointments/appointments-page";
 import SignInPage from "./pages/auth/sign-in-page";
 import SignUpPage from "./pages/auth/sign-up-page";
+import BillingPage from "./pages/billing/billing-page";
 import CalendarPage from "./pages/calendar/calendar-page";
 import CustomersPage from "./pages/customers/customers-page";
 import DashboardPage from "./pages/dashboard-page";
@@ -28,6 +32,7 @@ const queryClient = new QueryClient();
 
 // Get Clerk publishable key from environment variables
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+// const CLERK_JS_VERSION = "5.56.2";
 
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
@@ -62,9 +67,13 @@ function AppContent() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <DashboardPage />
-                </AppLayout>
+                <BillingGuard>
+                  <FeatureGuard feature={FEATURES.crm}>
+                    <AppLayout>
+                      <DashboardPage />
+                    </AppLayout>
+                  </FeatureGuard>
+                </BillingGuard>
               </ProtectedRoute>
             }
           />
@@ -72,9 +81,13 @@ function AppContent() {
             path="/calendar"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <CalendarPage />
-                </AppLayout>
+                <BillingGuard>
+                  <FeatureGuard feature={FEATURES.crm}>
+                    <AppLayout>
+                      <CalendarPage />
+                    </AppLayout>
+                  </FeatureGuard>
+                </BillingGuard>
               </ProtectedRoute>
             }
           />
@@ -82,9 +95,13 @@ function AppContent() {
             path="/customers"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <CustomersPage />
-                </AppLayout>
+                <BillingGuard>
+                  <FeatureGuard feature={FEATURES.crm}>
+                    <AppLayout>
+                      <CustomersPage />
+                    </AppLayout>
+                  </FeatureGuard>
+                </BillingGuard>
               </ProtectedRoute>
             }
           />
@@ -92,9 +109,13 @@ function AppContent() {
             path="/team"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <TeamPage />
-                </AppLayout>
+                <BillingGuard>
+                  <FeatureGuard feature={FEATURES.crm}>
+                    <AppLayout>
+                      <TeamPage />
+                    </AppLayout>
+                  </FeatureGuard>
+                </BillingGuard>
               </ProtectedRoute>
             }
           />
@@ -102,9 +123,13 @@ function AppContent() {
             path="/appointments"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <AppointmentsPage />
-                </AppLayout>
+                <BillingGuard>
+                  <FeatureGuard feature={FEATURES.crm}>
+                    <AppLayout>
+                      <AppointmentsPage />
+                    </AppLayout>
+                  </FeatureGuard>
+                </BillingGuard>
               </ProtectedRoute>
             }
           />
@@ -112,9 +137,25 @@ function AppContent() {
             path="/services"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <ServicesPage />
-                </AppLayout>
+                <BillingGuard>
+                  <FeatureGuard feature={FEATURES.crm}>
+                    <AppLayout>
+                      <ServicesPage />
+                    </AppLayout>
+                  </FeatureGuard>
+                </BillingGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/billing"
+            element={
+              <ProtectedRoute>
+                <BillingGuard>
+                  <AppLayout>
+                    <BillingPage />
+                  </AppLayout>
+                </BillingGuard>
               </ProtectedRoute>
             }
           />
@@ -122,9 +163,11 @@ function AppContent() {
             path="/organization"
             element={
               <ProtectedRoute>
-                <AppLayout>
-                  <OrganizationPage />
-                </AppLayout>
+                <BillingGuard>
+                  <AppLayout>
+                    <OrganizationPage />
+                  </AppLayout>
+                </BillingGuard>
               </ProtectedRoute>
             }
           />
@@ -150,7 +193,10 @@ function AppContent() {
 
 function App() {
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      // clerkJSVersion={CLERK_JS_VERSION}
+    >
       <QueryClientProvider client={queryClient}>
         <FirebaseTokenProvider>
           <LanguageProvider>

@@ -147,6 +147,7 @@ export const organizationDataSchema = z.object({
   image: z.string().optional(),
   industry: z.string().optional(),
   currency: z.string().default("EUR"),
+  clerkOrganizationId: z.string().optional(),
   slug: optionalSlugSchema,
   landingPage: LandingPageSettingsSchema.optional(),
   settings: OrganizationSettingsSchema,
