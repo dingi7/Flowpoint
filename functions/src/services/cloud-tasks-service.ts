@@ -61,11 +61,13 @@ async function ensureQueueExists(
   }
 }
 
-export function getCloudTasksService(functionName: string): CloudTasksService {
+export function getCloudTasksService(
+  functionName: string,
+  queueName: string = "appointment-reminders",
+): CloudTasksService {
   const client = getCloudTasksClient();
   const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || GCP_PROJECT_ID;
   const location = process.env.LOCATION || "us-central1";
-  const queueName = "appointment-reminders";
 
   return {
     scheduleTask: async (payload: ScheduleTaskPayload): Promise<string> => {

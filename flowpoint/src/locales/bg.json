@@ -959,6 +959,35 @@
             "delete": "Изтрий",
             "deletedSuccess": "Почивният ден е изтрит успешно",
             "deleteError": "Грешка при изтриване на почивен ден"
+        },
+        "sync": {
+            "title": "Синхронизация на календар",
+            "description": "Автоматично синхронизирайте резервации в Google Calendar и се абонирайте от Apple Calendar чрез ICS.",
+            "loading": "Зареждане на статуса...",
+            "selfOnlyMessage": "Само този член може да управлява настройките за синхронизация.",
+            "connectGoogle": "Свържи Google Calendar",
+            "reconnectGoogle": "Свържи отново Google Calendar",
+            "connectSuccess": "Google Calendar е свързан успешно",
+            "connectError": "Неуспешно свързване с Google Calendar",
+            "toggleError": "Неуспешна промяна на автоматичната синхронизация",
+            "enabledSuccess": "Автоматичната синхронизация е включена",
+            "disabledSuccess": "Автоматичната синхронизация е изключена",
+            "disconnect": "Прекъсни връзката",
+            "disconnectSuccess": "Синхронизацията е прекъсната",
+            "disconnectError": "Неуспешно прекъсване на синхронизацията",
+            "connectedAs": "Свързан като",
+            "autoSyncToggle": "Автоматично синхронизирай новите резервации",
+            "copyIcs": "Копирай Apple ICS URL",
+            "openIcs": "Отвори ICS URL",
+            "copyIcsSuccess": "ICS URL е копиран",
+            "backfillStatus": "Статус на начална синхронизация",
+            "backfill": {
+                "idle": "Неактивно",
+                "pending": "Изчаква",
+                "running": "Изпълнява се",
+                "completed": "Готово",
+                "failed": "Неуспешно"
+            }
         }
     }
 }

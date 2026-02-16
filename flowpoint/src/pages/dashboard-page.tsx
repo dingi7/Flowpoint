@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { APPOINTMENT_STATUS } from "@/core";
-import { useCustomers, useGetAllAppointments, useServices } from "@/hooks";
+import { useAppointments, useCustomers, useServices } from "@/hooks";
 import { useOrganizations } from "@/stores";
 import { formatPrice } from "@/utils/price-format";
 import { useUser } from "@clerk/clerk-react";
@@ -44,14 +44,31 @@ export default function DashboardPage() {
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const { t } = useTranslation();
 
+  const dashboardLookbackDate = useMemo(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 90);
+    return date;
+  }, []);
+
   // Fetch dashboard data using existing hooks
-  const customersQuery = useCustomers({ pagination: { limit: 1000 } });
-  const servicesQuery = useServices({ pagination: { limit: 1000 } });
-  const allAppointmentsQuery = useGetAllAppointments();
+  const customersQuery = useCustomers({ pagination: { limit: 200 } });
+  const servicesQuery = useServices({ pagination: { limit: 200 } });
+  const appointmentsQuery = useAppointments({
+    queryConstraints: [
+      { field: "startTime", operator: ">=", value: dashboardLookbackDate },
+    ],
+    pagination: { limit: 200 },
+    orderBy: { field: "startTime", direction: "desc" },
+  });
+
+  const appointments = useMemo(
+    () => appointmentsQuery.data?.pages.flatMap((page) => page) || [],
+    [appointmentsQuery.data],
+  );
 
   // Calculate top services from completed appointments only
   const topServices = useMemo(() => {
-    if (!allAppointmentsQuery.data || !servicesQuery.data) return [];
+    if (!appointments.length || !servicesQuery.data) return [];
 
     // Get all services as a map for quick lookup
     const servicesMap = new Map(
@@ -66,7 +83,7 @@ export default function DashboardPage() {
       { name: string; bookings: number; revenue: number }
     >();
 
-    allAppointmentsQuery.data
+    appointments
       .filter(
         (appointment) => appointment.status === APPOINTMENT_STATUS.COMPLETED,
       )
@@ -91,7 +108,7 @@ export default function DashboardPage() {
     return Array.from(serviceStats.values())
       .sort((a, b) => b.bookings - a.bookings)
       .slice(0, 5);
-  }, [allAppointmentsQuery.data, servicesQuery.data]);
+  }, [appointments, servicesQuery.data]);
 
   // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
@@ -152,7 +169,7 @@ export default function DashboardPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {allAppointmentsQuery.isPending ? (
+            {appointmentsQuery.isPending ? (
               <>
                 <Skeleton className="h-8 w-16 mb-2" />
                 <Skeleton className="h-4 w-32" />
@@ -160,18 +177,18 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className="text-2xl font-bold">
-                  {allAppointmentsQuery.data?.length || 0}
+                  {appointments.length}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {allAppointmentsQuery.data?.filter(
+                  {appointments.filter(
                     (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED,
-                  ).length || 0}{" "}
+                  ).length}{" "}
                   {t("dashboard.completed")},{" "}
-                  {allAppointmentsQuery.data?.filter(
+                  {appointments.filter(
                     (apt) =>
                       apt.status !== APPOINTMENT_STATUS.COMPLETED &&
                       apt.status !== APPOINTMENT_STATUS.CANCELLED,
-                  ).length || 0}{" "}
+                  ).length}{" "}
                   {t("dashboard.upcoming")}
                 </p>
               </>
@@ -188,7 +205,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {allAppointmentsQuery.isPending ? (
+            {appointmentsQuery.isPending ? (
               <>
                 <Skeleton className="h-8 w-24 mb-2" />
                 <Skeleton className="h-4 w-32" />
@@ -197,10 +214,10 @@ export default function DashboardPage() {
               <>
                 <div className="text-2xl font-bold">
                   {formatPrice(
-                    allAppointmentsQuery.data?.reduce(
+                    appointments.reduce(
                       (sum, apt) => sum + (apt.fee || 0),
                       0,
-                    ) || 0,
+                    ),
                     true,
                   )}
                 </div>
@@ -293,7 +310,7 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {allAppointmentsQuery.isPending || servicesQuery.isPending ? (
+            {appointmentsQuery.isPending || servicesQuery.isPending ? (
               <>
                 <Skeleton className="h-16 w-full mb-3" />
                 <Skeleton className="h-16 w-full mb-3" />
@@ -384,7 +401,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {allAppointmentsQuery.isPending ? (
+            {appointmentsQuery.isPending ? (
               <>
                 <Skeleton className="h-20 w-full" />
                 <Skeleton className="h-20 w-full" />
@@ -398,13 +415,10 @@ export default function DashboardPage() {
                 const tomorrow = new Date(today);
                 tomorrow.setDate(tomorrow.getDate() + 1);
 
-                const todaysAppointments =
-                  allAppointmentsQuery.data?.filter((appointment) => {
-                    const appointmentDate = new Date(appointment.startTime);
-                    return (
-                      appointmentDate >= today && appointmentDate < tomorrow
-                    );
-                  }) || [];
+                const todaysAppointments = appointments.filter((appointment) => {
+                  const appointmentDate = new Date(appointment.startTime);
+                  return appointmentDate >= today && appointmentDate < tomorrow;
+                });
 
                 return todaysAppointments.length ? (
                   todaysAppointments.map((appointment) => {

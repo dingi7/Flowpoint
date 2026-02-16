@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarView } from "@/components/calendar/CalendarView";
+import { CalendarSyncCard } from "@/components/calendar/CalendarSyncCard";
 import { MemberCalendarForm } from "@/components/calendar/MemberCalendarForm";
 import { TimeOffForm } from "@/components/calendar/TimeOffForm";
 import { TimeOffList } from "@/components/calendar/TimeOffList";
@@ -185,6 +186,13 @@ export default function CalendarPage() {
 
       {/* Main Content */}
       <div className="space-y-6">
+        {currentOrganizationId && (
+          <CalendarSyncCard
+            organizationId={currentOrganizationId}
+            selectedMemberId={displayMemberId}
+            currentUserId={currentUserId}
+          />
+        )}
         <Tabs
           defaultValue="calendar"
           className="space-y-6 max-w-[100rem] mx-auto"

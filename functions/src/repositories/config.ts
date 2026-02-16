@@ -2,6 +2,7 @@ export enum DatabaseCollection {
   USERS = "users",
   APPOINTMENTS = "appointments",
   CALENDARS = "calendars",
+  CALENDAR_SYNC_CONNECTIONS = "calendar-sync-connections",
   MEMBERS = "members",
   ORGANIZATIONS = "organizations",
   ROLES = "roles",

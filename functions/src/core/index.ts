@@ -2,6 +2,7 @@
 export * from "./entities/api-key-hash";
 export * from "./entities/appointment";
 export * from "./entities/base";
+export * from "./entities/calendar-sync-connection";
 export * from "./entities/calendar";
 export * from "./entities/customer";
 export * from "./entities/invite";
@@ -16,6 +17,7 @@ export * from "./entities/webhook-subscription";
 //Repositories
 export * from "./ports/repositories/api-key-hash-repository";
 export * from "./ports/repositories/appointment-repository";
+export * from "./ports/repositories/calendar-sync-connection-repository";
 export * from "./ports/repositories/calendar-repository";
 export * from "./ports/repositories/customer-repository";
 export * from "./ports/repositories/generic-repository";

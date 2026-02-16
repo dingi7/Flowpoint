@@ -20,6 +20,14 @@ export { bookAppointment } from "./functions/appointment/book-appointment";
 export { sendAppointmentReminder } from "./functions/appointment/send-appointment-reminder";
 export { sendAppointmentReviewRequest } from "./functions/appointment/send-appointment-review-request";
 export { sendAppointmentRebookingReminder } from "./functions/appointment/send-appointment-rebooking-reminder";
+export { startGoogleCalendarConnect } from "./functions/calendar-sync/start-google-calendar-connect";
+export { googleCalendarOAuthCallback } from "./functions/calendar-sync/google-calendar-oauth-callback";
+export { getMyCalendarSyncStatus } from "./functions/calendar-sync/get-my-calendar-sync-status";
+export { setMyCalendarAutoSync } from "./functions/calendar-sync/set-my-calendar-auto-sync";
+export { disconnectMyCalendarSync } from "./functions/calendar-sync/disconnect-my-calendar-sync";
+export { memberCalendarIcsFeed } from "./functions/calendar-sync/member-calendar-ics-feed";
+export { syncMemberCalendarBackfill } from "./functions/calendar-sync/sync-member-calendar-backfill";
+export { onAppointmentCalendarSync } from "./functions/calendar-sync/on-appointment-calendar-sync";
 
 // <-- Organization Member Managment -->
 export { createOrganizationInvite } from "./functions/invite/create-organization-invite";

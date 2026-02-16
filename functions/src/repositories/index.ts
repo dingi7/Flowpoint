@@ -1,6 +1,7 @@
 import { DatabaseService, RepositoryHost } from "@/core";
 import { getApiKeyHashRepository } from "./api-key-hash-repository";
 import { getAppointmentRepository } from "./appointment-repository";
+import { getCalendarSyncConnectionRepository } from "./calendar-sync-connection-repository";
 import { getCalendarRepository } from "./calendar-repository";
 import { getCustomerRepository } from "./customer-repository";
 import { getInviteRepository } from "./invite-repository";
@@ -25,6 +26,8 @@ export const repositoryHost: RepositoryHost = {
     getServiceRepository(databaseService),
   getAppointmentRepository: (databaseService: DatabaseService) =>
     getAppointmentRepository(databaseService),
+  getCalendarSyncConnectionRepository: (databaseService: DatabaseService) =>
+    getCalendarSyncConnectionRepository(databaseService),
   getCalendarRepository: (databaseService: DatabaseService) =>
     getCalendarRepository(databaseService),
   getMemberRepository: (databaseService: DatabaseService) =>

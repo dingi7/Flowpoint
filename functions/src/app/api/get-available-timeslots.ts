@@ -21,6 +21,29 @@ interface Dependencies {
   appointmentRepository: AppointmentRepository;
 }
 
+function getUtcDayBounds(dateValue: string) {
+  const parsedDate = new Date(dateValue);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    throw new Error("Invalid date");
+  }
+
+  const year = parsedDate.getUTCFullYear();
+  const month = parsedDate.getUTCMonth();
+  const day = parsedDate.getUTCDate();
+
+  const startOfDay = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+  const startOfNextDay = new Date(Date.UTC(year, month, day + 1, 0, 0, 0, 0));
+  const endOfDay = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
+
+  return {
+    parsedDate,
+    startOfDayIso: startOfDay.toISOString(),
+    startOfNextDayIso: startOfNextDay.toISOString(),
+    endOfDayIso: endOfDay.toISOString(),
+  };
+}
+
 export async function getAvailableTimeslotsApiFn(
   payload: Payload,
   dependencies: Dependencies,
@@ -39,6 +62,8 @@ export async function getAvailableTimeslotsApiFn(
     date,
     organizationId,
   });
+  const { parsedDate, startOfDayIso, startOfNextDayIso, endOfDayIso } =
+    getUtcDayBounds(date);
 
   const service = await serviceRepository.get({
     id: serviceId,
@@ -54,6 +79,7 @@ export async function getAvailableTimeslotsApiFn(
     queryConstraints: [
       { field: "ownerId", operator: "==", value: service.ownerId },
     ],
+    pagination: { limit: 1 },
     organizationId,
   });
 
@@ -69,6 +95,7 @@ export async function getAvailableTimeslotsApiFn(
   const timeOffs = await timeOffRepository.getAll({
     queryConstraints: [
       { field: "ownerId", operator: "==", value: service.ownerId },
+      { field: "endAt", operator: ">=", value: startOfDayIso },
     ],
     organizationId,
   });
@@ -76,17 +103,19 @@ export async function getAvailableTimeslotsApiFn(
   const existingAppointments = await appointmentRepository.getAll({
     queryConstraints: [
       { field: "calendarId", operator: "==", value: calendar.id },
+      { field: "startTime", operator: ">=", value: startOfDayIso },
+      { field: "startTime", operator: "<", value: startOfNextDayIso },
     ],
     organizationId,
   });
 
   const timeslots = generateTimeslotsForDate(
     {
-      date: new Date(date),
+      date: parsedDate,
       calendar,
       serviceDuration: service.duration,
       existingAppointments,
-      timeOffs,
+      timeOffs: timeOffs.filter((timeOff) => timeOff.startAt <= endOfDayIso),
     },
     {
       loggerService,
@@ -95,4 +124,3 @@ export async function getAvailableTimeslotsApiFn(
 
   return timeslots;
 }
-

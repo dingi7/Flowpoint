@@ -202,4 +202,60 @@ export const functionsService: FunctionsService = {
       payload,
     );
   },
+  async startGoogleCalendarConnect(payload) {
+    const data = await callFunction<
+      {
+        organizationId: string;
+        returnUrl: string;
+      },
+      { authUrl: string }
+    >(
+      "startGoogleCalendarConnect",
+      payload,
+    );
+    return data;
+  },
+  async getMyCalendarSyncStatus(payload) {
+    const data = await callFunction<
+      {
+        organizationId: string;
+      },
+      {
+        connected: boolean;
+        syncEnabled: boolean;
+        status: "connected" | "disconnected" | "reauth_required" | "error";
+        googleAccountEmail?: string;
+        appleIcsUrl?: string;
+        backfillStatus: "idle" | "pending" | "running" | "completed" | "failed";
+        lastError?: string;
+      }
+    >(
+      "getMyCalendarSyncStatus",
+      payload,
+    );
+    return data;
+  },
+  async setMyCalendarAutoSync(payload) {
+    await callFunction<
+      {
+        organizationId: string;
+        enabled: boolean;
+      },
+      void
+    >(
+      "setMyCalendarAutoSync",
+      payload,
+    );
+  },
+  async disconnectMyCalendarSync(payload) {
+    await callFunction<
+      {
+        organizationId: string;
+      },
+      void
+    >(
+      "disconnectMyCalendarSync",
+      payload,
+    );
+  },
 };

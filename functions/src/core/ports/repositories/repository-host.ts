@@ -1,6 +1,7 @@
 import {
   ApiKeyHashRepository,
   AppointmentRepository,
+  CalendarSyncConnectionRepository,
   CalendarRepository,
   CustomerRepository,
   DatabaseService,
@@ -18,6 +19,9 @@ export interface RepositoryHost {
   getUserRepository(databaseService: DatabaseService): UserRepository;
   getCustomerRepository(databaseService: DatabaseService): CustomerRepository;
   getCalendarRepository(databaseService: DatabaseService): CalendarRepository;
+  getCalendarSyncConnectionRepository(
+    databaseService: DatabaseService,
+  ): CalendarSyncConnectionRepository;
   getMemberRepository(databaseService: DatabaseService): MemberRepository;
   getRoleRepository(databaseService: DatabaseService): RoleRepository;
   getServiceRepository(databaseService: DatabaseService): ServiceRepository;

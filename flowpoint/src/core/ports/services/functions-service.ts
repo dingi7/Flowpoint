@@ -30,6 +30,16 @@ export interface BookAppointmentResponse {
   confirmationDetails: any;
 }
 
+export interface CalendarSyncStatusResponse {
+  connected: boolean;
+  syncEnabled: boolean;
+  status: "connected" | "disconnected" | "reauth_required" | "error";
+  googleAccountEmail?: string;
+  appleIcsUrl?: string;
+  backfillStatus: "idle" | "pending" | "running" | "completed" | "failed";
+  lastError?: string;
+}
+
 export interface FunctionsService {
   getAvailableTimeslots(payload: {
     serviceId: string;
@@ -86,5 +96,19 @@ export interface FunctionsService {
   removeWebhookSubscription(payload: {
     organizationId: string;
     subscriptionId: string;
+  }): Promise<void>;
+  startGoogleCalendarConnect(payload: {
+    organizationId: string;
+    returnUrl: string;
+  }): Promise<{ authUrl: string }>;
+  getMyCalendarSyncStatus(payload: {
+    organizationId: string;
+  }): Promise<CalendarSyncStatusResponse>;
+  setMyCalendarAutoSync(payload: {
+    organizationId: string;
+    enabled: boolean;
+  }): Promise<void>;
+  disconnectMyCalendarSync(payload: {
+    organizationId: string;
   }): Promise<void>;
 }
