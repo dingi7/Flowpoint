@@ -57,7 +57,7 @@ function formatMonthlyPrice(amount: MoneyAmount): string {
     ? amount.amountFormatted
     : `${amount.currencySymbol}${amount.amountFormatted}`;
 
-  return `${value}/mth`;
+  return `${value}/month`;
 }
 
 function getInvoiceLabel(statementId: string, index: number): string {
@@ -266,7 +266,7 @@ export default function BillingPage() {
                 />
               </div>
             ) : (
-              <section className="rounded-3xl border border-border bg-muted/40 p-2 sm:p-3">
+              <section className="rounded-3xl bg-muted/40 ">
                 {plans.isLoading ? (
                   <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
                     Loading available plans...
