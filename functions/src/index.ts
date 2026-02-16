@@ -20,6 +20,8 @@ export { bookAppointment } from "./functions/appointment/book-appointment";
 export { sendAppointmentReminder } from "./functions/appointment/send-appointment-reminder";
 export { sendAppointmentReviewRequest } from "./functions/appointment/send-appointment-review-request";
 export { sendAppointmentRebookingReminder } from "./functions/appointment/send-appointment-rebooking-reminder";
+
+// <-- Calendar Sync -->
 export { startGoogleCalendarConnect } from "./functions/calendar-sync/start-google-calendar-connect";
 export { googleCalendarOAuthCallback } from "./functions/calendar-sync/google-calendar-oauth-callback";
 export { getMyCalendarSyncStatus } from "./functions/calendar-sync/get-my-calendar-sync-status";
