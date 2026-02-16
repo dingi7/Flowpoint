@@ -307,13 +307,14 @@
         }
     },
     "common": {
-        "language": "Language",
-        "english": "English",
-        "bulgarian": "Bulgarian",
-        "notAvailable": "N/A",
-        "min": "min",
-        "loadMore": "Load More",
-        "loadingMore": "Loading..."
+        "language": "Dil",
+        "english": "İngilizce",
+        "bulgarian": "Bulgarca",
+        "turkish": "Türkçe",
+        "notAvailable": "Yok",
+        "min": "dk",
+        "loadMore": "Daha Fazla Yükle",
+        "loadingMore": "Yükleniyor..."
     },
     "validation": {
         "required": "This field is required",

@@ -4,6 +4,7 @@ import { initReactI18next } from "react-i18next";
 
 import bg from "./locales/bg.json";
 import en from "./locales/en.json";
+import tr from "./locales/tr.json";
 
 i18n
   .use(LanguageDetector)
@@ -15,6 +16,9 @@ i18n
       },
       bg: {
         translation: bg,
+      },
+      tr: {
+        translation: tr,
       },
     },
     fallbackLng: "en",
