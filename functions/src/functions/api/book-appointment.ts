@@ -96,8 +96,14 @@ export const apiBookAppointment = onRequest(
         url: mailgunUrlSecret.value() || undefined,
       });
 
-      const cloudTasksService = serviceHost.getCloudTasksService(
+      const cloudTasksServiceReminder = serviceHost.getCloudTasksService(
         "sendAppointmentReminder",
+      );
+      const cloudTasksServiceReviewRequest = serviceHost.getCloudTasksService(
+        "sendAppointmentReviewRequest",
+      );
+      const cloudTasksServiceRebooking = serviceHost.getCloudTasksService(
+        "sendAppointmentRebookingReminder",
       );
 
       // Get timezone from client IP
@@ -121,7 +127,9 @@ export const apiBookAppointment = onRequest(
           memberRepository,
           userRepository,
           mailgunService,
-          cloudTasksService,
+          cloudTasksServiceReminder,
+          cloudTasksServiceReviewRequest,
+          cloudTasksServiceRebooking,
         },
       );
 
@@ -140,4 +148,3 @@ export const apiBookAppointment = onRequest(
     }
   },
 );
-

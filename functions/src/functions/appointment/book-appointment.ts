@@ -63,7 +63,12 @@ export const bookAppointment = onCall<Payload>(
         url: mailgunUrlSecret.value() || undefined,
       });
 
-      const cloudTasksService = serviceHost.getCloudTasksService("sendAppointmentReminder");
+      const cloudTasksServiceReminder =
+        serviceHost.getCloudTasksService("sendAppointmentReminder");
+      const cloudTasksServiceReviewRequest =
+        serviceHost.getCloudTasksService("sendAppointmentReviewRequest");
+      const cloudTasksServiceRebooking =
+        serviceHost.getCloudTasksService("sendAppointmentRebookingReminder");
 
       // Get timezone from IP if not provided in payload
       let timezone = request.data.timezone;
@@ -90,7 +95,9 @@ export const bookAppointment = onCall<Payload>(
           loggerService,
           organizationRepository,
           mailgunService,
-          cloudTasksService,
+          cloudTasksServiceReminder,
+          cloudTasksServiceReviewRequest,
+          cloudTasksServiceRebooking,
         },
       );
 

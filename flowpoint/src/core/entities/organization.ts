@@ -120,6 +120,8 @@ export const OrganizationSettingsSchema = z.object({
       confirmation: EmailTemplateSchema.optional(),
       reminder: EmailTemplateSchema.optional(),
       info: EmailTemplateSchema.optional(),
+      review: EmailTemplateSchema.optional(),
+      rebooking: EmailTemplateSchema.optional(),
     })
     .optional(),
 });

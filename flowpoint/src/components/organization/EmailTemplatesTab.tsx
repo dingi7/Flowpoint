@@ -64,7 +64,7 @@ const EMAIL_TEMPLATE_VARIABLES = [
   },
 ] as const;
 
-type TemplateType = "confirmation" | "reminder" | "info";
+type TemplateType = "confirmation" | "reminder" | "info" | "review" | "rebooking";
 
 const DEFAULT_TEMPLATES: Record<TemplateType, EmailTemplate> = {
   confirmation: {
@@ -226,6 +226,165 @@ If you need to reschedule or cancel your appointment, please contact us at {{org
 Best regards,
 {{organizationName}}`,
   },
+  review: {
+    subject: "How Was Your Appointment? - {{serviceName}}",
+    html: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #4a90e2; color: white; padding: 20px; text-align: center; }
+    .content { padding: 20px; background-color: #f9f9f9; }
+    .appointment-details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #4a90e2; }
+    .detail-row { margin: 10px 0; }
+    .detail-label { font-weight: bold; color: #555; }
+    .footer { text-align: center; padding: 20px; color: #777; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>How Was Your Appointment?</h1>
+    </div>
+    <div class="content">
+      <p>Dear {{customerName}},</p>
+      <p>We hope your appointment went well! We'd love your feedback.</p>
+      <div class="appointment-details">
+        <div class="detail-row">
+          <span class="detail-label">Service:</span> {{serviceName}}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date & Time:</span> {{appointmentDate}}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Duration:</span> {{duration}}
+        </div>
+        {{#if fee}}
+        <div class="detail-row">
+          <span class="detail-label">Fee:</span> {{fee}}
+        </div>
+        {{/if}}
+      </div>
+      {{#if organizationAddress}}
+      <p><strong>Location:</strong> {{organizationAddress}}</p>
+      {{/if}}
+      {{#if organizationPhone}}
+      <p><strong>Phone:</strong> {{organizationPhone}}</p>
+      {{/if}}
+      <p>If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.</p>
+      {{#if reviewUrl}}
+      <p style="margin-top: 20px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #4a90e2; border-radius: 4px;">
+        <strong>Share Your Experience:</strong><br>
+        We'd love to hear about your experience! Please take a moment to <a href="{{reviewUrl}}" style="color: #4a90e2; text-decoration: none; font-weight: bold;">leave a review</a>.
+      </p>
+      {{/if}}
+    </div>
+    <div class="footer">
+      <p>Best regards,<br>{{organizationName}}</p>
+    </div>
+  </div>
+</body>
+</html>`,
+    text: `How Was Your Appointment?
+
+Dear {{customerName}},
+
+We hope your appointment went well! We'd love your feedback.
+
+Appointment Details:
+- Service: {{serviceName}}
+- Date & Time: {{appointmentDate}}
+- Duration: {{duration}}
+{{#if fee}}- Fee: {{fee}}{{/if}}
+{{#if organizationAddress}}- Location: {{organizationAddress}}{{/if}}
+{{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
+
+If you need to reschedule or cancel your appointment, please contact us at {{organizationEmail}}.
+{{#if reviewUrl}}
+
+Share Your Experience:
+We'd love to hear about your experience! Please take a moment to leave a review:
+{{reviewUrl}}{{/if}}
+
+Best regards,
+{{organizationName}}`,
+  },
+  rebooking: {
+    subject: "Time to Book Again - {{serviceName}}",
+    html: `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #8e44ad; color: white; padding: 20px; text-align: center; }
+    .content { padding: 20px; background-color: #f9f9f9; }
+    .appointment-details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #8e44ad; }
+    .detail-row { margin: 10px 0; }
+    .detail-label { font-weight: bold; color: #555; }
+    .footer { text-align: center; padding: 20px; color: #777; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Time to Book Again</h1>
+    </div>
+    <div class="content">
+      <p>Dear {{customerName}},</p>
+      <p>It's time to book your next appointment!</p>
+      <div class="appointment-details">
+        <div class="detail-row">
+          <span class="detail-label">Service:</span> {{serviceName}}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Last Appointment:</span> {{appointmentDate}}
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Duration:</span> {{duration}}
+        </div>
+        {{#if fee}}
+        <div class="detail-row">
+          <span class="detail-label">Fee:</span> {{fee}}
+        </div>
+        {{/if}}
+      </div>
+      {{#if organizationAddress}}
+      <p><strong>Location:</strong> {{organizationAddress}}</p>
+      {{/if}}
+      {{#if organizationPhone}}
+      <p><strong>Phone:</strong> {{organizationPhone}}</p>
+      {{/if}}
+      <p>Ready to book again? Reply to this email or contact us at {{organizationEmail}}.</p>
+    </div>
+    <div class="footer">
+      <p>Best regards,<br>{{organizationName}}</p>
+    </div>
+  </div>
+</body>
+</html>`,
+    text: `Time to Book Again
+
+Dear {{customerName}},
+
+It's time to book your next appointment!
+
+Appointment Details:
+- Service: {{serviceName}}
+- Last Appointment: {{appointmentDate}}
+- Duration: {{duration}}
+{{#if fee}}- Fee: {{fee}}{{/if}}
+{{#if organizationAddress}}- Location: {{organizationAddress}}{{/if}}
+{{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
+
+Ready to book again? Reply to this email or contact us at {{organizationEmail}}.
+
+Best regards,
+{{organizationName}}`,
+  },
   info: {
     subject: "New Appointment - {{serviceName}} with {{customerName}}",
     html: `<!DOCTYPE html>
@@ -306,9 +465,7 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
   const { updateOrganization: updateOrganizationStore } =
     useOrganizationActions();
   const updateOrganizationMutation = useUpdateOrganization();
-  const [activeTab, setActiveTab] = useState<"confirmation" | "reminder" | "info">(
-    "confirmation",
-  );
+  const [activeTab, setActiveTab] = useState<TemplateType>("confirmation");
 
   const currentTemplate = organization.settings?.emailTemplates?.[activeTab];
   const [template, setTemplate] = useState<EmailTemplate>(
@@ -352,11 +509,16 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
         },
       });
 
-      const templateName = activeTab === "confirmation" 
-        ? t("organization.emailTemplates.confirmationEmail")
-        : activeTab === "reminder"
-        ? t("organization.emailTemplates.reminderEmail")
-        : t("organization.emailTemplates.infoEmail");
+      let templateName = t("organization.emailTemplates.infoEmail");
+      if (activeTab === "confirmation") {
+        templateName = t("organization.emailTemplates.confirmationEmail");
+      } else if (activeTab === "reminder") {
+        templateName = t("organization.emailTemplates.reminderEmail");
+      } else if (activeTab === "review") {
+        templateName = t("organization.emailTemplates.reviewEmail");
+      } else if (activeTab === "rebooking") {
+        templateName = t("organization.emailTemplates.rebookingEmail");
+      }
       toast.success(
         `${templateName} ${t("organization.emailTemplates.savedSuccess")}`,
       );
@@ -410,13 +572,13 @@ export function EmailTemplatesTab({ organization }: EmailTemplatesTabProps) {
         <CardContent>
           <Tabs
             value={activeTab}
-            onValueChange={(v) =>
-              setActiveTab(v as "confirmation" | "reminder" | "info")
-            }
+            onValueChange={(v) => setActiveTab(v as TemplateType)}
           >
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               <TabsTrigger value="confirmation">{t("organization.emailTemplates.confirmationEmail")}</TabsTrigger>
               <TabsTrigger value="reminder">{t("organization.emailTemplates.reminderEmail")}</TabsTrigger>
+              <TabsTrigger value="review">{t("organization.emailTemplates.reviewEmail")}</TabsTrigger>
+              <TabsTrigger value="rebooking">{t("organization.emailTemplates.rebookingEmail")}</TabsTrigger>
               <TabsTrigger value="info">{t("organization.emailTemplates.infoEmail")}</TabsTrigger>
             </TabsList>
 
