@@ -659,7 +659,7 @@
         "form": {
             "serviceInformation": "Service Information",
             "serviceName": "Service Name",
-            "price": "Price (BGN)",
+            "price": "Price (EUR)",
             "duration": "Duration (minutes)",
             "description": "Description",
             "image": "Service Image",
