@@ -117,6 +117,10 @@ export function CalendarSyncCard({
     toast.success(t("calendar.sync.copyIcsSuccess"));
   };
 
+  if(!isSelf) {
+    return null;
+  }
+
   return (
     <Card>
       <CardHeader>
