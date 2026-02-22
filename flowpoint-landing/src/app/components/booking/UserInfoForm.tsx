@@ -14,8 +14,8 @@ import { useState } from 'react';
 
 // Constants
 const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
 interface UserInfoFormProps {
@@ -115,11 +115,10 @@ export function UserInfoForm({
                                 </h3>
                                 {selectedDate && selectedTime && (
                                     <p className='text-sm text-muted-foreground mt-1'>
-                                        {`${
-                                            months[currentMonth]
-                                        } ${selectedDate}, ${currentYear} at ${formatTimeSlot(
-                                            selectedTime
-                                        )}`}
+                                        {`${months[currentMonth]
+                                            } ${selectedDate}, ${currentYear} at ${formatTimeSlot(
+                                                selectedTime
+                                            )}`}
                                     </p>
                                 )}
                             </div>
@@ -199,7 +198,7 @@ export function UserInfoForm({
                 </div>
 
                 <Button
-                    className='w-full'
+                    className='w-full cursor-pointer'
                     onClick={handleSubmitWithValidation}
                     disabled={
                         !userInfo.name || !userInfo.email || !userInfo.phone || Boolean(phoneError) || isSubmitting

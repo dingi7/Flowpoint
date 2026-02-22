@@ -50,6 +50,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
     "barber" | "datetime" | "userInfo" | "success"
   >("barber");
   const [direction, setDirection] = useState(0);
+  const [isFormProcessing, setIsFormProcessing] = useState(false);
 
   const [userInfo, setUserInfo] = useState<UserInfo>({
     name: "",
@@ -120,11 +121,13 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   const { mutate: bookAppointment, isPending: isBooking } = useBookAppointment({
     onSuccess: (data) => {
       console.log("Booking created successfully:", data);
+      setIsFormProcessing(false);
       setDirection(1);
       setStep("success");
     },
     onError: (error) => {
       console.error("Error creating booking:", error);
+      setIsFormProcessing(false);
       // TODO: Show error message to user
     },
   });
@@ -178,6 +181,8 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
       return;
     }
 
+    setIsFormProcessing(true);
+
     try {
       let customerId = "";
 
@@ -228,6 +233,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
       });
     } catch (error) {
       console.error("Error in booking process:", error);
+      setIsFormProcessing(false);
       // TODO: Show error message to user
     }
   };
@@ -315,7 +321,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                   onUserInfoChange={setUserInfo}
                   onSubmit={handleSubmit}
                   onBack={handleBackToDateTime}
-                  isSubmitting={isBooking || createCustomerMutation.isPending}
+                  isSubmitting={isFormProcessing || isBooking || createCustomerMutation.isPending}
                 />
               </motion.div>
             )}
