@@ -1,16 +1,16 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { LandingPageSettings, Organization } from "@/core";
 import { serviceHost } from "@/services";
-import { Plus, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Plus, Trash2, Pipette, Settings, Palette, ImageIcon, Share2, LayoutTemplate, Star, MessageSquareQuote, Info } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -56,7 +56,7 @@ const buildLandingDefaults = (
     },
     branding: {
       logoUrl: landingPage?.branding?.logoUrl ?? organization.image,
-      primaryColor: landingPage?.branding?.primaryColor,
+      primaryColor: landingPage?.branding?.primaryColor ?? "#0f766e",
       secondaryColor: landingPage?.branding?.secondaryColor,
     },
     hero: {
@@ -81,7 +81,20 @@ const buildLandingDefaults = (
         contactInfo?.address ??
         undefined,
     },
+    aboutUs: {
+      title: landingPage?.aboutUs?.title,
+      description: landingPage?.aboutUs?.description,
+      patientsServed: landingPage?.aboutUs?.patientsServed,
+      specialists: landingPage?.aboutUs?.specialists,
+      yearsOfService: landingPage?.aboutUs?.yearsOfService,
+      patientSatisfaction: landingPage?.aboutUs?.patientSatisfaction,
+      bullets: landingPage?.aboutUs?.bullets ?? [],
+    },
+    testimonials: {
+      items: landingPage?.testimonials?.items ?? [],
+    },
     copyOverrides: landingPage?.copyOverrides ?? {},
+    footerTagline: landingPage?.footerTagline,
   };
 
   return {
@@ -89,6 +102,89 @@ const buildLandingDefaults = (
     landingPage: defaults,
   };
 };
+
+// Color swatch presets
+const COLOR_PRESETS = [
+  { label: "Teal", value: "#0f766e" },
+  { label: "Ocean", value: "#0369a1" },
+  { label: "Violet", value: "#6d28d9" },
+  { label: "Rose", value: "#be123c" },
+  { label: "Amber", value: "#b45309" },
+  { label: "Slate", value: "#334155" },
+  { label: "Forest", value: "#166534" },
+  { label: "Indigo", value: "#3730a3" },
+];
+
+function ColorPickerField({
+  id,
+  label,
+  value,
+  onChange,
+  disabled,
+  description,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+  description?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      <div className="flex items-center gap-2">
+        <div className="relative">
+          <input
+            ref={inputRef}
+            type="color"
+            value={value || "#0f766e"}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            className="sr-only"
+            id={`${id}-native`}
+          />
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => inputRef.current?.click()}
+            className="w-10 h-10 rounded-lg border border-border shadow-sm flex items-center justify-center hover:ring-2 hover:ring-ring hover:ring-offset-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: value || "#0f766e" }}
+            aria-label="Open color picker"
+          >
+            <Pipette className="w-4 h-4 text-white mix-blend-difference" />
+          </button>
+        </div>
+        <Input
+          id={id}
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="#0f766e"
+          disabled={disabled}
+          className="font-mono text-sm flex-1"
+          maxLength={7}
+        />
+      </div>
+      {/* Preset swatches */}
+      <div className="flex flex-wrap gap-1.5 pt-1">
+        {COLOR_PRESETS.map((preset) => (
+          <button
+            key={preset.value}
+            type="button"
+            disabled={disabled}
+            onClick={() => onChange(preset.value)}
+            title={preset.label}
+            className="w-6 h-6 rounded-md border border-border/50 hover:scale-110 hover:ring-2 hover:ring-ring hover:ring-offset-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: preset.value }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 interface LandingPageSettingsFormProps {
   organization: Organization;
@@ -122,6 +218,10 @@ export function LandingPageSettingsForm({
   const slug = watch("slug") || "";
   const landingEnabled = watch("landingPage.enabled") ?? false;
   const imageUrls = watch("landingPage.gallery.imageUrls") || [];
+  const primaryColor = watch("landingPage.branding.primaryColor") || "#0f766e";
+  const templateId = watch("landingPage.templateId");
+  const aboutUsBullets = watch("landingPage.aboutUs.bullets") || [];
+  const testimonialItems = watch("landingPage.testimonials.items") || [];
 
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
 
@@ -190,6 +290,37 @@ export function LandingPageSettingsForm({
     setValue("landingPage.gallery.imageUrls", updated, { shouldDirty: true });
   };
 
+  const handleAddBullet = () => {
+    setValue("landingPage.aboutUs.bullets", [...aboutUsBullets, ""], { shouldDirty: true });
+  };
+
+  const handleUpdateBullet = (index: number, value: string) => {
+    const updated = [...aboutUsBullets];
+    updated[index] = value;
+    setValue("landingPage.aboutUs.bullets", updated, { shouldDirty: true });
+  };
+
+  const handleRemoveBullet = (index: number) => {
+    setValue("landingPage.aboutUs.bullets", aboutUsBullets.filter((_, i) => i !== index), { shouldDirty: true });
+  };
+
+  const handleAddTestimonial = () => {
+    setValue("landingPage.testimonials.items", [
+      ...testimonialItems,
+      { quote: "", authorName: "", authorRole: "", rating: 5 },
+    ], { shouldDirty: true });
+  };
+
+  const handleUpdateTestimonial = (index: number, field: string, value: string | number) => {
+    const updated = [...testimonialItems];
+    updated[index] = { ...updated[index], [field]: value };
+    setValue("landingPage.testimonials.items", updated, { shouldDirty: true });
+  };
+
+  const handleRemoveTestimonial = (index: number) => {
+    setValue("landingPage.testimonials.items", testimonialItems.filter((_, i) => i !== index), { shouldDirty: true });
+  };
+
   const rootDomain =
     import.meta.env.VITE_ROOT_DOMAIN || "flowpoint.services";
 
@@ -248,6 +379,7 @@ export function LandingPageSettingsForm({
 
   return (
     <form onSubmit={submitHandler} className="space-y-8">
+      {/* HEADER_SECTION */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <h3 className="text-xl font-semibold">{t("organization.landingPageForm.title")}</h3>
@@ -269,508 +401,459 @@ export function LandingPageSettingsForm({
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Status & URL</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <Label className="text-base">
-                {t("organization.landingPageForm.enabled")}
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                {t("organization.landingPageForm.enabledDescription")}
-              </p>
-            </div>
-            <Switch
-              checked={landingEnabled}
-              onCheckedChange={(value) =>
-                setValue("landingPage.enabled", value, {
-                  shouldDirty: true,
-                })
-              }
-              disabled={isLoading}
-            />
-          </div>
+      <Tabs defaultValue="general" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto bg-muted/50 p-1 mb-8 gap-1">
+          <TabsTrigger value="general" className="gap-2 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"><Settings className="h-4 w-4" />General</TabsTrigger>
+          <TabsTrigger value="design" className="gap-2 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"><Palette className="h-4 w-4" />Design</TabsTrigger>
+          <TabsTrigger value="hero" className="gap-2 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"><ImageIcon className="h-4 w-4" />Hero</TabsTrigger>
+          <TabsTrigger value="content" className="gap-2 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"><LayoutTemplate className="h-4 w-4" />Content</TabsTrigger>
+          <TabsTrigger value="marketing" className="gap-2 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"><Share2 className="h-4 w-4" />Marketing</TabsTrigger>
+        </TabsList>
 
-          <div className={`space-y-2 ${landingEnabled ? "" : "opacity-60"}`}>
-            <Label htmlFor="slug">{t("organization.landingPageForm.slug")}</Label>
-            <Input
-              id="slug"
-              value={slug}
-              placeholder={t("organization.landingPageForm.slugPlaceholder")}
-              onChange={(event) => handleSlugChange(event.target.value)}
-              disabled={isLoading || !landingEnabled}
-            />
-            <div className="text-sm text-muted-foreground">
-              {t("organization.landingPageForm.slugHelper", {
-                domain: `${slug || "your-slug"}.${rootDomain}`,
-              })}
-            </div>
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              {slugStatus === "checking" && (
-                <span className="text-muted-foreground">
-                  {t("organization.landingPageForm.slugChecking")}
-                </span>
-              )}
-              {slugStatus === "available" && (
-                <span className="text-emerald-600">
-                  {t("organization.landingPageForm.slugAvailable")}
-                </span>
-              )}
-              {slugStatus === "taken" && (
-                <span className="text-red-500">
-                  {t("organization.landingPageForm.slugTaken")}
-                </span>
-              )}
-              {slugStatus === "invalid" && slug && (
-                <span className="text-red-500">
-                  {t("organization.landingPageForm.slugInvalid")}
-                </span>
-              )}
-              {showSlugError && (
-                <span className="text-red-500">
-                  {t("organization.landingPageForm.slugRequired")}
-                </span>
-              )}
-            </div>
-            {previewUrl && (
-              <div className="text-sm">
-                <a
-                  href={previewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {previewUrl}
-                </a>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Template & Theme</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="rounded-lg border border-border bg-muted/30 p-4">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <TabsContent value="general" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle>Status & URL</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-lg border border-border/50 bg-muted/20 p-4">
                 <div>
-                  <p className="text-sm font-semibold">
-                    {t("organization.landingPageForm.templateFirstClass")}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Editorial layout with hero, services, gallery, and team.
+                  <Label className="text-base text-foreground">
+                    {t("organization.landingPageForm.enabled")}
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t("organization.landingPageForm.enabledDescription")}
                   </p>
                 </div>
-                <Select
-                  value={watch("landingPage.templateId")}
-                  onValueChange={(value) =>
-                    setValue("landingPage.templateId", value as "first-class", {
-                      shouldDirty: true,
-                    })
+                <Switch
+                  checked={landingEnabled}
+                  onCheckedChange={(value) =>
+                    setValue("landingPage.enabled", value, { shouldDirty: true })
                   }
-                  disabled={fieldsDisabled}
-                >
-                  <SelectTrigger className="w-full md:w-52">
-                    <SelectValue
-                      placeholder={t("organization.landingPageForm.selectTemplate")}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="first-class">
-                      {t("organization.landingPageForm.templateFirstClass")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="brandingLogo">
-                  {t("organization.landingPageForm.brandingLogo")}
-                </Label>
-                <Input
-                  id="brandingLogo"
-                  value={watch("landingPage.branding.logoUrl") || ""}
-                  onChange={(event) =>
-                    setValue("landingPage.branding.logoUrl", event.target.value, {
-                      shouldDirty: true,
-                    })
-                  }
-                  disabled={fieldsDisabled}
+                  disabled={isLoading}
                 />
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="brandingPrimary">
-                    {t("organization.landingPageForm.brandingPrimary")}
-                  </Label>
-                  <Input
-                    id="brandingPrimary"
-                    value={watch("landingPage.branding.primaryColor") || ""}
-                    onChange={(event) =>
-                      setValue(
-                        "landingPage.branding.primaryColor",
-                        event.target.value,
-                        { shouldDirty: true },
-                      )
-                    }
-                    disabled={fieldsDisabled}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="brandingSecondary">
-                    {t("organization.landingPageForm.brandingSecondary")}
-                  </Label>
-                  <Input
-                    id="brandingSecondary"
-                    value={watch("landingPage.branding.secondaryColor") || ""}
-                    onChange={(event) =>
-                      setValue(
-                        "landingPage.branding.secondaryColor",
-                        event.target.value,
-                        { shouldDirty: true },
-                      )
-                    }
-                    disabled={fieldsDisabled}
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Preview</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-lg border border-dashed border-border bg-gradient-to-br from-muted/40 via-background to-muted/50 p-4">
-              <p className="text-sm font-semibold">Hero snapshot</p>
-              <p className="text-xs text-muted-foreground">
-                This reflects your hero title and imagery.
-              </p>
-              <div className="mt-4 space-y-2">
-                <p className="text-base font-semibold">
-                  {watch("landingPage.hero.title") || organization.name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {watch("landingPage.hero.subtitle") || organization.industry || "Add a short description."}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                    {watch("landingPage.hero.ctaLabel") || "Call to action"}
+              <div className={`space-y-2 transition-opacity ${landingEnabled ? "" : "opacity-50 pointer-events-none"}`}>
+                <Label htmlFor="slug">{t("organization.landingPageForm.slug")}</Label>
+                <div className="flex">
+                  <span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+                    https://
+                  </span>
+                  <Input
+                    id="slug"
+                    value={slug}
+                    placeholder={t("organization.landingPageForm.slugPlaceholder")}
+                    onChange={(event) => handleSlugChange(event.target.value)}
+                    disabled={isLoading || !landingEnabled}
+                    className="rounded-l-none"
+                  />
+                  <span className="inline-flex items-center rounded-r-md border border-l-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+                    .{rootDomain}
                   </span>
                 </div>
-              </div>
-            </div>
-            {previewUrl ? (
-              <div className="text-sm text-muted-foreground">
-                Preview:{" "}
-                <a
-                  href={previewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {previewUrl}
-                </a>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Add a valid slug to generate a preview URL.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("organization.landingPageForm.heroTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="heroTitle">
-              {t("organization.landingPageForm.heroHeading")}
-            </Label>
-            <Input
-              id="heroTitle"
-              value={watch("landingPage.hero.title") || ""}
-              onChange={(event) =>
-                setValue("landingPage.hero.title", event.target.value, {
-                  shouldDirty: true,
-                })
-              }
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="heroCta">
-              {t("organization.landingPageForm.heroCta")}
-            </Label>
-            <Input
-              id="heroCta"
-              value={watch("landingPage.hero.ctaLabel") || ""}
-              onChange={(event) =>
-                setValue("landingPage.hero.ctaLabel", event.target.value, {
-                  shouldDirty: true,
-                })
-              }
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="heroSubtitle">
-              {t("organization.landingPageForm.heroSubtitle")}
-            </Label>
-            <Textarea
-              id="heroSubtitle"
-              value={watch("landingPage.hero.subtitle") || ""}
-              onChange={(event) =>
-                setValue("landingPage.hero.subtitle", event.target.value, {
-                  shouldDirty: true,
-                })
-              }
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="heroVideo">
-              {t("organization.landingPageForm.heroVideo")}
-            </Label>
-            <Input
-              id="heroVideo"
-              value={watch("landingPage.hero.backgroundVideoUrl") || ""}
-              onChange={(event) =>
-                setValue(
-                  "landingPage.hero.backgroundVideoUrl",
-                  event.target.value,
-                  { shouldDirty: true },
-                )
-              }
-              disabled={fieldsDisabled}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="heroImage">
-              {t("organization.landingPageForm.heroImage")}
-            </Label>
-            <Input
-              id="heroImage"
-              value={watch("landingPage.hero.backgroundImageUrl") || ""}
-              onChange={(event) =>
-                setValue(
-                  "landingPage.hero.backgroundImageUrl",
-                  event.target.value,
-                  { shouldDirty: true },
-                )
-              }
-              disabled={fieldsDisabled}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("organization.landingPageForm.galleryTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {imageUrls.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                {t("organization.landingPageForm.galleryEmpty")}
-              </p>
-            )}
-            {imageUrls.map((url, index) => (
-              <div key={`${index}-${url}`} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_120px]">
-                <Input
-                  value={url}
-                  onChange={(event) =>
-                    handleUpdateImage(index, event.target.value)
-                  }
-                  placeholder={t("organization.landingPageForm.galleryPlaceholder")}
-                  disabled={fieldsDisabled}
-                />
-                <div className="flex items-center gap-2">
-                  {url ? (
-                    <img
-                      src={url}
-                      alt={`Gallery ${index + 1}`}
-                      className="h-16 w-24 rounded-md border border-border object-cover"
-                    />
-                  ) : (
-                    <div className="h-16 w-24 rounded-md border border-dashed border-border bg-muted/40" />
+                <div className="flex flex-wrap items-center gap-3 text-sm mt-2">
+                  {slugStatus === "checking" && (
+                    <span className="text-muted-foreground">
+                      {t("organization.landingPageForm.slugChecking")}
+                    </span>
                   )}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveImage(index)}
-                    disabled={fieldsDisabled}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {slugStatus === "available" && (
+                    <span className="text-emerald-600 flex items-center gap-1">
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      {t("organization.landingPageForm.slugAvailable")}
+                    </span>
+                  )}
+                  {slugStatus === "taken" && (
+                    <span className="text-red-500">
+                      {t("organization.landingPageForm.slugTaken") || "Slug is taken"}
+                    </span>
+                  )}
+                  {slugStatus === "invalid" && slug && (
+                    <span className="text-red-500">
+                      {t("organization.landingPageForm.slugInvalid") || "Invalid slug format"}
+                    </span>
+                  )}
+                  {showSlugError && (
+                    <span className="text-red-500">
+                      {t("organization.landingPageForm.slugRequired") || "Slug is required when enabled"}
+                    </span>
+                  )}
                 </div>
               </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleAddImage}
-              disabled={fieldsDisabled}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              {t("organization.landingPageForm.galleryAdd")}
-            </Button>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="design" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px] xl:grid-cols-[1.1fr_0.9fr]">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle>Template & Theme</CardTitle>
+                <p className="text-sm text-muted-foreground">Define the layout and brand colors of your landing page.</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Template selector */}
+                <div className="space-y-3">
+                  <Label>Layout Template</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className={`relative flex cursor-pointer flex-col gap-4 rounded-xl border p-4 transition-all hover:bg-muted/50 ${templateId === "first-class" ? "border-primary ring-1 ring-primary/20 bg-primary/5" : "border-border"}`}>
+                      <input
+                        type="radio"
+                        className="peer sr-only"
+                        value="first-class"
+                        checked={templateId === "first-class"}
+                        onChange={(e) => setValue("landingPage.templateId", e.target.value as "first-class", { shouldDirty: true })}
+                        disabled={fieldsDisabled}
+                      />
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <p className="font-medium text-sm">First Class (Standard)</p>
+                          <p className="text-xs text-muted-foreground">Editorial layout with hero, services, gallery, and team.</p>
+                        </div>
+                        <div className={`h-4 w-4 rounded-full border border-primary flex items-center justify-center ${templateId === "first-class" ? "bg-primary" : "bg-transparent border-input"}`}>
+                          {templateId === "first-class" && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                        </div>
+                      </div>
+                    </label>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("organization.landingPageForm.socialTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="socialInstagram">
-                {t("organization.landingPageForm.socialInstagram")}
-              </Label>
-              <Input
-                id="socialInstagram"
-                value={watch("landingPage.social.instagram") || ""}
-                onChange={(event) =>
-                  setValue("landingPage.social.instagram", event.target.value, {
-                    shouldDirty: true,
-                  })
-                }
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="socialFacebook">
-                {t("organization.landingPageForm.socialFacebook")}
-              </Label>
-              <Input
-                id="socialFacebook"
-                value={watch("landingPage.social.facebook") || ""}
-                onChange={(event) =>
-                  setValue("landingPage.social.facebook", event.target.value, {
-                    shouldDirty: true,
-                  })
-                }
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="socialTiktok">
-                {t("organization.landingPageForm.socialTiktok")}
-              </Label>
-              <Input
-                id="socialTiktok"
-                value={watch("landingPage.social.tiktok") || ""}
-                onChange={(event) =>
-                  setValue("landingPage.social.tiktok", event.target.value, {
-                    shouldDirty: true,
-                  })
-                }
-                disabled={fieldsDisabled}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                    <label className={`relative flex cursor-pointer flex-col gap-4 rounded-xl border p-4 transition-all hover:bg-muted/50 ${templateId === "clinic" ? "border-primary ring-1 ring-primary/20 bg-primary/5" : "border-border"}`}>
+                      <input
+                        type="radio"
+                        className="peer sr-only"
+                        value="clinic"
+                        checked={templateId === "clinic"}
+                        onChange={(e) => setValue("landingPage.templateId", e.target.value as "clinic", { shouldDirty: true })}
+                        disabled={fieldsDisabled}
+                      />
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <p className="font-medium text-sm">Clinic</p>
+                          <p className="text-xs text-muted-foreground">Clean, modern light-themed layout for medical businesses.</p>
+                        </div>
+                        <div className={`h-4 w-4 rounded-full border border-primary flex items-center justify-center ${templateId === "clinic" ? "bg-primary" : "bg-transparent border-input"}`}>
+                          {templateId === "clinic" && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("organization.landingPageForm.locationTitle")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="locationSectionTitle">
-                {t("organization.landingPageForm.locationSectionTitle")}
-              </Label>
-              <Input
-                id="locationSectionTitle"
-                value={watch("landingPage.location.sectionTitle") || ""}
-                onChange={(event) =>
-                  setValue(
-                    "landingPage.location.sectionTitle",
-                    event.target.value,
-                    { shouldDirty: true },
-                  )
-                }
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="locationSectionDescription">
-                {t("organization.landingPageForm.locationSectionDescription")}
-              </Label>
-              <Textarea
-                id="locationSectionDescription"
-                value={watch("landingPage.location.sectionDescription") || ""}
-                onChange={(event) =>
-                  setValue(
-                    "landingPage.location.sectionDescription",
-                    event.target.value,
-                    { shouldDirty: true },
-                  )
-                }
-                disabled={fieldsDisabled}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="locationMap">
-                {t("organization.landingPageForm.locationMap")}
-              </Label>
-              <Input
-                id="locationMap"
-                value={watch("landingPage.location.mapEmbedUrl") || ""}
-                onChange={(event) =>
-                  setValue(
-                    "landingPage.location.mapEmbedUrl",
-                    event.target.value,
-                    { shouldDirty: true },
-                  )
-                }
-                disabled={fieldsDisabled}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brandingLogo">
+                    {t("organization.landingPageForm.brandingLogo")}
+                  </Label>
+                  <p className="text-xs text-muted-foreground mb-2">Upload a high-quality logo with a transparent background.</p>
+                  <div className="flex items-center gap-3">
+                    {watch("landingPage.branding.logoUrl") ? (
+                      <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md border border-border/70 bg-muted/30 flex items-center justify-center p-1">
+                        <img
+                          src={watch("landingPage.branding.logoUrl")}
+                          alt="Logo preview"
+                          className="h-full w-full object-contain"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex h-14 w-24 shrink-0 items-center justify-center rounded-md border border-dashed border-border/70 bg-muted/20 text-xs text-muted-foreground">
+                        No Logo
+                      </div>
+                    )}
+                    <Input
+                      id="brandingLogo"
+                      value={watch("landingPage.branding.logoUrl") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.branding.logoUrl", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      placeholder="https://your-image-url.com/logo.png"
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 rounded-xl border border-border/50 bg-muted/10 p-4">
+                  <ColorPickerField
+                    id="brandingPrimary"
+                    label={t("organization.landingPageForm.brandingPrimary")}
+                    description="Used for buttons, accents, and highlights."
+                    value={primaryColor}
+                    onChange={(v) =>
+                      setValue("landingPage.branding.primaryColor", v, { shouldDirty: true })
+                    }
+                    disabled={fieldsDisabled}
+                  />
+                  <ColorPickerField
+                    id="brandingSecondary"
+                    label={t("organization.landingPageForm.brandingSecondary")}
+                    description="Optional secondary accent color."
+                    value={watch("landingPage.branding.secondaryColor") || ""}
+                    onChange={(v) =>
+                      setValue("landingPage.branding.secondaryColor", v, { shouldDirty: true })
+                    }
+                    disabled={fieldsDisabled}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="footerTagline">Footer Tagline</Label>
+                  <p className="text-xs text-muted-foreground">A short description shown in the footer under your logo.</p>
+                  <Input
+                    id="footerTagline"
+                    value={watch("landingPage.footerTagline") || ""}
+                    onChange={(event) =>
+                      setValue("landingPage.footerTagline", event.target.value, { shouldDirty: true })
+                    }
+                    disabled={fieldsDisabled}
+                    placeholder="Your trusted healthcare partner"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 shadow-sm h-fit sticky top-6">
+              <CardHeader className="pb-4">
+                <CardTitle>Live Preview</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-xl shadow-sm border border-border overflow-hidden ring-1 ring-border/5">
+                  <div
+                    className="relative flex flex-col items-center justify-center p-8 text-white min-h-64"
+                    style={{
+                      background: watch("landingPage.hero.backgroundImageUrl")
+                        ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url(${watch("landingPage.hero.backgroundImageUrl")}) center/cover`
+                        : `linear-gradient(135deg, #0f172a, ${primaryColor}80, #0f172a)`,
+                    }}
+                  >
+                    <div className="text-center w-full z-10 px-4">
+                      {watch("landingPage.branding.logoUrl") && (
+                        <img
+                          src={watch("landingPage.branding.logoUrl")}
+                          alt="Logo"
+                          className="h-8 mx-auto mb-4 object-contain opacity-90"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      )}
+                      <h4 className="text-2xl font-bold leading-tight mb-2 max-w-sm mx-auto">
+                        {watch("landingPage.hero.title") || organization.name}
+                      </h4>
+                      <p className="text-sm opacity-80 mb-6 max-w-sm mx-auto line-clamp-2">
+                        {watch("landingPage.hero.subtitle") || organization.industry || "Add a subtitle to your hero section"}
+                      </p>
+                      <span
+                        className="inline-flex px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-md"
+                        style={{ backgroundColor: primaryColor, color: "#fff" }}
+                      >
+                        {watch("landingPage.hero.ctaLabel") || "Book Now"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="bg-slate-900 border-t border-slate-800 px-4 py-3 text-center flex items-center justify-between">
+                    <p className="text-slate-400 text-xs truncate max-w-xs text-left">
+                      {watch("landingPage.footerTagline") || `© ${organization.name}`}
+                    </p>
+                    <div className="flex gap-2">
+                      <div className="h-4 w-4 rounded-full bg-slate-700"></div>
+                      <div className="h-4 w-4 rounded-full bg-slate-700"></div>
+                    </div>
+                  </div>
+                </div>
+                {previewUrl ? (
+                  <div className="text-sm text-center pt-2">
+                    <a
+                      href={previewUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                    >
+                      Open Live Site <Share2 className="h-3 w-3" />
+                    </a>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center pt-2">
+                    Enable landing page and add a slug to generate a URL.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </div>
-          <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3">
-            {watch("landingPage.location.mapEmbedUrl") ? (
-              <iframe
-                title="Map preview"
-                src={watch("landingPage.location.mapEmbedUrl") || ""}
-                className="h-56 w-full rounded-md border border-border"
-                loading="lazy"
-              />
-            ) : (
-              <div className="flex h-56 items-center justify-center text-sm text-muted-foreground">
-                Map preview appears here.
+        </TabsContent>
+        <TabsContent value="hero" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
+          <Card className="border-border/50 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle>Hero Section</CardTitle>
+              <p className="text-sm text-muted-foreground">The first thing visitors see on your landing page.</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="heroTitle">
+                    {t("organization.landingPageForm.heroHeading")}
+                  </Label>
+                  <Input
+                    id="heroTitle"
+                    value={watch("landingPage.hero.title") || ""}
+                    onChange={(event) =>
+                      setValue("landingPage.hero.title", event.target.value, { shouldDirty: true })
+                    }
+                    disabled={fieldsDisabled}
+                    placeholder="E.g. The Best Clinic in Town"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="heroCta">
+                    {t("organization.landingPageForm.heroCta")}
+                  </Label>
+                  <Input
+                    id="heroCta"
+                    value={watch("landingPage.hero.ctaLabel") || ""}
+                    onChange={(event) =>
+                      setValue("landingPage.hero.ctaLabel", event.target.value, { shouldDirty: true })
+                    }
+                    disabled={fieldsDisabled}
+                    placeholder="Book Appointment"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="heroSubtitle">
+                    {t("organization.landingPageForm.heroSubtitle")}
+                  </Label>
+                  <Textarea
+                    id="heroSubtitle"
+                    value={watch("landingPage.hero.subtitle") || ""}
+                    onChange={(event) =>
+                      setValue("landingPage.hero.subtitle", event.target.value, { shouldDirty: true })
+                    }
+                    disabled={fieldsDisabled}
+                    rows={3}
+                  />
+                </div>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
-      <Accordion type="single" collapsible className="space-y-4">
-        <AccordionItem value="copy-overrides" className="border-none">
-          <AccordionTrigger className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-left">
-            {t("organization.landingPageForm.copyTitle")}
-          </AccordionTrigger>
-          <AccordionContent className="pt-4">
-            <Card>
-              <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 pt-6">
+              <div className="rounded-xl border border-border/50 bg-muted/10 p-5 space-y-6">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold">Background Media</h4>
+                  <p className="text-xs text-muted-foreground">Add a stunning image or video loop to the background.</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="heroImage">
+                      {t("organization.landingPageForm.heroImage")}
+                    </Label>
+                    <Input
+                      id="heroImage"
+                      value={watch("landingPage.hero.backgroundImageUrl") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.hero.backgroundImageUrl", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="heroVideo">
+                      {t("organization.landingPageForm.heroVideo")}
+                    </Label>
+                    <Input
+                      id="heroVideo"
+                      value={watch("landingPage.hero.backgroundVideoUrl") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.hero.backgroundVideoUrl", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      placeholder="https://... (.mp4)"
+                    />
+                  </div>
+                </div>
+                {(watch("landingPage.hero.backgroundImageUrl") || watch("landingPage.hero.backgroundVideoUrl")) && (
+                  <div className="aspect-21/9 w-full rounded-xl border border-border/50 overflow-hidden bg-black/10 flex items-center justify-center relative ring-1 ring-border/10 shadow-sm">
+                    {watch("landingPage.hero.backgroundVideoUrl") ? (
+                      <video src={watch("landingPage.hero.backgroundVideoUrl")} className="absolute inset-0 w-full h-full object-cover" autoPlay loop muted playsInline />
+                    ) : watch("landingPage.hero.backgroundImageUrl") ? (
+                      <img src={watch("landingPage.hero.backgroundImageUrl")} className="absolute inset-0 w-full h-full object-cover" alt="Background Preview" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    ) : null}
+                    <div className="relative z-10 bg-black/60 px-3 py-1.5 rounded-full text-white text-xs backdrop-blur-md">Media Preview</div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="content" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
+          <div className="space-y-6">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <CardTitle>{t("organization.landingPageForm.galleryTitle")}</CardTitle>
+                  <p className="text-sm text-muted-foreground">Manage the images displayed in the website gallery.</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddImage}
+                  disabled={fieldsDisabled}
+                  className="flex items-center gap-2 h-9 w-full md:w-auto shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("organization.landingPageForm.galleryAdd")}
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {imageUrls.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-10 rounded-xl border border-dashed border-border/70 bg-muted/20">
+                    <ImageIcon className="h-8 w-8 text-muted-foreground mb-3 opacity-50" />
+                    <p className="text-sm text-muted-foreground font-medium">
+                      {t("organization.landingPageForm.galleryEmpty")}
+                    </p>
+                    <Button type="button" variant="link" onClick={handleAddImage} className="mt-2 h-auto p-0">
+                      Add your first image
+                    </Button>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {imageUrls.map((url, index) => (
+                    <div key={`${index}-${url}`} className="flex flex-col gap-3 rounded-xl border border-border/50 bg-muted/10 p-3 relative group">
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-3 -right-3 h-7 w-7 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        onClick={() => handleRemoveImage(index)}
+                        disabled={fieldsDisabled}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <div className="aspect-video w-full rounded-md border border-border/50 bg-muted/50 overflow-hidden flex items-center justify-center">
+                        {url ? (
+                          <img
+                            src={url}
+                            alt={`Gallery ${index + 1}`}
+                            className="h-full w-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        ) : (
+                          <ImageIcon className="h-6 w-6 text-muted-foreground opacity-30" />
+                        )}
+                      </div>
+                      <Input
+                        value={url}
+                        onChange={(event) => handleUpdateImage(index, event.target.value)}
+                        placeholder={t("organization.landingPageForm.galleryPlaceholder")}
+                        disabled={fieldsDisabled}
+                        className="h-8 text-xs bg-background"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle>Copy Overrides</CardTitle>
+                <p className="text-sm text-muted-foreground">Customize default section headings to better fit your tone.</p>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="copyServicesTitle">
                     {t("organization.landingPageForm.copyServicesTitle")}
@@ -779,13 +862,10 @@ export function LandingPageSettingsForm({
                     id="copyServicesTitle"
                     value={watch("landingPage.copyOverrides.servicesTitle") || ""}
                     onChange={(event) =>
-                      setValue(
-                        "landingPage.copyOverrides.servicesTitle",
-                        event.target.value,
-                        { shouldDirty: true },
-                      )
+                      setValue("landingPage.copyOverrides.servicesTitle", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
+                    placeholder="E.g. Our Offerings"
                   />
                 </div>
                 <div className="space-y-2">
@@ -796,13 +876,10 @@ export function LandingPageSettingsForm({
                     id="copyTeamTitle"
                     value={watch("landingPage.copyOverrides.teamTitle") || ""}
                     onChange={(event) =>
-                      setValue(
-                        "landingPage.copyOverrides.teamTitle",
-                        event.target.value,
-                        { shouldDirty: true },
-                      )
+                      setValue("landingPage.copyOverrides.teamTitle", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
+                    placeholder="E.g. Meet the Staff"
                   />
                 </div>
                 <div className="space-y-2">
@@ -813,11 +890,7 @@ export function LandingPageSettingsForm({
                     id="copyTeamSubtitle"
                     value={watch("landingPage.copyOverrides.teamSubtitle") || ""}
                     onChange={(event) =>
-                      setValue(
-                        "landingPage.copyOverrides.teamSubtitle",
-                        event.target.value,
-                        { shouldDirty: true },
-                      )
+                      setValue("landingPage.copyOverrides.teamSubtitle", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
                   />
@@ -830,27 +903,205 @@ export function LandingPageSettingsForm({
                     id="copyGalleryTitle"
                     value={watch("landingPage.copyOverrides.galleryTitle") || ""}
                     onChange={(event) =>
-                      setValue(
-                        "landingPage.copyOverrides.galleryTitle",
-                        event.target.value,
-                        { shouldDirty: true },
-                      )
+                      setValue("landingPage.copyOverrides.galleryTitle", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
+                    placeholder="E.g. Our Portfolio"
                   />
                 </div>
               </CardContent>
             </Card>
-          </AccordionContent>
-        </AccordionItem>
 
-        <AccordionItem value="seo" className="border-none">
-          <AccordionTrigger className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-left">
-            {t("organization.landingPageForm.seoTitle")}
-          </AccordionTrigger>
-          <AccordionContent className="pt-4">
-            <Card>
-              <CardContent className="space-y-4 pt-6">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2"><Info className="h-4 w-4" />About Us</CardTitle>
+                  <p className="text-sm text-muted-foreground">Customise the "About Us" section on the clinic template.</p>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="aboutUsTitle">Section Title</Label>
+                    <Input
+                      id="aboutUsTitle"
+                      value={watch("landingPage.aboutUs.title") || ""}
+                      onChange={(e) => setValue("landingPage.aboutUs.title", e.target.value, { shouldDirty: true })}
+                      disabled={fieldsDisabled}
+                      placeholder="Trusted Healthcare Since 2005"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="aboutUsYears">Years of Service</Label>
+                    <Input
+                      id="aboutUsYears"
+                      value={watch("landingPage.aboutUs.yearsOfService") || ""}
+                      onChange={(e) => setValue("landingPage.aboutUs.yearsOfService", e.target.value, { shouldDirty: true })}
+                      disabled={fieldsDisabled}
+                      placeholder="20+"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="aboutUsDescription">Description</Label>
+                  <Textarea
+                    id="aboutUsDescription"
+                    value={watch("landingPage.aboutUs.description") || ""}
+                    onChange={(e) => setValue("landingPage.aboutUs.description", e.target.value, { shouldDirty: true })}
+                    disabled={fieldsDisabled}
+                    rows={3}
+                    placeholder="We are committed to providing exceptional healthcare services..."
+                  />
+                </div>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="aboutUsPatients">Patients Served</Label>
+                    <Input
+                      id="aboutUsPatients"
+                      value={watch("landingPage.aboutUs.patientsServed") || ""}
+                      onChange={(e) => setValue("landingPage.aboutUs.patientsServed", e.target.value, { shouldDirty: true })}
+                      disabled={fieldsDisabled}
+                      placeholder="50,000+"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="aboutUsSpecialists">Specialists</Label>
+                    <Input
+                      id="aboutUsSpecialists"
+                      value={watch("landingPage.aboutUs.specialists") || ""}
+                      onChange={(e) => setValue("landingPage.aboutUs.specialists", e.target.value, { shouldDirty: true })}
+                      disabled={fieldsDisabled}
+                      placeholder="25+"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="aboutUsSatisfaction">Patient Satisfaction</Label>
+                    <Input
+                      id="aboutUsSatisfaction"
+                      value={watch("landingPage.aboutUs.patientSatisfaction") || ""}
+                      onChange={(e) => setValue("landingPage.aboutUs.patientSatisfaction", e.target.value, { shouldDirty: true })}
+                      disabled={fieldsDisabled}
+                      placeholder="98%"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Key Highlights</Label>
+                    <Button type="button" variant="outline" size="sm" onClick={handleAddBullet} disabled={fieldsDisabled} className="gap-1">
+                      <Plus className="h-3.5 w-3.5" /> Add
+                    </Button>
+                  </div>
+                  {aboutUsBullets.map((bullet, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={bullet}
+                        onChange={(e) => handleUpdateBullet(index, e.target.value)}
+                        disabled={fieldsDisabled}
+                        placeholder="e.g. State-of-the-art medical equipment"
+                        className="flex-1"
+                      />
+                      <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveBullet(index)} disabled={fieldsDisabled} className="shrink-0 text-destructive hover:text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2"><MessageSquareQuote className="h-4 w-4" />Testimonials</CardTitle>
+                  <p className="text-sm text-muted-foreground">Add patient reviews to display on the landing page.</p>
+                </div>
+                <Button type="button" variant="outline" onClick={handleAddTestimonial} disabled={fieldsDisabled} className="flex items-center gap-2 h-9 w-full md:w-auto shrink-0">
+                  <Plus className="h-4 w-4" /> Add Testimonial
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {testimonialItems.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-10 rounded-xl border border-dashed border-border/70 bg-muted/20">
+                    <MessageSquareQuote className="h-8 w-8 text-muted-foreground mb-3 opacity-50" />
+                    <p className="text-sm text-muted-foreground font-medium">No testimonials yet</p>
+                    <Button type="button" variant="link" onClick={handleAddTestimonial} className="mt-2 h-auto p-0">Add your first testimonial</Button>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 gap-4">
+                  {testimonialItems.map((item, index) => (
+                    <div key={index} className="relative rounded-xl border border-border/50 bg-muted/10 p-5 space-y-4 group">
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-3 -right-3 h-7 w-7 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        onClick={() => handleRemoveTestimonial(index)}
+                        disabled={fieldsDisabled}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <div className="space-y-2">
+                        <Label>Quote</Label>
+                        <Textarea
+                          value={item.quote || ""}
+                          onChange={(e) => handleUpdateTestimonial(index, "quote", e.target.value)}
+                          disabled={fieldsDisabled}
+                          rows={2}
+                          placeholder="The care I received was exceptional..."
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label>Author Name</Label>
+                          <Input
+                            value={item.authorName || ""}
+                            onChange={(e) => handleUpdateTestimonial(index, "authorName", e.target.value)}
+                            disabled={fieldsDisabled}
+                            placeholder="John Doe"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Role / Title</Label>
+                          <Input
+                            value={item.authorRole || ""}
+                            onChange={(e) => handleUpdateTestimonial(index, "authorRole", e.target.value)}
+                            disabled={fieldsDisabled}
+                            placeholder="Patient"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Rating</Label>
+                          <div className="flex items-center gap-1 pt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                disabled={fieldsDisabled}
+                                onClick={() => handleUpdateTestimonial(index, "rating", star)}
+                                className="p-0.5 transition-colors disabled:opacity-50"
+                              >
+                                <Star className={`h-5 w-5 ${star <= (item.rating || 5) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        <TabsContent value="marketing" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
+          <div className="space-y-6">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle>SEO Optimization</CardTitle>
+                <p className="text-sm text-muted-foreground">Improve how your landing page appears in search engines and social media.</p>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="seoTitle">
                     {t("organization.landingPageForm.seoMetaTitle")}
@@ -859,24 +1110,7 @@ export function LandingPageSettingsForm({
                     id="seoTitle"
                     value={watch("landingPage.seo.title") || ""}
                     onChange={(event) =>
-                      setValue("landingPage.seo.title", event.target.value, {
-                        shouldDirty: true,
-                      })
-                    }
-                    disabled={fieldsDisabled}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="seoDescription">
-                    {t("organization.landingPageForm.seoMetaDescription")}
-                  </Label>
-                  <Textarea
-                    id="seoDescription"
-                    value={watch("landingPage.seo.description") || ""}
-                    onChange={(event) =>
-                      setValue("landingPage.seo.description", event.target.value, {
-                        shouldDirty: true,
-                      })
+                      setValue("landingPage.seo.title", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
                   />
@@ -889,26 +1123,37 @@ export function LandingPageSettingsForm({
                     id="seoKeywords"
                     value={watch("landingPage.seo.keywords") || ""}
                     onChange={(event) =>
-                      setValue("landingPage.seo.keywords", event.target.value, {
-                        shouldDirty: true,
-                      })
+                      setValue("landingPage.seo.keywords", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
                   />
                 </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="seoDescription">
+                    {t("organization.landingPageForm.seoMetaDescription")}
+                  </Label>
+                  <Textarea
+                    id="seoDescription"
+                    value={watch("landingPage.seo.description") || ""}
+                    onChange={(event) =>
+                      setValue("landingPage.seo.description", event.target.value, { shouldDirty: true })
+                    }
+                    disabled={fieldsDisabled}
+                    rows={2}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="seoOgImage">
-                    {t("organization.landingPageForm.seoOgImage")}
+                    {t("organization.landingPageForm.seoOgImage")} <span className="text-muted-foreground text-xs font-normal">(Open Graph)</span>
                   </Label>
                   <Input
                     id="seoOgImage"
                     value={watch("landingPage.seo.ogImageUrl") || ""}
                     onChange={(event) =>
-                      setValue("landingPage.seo.ogImageUrl", event.target.value, {
-                        shouldDirty: true,
-                      })
+                      setValue("landingPage.seo.ogImageUrl", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
+                    placeholder="https://.../og-image.jpg"
                   />
                 </div>
                 <div className="space-y-2">
@@ -919,21 +1164,126 @@ export function LandingPageSettingsForm({
                     id="seoCanonical"
                     value={watch("landingPage.seo.canonicalHost") || ""}
                     onChange={(event) =>
-                      setValue("landingPage.seo.canonicalHost", event.target.value, {
-                        shouldDirty: true,
-                      })
+                      setValue("landingPage.seo.canonicalHost", event.target.value, { shouldDirty: true })
                     }
                     disabled={fieldsDisabled}
+                    placeholder="https://..."
                   />
                 </div>
               </CardContent>
             </Card>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
 
-      <div className="sticky bottom-6 z-10">
-        <div className="flex flex-col gap-3 rounded-lg border border-border bg-background/95 p-4 shadow-sm backdrop-blur md:flex-row md:items-center md:justify-between">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <Card className="border-border/50 shadow-sm flex flex-col">
+                <CardHeader className="pb-4">
+                  <CardTitle>{t("organization.landingPageForm.socialTitle")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-1">
+                  <div className="space-y-2">
+                    <Label htmlFor="socialInstagram">Instagram URL</Label>
+                    <Input
+                      id="socialInstagram"
+                      value={watch("landingPage.social.instagram") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.social.instagram", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      placeholder="https://instagram.com/..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="socialFacebook">Facebook URL</Label>
+                    <Input
+                      id="socialFacebook"
+                      value={watch("landingPage.social.facebook") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.social.facebook", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      placeholder="https://facebook.com/..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="socialTiktok">TikTok URL</Label>
+                    <Input
+                      id="socialTiktok"
+                      value={watch("landingPage.social.tiktok") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.social.tiktok", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      placeholder="https://tiktok.com/@..."
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/50 shadow-sm flex flex-col">
+                <CardHeader className="pb-4">
+                  <CardTitle>{t("organization.landingPageForm.locationTitle")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-1">
+                  <div className="space-y-2">
+                    <Label htmlFor="locationSectionTitle">
+                      {t("organization.landingPageForm.locationSectionTitle")}
+                    </Label>
+                    <Input
+                      id="locationSectionTitle"
+                      value={watch("landingPage.location.sectionTitle") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.location.sectionTitle", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="locationSectionDescription">
+                      {t("organization.landingPageForm.locationSectionDescription")}
+                    </Label>
+                    <Textarea
+                      id="locationSectionDescription"
+                      value={watch("landingPage.location.sectionDescription") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.location.sectionDescription", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="locationMap">
+                      Google Maps Embed URL
+                    </Label>
+                    <Input
+                      id="locationMap"
+                      value={watch("landingPage.location.mapEmbedUrl") || ""}
+                      onChange={(event) =>
+                        setValue("landingPage.location.mapEmbedUrl", event.target.value, { shouldDirty: true })
+                      }
+                      disabled={fieldsDisabled}
+                      placeholder="<iframe src=... /> link"
+                    />
+                  </div>
+                  {watch("landingPage.location.mapEmbedUrl") && (
+                    <div className="rounded-lg border border-dashed border-border/70 p-1 bg-muted/20">
+                      <iframe
+                        title="Map preview"
+                        src={watch("landingPage.location.mapEmbedUrl") || ""}
+                        className="h-32 w-full rounded border border-border"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* FOOTER_SECTION */}
+      <div className="sticky bottom-6 z-10 transition-transform mt-12">
+        <div className="flex flex-col gap-3 rounded-xl border border-border/50 bg-background/80 p-4 shadow-lg backdrop-blur-md md:flex-row md:items-center md:justify-between supports-backdrop-filter:bg-background/60">
           <div>
             <p className="text-sm font-medium">
               {landingEnabled ? "Ready to publish updates?" : "Landing page is disabled."}
@@ -949,23 +1299,24 @@ export function LandingPageSettingsForm({
               <Button
                 type="button"
                 variant="outline"
+                className="hover:bg-primary/5 hover:text-primary transition-colors"
                 onClick={() => window.open(previewUrl, "_blank", "noopener,noreferrer")}
               >
-                Preview
+                Preview Live Site
               </Button>
             )}
             <Button
               type="submit"
+              className="min-w-32 shadow-sm transition-all active:scale-[0.98]"
               disabled={
                 isLoading ||
-                (landingEnabled &&
-                  (slugStatus === "taken" || slugStatus === "invalid"))
+                (landingEnabled && (slugStatus === "taken" || slugStatus === "invalid"))
               }
             >
               {isLoading
                 ? t("organization.landingPageForm.saving")
                 : landingEnabled
-                  ? "Publish changes"
+                  ? "Publish Changes"
                   : t("organization.landingPageForm.save")}
             </Button>
           </div>
