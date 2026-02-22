@@ -50,7 +50,7 @@ const optionalSlugSchema = z.preprocess(
 
 export const LandingPageSettingsSchema = z.object({
   enabled: z.boolean().default(false),
-  templateId: z.literal("first-class").default("first-class"),
+  templateId: z.enum(["first-class", "clinic"]).default("first-class"),
   seo: z
     .object({
       title: z.string().optional(),
@@ -95,14 +95,37 @@ export const LandingPageSettingsSchema = z.object({
       sectionDescription: z.string().optional(),
     })
     .default({}),
+  aboutUs: z
+    .object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      patientsServed: z.string().optional(),
+      specialists: z.string().optional(),
+      yearsOfService: z.string().optional(),
+      patientSatisfaction: z.string().optional(),
+      bullets: z.array(z.string()).default([]),
+    })
+    .default({}),
+  testimonials: z
+    .object({
+      items: z.array(z.object({
+        quote: z.string(),
+        authorName: z.string(),
+        authorRole: z.string().optional(),
+        rating: z.number().default(5)
+      })).default([])
+    })
+    .default({}),
   copyOverrides: z
     .object({
       servicesTitle: z.string().optional(),
       teamTitle: z.string().optional(),
       teamSubtitle: z.string().optional(),
       galleryTitle: z.string().optional(),
+      locationTitle: z.string().optional(),
     })
     .optional(),
+  footerTagline: z.string().optional(),
 });
 
 export type LandingPageSettings = z.infer<typeof LandingPageSettingsSchema>;
