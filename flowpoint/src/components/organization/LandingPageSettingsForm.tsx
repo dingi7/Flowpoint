@@ -340,10 +340,12 @@ export function LandingPageSettingsForm({
         ? "bg-amber-500/15 text-amber-700 border-amber-500/30"
         : "bg-muted text-muted-foreground border-border";
 
-  const previewUrl =
-    slug && slugStatus !== "taken" && slugStatus !== "invalid"
-      ? `https://${slug}.${rootDomain}`
-      : null;
+  // const previewUrl =
+  //   slug && slugStatus !== "taken" && slugStatus !== "invalid"
+  //     ? `https://${slug}.${rootDomain}`
+  //     : null;
+
+  const previewUrl = `http://localhost:3000/${slug}`;
 
   const fieldsDisabled = isLoading || !landingEnabled;
 

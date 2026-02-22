@@ -1,6 +1,6 @@
 "use client";
 
-import { PricingTable, useOrganization } from "@clerk/clerk-react";
+import { PricingTable, useAuth, useOrganization } from "@clerk/clerk-react";
 import {
   CheckoutButton,
   SubscriptionDetailsButton,
@@ -72,6 +72,7 @@ function getInvoiceLabel(statementId: string, index: number): string {
 export default function BillingPage() {
   const location = useLocation();
   const { organization } = useOrganization();
+  const { isLoaded: isAuthLoaded, orgRole } = useAuth();
 
   const stateFrom = (location.state as { from?: string } | null)?.from;
   const searchParams = new URLSearchParams(location.search);
@@ -81,6 +82,11 @@ export default function BillingPage() {
   const [invoiceFilter, setInvoiceFilter] = useState<InvoiceFilter>("all");
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [invoiceSort, setInvoiceSort] = useState<InvoiceSort>("most_recent");
+
+  const isOrganizationOwner =
+    Boolean(organization) &&
+    isAuthLoaded &&
+    (orgRole === "org:admin" || orgRole === "org:owner");
 
   const plans = usePlans({
     for: "organization",
@@ -254,16 +260,30 @@ export default function BillingPage() {
           </Card>
         ) : (
           <>
+            {!isOrganizationOwner ? (
+              <Card>
+                <CardContent className="text-sm text-muted-foreground">
+                  Plan settings can only be managed by organization owners.
+                </CardContent>
+              </Card>
+            ) : null}
+
             {showPricingFallback ? (
               <div className="rounded-2xl border border-border bg-card p-5">
                 <p className="mb-4 text-sm text-muted-foreground">
                   Custom plan cards are unavailable for this account, so the
                   default billing table is shown.
                 </p>
-                <PricingTable
-                  for="organization"
-                  newSubscriptionRedirectUrl={returnTo}
-                />
+                {isOrganizationOwner ? (
+                  <PricingTable
+                    for="organization"
+                    newSubscriptionRedirectUrl={returnTo}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Contact an organization owner to update the plan.
+                  </p>
+                )}
               </div>
             ) : (
               <section className="rounded-3xl bg-muted/40 ">
@@ -318,30 +338,50 @@ export default function BillingPage() {
 
                             {isCurrentPlan ? (
                               <div className="mt-auto">
-                                <SubscriptionDetailsButton for="organization">
+                                {isOrganizationOwner ? (
+                                  <SubscriptionDetailsButton for="organization">
+                                    <Button
+                                      variant="outline"
+                                      className="h-9 w-full text-sm font-semibold"
+                                    >
+                                      Current plan
+                                    </Button>
+                                  </SubscriptionDetailsButton>
+                                ) : (
                                   <Button
                                     variant="outline"
                                     className="h-9 w-full text-sm font-semibold"
+                                    disabled
                                   >
                                     Current plan
                                   </Button>
-                                </SubscriptionDetailsButton>
+                                )}
                               </div>
                             ) : (
                               <div className="mt-auto">
-                                <CheckoutButton
-                                  for="organization"
-                                  planId={plan.id}
-                                  planPeriod="month"
-                                  newSubscriptionRedirectUrl={returnTo}
-                                >
+                                {isOrganizationOwner ? (
+                                  <CheckoutButton
+                                    for="organization"
+                                    planId={plan.id}
+                                    planPeriod="month"
+                                    newSubscriptionRedirectUrl={returnTo}
+                                  >
+                                    <Button
+                                      variant="outline"
+                                      className="h-9 w-full text-sm font-semibold"
+                                    >
+                                      Switch to this plan
+                                    </Button>
+                                  </CheckoutButton>
+                                ) : (
                                   <Button
                                     variant="outline"
                                     className="h-9 w-full text-sm font-semibold"
+                                    disabled
                                   >
-                                    Switch to this plan
+                                    Only owners can switch plans
                                   </Button>
-                                </CheckoutButton>
+                                )}
                               </div>
                             )}
                           </CardContent>
