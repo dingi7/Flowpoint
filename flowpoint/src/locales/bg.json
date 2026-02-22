@@ -149,7 +149,7 @@
             "save": "Save landing page",
             "saving": "Saving..."
         },
-            "emailTemplates": {
+        "emailTemplates": {
             "title": "Имейл шаблони",
             "description": "Персонализирайте имейл известията, изпращани на клиенти за потвърждения, напомняния, заявки за отзив и напомняния за повторно записване. Използвайте променливи като {{customerName}}, за да вмъкнете динамично съдържание.",
             "confirmationEmail": "Имейл за потвърждение",
@@ -304,7 +304,9 @@
                 "inviteUpdated": "Покана обновена",
                 "inviteDeleted": "Покана изтрита"
             }
-        }
+        },
+        "apiLockedTooltip": "Отключва се с план Business",
+        "apiLockedDescription": "Надградете към план Business, за да управлявате API ключове и webhook-и."
     },
     "common": {
         "language": "Език",
@@ -670,7 +672,9 @@
             "durationPlaceholder": "30",
             "descriptionPlaceholder": "Въведете описание на услугата"
         },
-        "errorLoading": "Грешка при зареждане на услуги"
+        "errorLoading": "Грешка при зареждане на услуги",
+        "freeLimitReachedTooltip": "Безплатният план позволява до 2 услуги.",
+        "freeLimitReached": "Безплатният план позволява до 2 услуги."
     },
     "team": {
         "title": "Управление на екип",
@@ -781,7 +785,9 @@
                 "cancel": "Отмени",
                 "sending": "Изпращане на покана...",
                 "send": "Изпрати покана"
-            }
+            },
+            "memberLimitReached": "Безплатният план позволява до 2 активни члена.",
+            "sendError": "Грешка при създаване на покана."
         },
         "invitation": {
             "acceptModal": {
@@ -791,7 +797,6 @@
                 "fullName": "Пълно име",
                 "fullNamePlaceholder": "Въведете вашето пълно име",
                 "fullNameDescription": "Така вашето име ще се показва на другите членове",
-                "description": "Описание (По избор)",
                 "descriptionPlaceholder": "Разкажете ни малко за себе си и ролята си...",
                 "descriptionHelp": "Кратко описание за вас и ролята ви в организацията",
                 "profileImage": "Профилна снимка (По избор)",
@@ -852,7 +857,8 @@
                 "cancelInvite": "Отмени покана",
                 "noResults": "Няма намерени покани, отговарящи на критериите ви."
             }
-        }
+        },
+        "memberLimitReachedTooltip": "Безплатният план позволява до 2 активни члена."
     },
     "calendar": {
         "title": "Календар",

@@ -1,5 +1,6 @@
 "use client";
 
+import { FREE_LIMITS, PLANS } from "@/billing/config";
 import { DraggableServiceList } from "@/components/service/DraggableServiceList";
 import { ServiceDetails } from "@/components/service/ServiceDetails";
 import { ServiceForm } from "@/components/service/ServiceForm";
@@ -22,6 +23,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Service } from "@/core";
 import {
   useDeleteService,
@@ -30,6 +36,7 @@ import {
 import { useReorderServices } from "@/hooks/service-hooks/service/use-reorder-services";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { formatPrice } from "@/utils/price-format";
+import { useAuth } from "@clerk/clerk-react";
 import {
   Clock,
   DollarSign,
@@ -52,6 +59,7 @@ export default function ServicesPage() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const { t } = useTranslation();
+  const { isLoaded, orgId, has } = useAuth();
 
   // Service hooks
   const currentOrganizationId = useCurrentOrganizationId();
@@ -69,6 +77,10 @@ export default function ServicesPage() {
 
   // Get flattened services data for stats
   const allServices = servicesQuery.data?.pages?.flatMap((page) => page) || [];
+  const isFreePlan =
+    !!orgId && (isLoaded ? has({ plan: PLANS.freeOrg }) : false);
+  const isServiceLimitReached =
+    isFreePlan && allServices.length >= FREE_LIMITS.services;
 
   // Stats data
   const stats = {
@@ -155,12 +167,32 @@ export default function ServicesPage() {
         </div>
         <div className="mt-4 sm:mt-0">
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" variant="default">
-                <Plus className="h-4 w-4" />
-                {t("services.add")}
-              </Button>
-            </DialogTrigger>
+            {isServiceLimitReached ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <DialogTrigger asChild>
+                      <Button
+                        className="gap-2 pointer-events-none"
+                        variant="default"
+                        disabled
+                      >
+                        <Plus className="h-4 w-4" />
+                        {t("services.add")}
+                      </Button>
+                    </DialogTrigger>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{t("services.freeLimitReachedTooltip")}</TooltipContent>
+              </Tooltip>
+            ) : (
+              <DialogTrigger asChild>
+                <Button className="gap-2" variant="default">
+                  <Plus className="h-4 w-4" />
+                  {t("services.add")}
+                </Button>
+              </DialogTrigger>
+            )}
             <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{t("services.addNew")}</DialogTitle>

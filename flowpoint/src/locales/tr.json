@@ -304,7 +304,9 @@
                 "inviteUpdated": "Invite Updated",
                 "inviteDeleted": "Invite Deleted"
             }
-        }
+        },
+        "apiLockedTooltip": "Unlocks with Business plan",
+        "apiLockedDescription": "Upgrade to the Business plan to manage API keys and webhooks."
     },
     "common": {
         "language": "Dil",
@@ -670,7 +672,9 @@
             "durationPlaceholder": "30",
             "descriptionPlaceholder": "Enter service description"
         },
-        "errorLoading": "Error loading services"
+        "errorLoading": "Error loading services",
+        "freeLimitReachedTooltip": "Free plan allows up to 2 services.",
+        "freeLimitReached": "Free plan allows up to 2 services."
     },
     "team": {
         "title": "Team Management",
@@ -781,7 +785,9 @@
                 "cancel": "Cancel",
                 "sending": "Sending Invite...",
                 "send": "Send Invite"
-            }
+            },
+            "memberLimitReached": "Free plan allows up to 2 active members.",
+            "sendError": "Failed to create invite."
         },
         "invitation": {
             "acceptModal": {
@@ -791,7 +797,6 @@
                 "fullName": "Full Name",
                 "fullNamePlaceholder": "Enter your full name",
                 "fullNameDescription": "This is how your name will appear to other members",
-                "description": "Description (Optional)",
                 "descriptionPlaceholder": "Tell us a bit about yourself and your role...",
                 "descriptionHelp": "A brief description about yourself and your role in the organization",
                 "profileImage": "Profile Image (Optional)",
@@ -852,7 +857,8 @@
                 "cancelInvite": "Cancel Invite",
                 "noResults": "No invites found matching your criteria."
             }
-        }
+        },
+        "memberLimitReachedTooltip": "Free plan allows up to 2 active members."
     },
     "calendar": {
         "title": "Calendar",

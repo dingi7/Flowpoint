@@ -1,3 +1,4 @@
+import { CALENDAR_SYNC_CONNECTION_STATUS } from "@/core";
 import { ensureSelfMemberAccess } from "@/app/calendar-sync/authorization";
 import {
   mapConnectionToStatusResponse,
@@ -51,16 +52,27 @@ export const getMyCalendarSyncStatus = onCall<Payload>(
 
     const statusResponse = mapConnectionToStatusResponse(connection);
 
-    if (connection?.icsTokenSecretId) {
-      const rawIcsToken = await secretManagerService.getSecret(
-        connection.icsTokenSecretId,
-      );
-      if (rawIcsToken) {
-        const icsUrl = new URL(getFunctionUrl("memberCalendarIcsFeed"));
-        icsUrl.searchParams.set("organizationId", organizationId);
-        icsUrl.searchParams.set("memberId", memberId);
-        icsUrl.searchParams.set("token", rawIcsToken);
-        statusResponse.appleIcsUrl = icsUrl.toString();
+    if (
+      connection?.status === CALENDAR_SYNC_CONNECTION_STATUS.CONNECTED &&
+      connection.icsTokenSecretId
+    ) {
+      try {
+        const rawIcsToken = await secretManagerService.getSecret(
+          connection.icsTokenSecretId,
+        );
+        if (rawIcsToken) {
+          const icsUrl = new URL(getFunctionUrl("memberCalendarIcsFeed"));
+          icsUrl.searchParams.set("organizationId", organizationId);
+          icsUrl.searchParams.set("memberId", memberId);
+          icsUrl.searchParams.set("token", rawIcsToken);
+          statusResponse.appleIcsUrl = icsUrl.toString();
+        }
+      } catch (error) {
+        loggerService.warn("Failed to resolve ICS secret for status response", {
+          organizationId,
+          memberId,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     }
 

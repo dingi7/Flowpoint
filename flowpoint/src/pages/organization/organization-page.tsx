@@ -31,6 +31,11 @@ export default function OrganizationPage() {
     !orgId || (!isLoaded ? true : has({ feature: FEATURES.landingPage }));
   const isLandingPageLocked =
     isLoaded && !!orgId && !has({ feature: FEATURES.landingPage });
+  const hasApiFeature = !orgId || (!isLoaded ? true : has({ feature: FEATURES.api }));
+  const hasWebhooksFeature =
+    !orgId || (!isLoaded ? true : has({ feature: FEATURES.webhooks }));
+  const hasApiAccess = hasApiFeature && hasWebhooksFeature;
+  const isApiLocked = isLoaded && !!orgId && !hasApiAccess;
 
   const handleUpdateOrganization = async (data: OrganizationData) => {
     if (!selectedOrganization) return;
@@ -130,7 +135,24 @@ export default function OrganizationPage() {
                 {t("organization.landingPage")}
               </TabsTrigger>
             )}
-            <TabsTrigger value="api">{t("organization.api")}</TabsTrigger>
+            {isApiLocked ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <TabsTrigger
+                      value="api"
+                      disabled
+                      className="pointer-events-none"
+                    >
+                      {t("organization.api")}
+                    </TabsTrigger>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{t("organization.apiLockedTooltip")}</TooltipContent>
+              </Tooltip>
+            ) : (
+              <TabsTrigger value="api">{t("organization.api")}</TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -160,8 +182,16 @@ export default function OrganizationPage() {
           </TabsContent>
 
           <TabsContent value="api" className="space-y-6">
-            <APIKeysTab organization={selectedOrganization} />
-            <WebhooksTab />
+            {hasApiAccess ? (
+              <>
+                <APIKeysTab organization={selectedOrganization} />
+                <WebhooksTab />
+              </>
+            ) : (
+              <div className="rounded-md border border-dashed border-border bg-muted/40 p-6 text-sm text-muted-foreground">
+                {t("organization.apiLockedDescription")}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

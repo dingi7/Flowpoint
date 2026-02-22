@@ -7,6 +7,7 @@ import {
   SecretManagerService,
 } from "@/core";
 import {
+  BILLING_FEATURES,
   BILLING_REQUIRED_MESSAGE,
   checkBilling,
   isBillingRequiredError,
@@ -81,7 +82,10 @@ export async function authenticateApiKey(
 
     try {
       await checkBilling(
-        { organizationId: validationResult.organization.id },
+        {
+          organizationId: validationResult.organization.id,
+          requiredFeatureSlugs: [BILLING_FEATURES.api],
+        },
         {
           organizationRepository,
           clerkService,

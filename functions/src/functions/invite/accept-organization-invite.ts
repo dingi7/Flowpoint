@@ -1,7 +1,7 @@
 import { acceptOrganizationInviteFn } from "@/app/invite/accept-organization-invite";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
-import { CallableRequest, onCall } from "firebase-functions/https";
+import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
 import { defineSecret } from "firebase-functions/params";
 import { Secrets } from "@/config/secrets";
 
@@ -57,6 +57,9 @@ export const acceptOrganizationInvite = onCall<Payload>(
 
       return;
     } catch (error) {
+      if (error instanceof HttpsError) {
+        throw error;
+      }
       loggerService.error("Invite accept error", error);
       throw new Error(
         `Invite accept failed: ${error instanceof Error ? error.message : "Unknown error"}`,

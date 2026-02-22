@@ -2,6 +2,7 @@ import { removeWebhookSubscriptionFn } from "@/app/api/webhooks/remove-webhook-s
 import { PermissionKey } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { BILLING_FEATURES } from "@/utils/check-billing";
 import { checkPermission } from "@/utils/check-permission";
 import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
 import { defineSecret } from "firebase-functions/params";
@@ -51,6 +52,7 @@ export const removeWebhookSubscription = onCall<Payload>(
           userId: request.auth.uid,
           organizationId: data.organizationId,
           permission: PermissionKey.MANAGE_ORGANIZATION,
+          requiredFeatureSlugs: [BILLING_FEATURES.webhooks],
         },
         {
           memberRepository,

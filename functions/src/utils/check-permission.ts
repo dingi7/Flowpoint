@@ -12,6 +12,7 @@ interface Payload {
   userId: string;
   organizationId: string;
   permission: PermissionKey;
+  requiredFeatureSlugs?: string[];
 }
 
 interface Dependencies {
@@ -27,7 +28,7 @@ export async function checkPermission(
   payload: Payload,
   dependencies: Dependencies,
 ): Promise<void> {
-  const { userId, organizationId, permission } = payload;
+  const { userId, organizationId, permission, requiredFeatureSlugs } = payload;
   const {
     memberRepository,
     roleRepository,
@@ -89,7 +90,7 @@ export async function checkPermission(
   }
 
   await checkBilling(
-    { organizationId, userId },
+    { organizationId, userId, requiredFeatureSlugs },
     {
       organizationRepository,
       clerkService,

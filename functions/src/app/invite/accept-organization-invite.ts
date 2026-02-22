@@ -1,4 +1,4 @@
-import { addDays } from 'date-fns';
+import { addDays } from "date-fns";
 import {
   CalendarRepository,
   ClerkService,
@@ -10,6 +10,12 @@ import {
   OrganizationRepository,
   UserRepository,
 } from "@/core";
+import { HttpsError } from "firebase-functions/https";
+import {
+  FREE_ORG_PLAN_SLUG,
+  getOrganizationBillingContext,
+  MEMBER_LIMIT_REACHED_MESSAGE,
+} from "@/utils/check-billing";
 import { createMemberFn } from "../member/create-member";
 
 interface Payload {
@@ -30,6 +36,8 @@ interface Dependencies {
   clerkService: ClerkService;
   clerkSecretKey: string;
 }
+
+const FREE_PLAN_MEMBER_LIMIT = 2;
 
 export async function acceptOrganizationInviteFn(
   payload: Payload,
@@ -91,6 +99,42 @@ export async function acceptOrganizationInviteFn(
       user,
     });
     throw new Error("Invite email does not match user email");
+  }
+
+  const billingContext = await getOrganizationBillingContext(
+    {
+      organizationId: invite.organizationId,
+      userId,
+    },
+    {
+      organizationRepository,
+      clerkService,
+      clerkSecretKey,
+      loggerService,
+    },
+  );
+
+  if (
+    billingContext.planSlugs.includes(FREE_ORG_PLAN_SLUG) &&
+    !existingMember
+  ) {
+    const activeMembers = await memberRepository.getAll({
+      organizationId: invite.organizationId,
+      queryConstraints: [
+        {
+          field: "status",
+          operator: "==",
+          value: "active",
+        },
+      ],
+      pagination: {
+        limit: FREE_PLAN_MEMBER_LIMIT,
+      },
+    });
+
+    if (activeMembers.length >= FREE_PLAN_MEMBER_LIMIT) {
+      throw new HttpsError("failed-precondition", MEMBER_LIMIT_REACHED_MESSAGE);
+    }
   }
 
   // Use the centralized createMember function
