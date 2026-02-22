@@ -45,8 +45,9 @@ export function ImageCarousel({
 }: ImageCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const touchStartX = useRef<number | null>(null);
-  const touchDeltaX = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const pointerStartX = useRef<number | null>(null);
+  const pointerDeltaX = useRef(0);
 
   const imageCount = images.length;
   const hasMultiple = imageCount > 1;
@@ -64,6 +65,22 @@ export function ImageCarousel({
 
   const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
   const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
+
+  const finishSwipe = useCallback(() => {
+    setIsDragging(false);
+    if (!hasMultiple) {
+      pointerStartX.current = null;
+      pointerDeltaX.current = 0;
+      return;
+    }
+    if (pointerDeltaX.current > SWIPE_THRESHOLD_PX) {
+      goPrev();
+    } else if (pointerDeltaX.current < -SWIPE_THRESHOLD_PX) {
+      goNext();
+    }
+    pointerStartX.current = null;
+    pointerDeltaX.current = 0;
+  }, [hasMultiple, goPrev, goNext]);
 
   useEffect(() => {
     if (!hasMultiple || isPaused) {
@@ -91,37 +108,36 @@ export function ImageCarousel({
       className={cn(
         "relative mx-auto w-full max-w-[1320px] pt-2 pb-16",
         "select-none touch-pan-y",
+        isDragging ? "cursor-grabbing" : "cursor-grab",
         className,
       )}
       onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onMouseLeave={() => {
+        setIsPaused(false);
+        if (isDragging) {
+          finishSwipe();
+        }
+      }}
       onTouchStart={(event) => {
-        touchStartX.current = event.touches[0]?.clientX ?? null;
-        touchDeltaX.current = 0;
+        pointerStartX.current = event.touches[0]?.clientX ?? null;
+        pointerDeltaX.current = 0;
       }}
       onTouchMove={(event) => {
-        if (touchStartX.current === null) {
-          return;
-        }
-
-        touchDeltaX.current = (event.touches[0]?.clientX ?? 0) - touchStartX.current;
+        if (pointerStartX.current === null) return;
+        pointerDeltaX.current = (event.touches[0]?.clientX ?? 0) - pointerStartX.current;
       }}
-      onTouchEnd={() => {
-        if (!hasMultiple) {
-          touchStartX.current = null;
-          touchDeltaX.current = 0;
-          return;
-        }
-
-        if (touchDeltaX.current > SWIPE_THRESHOLD_PX) {
-          goPrev();
-        } else if (touchDeltaX.current < -SWIPE_THRESHOLD_PX) {
-          goNext();
-        }
-
-        touchStartX.current = null;
-        touchDeltaX.current = 0;
+      onTouchEnd={() => finishSwipe()}
+      onMouseDown={(event) => {
+        event.preventDefault();
+        pointerStartX.current = event.clientX;
+        pointerDeltaX.current = 0;
+        setIsDragging(true);
       }}
+      onMouseMove={(event) => {
+        if (!isDragging || pointerStartX.current === null) return;
+        pointerDeltaX.current = event.clientX - pointerStartX.current;
+      }}
+      onMouseUp={() => finishSwipe()}
       onFocusCapture={() => setIsPaused(true)}
       onBlurCapture={() => setIsPaused(false)}
       onKeyDown={(event) => {

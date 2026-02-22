@@ -89,8 +89,8 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   // Fetch available timeslots when date and service are selected
   const formattedDate = selectedDate
     ? `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(
-        selectedDate
-      ).padStart(2, "0")}`
+      selectedDate
+    ).padStart(2, "0")}`
     : "";
 
   const { data: timeslotsData, isLoading: isLoadingTimeSlots } =
@@ -183,7 +183,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
 
       // Refetch customer to ensure we have the latest data
       const { data: customer } = await refetchCustomer();
-      
+
       if (customer && customer.length > 0) {
         customerId = customer[0].id;
         console.log("Customer already exists with ID:", customerId);
@@ -256,15 +256,15 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
           className={cn(
             "bg-background",
             step === "success"
-              ? "w-[90%] md:w-[600px] h-fit"
+              ? "w-[90%] max-w-[600px] h-fit"
               : step === "userInfo"
-              ? "w-[95%] md:w-[700px] h-fit"
-              : step === "barber"
-              ? "w-[90%] md:w-[800px]"
-              : "md:max-w-[95vw] lg:max-w-[90vw] lg:h-fit h-[85vh] " +
-                (selectedDate && selectedService
-                  ? "lg:w-[90vw]"
-                  : "lg:w-[70vw]")
+                ? "w-[95%] max-w-[700px] h-fit"
+                : step === "barber"
+                  ? "w-[90%] max-w-[900px]"
+                  : "md:max-w-[95vw] lg:max-w-[90vw] lg:h-fit h-[85vh] " +
+                  (selectedDate && selectedService
+                    ? "lg:w-[90vw]"
+                    : "lg:w-[70vw]")
           )}
         >
           <DialogTitle className="sr-only">Book Appointment</DialogTitle>

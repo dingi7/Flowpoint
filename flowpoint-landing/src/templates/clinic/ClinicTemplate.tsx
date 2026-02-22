@@ -6,6 +6,7 @@ import { Services } from "./sections/Services";
 import { AboutUs } from "./sections/AboutUs";
 import Team from "./sections/Team";
 import { Testimonials } from "./sections/Testimonials";
+import { Gallery } from "./sections/Gallery";
 import Location from "./sections/Location";
 import { TemplateProps } from "../types";
 import Script from "next/script";
@@ -96,9 +97,13 @@ export function ClinicTemplate({
             subtitle={copyOverrides.teamSubtitle}
             primaryColor={primaryColor}
           />
+          <Gallery
+            imageUrls={landingPage.gallery?.imageUrls || []}
+            title={copyOverrides.galleryTitle}
+            primaryColor={primaryColor}
+          />
           <Testimonials
             items={landingPage.testimonials?.items}
-            title={copyOverrides.galleryTitle}
             primaryColor={primaryColor}
           />
           <Location organization={organization} landingPage={landingPage} primaryColor={primaryColor} />
