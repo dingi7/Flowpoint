@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { LandingPageSettings, Organization } from "@/core";
+import { isReservedOrganizationSlug, LandingPageSettings, Organization } from "@/core";
 import { serviceHost } from "@/services";
 import { Plus, Trash2, Pipette, Settings, Palette, ImageIcon, Share2, LayoutTemplate, Star, MessageSquareQuote, Info } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -31,6 +31,26 @@ const normalizeSlug = (value: string) =>
     .replace(/--+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+const maxSlugLength = 63;
+const reservedSlugFallbackSuffix = "-site";
+
+function buildSafeDefaultSlug(payload: { rawSlug: string }) {
+  const normalized = normalizeSlug(payload.rawSlug)
+    .slice(0, maxSlugLength)
+    .replace(/-+$/g, "");
+
+  if (!normalized || !isReservedOrganizationSlug({ slug: normalized })) {
+    return normalized;
+  }
+
+  const truncatedBase = normalized
+    .slice(0, maxSlugLength - reservedSlugFallbackSuffix.length)
+    .replace(/-+$/g, "");
+  const fallbackBase = truncatedBase || "org";
+
+  return `${fallbackBase}${reservedSlugFallbackSuffix}`;
+}
+
 const buildLandingDefaults = (
   organization: Organization,
 ): { slug: string; landingPage: LandingPageSettings } => {
@@ -38,7 +58,7 @@ const buildLandingDefaults = (
   const contactInfo = organization.settings?.contactInfo;
 
   const rawSlug = organization.slug || organization.name || "";
-  const fallbackSlug = normalizeSlug(rawSlug).slice(0, 63).replace(/-+$/g, "");
+  const fallbackSlug = buildSafeDefaultSlug({ rawSlug });
 
   const defaults: LandingPageSettings = {
     enabled: landingPage?.enabled ?? false,
@@ -226,7 +246,7 @@ export function LandingPageSettingsForm({
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
 
   useEffect(() => {
-    const trimmed = slug.trim();
+    const trimmed = slug.trim().toLowerCase();
 
     if (!trimmed) {
       setSlugStatus("idle");
@@ -239,6 +259,11 @@ export function LandingPageSettingsForm({
       !slugPattern.test(trimmed)
     ) {
       setSlugStatus("invalid");
+      return;
+    }
+
+    if (isReservedOrganizationSlug({ slug: trimmed })) {
+      setSlugStatus("taken");
       return;
     }
 
@@ -350,7 +375,7 @@ export function LandingPageSettingsForm({
   const fieldsDisabled = isLoading || !landingEnabled;
 
   const submitHandler = handleSubmit(async (values) => {
-    const normalizedSlug = values.slug.trim();
+    const normalizedSlug = values.slug.trim().toLowerCase();
     const cleanedGallery = (values.landingPage.gallery?.imageUrls || []).filter(
       (url) => url.trim() !== "",
     );
@@ -361,6 +386,11 @@ export function LandingPageSettingsForm({
     }
 
     if (slugStatus === "taken") {
+      toast.error(t("organization.landingPageForm.slugTaken"));
+      return;
+    }
+
+    if (normalizedSlug && isReservedOrganizationSlug({ slug: normalizedSlug })) {
       toast.error(t("organization.landingPageForm.slugTaken"));
       return;
     }

@@ -11,6 +11,13 @@ export const EmailTemplateSchema = z.object({
 
 export type EmailTemplate = z.infer<typeof EmailTemplateSchema>;
 
+export const RESERVED_ORGANIZATION_SLUGS = ["landing"] as const;
+const reservedOrganizationSlugSet = new Set<string>(RESERVED_ORGANIZATION_SLUGS);
+
+export function isReservedOrganizationSlug(payload: { slug: string }) {
+  return reservedOrganizationSlugSet.has(payload.slug.trim().toLowerCase());
+}
+
 const slugSchema = z
   .string()
   .trim()
@@ -20,6 +27,10 @@ const slugSchema = z
   .regex(
     /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
     "Slug can contain only lowercase letters, numbers, and hyphens",
+  )
+  .refine(
+    (slug) => !isReservedOrganizationSlug({ slug }),
+    "This slug is reserved",
   );
 
 const optionalSlugSchema = z.preprocess(
