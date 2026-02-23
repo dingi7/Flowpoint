@@ -130,7 +130,7 @@ export async function sendAppointmentAssigneeNotificationFn(
     throw new Error(`Organization not found: ${organizationId}`);
   }
 
-  const fromEmail = organization.settings.contactInfo.email;
+  const fromEmail = organization.settings.contactInfo.email; 
   if (!fromEmail) {
     loggerService.warn(
       "Organization has no contact email, skipping assignee notification",
