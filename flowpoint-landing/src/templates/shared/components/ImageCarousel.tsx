@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -187,9 +188,10 @@ export function ImageCarousel({
                 zIndex,
               }}
             >
-              <img
+              <Image
                 src={src}
                 alt={`${altPrefix} ${index + 1}`}
+                fill
                 className={cn("h-full w-full object-cover", imageClassName)}
                 loading={Math.abs(index - activeIndex) <= 1 ? "eager" : "lazy"}
               />

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/lib/useTranslation";
@@ -50,9 +51,11 @@ export default function Header({ logoUrl, organizationName, primaryColor = "#0f7
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-3 shrink-0">
           {logoUrl ? (
-            <img
+            <Image
               src={logoUrl}
               alt={organizationName || "Logo"}
+              width={120}
+              height={40}
               className="h-10 w-auto object-contain"
             />
           ) : (

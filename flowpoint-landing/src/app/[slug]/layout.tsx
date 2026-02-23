@@ -2,6 +2,14 @@ import { Providers } from "@/app/providers";
 import { getLandingPageData } from "@/server/get-landing-page-data";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { Playfair_Display } from "next/font/google";
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
 
 const rootDomain =
   process.env.ROOT_DOMAIN ||
@@ -74,14 +82,16 @@ export default async function TenantLayout({ children, params }: LayoutProps) {
   }
 
   return (
-    <Providers
-      tenant={{
-        organizationId: data.organization.id,
-        organization: data.organization,
-        landingPage: data.landingPage,
-      }}
-    >
-      {children}
-    </Providers>
+    <div className={playfairDisplay.className}>
+      <Providers
+        tenant={{
+          organizationId: data.organization.id,
+          organization: data.organization,
+          landingPage: data.landingPage,
+        }}
+      >
+        {children}
+      </Providers>
+    </div>
   );
 }

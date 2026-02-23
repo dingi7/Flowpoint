@@ -19,14 +19,15 @@ type FirestoreValue =
   | FirestoreValue[]
   | { [key: string]: FirestoreValue };
 
-function normalizeFirestoreData(value: any): FirestoreValue {
+function normalizeFirestoreData(value: unknown): FirestoreValue {
   if (value === null || value === undefined) {
     return value;
   }
 
-  if (typeof value === "object") {
-    if (typeof value.toDate === "function") {
-      return value.toDate();
+  if (typeof value === "object" && value !== null) {
+    const obj = value as Record<string, unknown> & { toDate?: () => Date };
+    if (typeof obj.toDate === "function") {
+      return obj.toDate();
     }
 
     if (Array.isArray(value)) {
@@ -40,7 +41,7 @@ function normalizeFirestoreData(value: any): FirestoreValue {
     return normalized;
   }
 
-  return value;
+  return value as FirestoreValue;
 }
 
 export const getLandingPageData = cache(

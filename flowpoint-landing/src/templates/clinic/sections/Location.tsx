@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useTranslation } from "@/lib/useTranslation"
 import { LandingPageSettings, Organization } from "@/core"
 import { FadeInView } from "../components/FadeInView"
+import { JSX } from "react"
 
 export interface LocationProps {
   organization: Organization

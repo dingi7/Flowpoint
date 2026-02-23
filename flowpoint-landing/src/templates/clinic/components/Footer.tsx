@@ -1,7 +1,9 @@
 'use client';
 
+import React from "react";
 import { Facebook, Instagram, MapPin, Music2, Phone, Mail } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslation } from "@/lib/useTranslation";
 import { LandingPageSettings, Organization } from "@/core";
 
@@ -11,7 +13,7 @@ export interface FooterProps {
 	primaryColor?: string;
 }
 
-export default function Footer({ organization, landingPage, primaryColor = "#0f766e" }: FooterProps) {
+export default function Footer({ organization, landingPage }: FooterProps) {
 	const { t } = useTranslation();
 
 	const location = {
@@ -35,7 +37,7 @@ export default function Footer({ organization, landingPage, primaryColor = "#0f7
 			label: "TikTok",
 			icon: <Music2 className="h-5 w-5" />,
 		},
-	].filter(Boolean) as Array<{ href: string; label: string; icon: JSX.Element }>;
+	].filter(Boolean) as Array<{ href: string; label: string; icon: React.ReactNode }>;
 
 	const companyName = organization?.name || t('footer.companyName');
 	const footerTagline = landingPage?.footerTagline;
@@ -49,7 +51,7 @@ export default function Footer({ organization, landingPage, primaryColor = "#0f7
 					<div>
 						<div className="mb-4">
 							{landingPage?.branding?.logoUrl ? (
-								<img src={landingPage.branding.logoUrl} alt={companyName} className="h-10 w-auto object-contain brightness-0 invert opacity-90" />
+								<Image src={landingPage.branding.logoUrl} alt={companyName} width={120} height={40} className="h-10 w-auto object-contain brightness-0 invert opacity-90" />
 							) : (
 								<span className="text-xl font-bold text-white">{companyName}</span>
 							)}

@@ -6,7 +6,7 @@ import { useBookingModalStore } from '@/stores/booking-modal-store';
 import { Service } from '@/core';
 import { FadeInView } from '../components/FadeInView';
 import { useLocale } from '@/app/context/LocaleContext';
-import { useCallback, useMemo } from "react";
+import { JSX, useCallback, useMemo } from "react";
 
 export interface ServicesProps {
     services: Service[];
