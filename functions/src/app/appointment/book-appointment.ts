@@ -62,6 +62,42 @@ interface BookingResult {
   };
 }
 
+interface BuildAppointmentIdPayload {
+  customerName: string;
+  startTimeIso: string;
+}
+
+function normalizeNameForAppointmentId(payload: {
+  customerName: string;
+}): string {
+  const normalizedName = payload.customerName
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  if (!normalizedName) {
+    return "customer";
+  }
+
+  return normalizedName.slice(0, 80);
+}
+
+function buildDeterministicAppointmentId(payload: BuildAppointmentIdPayload): string {
+  const normalizedName = normalizeNameForAppointmentId({
+    customerName: payload.customerName,
+  });
+  const normalizedStartTime = payload.startTimeIso
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return `${normalizedName}-${normalizedStartTime}`;
+}
+
 /**
  * Comprehensive appointment booking function
  */
@@ -69,10 +105,7 @@ export async function bookAppointmentFn(
   payload: Payload,
   dependencies: Dependencies,
 ): Promise<BookingResult> {
-  const {
-    appointmentRepository,
-    loggerService,
-  } = dependencies;
+  const { loggerService, appointmentRepository } = dependencies;
 
   loggerService.info("Starting appointment booking process", {
     serviceId: payload.serviceId,
@@ -117,24 +150,47 @@ export async function bookAppointmentFn(
     status: APPOINTMENT_STATUS.PENDING,
   };
 
-  const appointmentId = await appointmentRepository.create({
-    data: appointmentData,
+  const appointmentId = buildDeterministicAppointmentId({
+    customerName: payload.customerData.name,
+    startTimeIso: startTime.toISOString(),
+  });
+  const existingAppointment = await appointmentRepository.get({
+    id: appointmentId,
     organizationId: validatedPayload.organizationId,
   });
+  const reusedExistingAppointment =
+    !!existingAppointment &&
+    existingAppointment.status !== APPOINTMENT_STATUS.CANCELLED;
 
-  loggerService.info("Appointment created successfully", {
-    appointmentId,
-    customerId,
-    serviceId: service.id,
-  });
-
-  await sendAppointmentEmailNotificationFn(
-    {
+  if (reusedExistingAppointment) {
+    loggerService.warn("Duplicate booking request detected; reusing appointment", {
       appointmentId,
+      customerId,
+      serviceId: service.id,
+      assigneeId: validatedPayload.assigneeId,
+      startTime: startTime.toISOString(),
+    });
+  } else {
+    await appointmentRepository.set({
+      id: appointmentId,
+      data: appointmentData,
       organizationId: validatedPayload.organizationId,
-    },
-    dependencies,
-  );
+    });
+
+    loggerService.info("Appointment created successfully", {
+      appointmentId,
+      customerId,
+      serviceId: service.id,
+    });
+
+    await sendAppointmentEmailNotificationFn(
+      {
+        appointmentId,
+        organizationId: validatedPayload.organizationId,
+      },
+      dependencies,
+    );
+  }
 
   // 5. Prepare confirmation details
   const confirmationDetails = {

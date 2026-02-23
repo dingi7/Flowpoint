@@ -68,18 +68,20 @@ export async function listAppointmentsApiFn(
   }
 
   if (filters?.startDate) {
+    const startDate = new Date(filters.startDate);
     queryConstraints.push({
       field: "startTime",
       operator: ">=" as const,
-      value: new Date(filters.startDate),
+      value: startDate.toISOString(),
     });
   }
 
   if (filters?.endDate) {
+    const endDate = new Date(filters.endDate);
     queryConstraints.push({
       field: "startTime",
       operator: "<=" as const,
-      value: new Date(filters.endDate),
+      value: endDate.toISOString(),
     });
   }
 
@@ -90,4 +92,3 @@ export async function listAppointmentsApiFn(
 
   return appointments;
 }
-

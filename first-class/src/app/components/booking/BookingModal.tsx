@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Barber } from "@/stores/types/booking-modal.types";
 import { UserInfo } from "@/stores/types/booking-modal.types";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChooseBarber } from "./ChooseBarber";
 import { Calendar } from "./Calendar";
 import { UserInfoForm } from "./UserInfoForm";
@@ -116,17 +116,24 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   );
 
   // Use the booking hook
-  const { mutate: bookAppointment, isPending: isBooking } = useBookAppointment({
+  const { mutateAsync: bookAppointment, isPending: isBooking } = useBookAppointment({
     onSuccess: (data) => {
       console.log("Booking created successfully:", data);
       setDirection(1);
       setStep("success");
+      submissionInFlightRef.current = false;
+      setIsSubmitLocked(false);
     },
     onError: (error) => {
       console.error("Error creating booking:", error);
       // TODO: Show error message to user
+      submissionInFlightRef.current = false;
+      setIsSubmitLocked(false);
     },
   });
+
+  const [isSubmitLocked, setIsSubmitLocked] = useState(false);
+  const submissionInFlightRef = useRef(false);
 
   // Reset selected service when initial service changes
   useEffect(() => {
@@ -172,10 +179,17 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   };
 
   const handleSubmit = async () => {
+    if (submissionInFlightRef.current) {
+      return;
+    }
+
     if (!selectedTime || !selectedService || !selectedBarber) {
       console.error("Missing required fields");
       return;
     }
+
+    submissionInFlightRef.current = true;
+    setIsSubmitLocked(true);
 
     try {
       let customerId = "";
@@ -210,7 +224,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
       console.log("Submitting booking with UTC time:", selectedTime);
 
       // Prepare the payload according to BookAppointmentPayload interface
-      bookAppointment({
+      await bookAppointment({
         serviceId: selectedService.id,
         customerEmail: userInfo.email,
         startTime: selectedTime, // Already in UTC ISO format
@@ -228,10 +242,14 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
     } catch (error) {
       console.error("Error in booking process:", error);
       // TODO: Show error message to user
+      submissionInFlightRef.current = false;
+      setIsSubmitLocked(false);
     }
   };
 
   const handleClose = () => {
+    submissionInFlightRef.current = false;
+    setIsSubmitLocked(false);
     closeModal();
     // Reset the form after a short delay to allow the closing animation
     setTimeout(() => {
@@ -314,7 +332,11 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                   onUserInfoChange={setUserInfo}
                   onSubmit={handleSubmit}
                   onBack={handleBackToDateTime}
-                  isSubmitting={isBooking || createCustomerMutation.isPending}
+                  isSubmitting={
+                    isSubmitLocked ||
+                    isBooking ||
+                    createCustomerMutation.isPending
+                  }
                 />
               </motion.div>
             )}

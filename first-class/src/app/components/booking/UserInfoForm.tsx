@@ -26,7 +26,7 @@ interface UserInfoFormProps {
     currentYear: number;
     userInfo: UserInfo;
     onUserInfoChange: (info: UserInfo) => void;
-    onSubmit: () => void;
+    onSubmit: () => void | Promise<void>;
     onBack: () => void;
     isSubmitting?: boolean;
 }
@@ -45,6 +45,7 @@ export function UserInfoForm({
 }: UserInfoFormProps) {
     const { t } = useTranslation();
     const [phoneError, setPhoneError] = useState<string>('');
+    const [isSubmitLocked, setIsSubmitLocked] = useState(false);
 
     const validatePhone = (phone: string) => {
         const phoneRegex = /^(\+359|0)[0-9]{9}$/;
@@ -69,11 +70,22 @@ export function UserInfoForm({
         }
     };
 
-    const handleSubmitWithValidation = () => {
+    const handleSubmitWithValidation = async () => {
+        if (isSubmitLocked || isSubmitting) {
+            return;
+        }
+
         if (validatePhone(userInfo.phone)) {
-            onSubmit();
+            try {
+                setIsSubmitLocked(true);
+                await onSubmit();
+            } finally {
+                setIsSubmitLocked(false);
+            }
         }
     };
+
+    const isBusy = isSubmitting || isSubmitLocked;
 
     return (
         <div className='p-4 md:p-6'>
@@ -202,10 +214,16 @@ export function UserInfoForm({
                     className='w-full'
                     onClick={handleSubmitWithValidation}
                     disabled={
-                        !userInfo.name || !userInfo.email || !userInfo.phone || Boolean(phoneError) || isSubmitting
+                        !userInfo.name ||
+                        !userInfo.email ||
+                        !userInfo.phone ||
+                        Boolean(phoneError) ||
+                        isBusy
                     }
                 >
-                    {isSubmitting ? t('booking.submitting') || 'Submitting...' : t('booking.confirm')}
+                    {isBusy
+                        ? t('booking.submitting') || 'Submitting...'
+                        : t('booking.confirm')}
                 </Button>
             </div>
         </div>
