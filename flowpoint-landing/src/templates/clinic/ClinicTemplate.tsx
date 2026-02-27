@@ -95,7 +95,7 @@ export function ClinicTemplate({
           <Location organization={organization} landingPage={landingPage} primaryColor={primaryColor} />
         </main>
         <Footer organization={organization} landingPage={landingPage} primaryColor={primaryColor} />
-        <BookingModalRoot />
+        <BookingModalRoot theme="light" />
         <Script
           id="structured-data"
           type="application/ld+json"

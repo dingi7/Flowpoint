@@ -3,15 +3,13 @@
 import {
   Dialog,
   DialogContent,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
 } from "../ui/dialog";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Barber } from "@/stores/types/booking-modal.types";
 import { UserInfo } from "@/stores/types/booking-modal.types";
-import { useState, useEffect } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import { ChooseBarber } from "./ChooseBarber";
 import { Calendar } from "./Calendar";
 import { UserInfoForm } from "./UserInfoForm";
@@ -35,9 +33,31 @@ import { useTenant } from "@/app/context/TenantContext";
 export interface BookingModalProps {
   isOpen: boolean;
   closeModal: () => void;
+  theme?: "default" | "light";
 }
 
-export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
+const lightThemeVariables: CSSProperties = {
+  ["--background" as string]: "oklch(1 0 0)",
+  ["--foreground" as string]: "oklch(0.145 0 0)",
+  ["--card" as string]: "oklch(1 0 0)",
+  ["--card-foreground" as string]: "oklch(0.145 0 0)",
+  ["--popover" as string]: "oklch(1 0 0)",
+  ["--popover-foreground" as string]: "oklch(0.145 0 0)",
+  ["--primary" as string]: "oklch(0.205 0 0)",
+  ["--primary-foreground" as string]: "oklch(0.985 0 0)",
+  ["--secondary" as string]: "oklch(0.97 0 0)",
+  ["--secondary-foreground" as string]: "oklch(0.205 0 0)",
+  ["--muted" as string]: "oklch(0.97 0 0)",
+  ["--muted-foreground" as string]: "oklch(0.556 0 0)",
+  ["--accent" as string]: "oklch(0.97 0 0)",
+  ["--accent-foreground" as string]: "oklch(0.205 0 0)",
+  ["--destructive" as string]: "oklch(0.577 0.245 27.325)",
+  ["--border" as string]: "oklch(0.922 0 0)",
+  ["--input" as string]: "oklch(0.922 0 0)",
+  ["--ring" as string]: "oklch(0.708 0 0)",
+};
+
+export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingModalProps) {
   const { locale } = useTranslation();
   const { organizationId } = useTenant();
   const today = new Date();
@@ -256,101 +276,100 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   };
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogPortal>
-        <DialogOverlay className="bg-black/50" />
-        <DialogContent
-          className={cn(
-            "bg-background",
-            step === "success"
-              ? "w-[90%] max-w-[600px] h-fit"
-              : step === "userInfo"
-                ? "w-[95%] max-w-[700px] h-fit"
-                : step === "barber"
-                  ? "w-[90%] max-w-[900px]"
-                  : "md:max-w-[95vw] lg:max-w-[90vw] lg:h-fit h-[85vh] " +
-                  (selectedDate && selectedService
-                    ? "lg:w-[90vw]"
-                    : "lg:w-[70vw]")
-          )}
-        >
-          <DialogTitle className="sr-only">Book Appointment</DialogTitle>
-          <AnimatePresence initial={false} custom={direction} mode="wait">
-            {step === "success" &&
-              selectedTime &&
-              selectedService &&
-              selectedBarber && (
-                <BookingSuccess
-                  selectedBarber={selectedBarber}
-                  selectedService={selectedService}
-                  selectedTime={selectedTime}
-                  onClose={handleClose}
-                />
-              )}
-
-            {step === "barber" && (
-              <ChooseBarber
-                direction={direction}
-                barbers={barbers.filter((barber) => barber.working === true)}
-                handleBarberSelect={handleBarberSelect}
+      <DialogContent
+        overlayClassName={theme === "light" ? "bg-white/60 backdrop-blur-sm" : "bg-black/50"}
+        className={cn(
+          "bg-background text-foreground",
+          step === "success"
+            ? "w-[90%] max-w-[600px] h-fit"
+            : step === "userInfo"
+              ? "w-[95%] max-w-[700px] h-fit"
+              : step === "barber"
+                ? "w-[90%] max-w-[900px]"
+                : "md:max-w-[95vw] lg:max-w-[90vw] lg:h-fit h-[85vh] " +
+                (selectedDate && selectedService
+                  ? "lg:w-[90vw]"
+                  : "lg:w-[70vw]")
+        )}
+        style={theme === "light" ? lightThemeVariables : undefined}
+      >
+        <DialogTitle className="sr-only">Book Appointment</DialogTitle>
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          {step === "success" &&
+            selectedTime &&
+            selectedService &&
+            selectedBarber && (
+              <BookingSuccess
+                selectedBarber={selectedBarber}
+                selectedService={selectedService}
+                selectedTime={selectedTime}
+                onClose={handleClose}
               />
             )}
 
-            {step === "userInfo" && (
-              <motion.div
-                key="userInfo"
-                variants={userInfoAnimation}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{
-                  scale: {
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 30,
-                  },
-                  opacity: { duration: 0.2 },
-                }}
-              >
-                <UserInfoForm
-                  selectedBarber={selectedBarber}
-                  selectedDate={selectedDate}
-                  selectedTime={selectedTime}
-                  currentMonth={currentMonth}
-                  currentYear={currentYear}
-                  userInfo={userInfo}
-                  onUserInfoChange={setUserInfo}
-                  onSubmit={handleSubmit}
-                  onBack={handleBackToDateTime}
-                  isSubmitting={isFormProcessing || isBooking || createCustomerMutation.isPending}
-                />
-              </motion.div>
-            )}
+          {step === "barber" && (
+            <ChooseBarber
+              direction={direction}
+              barbers={barbers.filter((barber) => barber.working === true)}
+              handleBarberSelect={handleBarberSelect}
+            />
+          )}
 
-            {step === "datetime" && (
-              <Calendar
+          {step === "userInfo" && (
+            <motion.div
+              key="userInfo"
+              variants={userInfoAnimation}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{
+                scale: {
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 30,
+                },
+                opacity: { duration: 0.2 },
+              }}
+            >
+              <UserInfoForm
                 selectedBarber={selectedBarber}
-                selectedService={selectedService}
                 selectedDate={selectedDate}
                 selectedTime={selectedTime}
                 currentMonth={currentMonth}
                 currentYear={currentYear}
-                direction={direction}
-                isLoadingTimeSlots={isLoadingTimeSlots}
-                availableTimeSlots={availableTimeSlots}
-                services={services}
-                handleDateSelect={handleDateSelect}
-                handleTimeSelect={handleTimeSelect}
-                handleBackToBarber={handleBackToBarber}
-                setSelectedService={setSelectedService}
-                onNavigateMonth={(newMonth, newYear) => {
-                  setCurrentMonth(newMonth);
-                  setCurrentYear(newYear);
-                }}
+                userInfo={userInfo}
+                onUserInfoChange={setUserInfo}
+                onSubmit={handleSubmit}
+                onBack={handleBackToDateTime}
+                isSubmitting={isFormProcessing || isBooking || createCustomerMutation.isPending}
               />
-            )}
-          </AnimatePresence>
-        </DialogContent>
-      </DialogPortal>
+            </motion.div>
+          )}
+
+          {step === "datetime" && (
+            <Calendar
+              selectedBarber={selectedBarber}
+              selectedService={selectedService}
+              selectedDate={selectedDate}
+              selectedTime={selectedTime}
+              currentMonth={currentMonth}
+              currentYear={currentYear}
+              direction={direction}
+              isLoadingTimeSlots={isLoadingTimeSlots}
+              availableTimeSlots={availableTimeSlots}
+              services={services}
+              handleDateSelect={handleDateSelect}
+              handleTimeSelect={handleTimeSelect}
+              handleBackToBarber={handleBackToBarber}
+              setSelectedService={setSelectedService}
+              onNavigateMonth={(newMonth, newYear) => {
+                setCurrentMonth(newMonth);
+                setCurrentYear(newYear);
+              }}
+            />
+          )}
+        </AnimatePresence>
+      </DialogContent>
     </Dialog>
   );
 }
