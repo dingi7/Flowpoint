@@ -7,15 +7,9 @@ import { Database, getDatabase } from "@firebase/database";
 import { Firestore, getFirestore } from "@firebase/firestore";
 import { FirebaseStorage, getStorage } from "@firebase/storage";
 
-const firebaseConfig: FirebaseOptions = {
-  apiKey: "AIzaSyCm8OdIao7dLe8G2XwZrlPQ7SgeOgXS-DU",
-  authDomain: "brogrammers-crm.firebaseapp.com",
-  projectId: "brogrammers-crm",
-  storageBucket: "brogrammers-crm.firebasestorage.app",
-  messagingSenderId: "922559053217",
-  appId: "1:922559053217:web:f134c319d6ef1de02d1fe0",
-  measurementId: "G-YGWVLDZFS6",
-};
+import config from "../../../../firebase-config.json";
+
+const firebaseConfig: FirebaseOptions = config.PROD;
 
 const app = initializeApp(firebaseConfig);
 
