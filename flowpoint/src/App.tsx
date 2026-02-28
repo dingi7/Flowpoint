@@ -19,9 +19,11 @@ import CalendarPage from "./pages/calendar/calendar-page";
 import CustomersPage from "./pages/customers/customers-page";
 import DashboardPage from "./pages/dashboard-page";
 import OrganizationPage from "./pages/organization/organization-page";
+import PrivacyPolicyPage from "./pages/privacy-policy-page";
 import ReviewPage from "./pages/review/review-page";
 import ServicesPage from "./pages/services/services-page";
 import TeamPage from "./pages/team/team-page";
+import TermsOfServicePage from "./pages/terms-of-service-page";
 import { FirebaseTokenProvider } from "./utils/firebase-token-provider";
 
 const queryClient = new QueryClient();
@@ -57,6 +59,14 @@ function AppContent() {
           <Route
             path="/review"
             element={<ReviewPage />}
+          />
+          <Route
+            path="/privacyPolicy"
+            element={<PrivacyPolicyPage />}
+          />
+          <Route
+            path="/termsOfService"
+            element={<TermsOfServicePage />}
           />
           <Route
             path="/dashboard"
