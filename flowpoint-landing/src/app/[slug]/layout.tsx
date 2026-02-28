@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Playfair_Display } from "next/font/google";
 
 const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   weight: ["400", "600", "700", "800"],
   style: ["normal", "italic"],
   display: "swap",

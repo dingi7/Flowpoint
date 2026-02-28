@@ -82,7 +82,7 @@ export default function Header({ logoUrl, organizationName }: HeaderProps) {
           <button
             className="text-white hover:text-[#2B4238] transition-colors p-2"
             onClick={toggleMenu}
-            aria-label="Toggle menu"
+            aria-label={t("nav.toggleMenu")}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>

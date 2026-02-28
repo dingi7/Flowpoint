@@ -7,7 +7,7 @@ export const SUPPORTED_LOCALES = ['en', 'bg', 'tr'] as const;
 export type SupportedLocale = typeof SUPPORTED_LOCALES[number];
 
 // Default locale
-export const DEFAULT_LOCALE: SupportedLocale = 'en';
+export const DEFAULT_LOCALE: SupportedLocale = 'bg';
 
 // Storage key for localStorage
 const LOCALE_STORAGE_KEY = 'first-class-locale';
@@ -28,11 +28,10 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<SupportedLocale>(DEFAULT_LOCALE);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize locale from localStorage or browser preference
+  // Initialize locale from localStorage; fall back to Bulgarian by default.
   useEffect(() => {
     const initializeLocale = () => {
       try {
-        // First, try to get from localStorage
         const storedLocale = localStorage.getItem(LOCALE_STORAGE_KEY);
         if (storedLocale && SUPPORTED_LOCALES.includes(storedLocale as SupportedLocale)) {
           setLocaleState(storedLocale as SupportedLocale);
@@ -40,12 +39,8 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
           return;
         }
 
-        // If no stored locale, try to detect from browser
-        const browserLocale = detectBrowserLocale();
-        setLocaleState(browserLocale);
-        
-        // Save the detected locale to localStorage
-        localStorage.setItem(LOCALE_STORAGE_KEY, browserLocale);
+        setLocaleState(DEFAULT_LOCALE);
+        localStorage.setItem(LOCALE_STORAGE_KEY, DEFAULT_LOCALE);
       } catch (error) {
         console.warn('Failed to initialize locale:', error);
         setLocaleState(DEFAULT_LOCALE);
@@ -57,23 +52,11 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
     initializeLocale();
   }, []);
 
-  // Function to detect browser locale
-  const detectBrowserLocale = (): SupportedLocale => {
-    if (typeof navigator === 'undefined') return DEFAULT_LOCALE;
-
-    // Get browser languages
-    const browserLanguages = navigator.languages || [navigator.language];
-    
-    // Check each browser language against supported locales
-    for (const browserLang of browserLanguages) {
-      const langCode = browserLang.split('-')[0].toLowerCase();
-      if (SUPPORTED_LOCALES.includes(langCode as SupportedLocale)) {
-        return langCode as SupportedLocale;
-      }
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = locale;
     }
-
-    return DEFAULT_LOCALE;
-  };
+  }, [locale]);
 
   // Function to change locale
   const setLocale = (newLocale: SupportedLocale) => {
