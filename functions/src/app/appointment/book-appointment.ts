@@ -47,7 +47,9 @@ interface Dependencies {
   loggerService: LoggerService;
   organizationRepository: OrganizationRepository;
   mailgunService: MailgunService;
-  cloudTasksService: CloudTasksService;
+  cloudTasksServiceReminder: CloudTasksService;
+  cloudTasksServiceReviewRequest: CloudTasksService;
+  cloudTasksServiceRebooking: CloudTasksService;
 }
 
 interface BookingResult {

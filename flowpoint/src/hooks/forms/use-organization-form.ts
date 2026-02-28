@@ -24,8 +24,6 @@ export function useOrganizationForm({
       image: organization?.image,
       industry: organization?.industry,
       currency: organization?.currency || "EUR",
-      slug: organization?.slug || "",
-      landingPage: organization?.landingPage,
       
       settings: {
         timezone: organization?.settings?.timezone || "UTC",
@@ -69,8 +67,6 @@ export function useOrganizationForm({
         image: organization.image,
         industry: organization.industry,
         currency: organization.currency || "EUR",
-        slug: organization.slug || "",
-        landingPage: organization.landingPage,
         settings: {
           timezone: organization.settings?.timezone || "UTC",
           workingHours: organization.settings?.workingHours || {
@@ -105,6 +101,7 @@ export function useOrganizationForm({
   }, [organization, form]);
 
   const handleSubmit = form.handleSubmit(async (data: FieldValues) => {
+    console.log("data", data);
     try {
       const { image, slug, ...rest } = data as OrganizationData;
       const sanitizedSlug =

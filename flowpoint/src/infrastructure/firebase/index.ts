@@ -7,14 +7,28 @@ import { Database, getDatabase } from "@firebase/database";
 import { Firestore, getFirestore } from "@firebase/firestore";
 import { FirebaseStorage, getStorage } from "@firebase/storage";
 
+
+// PROD
+
+// const firebaseConfig: FirebaseOptions = {
+//   apiKey: "AIzaSyCm8OdIao7dLe8G2XwZrlPQ7SgeOgXS-DU",
+//   authDomain: "brogrammers-crm.firebaseapp.com",
+//   projectId: "brogrammers-crm",
+//   storageBucket: "brogrammers-crm.firebasestorage.app",
+//   messagingSenderId: "922559053217",
+//   appId: "1:922559053217:web:f134c319d6ef1de02d1fe0",
+//   measurementId: "G-YGWVLDZFS6",
+// };
+
+// DEV
 const firebaseConfig: FirebaseOptions = {
-  apiKey: "AIzaSyCm8OdIao7dLe8G2XwZrlPQ7SgeOgXS-DU",
-  authDomain: "brogrammers-crm.firebaseapp.com",
-  projectId: "brogrammers-crm",
-  storageBucket: "brogrammers-crm.firebasestorage.app",
-  messagingSenderId: "922559053217",
-  appId: "1:922559053217:web:f134c319d6ef1de02d1fe0",
-  measurementId: "G-YGWVLDZFS6",
+  apiKey: "AIzaSyBNjPUKWIlGjFAgeoqoDpfTAiuxwPqOnVg",
+  authDomain: "flowpoint-dev.firebaseapp.com",
+  projectId: "flowpoint-dev",
+  storageBucket: "flowpoint-dev.firebasestorage.app",
+  messagingSenderId: "989467212222",
+  appId: "1:989467212222:web:03c7ea79c5e9beb69021ef",
+  measurementId: "G-TK0SRRS9DM"
 };
 
 const app = initializeApp(firebaseConfig);

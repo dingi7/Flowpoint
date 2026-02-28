@@ -184,6 +184,9 @@ export function SiteHeader() {
               <DropdownMenuItem onClick={() => changeLanguage("bg")}>
                 {t("common.bulgarian")}
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeLanguage("tr")}>
+                {t("common.turkish")}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Logo className="object-contain" width={140} height={45} />

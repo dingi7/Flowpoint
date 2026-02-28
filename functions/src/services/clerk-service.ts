@@ -84,4 +84,55 @@ export const clerkService: ClerkService = {
       console.error(error);
     }
   },
+
+  async createOrganization(payload) {
+    try {
+      const clerkClient = createClerkClient({
+        secretKey: payload.apiKey,
+      });
+
+      return await clerkClient.organizations.createOrganization({
+        name: payload.name,
+        slug: payload.slug,
+        createdBy: payload.createdBy,
+        publicMetadata: payload.publicMetadata,
+        privateMetadata: payload.privateMetadata,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
+
+  async addOrganizationMembership(payload) {
+    try {
+      const clerkClient = createClerkClient({
+        secretKey: payload.apiKey,
+      });
+
+      return await clerkClient.organizations.createOrganizationMembership({
+        organizationId: payload.organizationId,
+        userId: payload.userId,
+        role: payload.role,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
+
+  async getOrganizationBillingSubscription(payload) {
+    try {
+      const clerkClient = createClerkClient({
+        secretKey: payload.apiKey,
+      });
+
+      return await clerkClient.billing.getOrganizationBillingSubscription(
+        payload.organizationId,
+      );
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
 };

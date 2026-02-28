@@ -1,6 +1,7 @@
 import { bookAppointmentFn } from "@/app/appointment/book-appointment";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
+import { checkBilling, isBillingRequiredError } from "@/utils/check-billing";
 import { handleCorsPreflight, setCorsHeaders } from "@/utils/cors";
 import { getClientIp, getTimezoneFromIp } from "@/utils/ip-timezone";
 import { onRequest } from "firebase-functions/v2/https";
@@ -9,6 +10,8 @@ import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const mailgunApiKeySecret = defineSecret(Secrets.MAILGUN_API_KEY);
 const mailgunDomainSecret = defineSecret(Secrets.MAILGUN_DOMAIN);
 const mailgunUrlSecret = defineSecret(Secrets.MAILGUN_URL);
@@ -48,7 +51,12 @@ export const widgetBookAppointment = onRequest(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
-    secrets: [mailgunApiKeySecret, mailgunDomainSecret, mailgunUrlSecret],
+    secrets: [
+      clerkSecretKey,
+      mailgunApiKeySecret,
+      mailgunDomainSecret,
+      mailgunUrlSecret,
+    ],
   },
   async (req, res) => {
     setCorsHeaders(res);
@@ -85,13 +93,28 @@ export const widgetBookAppointment = onRequest(
         return;
       }
 
+      await checkBilling(
+        { organizationId: payload.organizationId },
+        {
+          organizationRepository,
+          clerkService,
+          clerkSecretKey: clerkSecretKey.value(),
+          loggerService,
+        },
+      );
+
       const mailgunService = serviceHost.getMailgunService({
         apiKey: mailgunApiKeySecret.value(),
         domain: mailgunDomainSecret.value(),
         url: mailgunUrlSecret.value() || undefined,
       });
 
-      const cloudTasksService = serviceHost.getCloudTasksService("sendAppointmentReminder");
+      const cloudTasksServiceReminder =
+        serviceHost.getCloudTasksService("sendAppointmentReminder");
+      const cloudTasksServiceReviewRequest =
+        serviceHost.getCloudTasksService("sendAppointmentReviewRequest");
+      const cloudTasksServiceRebooking =
+        serviceHost.getCloudTasksService("sendAppointmentRebookingReminder");
 
       // Get timezone from client IP
       const clientIp = getClientIp(req);
@@ -113,7 +136,9 @@ export const widgetBookAppointment = onRequest(
           loggerService,
           organizationRepository,
           mailgunService,
-          cloudTasksService,
+          cloudTasksServiceReminder,
+          cloudTasksServiceReviewRequest,
+          cloudTasksServiceRebooking,
         },
       );
 
@@ -126,6 +151,13 @@ export const widgetBookAppointment = onRequest(
         confirmationDetails: result.confirmationDetails,
       });
     } catch (error) {
+      if (isBillingRequiredError(error)) {
+        res.status(402).json({
+          error: "BILLING_REQUIRED",
+          success: false,
+        });
+        return;
+      }
       loggerService.error("Error booking appointment:", error);
       res.status(500).json({
         error: "Failed to book appointment",

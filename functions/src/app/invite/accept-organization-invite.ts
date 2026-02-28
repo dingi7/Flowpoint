@@ -1,6 +1,8 @@
-import { addDays } from 'date-fns';
+import { addDays } from "date-fns";
 import {
   CalendarRepository,
+  ClerkService,
+  CLERK_ORGANIZATION_ROLE,
   InviteRepository,
   InviteStatus,
   LoggerService,
@@ -8,6 +10,12 @@ import {
   OrganizationRepository,
   UserRepository,
 } from "@/core";
+import { HttpsError } from "firebase-functions/https";
+import {
+  FREE_ORG_PLAN_SLUG,
+  getOrganizationBillingContext,
+  MEMBER_LIMIT_REACHED_MESSAGE,
+} from "@/utils/check-billing";
 import { createMemberFn } from "../member/create-member";
 
 interface Payload {
@@ -25,15 +33,27 @@ interface Dependencies {
   userRepository: UserRepository;
   calendarRepository: CalendarRepository;
   organizationRepository: OrganizationRepository;
+  clerkService: ClerkService;
+  clerkSecretKey: string;
 }
+
+const FREE_PLAN_MEMBER_LIMIT = 2;
 
 export async function acceptOrganizationInviteFn(
   payload: Payload,
   dependencies: Dependencies,
 ) {
   const { inviteId, userId, image, description, name } = payload;
-  const { loggerService, inviteRepository, memberRepository, userRepository, calendarRepository, organizationRepository } =
-    dependencies;
+  const {
+    loggerService,
+    inviteRepository,
+    memberRepository,
+    userRepository,
+    calendarRepository,
+    organizationRepository,
+    clerkService,
+    clerkSecretKey,
+  } = dependencies;
 
   // 1. Check if the invite exists
   const invite = await inviteRepository.get({ id: inviteId });
@@ -81,6 +101,42 @@ export async function acceptOrganizationInviteFn(
     throw new Error("Invite email does not match user email");
   }
 
+  const billingContext = await getOrganizationBillingContext(
+    {
+      organizationId: invite.organizationId,
+      userId,
+    },
+    {
+      organizationRepository,
+      clerkService,
+      clerkSecretKey,
+      loggerService,
+    },
+  );
+
+  if (
+    billingContext.planSlugs.includes(FREE_ORG_PLAN_SLUG) &&
+    !existingMember
+  ) {
+    const activeMembers = await memberRepository.getAll({
+      organizationId: invite.organizationId,
+      queryConstraints: [
+        {
+          field: "status",
+          operator: "==",
+          value: "active",
+        },
+      ],
+      pagination: {
+        limit: FREE_PLAN_MEMBER_LIMIT,
+      },
+    });
+
+    if (activeMembers.length >= FREE_PLAN_MEMBER_LIMIT) {
+      throw new HttpsError("failed-precondition", MEMBER_LIMIT_REACHED_MESSAGE);
+    }
+  }
+
   // Use the centralized createMember function
   await createMemberFn(
     {
@@ -99,6 +155,53 @@ export async function acceptOrganizationInviteFn(
       organizationRepository,
     }
   );
+
+  const organization = await organizationRepository.get({
+    id: invite.organizationId,
+  });
+
+  if (!organization) {
+    throw new Error(`Organization not found: ${invite.organizationId}`);
+  }
+
+  let clerkOrganizationId = organization.clerkOrganizationId;
+  let shouldAddMembership = true;
+
+  if (!clerkOrganizationId) {
+    const clerkOrganization = await clerkService.createOrganization({
+      apiKey: clerkSecretKey,
+      name: organization.name,
+      createdBy: userId,
+    });
+
+    if (!clerkOrganization) {
+      throw new Error("Failed to create Clerk organization");
+    }
+
+    clerkOrganizationId = clerkOrganization.id;
+
+    await organizationRepository.update({
+      id: invite.organizationId,
+      data: {
+        clerkOrganizationId,
+      },
+    });
+
+    shouldAddMembership = false;
+  }
+
+  if (clerkOrganizationId && shouldAddMembership) {
+    const membership = await clerkService.addOrganizationMembership({
+      apiKey: clerkSecretKey,
+      organizationId: clerkOrganizationId,
+      userId,
+      role: CLERK_ORGANIZATION_ROLE.MEMBER,
+    });
+
+    if (!membership) {
+      throw new Error("Failed to add Clerk organization membership");
+    }
+  }
 
   // 5. Update the invite status
   await inviteRepository.update({

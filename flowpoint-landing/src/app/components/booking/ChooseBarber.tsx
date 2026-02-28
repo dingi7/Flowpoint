@@ -40,7 +40,7 @@ export const ChooseBarber = ({ direction, barbers, handleBarberSelect }: ChooseB
             <Button
               key={barber.id}
               variant="outline"
-              className="h-auto flex flex-col items-center gap-3 dark:hover:bg-muted/50 w-full p-3 cursor-pointer"
+              className="h-auto flex flex-col items-center gap-3 dark:hover:bg-muted/50 w-full p-3 md:p-4 cursor-pointer"
               onClick={() => handleBarberSelect(barber)}
             >
               <div className="w-full aspect-square relative cursor-pointer">
@@ -53,7 +53,7 @@ export const ChooseBarber = ({ direction, barbers, handleBarberSelect }: ChooseB
                   loading="lazy"
                 />
               </div>
-              <h3 className="font-semibold text-lg">{barber.name}</h3>
+              <h3 className="font-semibold text-base md:text-lg text-center whitespace-normal leading-tight">{barber.name}</h3>
             </Button>
           ))}
         </div>

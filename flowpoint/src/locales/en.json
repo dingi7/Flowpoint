@@ -7,6 +7,7 @@
         "appointments": "Appointments",
         "services": "Services",
         "organization": "Organization",
+        "billing": "Billing",
         "label": "Navigation"
     },
     "notifications": {
@@ -30,6 +31,8 @@
         "templates": "Email Templates",
         "api": "API",
         "landingPage": "Landing Page",
+        "landingPageLockedTooltip": "Unlocks with Business plan",
+        "landingPageLockedDescription": "Upgrade to the Business plan to manage landing pages.",
         "updatedSuccess": "Organization updated successfully",
         "updateError": "Failed to update organization",
         "createModal": {
@@ -110,6 +113,7 @@
             "template": "Template",
             "selectTemplate": "Select template",
             "templateFirstClass": "First Class",
+            "templateClinic": "Clinic",
             "seoTitle": "SEO",
             "seoMetaTitle": "Meta Title",
             "seoMetaDescription": "Meta Description",
@@ -148,9 +152,11 @@
         },
         "emailTemplates": {
             "title": "Email Templates",
-            "description": "Customize the email notifications sent to customers for appointment confirmations and reminders. Use variables like {{customerName}} to insert dynamic content.",
+            "description": "Customize the email notifications sent to customers for appointment confirmations, reminders, review requests, and rebooking reminders. Use variables like {{customerName}} to insert dynamic content.",
             "confirmationEmail": "Confirmation Email",
             "reminderEmail": "Reminder Email",
+            "reviewEmail": "Review Request Email",
+            "rebookingEmail": "Rebooking Reminder Email",
             "infoEmail": "Assignee Info Email",
             "emailSubject": "Email Subject",
             "emailSubjectPlaceholder": "e.g., Appointment Confirmed - {{serviceName}}",
@@ -299,12 +305,15 @@
                 "inviteUpdated": "Invite Updated",
                 "inviteDeleted": "Invite Deleted"
             }
-        }
+        },
+        "apiLockedTooltip": "Unlocks with Business plan",
+        "apiLockedDescription": "Upgrade to the Business plan to manage API keys and webhooks."
     },
     "common": {
         "language": "Language",
         "english": "English",
         "bulgarian": "Bulgarian",
+        "turkish": "Turkish",
         "notAvailable": "N/A",
         "min": "min",
         "loadMore": "Load More",
@@ -651,7 +660,7 @@
         "form": {
             "serviceInformation": "Service Information",
             "serviceName": "Service Name",
-            "price": "Price (BGN)",
+            "price": "Price (EUR)",
             "duration": "Duration (minutes)",
             "description": "Description",
             "image": "Service Image",
@@ -664,7 +673,9 @@
             "durationPlaceholder": "30",
             "descriptionPlaceholder": "Enter service description"
         },
-        "errorLoading": "Error loading services"
+        "errorLoading": "Error loading services",
+        "freeLimitReachedTooltip": "Free plan allows up to 2 services.",
+        "freeLimitReached": "Free plan allows up to 2 services."
     },
     "team": {
         "title": "Team Management",
@@ -775,7 +786,9 @@
                 "cancel": "Cancel",
                 "sending": "Sending Invite...",
                 "send": "Send Invite"
-            }
+            },
+            "memberLimitReached": "Free plan allows up to 2 active members.",
+            "sendError": "Failed to create invite."
         },
         "invitation": {
             "acceptModal": {
@@ -785,7 +798,6 @@
                 "fullName": "Full Name",
                 "fullNamePlaceholder": "Enter your full name",
                 "fullNameDescription": "This is how your name will appear to other members",
-                "description": "Description (Optional)",
                 "descriptionPlaceholder": "Tell us a bit about yourself and your role...",
                 "descriptionHelp": "A brief description about yourself and your role in the organization",
                 "profileImage": "Profile Image (Optional)",
@@ -846,7 +858,8 @@
                 "cancelInvite": "Cancel Invite",
                 "noResults": "No invites found matching your criteria."
             }
-        }
+        },
+        "memberLimitReachedTooltip": "Free plan allows up to 2 active members."
     },
     "calendar": {
         "title": "Calendar",
@@ -954,6 +967,35 @@
             "delete": "Delete",
             "deletedSuccess": "Time off deleted successfully",
             "deleteError": "Failed to delete time off"
+        },
+        "sync": {
+            "title": "Calendar Sync",
+            "description": "Automatically sync appointments to your Google Calendar and subscribe from Apple Calendar via ICS.",
+            "loading": "Loading sync status...",
+            "selfOnlyMessage": "Only this member can manage calendar sync settings.",
+            "connectGoogle": "Connect Google Calendar",
+            "reconnectGoogle": "Reconnect Google Calendar",
+            "connectSuccess": "Google Calendar connected successfully",
+            "connectError": "Failed to connect Google Calendar",
+            "toggleError": "Failed to update auto sync",
+            "enabledSuccess": "Auto sync enabled",
+            "disabledSuccess": "Auto sync disabled",
+            "disconnect": "Disconnect",
+            "disconnectSuccess": "Calendar sync disconnected",
+            "disconnectError": "Failed to disconnect calendar sync",
+            "connectedAs": "Connected as",
+            "autoSyncToggle": "Auto sync new appointments",
+            "copyIcs": "Copy Apple ICS URL",
+            "openIcs": "Open ICS URL",
+            "copyIcsSuccess": "ICS URL copied",
+            "backfillStatus": "Backfill status",
+            "backfill": {
+                "idle": "Idle",
+                "pending": "Pending",
+                "running": "Running",
+                "completed": "Completed",
+                "failed": "Failed"
+            }
         }
     }
 }

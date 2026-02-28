@@ -28,8 +28,8 @@ export const serviceHost: ServiceHost = {
   getMailgunService(payload: GetMailgunServicePayload) {
     return getMailgunService(payload);
   },
-  getCloudTasksService(functionName: string) {
-    return getCloudTasksService(functionName);
+  getCloudTasksService(functionName: string, queueName?: string) {
+    return getCloudTasksService(functionName, queueName);
   },
   getSecretManagerService(dependencies: GetSecretManagerServiceDependencies) {
     return getSecretManagerService(dependencies);

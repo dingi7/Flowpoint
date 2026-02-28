@@ -16,10 +16,28 @@ export function getSecretManagerService(
 
   return {
     async getSecret(secretId: string): Promise<string | null> {
-      const [version] = await secretManagerClient.accessSecretVersion({
-        name: `${parent}/secrets/${secretId}/versions/latest`,
-      });
-      return version.payload?.data?.toString() || null;
+      try {
+        const [version] = await secretManagerClient.accessSecretVersion({
+          name: `${parent}/secrets/${secretId}/versions/latest`,
+        });
+        return version.payload?.data?.toString() || null;
+      } catch (error) {
+        loggerService.warn("Secret not found while reading", {
+          secretId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        if (
+          error instanceof Error &&
+          (error.message.includes("NOT_FOUND") ||
+            error.message.includes("not found") ||
+            error.message.includes("no versions"))
+        ) {
+          return null;
+        }
+
+        throw error;
+      }
     },
     async createSecret(secretId: string, secretValue: string): Promise<void> {
       try {

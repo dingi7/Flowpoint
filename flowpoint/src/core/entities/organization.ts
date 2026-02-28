@@ -11,6 +11,13 @@ export const EmailTemplateSchema = z.object({
 
 export type EmailTemplate = z.infer<typeof EmailTemplateSchema>;
 
+export const RESERVED_ORGANIZATION_SLUGS = ["landing"] as const;
+const reservedOrganizationSlugSet = new Set<string>(RESERVED_ORGANIZATION_SLUGS);
+
+export function isReservedOrganizationSlug(payload: { slug: string }) {
+  return reservedOrganizationSlugSet.has(payload.slug.trim().toLowerCase());
+}
+
 const slugSchema = z
   .string()
   .trim()
@@ -20,6 +27,10 @@ const slugSchema = z
   .regex(
     /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
     "Slug can contain only lowercase letters, numbers, and hyphens",
+  )
+  .refine(
+    (slug) => !isReservedOrganizationSlug({ slug }),
+    "This slug is reserved",
   );
 
 const optionalSlugSchema = z.preprocess(
@@ -30,7 +41,7 @@ const optionalSlugSchema = z.preprocess(
 
 export const LandingPageSettingsSchema = z.object({
   enabled: z.boolean().default(false),
-  templateId: z.literal("first-class").default("first-class"),
+  templateId: z.enum(["first-class", "clinic"]).default("first-class"),
   seo: z
     .object({
       title: z.string().optional(),
@@ -75,14 +86,37 @@ export const LandingPageSettingsSchema = z.object({
       sectionDescription: z.string().optional(),
     })
     .default({}),
+  aboutUs: z
+    .object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+      patientsServed: z.string().optional(),
+      specialists: z.string().optional(),
+      yearsOfService: z.string().optional(),
+      patientSatisfaction: z.string().optional(),
+      bullets: z.array(z.string()).default([]),
+    })
+    .default({}),
+  testimonials: z
+    .object({
+      items: z.array(z.object({
+        quote: z.string(),
+        authorName: z.string(),
+        authorRole: z.string().optional(),
+        rating: z.number().default(5)
+      })).default([])
+    })
+    .default({}),
   copyOverrides: z
     .object({
       servicesTitle: z.string().optional(),
       teamTitle: z.string().optional(),
       teamSubtitle: z.string().optional(),
       galleryTitle: z.string().optional(),
+      locationTitle: z.string().optional(),
     })
     .optional(),
+  footerTagline: z.string().optional(),
 });
 
 export type LandingPageSettings = z.infer<typeof LandingPageSettingsSchema>;
@@ -120,6 +154,8 @@ export const OrganizationSettingsSchema = z.object({
       confirmation: EmailTemplateSchema.optional(),
       reminder: EmailTemplateSchema.optional(),
       info: EmailTemplateSchema.optional(),
+      review: EmailTemplateSchema.optional(),
+      rebooking: EmailTemplateSchema.optional(),
     })
     .optional(),
 });
@@ -145,6 +181,7 @@ export const organizationDataSchema = z.object({
   image: z.string().optional(),
   industry: z.string().optional(),
   currency: z.string().default("EUR"),
+  clerkOrganizationId: z.string().optional(),
   slug: optionalSlugSchema,
   landingPage: LandingPageSettingsSchema.optional(),
   settings: OrganizationSettingsSchema,

@@ -1,6 +1,7 @@
 import { PendingInvitesList } from "@/components/invitation/PendingInvitesList";
 import { MemberForm } from "@/components/member/MemberForm";
 import { MemberList } from "@/components/member/MemberList";
+import { FREE_LIMITS, PLANS } from "@/billing/config";
 import { RoleForm } from "@/components/role/RoleForm";
 import { RoleList } from "@/components/role/RoleList";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { InviteStatus } from "@/core";
 import { useInvitesByOrganization } from "@/hooks/repository-hooks/invite/use-invite";
 import { useMembers } from "@/hooks/repository-hooks/member/use-member";
@@ -22,6 +28,7 @@ import {
   useRoles,
 } from "@/hooks/repository-hooks/role/use-role";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useAuth } from "@clerk/clerk-react";
 import { Mail, Plus, Search, Shield, UserCheck, Users } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -31,6 +38,7 @@ export default function TeamPage() {
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
   const { t } = useTranslation();
+  const { isLoaded, orgId, has } = useAuth();
 
   const currentOrganizationId = useCurrentOrganizationId();
 
@@ -69,6 +77,13 @@ export default function TeamPage() {
   const acceptedInvites = invites.filter(
     (invite) => invite.status === InviteStatus.ACCEPTED,
   ).length;
+  const isFreePlan =
+    !!orgId && (isLoaded ? has({ plan: PLANS.freeOrg }) : false);
+  const activeMembersCount = members.filter(
+    (member) => member.status === "active",
+  ).length;
+  const isMemberLimitReached =
+    isFreePlan && activeMembersCount >= FREE_LIMITS.members;
 
   return (
     <main className="flex-1 overflow-y-auto p-6">
@@ -83,12 +98,32 @@ export default function TeamPage() {
 
         <div className="flex gap-2 mt-4 sm:mt-0">
           <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Plus className="h-4 w-4" />
-                {t("team.inviteMember")}
-              </Button>
-            </DialogTrigger>
+            {isMemberLimitReached ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="gap-2 pointer-events-none"
+                        disabled
+                      >
+                        <Plus className="h-4 w-4" />
+                        {t("team.inviteMember")}
+                      </Button>
+                    </DialogTrigger>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{t("team.memberLimitReachedTooltip")}</TooltipContent>
+              </Tooltip>
+            ) : (
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  {t("team.inviteMember")}
+                </Button>
+              </DialogTrigger>
+            )}
             <DialogContent className="sm:min-w-2xl">
               <DialogHeader>
                 <DialogTitle>{t("team.inviteNewMember")}</DialogTitle>

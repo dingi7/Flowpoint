@@ -10,6 +10,8 @@ import { z } from "zod";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const mailgunApiKeySecret = defineSecret(Secrets.MAILGUN_API_KEY);
 const mailgunDomainSecret = defineSecret(Secrets.MAILGUN_DOMAIN);
 const mailgunUrlSecret = defineSecret(Secrets.MAILGUN_URL);
@@ -52,7 +54,12 @@ export const apiBookAppointment = onRequest(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
-    secrets: [mailgunApiKeySecret, mailgunDomainSecret, mailgunUrlSecret],
+    secrets: [
+      clerkSecretKey,
+      mailgunApiKeySecret,
+      mailgunDomainSecret,
+      mailgunUrlSecret,
+    ],
   },
   async (req: AuthenticatedRequest, res) => {
     if (req.method === "OPTIONS") {
@@ -70,6 +77,8 @@ export const apiBookAppointment = onRequest(
       organizationRepository,
       secretManagerService,
       apiKeyHashRepository,
+      clerkService,
+      clerkSecretKey: clerkSecretKey.value(),
       loggerService,
     });
 
@@ -96,8 +105,14 @@ export const apiBookAppointment = onRequest(
         url: mailgunUrlSecret.value() || undefined,
       });
 
-      const cloudTasksService = serviceHost.getCloudTasksService(
+      const cloudTasksServiceReminder = serviceHost.getCloudTasksService(
         "sendAppointmentReminder",
+      );
+      const cloudTasksServiceReviewRequest = serviceHost.getCloudTasksService(
+        "sendAppointmentReviewRequest",
+      );
+      const cloudTasksServiceRebooking = serviceHost.getCloudTasksService(
+        "sendAppointmentRebookingReminder",
       );
 
       // Get timezone from client IP
@@ -121,7 +136,9 @@ export const apiBookAppointment = onRequest(
           memberRepository,
           userRepository,
           mailgunService,
-          cloudTasksService,
+          cloudTasksServiceReminder,
+          cloudTasksServiceReviewRequest,
+          cloudTasksServiceRebooking,
         },
       );
 
@@ -140,4 +157,3 @@ export const apiBookAppointment = onRequest(
     }
   },
 );
-

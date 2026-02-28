@@ -3,15 +3,23 @@
         "home": "Home",
         "services": "Services",
         "team": "Our Team",
-        "contact": "Contact"
+        "contact": "Contact",
+        "gallery": "Gallery",
+        "toggleMenu": "Toggle menu"
     },
     "hero": {
         "title": "Welcome to First Class",
         "subtitle": "Experience premium grooming",
-        "bookNow": "Book Now"
+        "bookNow": "Book Now",
+        "welcomeTo": "Wellness & Care",
+        "ourServices": "Our Services",
+        "trusted": "Trusted Care",
+        "professional": "Professional Team",
+        "modern": "Modern Approach"
     },
     "services": {
         "title": "Our Services",
+        "eyebrow": "What We Offer",
         "premiumHaircut": {
             "title": "Premium Haircut",
             "description": "We offer a wide range of haircuts and styles tailored to your preferences. Our experienced barbers provide free consultation to help you find the perfect look that matches your personality.",
@@ -37,6 +45,7 @@
     "team": {
         "title": "Meet Our Expert Barbers",
         "subtitle": "Our professional team is dedicated to giving you the perfect look",
+        "eyebrow": "Our Specialists",
         "bookNow": "Book Now",
         "barbers": {
             "burhan": {
@@ -65,13 +74,30 @@
             }
         }
     },
+    "aboutUs": {
+        "title": "Trusted Healthcare",
+        "eyebrow": "About Us",
+        "patientsServed": "Patients Served",
+        "specialists": "Specialists",
+        "yearsOfService": "Years of Service",
+        "patientSatisfaction": "Patient Satisfaction"
+    },
+    "testimonials": {
+        "title": "What Our Patients Say",
+        "eyebrow": "Testimonials"
+    },
     "gallery": {
-        "title": "They Trusted Us"
+        "title": "They Trusted Us",
+        "eyebrow": "Gallery",
+        "loading": "loaded",
+        "client": "Client"
     },
     "footer": {
         "address": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
         "phone": "+359 888980127",
         "companyName": "First Class Barbershop",
+        "contact": "Contact",
+        "quickLinks": "Quick Links",
         "links": {
             "cookies": "Cookies",
             "terms": "Terms & Conditions",
@@ -124,6 +150,13 @@
         "title": "SERVICE BEYOND EXPECTATIONS",
         "description": "Our barbershop is a space specially designed for men who value premium quality, time, and impeccable appearance. We will help you look stylish and confident in the most elegant way.",
         "locationTitle": "LOCATION",
+        "phone": "Phone",
+        "eyebrow": "Find Us",
+        "workingHoursLabel": "Working Hours",
+        "workingDaysLabel": "Working Days",
+        "weekdaysOnly": "Mon-Fri",
+        "mapPlaceholder": "Map will appear here",
+        "mapTitle": "{{name}} Location",
         "location": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
         "getDirections": "GET DIRECTIONS",
         "workingHours": {

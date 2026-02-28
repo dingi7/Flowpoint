@@ -10,6 +10,7 @@ import {
 } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 interface MemberFormProps {
   onSuccess?: () => void;
@@ -25,6 +26,19 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
     pagination: { limit: 100 },
     orderBy: { field: "name", direction: "asc" },
   });
+
+  const isMemberLimitReachedError = (error: unknown): boolean => {
+    if (!error || typeof error !== "object") {
+      return false;
+    }
+
+    const typedError = error as { message?: string };
+
+    return (
+      typeof typedError.message === "string" &&
+      typedError.message.includes("MEMBER_LIMIT_REACHED")
+    );
+  };
 
   const {
     handleSubmit,
@@ -51,6 +65,11 @@ export function MemberForm({ onSuccess, onCancel }: MemberFormProps) {
         }
       } catch (error) {
         console.error("Failed to create invite:", error);
+        if (isMemberLimitReachedError(error)) {
+          toast.error(t("team.invite.memberLimitReached"));
+          return;
+        }
+        toast.error(t("team.invite.sendError"));
       }
     },
   });

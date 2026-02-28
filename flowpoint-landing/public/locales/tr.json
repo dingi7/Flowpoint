@@ -3,15 +3,23 @@
         "home": "Ana Sayfa",
         "services": "Hizmetler", 
         "team": "Ekibimiz",
-        "contact": "İletişim"
+        "contact": "İletişim",
+        "gallery": "Galeri",
+        "toggleMenu": "Menüyü aç/kapat"
     },
     "hero": {
         "title": "First Class'a Hoş Geldiniz",
         "subtitle": "Premium tıraş deneyimini yaşayın",
-        "bookNow": "Randevu Al"
+        "bookNow": "Randevu Al",
+        "welcomeTo": "Sağlık ve bakım",
+        "ourServices": "Hizmetlerimiz",
+        "trusted": "Güvenilir bakım",
+        "professional": "Profesyonel ekip",
+        "modern": "Modern yaklaşım"
     },
     "services": {
         "title": "Hizmetlerimiz",
+        "eyebrow": "Neler Sunuyoruz",
         "premiumHaircut": {
             "title": "Premium Saç Kesimi",
             "description": "Tercihlerinize göre uyarlanmış geniş bir saç kesimi ve stil yelpazesi sunuyoruz. Deneyimli berberlerimiz, kişiliğinize uygun mükemmel görünümü bulmanıza yardımcı olmak için ücretsiz danışmanlık hizmeti vermektedir.",
@@ -37,6 +45,7 @@
     "team": {
         "title": "Uzman Berberlerimizle Tanışın",
         "subtitle": "Profesyonel ekibimiz size mükemmel görünümü kazandırmak için özveriyle çalışıyor",
+        "eyebrow": "Uzmanlarımız",
         "barbers": {
             "burhan": {
                 "description": "13 yıllık deneyime sahip usta stilist Burhan, erkek bakımını bir sanata dönüştürüyor, ünlüler ve stil sahibi erkekler için imza niteliğinde görünümler yaratıyor."
@@ -65,13 +74,30 @@
         },
         "bookNow": "Randevu Al"
     },
+    "aboutUs": {
+        "title": "Güvenilir Sağlık Hizmeti",
+        "eyebrow": "Hakkımızda",
+        "patientsServed": "Hizmet Verilen Hasta",
+        "specialists": "Uzmanlar",
+        "yearsOfService": "Yıllık Deneyim",
+        "patientSatisfaction": "Hasta Memnuniyeti"
+    },
+    "testimonials": {
+        "title": "Hastalarımız Ne Diyor",
+        "eyebrow": "Referanslar"
+    },
     "gallery": {
-        "title": "Bize Güvendiler"
+        "title": "Bize Güvendiler",
+        "eyebrow": "Galeri",
+        "loading": "yüklendi",
+        "client": "Müşteri"
     },
     "footer": {
         "address": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
         "phone": "+359 888980127",
         "companyName": "First Class Berber Salonu",
+        "contact": "İletişim",
+        "quickLinks": "Hızlı Bağlantılar",
         "links": {
             "cookies": "Çerezler",
             "terms": "Şartlar ve Koşullar",
@@ -124,6 +150,13 @@
         "title": "BEKLENTİLERİN ÖTESİNDE HİZMET",
         "description": "Berber salonumuz, premium kaliteye, zamana ve kusursuz görünüme değer veren erkekler için özel olarak tasarlanmış bir mekandır. Size en zarif şekilde şık ve kendinden emin görünmeniz için yardımcı olacağız.",
         "locationTitle": "KONUM",
+        "phone": "Telefon",
+        "eyebrow": "Bizi Bulun",
+        "workingHoursLabel": "Çalışma Saatleri",
+        "workingDaysLabel": "Çalışma Günleri",
+        "weekdaysOnly": "Pts-Cum",
+        "mapPlaceholder": "Harita burada görünecek",
+        "mapTitle": "{{name}} Konumu",
         "location": "Mladost, 'Akademik Andrey Sakharov' 2, 9000 Varna",
         "getDirections": "YOL TARİFİ AL",
         "workingHours": {

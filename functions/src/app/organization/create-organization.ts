@@ -1,5 +1,6 @@
 import {
   CalendarRepository,
+  ClerkService,
   LoggerService,
   MemberRepository,
   OrganizationRepository,
@@ -11,87 +12,113 @@ import {
 import { createMemberFn } from "../member/create-member";
 
 interface Payload {
-organizationData: {
-  name: string;
-  image?: string;
-  industry?: string;
-  currency: string;
-  settings: OrganizationSettingsData;
-};
-userId: string;
+  organizationData: {
+    name: string;
+    image?: string;
+    industry?: string;
+    currency: string;
+    settings: OrganizationSettingsData;
+  };
+  userId: string;
 }
 
 interface Dependencies {
-organizationRepository: OrganizationRepository;
-memberRepository: MemberRepository;
-roleRepository: RoleRepository;
-userRepository: UserRepository;
-calendarRepository: CalendarRepository;
-loggerService: LoggerService; 
+  organizationRepository: OrganizationRepository;
+  memberRepository: MemberRepository;
+  roleRepository: RoleRepository;
+  userRepository: UserRepository;
+  calendarRepository: CalendarRepository;
+  clerkService: ClerkService;
+  clerkSecretKey: string;
+  loggerService: LoggerService;
 }
 
 export async function createOrganizationFn(
-payload: Payload,
-dependencies: Dependencies,
+  payload: Payload,
+  dependencies: Dependencies,
 ) {
-const { organizationData, userId } = payload;
-const { 
-  organizationRepository, 
-  memberRepository, 
-  roleRepository, 
-  userRepository,
-  calendarRepository,
-  loggerService 
-} = dependencies;
-
-const organizationId = await organizationRepository.create({
-  data: {
-    ...organizationData,
-    apiKeys: [],
-  },
-});
-
-loggerService.info(`Created organization ${organizationId}`);
-
-const user = await userRepository.get({ id: userId });
-if (!user) {
-  loggerService.info("User not found", { userId });
-  throw new Error("User not found");
-}
-
-const fullAccessRoleId = await roleRepository.create({
-  organizationId,
-  data: {
-    name: "Full Access",
-    permissions: [
-      PermissionKey.MANAGE_APPOINTMENTS,
-      PermissionKey.MANAGE_CALENDARS,
-      PermissionKey.MANAGE_MEMBERS,
-      PermissionKey.VIEW_REPORTS,
-      PermissionKey.MANAGE_ORGANIZATION,
-    ],
-  },
-});
-
-loggerService.info(`Created role ${fullAccessRoleId}`);
-
-// Use the centralized createMember function
-await createMemberFn(
-  {
-    userId,
-    organizationId,
-    name: `${user.name} ${user.lastName} (Owner)`,
-    roleIds: [fullAccessRoleId],
-    timezone: organizationData.settings.timezone,
-  },
-  {
+  const { organizationData, userId } = payload;
+  const {
+    organizationRepository,
     memberRepository,
+    roleRepository,
     userRepository,
     calendarRepository,
+    clerkService,
+    clerkSecretKey,
     loggerService,
-    organizationRepository
-  }
-);
+  } = dependencies;
 
-return organizationId
+  const organizationId = await organizationRepository.create({
+    data: {
+      ...organizationData,
+      apiKeys: [],
+    },
+  });
+
+  loggerService.info(`Created organization ${organizationId}`);
+
+  const clerkOrganization = await clerkService.createOrganization({
+    apiKey: clerkSecretKey,
+    name: organizationData.name,
+    createdBy: userId,
+  });
+
+  if (!clerkOrganization) {
+    throw new Error("Failed to create Clerk organization");
+  }
+
+  await organizationRepository.update({
+    id: organizationId,
+    data: {
+      clerkOrganizationId: clerkOrganization.id,
+    },
+  });
+
+  loggerService.info("Mapped Clerk organization", {
+    organizationId,
+    clerkOrganizationId: clerkOrganization.id,
+  });
+
+  const user = await userRepository.get({ id: userId });
+  if (!user) {
+    loggerService.info("User not found", { userId });
+    throw new Error("User not found");
+  }
+
+  const fullAccessRoleId = await roleRepository.create({
+    organizationId,
+    data: {
+      name: "Full Access",
+      permissions: [
+        PermissionKey.MANAGE_APPOINTMENTS,
+        PermissionKey.MANAGE_CALENDARS,
+        PermissionKey.MANAGE_MEMBERS,
+        PermissionKey.VIEW_REPORTS,
+        PermissionKey.MANAGE_ORGANIZATION,
+      ],
+    },
+  });
+
+  loggerService.info(`Created role ${fullAccessRoleId}`);
+
+  // Use the centralized createMember function
+  await createMemberFn(
+    {
+      userId,
+      organizationId,
+      name: `${user.name} ${user.lastName} (Owner)`,
+      roleIds: [fullAccessRoleId],
+      timezone: organizationData.settings.timezone,
+    },
+    {
+      memberRepository,
+      userRepository,
+      calendarRepository,
+      loggerService,
+      organizationRepository,
+    },
+  );
+
+  return organizationId;
 }

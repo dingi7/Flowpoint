@@ -17,7 +17,7 @@ export interface ServicesProps {
 
 export function Services({ services, title }: ServicesProps) {
     const { locale } = useLocale();
-    const allServices = services || [];
+    const allServices = useMemo(() => services || [], [services]);
     const sortedServices = useMemo(
         () =>
             [...allServices].sort((a: Service, b: Service) => {

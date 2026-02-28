@@ -58,9 +58,11 @@ export default function Header({ logoUrl, organizationName }: HeaderProps) {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-3 group">
           {logoUrl ? (
-            <img
+            <Image
               src={logoUrl}
               alt={organizationName || "Logo"}
+              width={140}
+              height={45}
               className="h-[45px] w-auto object-cover opacity-95"
             />
           ) : (

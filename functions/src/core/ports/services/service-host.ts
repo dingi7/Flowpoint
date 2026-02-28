@@ -14,6 +14,9 @@ export interface ServiceHost {
   getLoggerService: () => LoggerService;
   getPubSubService: () => PubSubService;
   getMailgunService: (payload: GetMailgunServicePayload) => MailgunService;
-  getCloudTasksService: (functionName: string) => CloudTasksService;
+  getCloudTasksService: (
+    functionName: string,
+    queueName?: string,
+  ) => CloudTasksService;
   getSecretManagerService: (dependencies: GetSecretManagerServiceDependencies) => SecretManagerService;
 }

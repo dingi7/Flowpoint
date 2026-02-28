@@ -3,9 +3,13 @@ import { OrganizationSettingsData } from "@/core";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { CallableRequest, onCall } from "firebase-functions/https";
+import { defineSecret } from "firebase-functions/params";
+import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 
 const organizationRepository =
   repositoryHost.getOrganizationRepository(databaseService);
@@ -26,6 +30,7 @@ export const createOrganization = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
+    secrets: [clerkSecretKey],
   },
   async (request: CallableRequest<Payload>) => {
     if (!request.auth) {
@@ -48,6 +53,8 @@ export const createOrganization = onCall<Payload>(
           roleRepository,
           userRepository,
           calendarRepository,
+          clerkService,
+          clerkSecretKey: clerkSecretKey.value(),
         },
       );
 

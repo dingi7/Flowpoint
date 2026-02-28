@@ -3,9 +3,13 @@ import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
 import { authenticateApiKey, AuthenticatedRequest } from "@/utils/api-auth-middleware";
 import { onRequest } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
+import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const organizationRepository =
   repositoryHost.getOrganizationRepository(databaseService);
 const secretManagerService = serviceHost.getSecretManagerService({
@@ -19,6 +23,7 @@ export const apiGetService = onRequest(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
+    secrets: [clerkSecretKey],
   },
   async (req: AuthenticatedRequest, res) => {
     if (req.method === "OPTIONS") {
@@ -36,6 +41,8 @@ export const apiGetService = onRequest(
       organizationRepository,
       secretManagerService,
       apiKeyHashRepository,
+      clerkService,
+      clerkSecretKey: clerkSecretKey.value(),
       loggerService,
     });
 
@@ -87,4 +94,3 @@ export const apiGetService = onRequest(
     }
   },
 );
-

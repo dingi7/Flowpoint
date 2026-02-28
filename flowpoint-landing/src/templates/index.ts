@@ -1,4 +1,5 @@
 import { FirstClassTemplate } from "./first-class/FirstClassTemplate";
+import { ClinicTemplate } from "./clinic/ClinicTemplate";
 import { TemplateProps } from "./types";
 import type { ReactElement } from "react";
 
@@ -7,6 +8,7 @@ export const templateRegistry: Record<
   (props: TemplateProps) => ReactElement
 > = {
   "first-class": FirstClassTemplate,
+  "clinic": ClinicTemplate,
 };
 
 export function getTemplateComponent(templateId?: string) {

@@ -143,6 +143,9 @@ export function OrganizationForm({
     }
   }, [workingHours]);
 
+  const isSubmitDisabled =
+    isLoading || isUploading || (!organization && !formState.isValid);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Basic Information */}
@@ -641,7 +644,7 @@ export function OrganizationForm({
         )}
         <Button
           type="submit"
-          disabled={isLoading || !formState.isValid || isUploading}
+          disabled={isSubmitDisabled}
         >
           {isLoading
             ? t("organization.form.saving")

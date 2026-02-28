@@ -1,10 +1,14 @@
 import { acceptOrganizationInviteFn } from "@/app/invite/accept-organization-invite";
 import { repositoryHost } from "@/repositories";
 import { serviceHost } from "@/services";
-import { CallableRequest, onCall } from "firebase-functions/https";
+import { CallableRequest, HttpsError, onCall } from "firebase-functions/https";
+import { defineSecret } from "firebase-functions/params";
+import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 
 const inviteRepository = repositoryHost.getInviteRepository(databaseService);
 const userRepository = repositoryHost.getUserRepository(databaseService);
@@ -23,6 +27,7 @@ export const acceptOrganizationInvite = onCall<Payload>(
   {
     invoker: "public",
     ingressSettings: "ALLOW_ALL",
+    secrets: [clerkSecretKey],
   },
   async (request: CallableRequest<Payload>) => {
     if (!request.auth) {
@@ -45,11 +50,16 @@ export const acceptOrganizationInvite = onCall<Payload>(
           userRepository,
           calendarRepository,
           organizationRepository,
+          clerkService,
+          clerkSecretKey: clerkSecretKey.value(),
         },
       );
 
       return;
     } catch (error) {
+      if (error instanceof HttpsError) {
+        throw error;
+      }
       loggerService.error("Invite accept error", error);
       throw new Error(
         `Invite accept failed: ${error instanceof Error ? error.message : "Unknown error"}`,

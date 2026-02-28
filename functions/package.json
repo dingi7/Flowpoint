@@ -3,6 +3,7 @@
   "scripts": {
     "build": "rm -rf ./lib && tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
     "build:watch": "rm -rf ./lib && tsc --project ./tsconfig.json --watch",
+    "backfill:clerk-orgs": "ts-node src/scripts/backfill-clerk-organizations.ts",
     "serve": "yarn run build && firebase emulators:start --only functions",
     "shell": "yarn run build && firebase functions:shell",
     "start": "yarn run shell",

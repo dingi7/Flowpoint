@@ -7,18 +7,32 @@ import {
 import { repositoryHost } from "@/repositories";
 import { DatabaseCollection } from "@/repositories/config";
 import { serviceHost } from "@/services";
+import {
+  BILLING_FEATURES,
+  checkBilling,
+  isBillingRequiredError,
+} from "@/utils/check-billing";
+import { defineSecret } from "firebase-functions/params";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
+import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const secretManagerService = serviceHost.getSecretManagerService({
   loggerService,
 });
+const organizationRepository =
+  repositoryHost.getOrganizationRepository(databaseService);
 const webhookSubscriptionRepository =
   repositoryHost.getWebhookSubscriptionRepository(databaseService);
 
 export const onInviteChange = onDocumentWritten(
-  `${DatabaseCollection.INVITES}/{inviteId}`,
+  {
+    document: `${DatabaseCollection.INVITES}/{inviteId}`,
+    secrets: [clerkSecretKey],
+  },
   async (event) => {
     const beforeData = event.data?.before?.data() as Invite | undefined;
     const afterData = event.data?.after?.data() as Invite | undefined;
@@ -42,6 +56,30 @@ export const onInviteChange = onDocumentWritten(
       eventType = WEBHOOK_EVENT_TYPE.INVITE_DELETED;
     } else {
       eventType = WEBHOOK_EVENT_TYPE.INVITE_UPDATED;
+    }
+
+    try {
+      await checkBilling(
+        {
+          organizationId,
+          requiredFeatureSlugs: [BILLING_FEATURES.webhooks],
+        },
+        {
+          organizationRepository,
+          clerkService,
+          clerkSecretKey: clerkSecretKey.value(),
+          loggerService,
+        },
+      );
+    } catch (error) {
+      if (isBillingRequiredError(error)) {
+        loggerService.info("Skipping webhook delivery due to plan access", {
+          organizationId,
+          eventType,
+        });
+        return;
+      }
+      throw error;
     }
 
     // Get active webhook subscriptions for this organization
@@ -88,4 +126,3 @@ export const onInviteChange = onDocumentWritten(
     );
   },
 );
-

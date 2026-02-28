@@ -7,18 +7,32 @@ import {
 import { repositoryHost } from "@/repositories";
 import { DatabaseCollection } from "@/repositories/config";
 import { serviceHost } from "@/services";
+import {
+  BILLING_FEATURES,
+  checkBilling,
+  isBillingRequiredError,
+} from "@/utils/check-billing";
+import { defineSecret } from "firebase-functions/params";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
+import { Secrets } from "@/config/secrets";
 
 const databaseService = serviceHost.getDatabaseService();
 const loggerService = serviceHost.getLoggerService();
+const clerkService = serviceHost.getClerkService();
+const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const secretManagerService = serviceHost.getSecretManagerService({
   loggerService,
 });
+const organizationRepository =
+  repositoryHost.getOrganizationRepository(databaseService);
 const webhookSubscriptionRepository =
   repositoryHost.getWebhookSubscriptionRepository(databaseService);
 
 export const onMemberChange = onDocumentWritten(
-  `organizations/{organizationId}/${DatabaseCollection.MEMBERS}/{memberId}`,
+  {
+    document: `organizations/{organizationId}/${DatabaseCollection.MEMBERS}/{memberId}`,
+    secrets: [clerkSecretKey],
+  },
   async (event) => {
     const { organizationId } = event.params;
     const beforeData = event.data?.before?.data() as Member | undefined;
@@ -32,6 +46,30 @@ export const onMemberChange = onDocumentWritten(
       eventType = WEBHOOK_EVENT_TYPE.MEMBER_DELETED;
     } else {
       eventType = WEBHOOK_EVENT_TYPE.MEMBER_UPDATED;
+    }
+
+    try {
+      await checkBilling(
+        {
+          organizationId,
+          requiredFeatureSlugs: [BILLING_FEATURES.webhooks],
+        },
+        {
+          organizationRepository,
+          clerkService,
+          clerkSecretKey: clerkSecretKey.value(),
+          loggerService,
+        },
+      );
+    } catch (error) {
+      if (isBillingRequiredError(error)) {
+        loggerService.info("Skipping webhook delivery due to plan access", {
+          organizationId,
+          eventType,
+        });
+        return;
+      }
+      throw error;
     }
 
     // Get active webhook subscriptions for this organization
@@ -78,4 +116,3 @@ export const onMemberChange = onDocumentWritten(
     );
   },
 );
-

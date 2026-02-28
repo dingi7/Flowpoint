@@ -4,6 +4,7 @@ import { Facebook, Instagram, MapPin, Music2, Phone } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "@/lib/useTranslation";
 import { LandingPageSettings, Organization } from "@/core";
+import { JSX } from "react";
 
 export interface FooterProps {
 	organization?: Organization | null;

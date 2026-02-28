@@ -1,5 +1,6 @@
 "use client";
 
+import { FREE_LIMITS, PLANS } from "@/billing/config";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -18,11 +19,14 @@ import { OWNER_TYPE, Service } from "@/core";
 import { useCreateService, useServiceForm, useUpdateService } from "@/hooks";
 import { useServiceImageUpload } from "@/hooks/service-hooks/media/use-service-image-upload";
 import { useNextServiceOrder } from "@/hooks/service-hooks/service/use-next-service-order";
+import { useServices } from "@/hooks/repository-hooks/service/use-service";
 import { useUserStore } from "@/stores";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
+import { useAuth } from "@clerk/clerk-react";
 import { Save, X } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 interface ServiceFormProps {
   service?: Service;
@@ -36,6 +40,7 @@ export function ServiceForm({
   onCancel,
 }: ServiceFormProps) {
   const { t } = useTranslation();
+  const { isLoaded, orgId, has } = useAuth();
   const createServiceMutation = useCreateService();
   const updateServiceMutation = useUpdateService();
   const currentOrganizationId = useCurrentOrganizationId();
@@ -45,6 +50,12 @@ export function ServiceForm({
   const { url, isComplete: isUploadComplete } = uploadState;
 
   const { nextOrder } = useNextServiceOrder();
+  const { data: servicesData } = useServices({
+    pagination: { limit: 1000 },
+  });
+  const isFreePlan =
+    !!orgId && (isLoaded ? has({ plan: PLANS.freeOrg }) : false);
+  const currentServicesCount = servicesData?.pages.flatMap((page) => page).length ?? 0;
 
   const {
     register,
@@ -76,6 +87,11 @@ export function ServiceForm({
             organizationId: currentOrganizationId,
           });
         } else {
+          if (isFreePlan && currentServicesCount >= FREE_LIMITS.services) {
+            toast.error(t("services.freeLimitReached"));
+            return;
+          }
+
           // Create new service - assign next order
           await createServiceMutation.mutateAsync({
             data: {

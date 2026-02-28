@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "brogrammers-crm"
+    "default": "brogrammers-crm",
+    "dev": "flowpoint-dev"
   }
 }
