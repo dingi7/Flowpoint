@@ -5,7 +5,7 @@ import { repositoryHost } from "@/repositories";
 import { createClerkClient } from "@clerk/backend";
 import { OrganizationData } from "@/core";
 
-const clerkSecretKey = "sk_live_dSzc79UkhlcBkOcIQlfr8HKpZny5ngztzr5ApgmO03"
+const clerkSecretKey = ""
 
 const clerkClient = createClerkClient({ secretKey: clerkSecretKey });
 const databaseService = serviceHost.getDatabaseService();

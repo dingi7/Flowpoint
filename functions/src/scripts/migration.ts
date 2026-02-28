@@ -4,7 +4,6 @@ import { APPOINTMENT_STATUS, AppointmentData, OWNER_TYPE } from "../core";
 import { repositoryHost } from "../repositories";
 import { serviceHost } from "../services";
 import * as fs from "fs";
-import * as path from "path";
 
 // Initialize repositories
 const databaseService = serviceHost.getDatabaseService();
@@ -17,8 +16,8 @@ const memberRepository = repositoryHost.getMemberRepository(databaseService);
 const userRepository = repositoryHost.getUserRepository(databaseService);
 const calendarRepository = repositoryHost.getCalendarRepository(databaseService);
 
-const TARGET_ORGANIZATION_ID = "WYzeYoqP6YoqOVuZJ5Yr";
-const SQL_DUMP_PATH = path.join(__dirname, "../../../CRMbackup_latest.sql");
+const TARGET_ORGANIZATION_ID = "";
+const SQL_DUMP_PATH = "";
 
 // Service name mapping: SQL name -> Firestore name
 const SERVICE_NAME_MAP: Record<string, string> = {
