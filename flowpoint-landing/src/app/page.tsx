@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 const appUrl =
-  process.env.NEXT_PUBLIC_FLOWPOINT_APP_URL ||
   "https://flowpoint.services";
+const privacyPolicyUrl = "https://flowpoint.services/privacyPolicy";
+const termsOfServiceUrl = "https://flowpoint.services/termsOfService";
 
 export default function Home() {
   return (
@@ -271,8 +272,11 @@ export default function Home() {
             <a href={appUrl} className="hover:text-white">
               Sign in
             </a>
-            <a href="#get-started" className="hover:text-white">
-              Launch landing
+            <a href={privacyPolicyUrl} className="hover:text-white">
+              Privacy Policy
+            </a>
+            <a href={termsOfServiceUrl} className="hover:text-white">  
+              Terms of Service
             </a>
           </div>
         </div>
