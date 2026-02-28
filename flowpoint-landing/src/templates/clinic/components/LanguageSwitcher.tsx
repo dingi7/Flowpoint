@@ -22,44 +22,30 @@ export function LanguageSwitcher() {
   if (isLoading) {
     return (
       <div
-        className={`animate-pulse bg-slate-200 rounded-md h-10 w-24`}
+        className={`h-10 w-14 animate-pulse rounded-md bg-slate-200`}
       />
     );
   }
 
   return (
     <Select value={locale} onValueChange={setLocale}>
-      <SelectTrigger className="w-[100px] border-slate-300 text-slate-700">
-        <SelectValue>
-          {locale === "bg" ? (
-            <span className="flex items-center gap-2">
-              <Image src={BG} alt="BG" width={20} height={20} /> BG
-            </span>
-          ) : locale === "tr" ? (
-            <span className="flex items-center gap-2">
-              <Image src={TR} alt="TR" width={20} height={20} /> TR
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <Image src={GB} alt="GB" width={20} height={20} /> EN
-            </span>
-          )}
-        </SelectValue>
+      <SelectTrigger className="border-slate-300 items-center  text-slate-700">
+        <SelectValue className="sr-only" />
       </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="en">
-          <span className="flex items-center gap-2">
-            <Image src={GB} alt="GB" width={20} height={20} /> EN
+      <SelectContent className="min-w-[3.5rem]">
+        <SelectItem value="en" className="justify-center">
+          <span className="flex items-center justify-center">
+            <Image src={GB} alt="GB" width={24} height={24} />
           </span>
         </SelectItem>
-        <SelectItem value="bg">
-          <span className="flex items-center gap-2">
-            <Image src={BG} alt="BG" width={20} height={20} /> BG
+        <SelectItem value="bg" className="justify-center">
+          <span className="flex items-center justify-center">
+            <Image src={BG} alt="BG" width={24} height={24} />
           </span>
         </SelectItem>
-        <SelectItem value="tr">
-          <span className="flex items-center gap-2">
-            <Image src={TR} alt="TR" width={20} height={20} /> TR
+        <SelectItem value="tr" className="justify-center">
+          <span className="flex items-center justify-center">
+            <Image src={TR} alt="TR" width={24} height={24} />
           </span>
         </SelectItem>
       </SelectContent>

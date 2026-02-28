@@ -7,7 +7,8 @@ import { Database, getDatabase } from "@firebase/database";
 import { Firestore, getFirestore } from "@firebase/firestore";
 import { FirebaseStorage, getStorage } from "@firebase/storage";
 
-import config from "../../../../firebase-config.json";
+import config from "../../../firebase-config.json";
+
 
 const firebaseConfig: FirebaseOptions = config.DEV;
 

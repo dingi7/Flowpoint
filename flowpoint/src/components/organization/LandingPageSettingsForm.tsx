@@ -517,7 +517,7 @@ export function LandingPageSettingsForm({
           </Card>
         </TabsContent>
         <TabsContent value="design" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px] xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid grid-cols-1 gap-6">
             <Card className="border-border/50 shadow-sm">
               <CardHeader className="pb-4">
                 <CardTitle>Template & Theme</CardTitle>
@@ -639,72 +639,6 @@ export function LandingPageSettingsForm({
                     placeholder="Your trusted healthcare partner"
                   />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/50 shadow-sm h-fit sticky top-6">
-              <CardHeader className="pb-4">
-                <CardTitle>Live Preview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-xl shadow-sm border border-border overflow-hidden ring-1 ring-border/5">
-                  <div
-                    className="relative flex flex-col items-center justify-center p-8 text-white min-h-64"
-                    style={{
-                      background: watch("landingPage.hero.backgroundImageUrl")
-                        ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url(${watch("landingPage.hero.backgroundImageUrl")}) center/cover`
-                        : `linear-gradient(135deg, #0f172a, ${primaryColor}80, #0f172a)`,
-                    }}
-                  >
-                    <div className="text-center w-full z-10 px-4">
-                      {watch("landingPage.branding.logoUrl") && (
-                        <img
-                          src={watch("landingPage.branding.logoUrl")}
-                          alt="Logo"
-                          className="h-8 mx-auto mb-4 object-contain opacity-90"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                        />
-                      )}
-                      <h4 className="text-2xl font-bold leading-tight mb-2 max-w-sm mx-auto">
-                        {watch("landingPage.hero.title") || organization.name}
-                      </h4>
-                      <p className="text-sm opacity-80 mb-6 max-w-sm mx-auto line-clamp-2">
-                        {watch("landingPage.hero.subtitle") || organization.industry || "Add a subtitle to your hero section"}
-                      </p>
-                      <span
-                        className="inline-flex px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-md"
-                        style={{ backgroundColor: primaryColor, color: "#fff" }}
-                      >
-                        {watch("landingPage.hero.ctaLabel") || "Book Now"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-slate-900 border-t border-slate-800 px-4 py-3 text-center flex items-center justify-between">
-                    <p className="text-slate-400 text-xs truncate max-w-xs text-left">
-                      {watch("landingPage.footerTagline") || `© ${organization.name}`}
-                    </p>
-                    <div className="flex gap-2">
-                      <div className="h-4 w-4 rounded-full bg-slate-700"></div>
-                      <div className="h-4 w-4 rounded-full bg-slate-700"></div>
-                    </div>
-                  </div>
-                </div>
-                {previewUrl ? (
-                  <div className="text-sm text-center pt-2">
-                    <a
-                      href={previewUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                    >
-                      Open Live Site <Share2 className="h-3 w-3" />
-                    </a>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center pt-2">
-                    Enable landing page and add a slug to generate a URL.
-                  </p>
-                )}
               </CardContent>
             </Card>
           </div>
