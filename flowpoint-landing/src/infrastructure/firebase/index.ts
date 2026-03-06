@@ -7,10 +7,17 @@ import { Database, getDatabase } from "@firebase/database";
 import { Firestore, getFirestore } from "@firebase/firestore";
 import { FirebaseStorage, getStorage } from "@firebase/storage";
 
-import config from "../../../firebase-config.json";
+// import config from "../../../firebase-config.json";
 
-
-const firebaseConfig: FirebaseOptions = config.DEV;
+const firebaseConfig: FirebaseOptions = {
+  apiKey: "AIzaSyBNjPUKWIlGjFAgeoqoDpfTAiuxwPqOnVg",
+  authDomain: "flowpoint-dev.firebaseapp.com",
+  projectId: "flowpoint-dev",
+  storageBucket: "flowpoint-dev.firebasestorage.app",
+  messagingSenderId: "989467212222",
+  appId: "1:989467212222:web:03c7ea79c5e9beb69021ef",
+  measurementId: "G-TK0SRRS9DM",
+};
 
 const app = initializeApp(firebaseConfig);
 
