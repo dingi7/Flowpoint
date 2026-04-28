@@ -1,4 +1,4 @@
-import type { GetSecretManagerServiceDependencies, ServiceHost } from "@/core";
+import type { GetGenkitServicePayload, GetSecretManagerServiceDependencies, ServiceHost } from "@/core";
 import { authService } from "./auth-service";
 import { clerkService } from "./clerk-service";
 import { databaseService } from "./database-service";
@@ -8,6 +8,7 @@ import { getMailgunService } from "./mailgun-service";
 import { GetMailgunServicePayload } from "@/core/ports/services/mailgun-service";
 import { getCloudTasksService } from "./cloud-tasks-service";
 import { getSecretManagerService } from "./secret-manager-sercvice";
+import { getGenkitService } from "./genkit-service";
 
 export const serviceHost: ServiceHost = {
   getAuthenticationService() {
@@ -33,5 +34,10 @@ export const serviceHost: ServiceHost = {
   },
   getSecretManagerService(dependencies: GetSecretManagerServiceDependencies) {
     return getSecretManagerService(dependencies);
+  },
+  getGenkitService(payload: GetGenkitServicePayload) {
+    return getGenkitService(payload, {
+      loggerService,
+    });
   },
 };

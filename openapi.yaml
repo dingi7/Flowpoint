@@ -207,7 +207,7 @@ paths:
           description: Filter by status
           schema:
             type: string
-            enum: [pending, completed, cancelled]
+            enum: [pending, completed, cancelled, no_show]
         - name: customerId
           in: query
           description: Filter by customer ID
@@ -723,7 +723,7 @@ components:
           example: 100.00
         status:
           type: string
-          enum: [pending, completed, cancelled]
+          enum: [pending, completed, cancelled, no_show]
           example: pending
         createdAt:
           type: string
@@ -775,7 +775,7 @@ components:
           format: float
         status:
           type: string
-          enum: [pending, completed, cancelled]
+          enum: [pending, completed, cancelled, no_show]
       required:
         - assigneeType
         - assigneeId
@@ -814,7 +814,7 @@ components:
           format: float
         status:
           type: string
-          enum: [pending, completed, cancelled]
+          enum: [pending, completed, cancelled, no_show]
       description: All fields are optional. Only include fields you want to update.
 
     BookAppointmentRequest:
@@ -982,4 +982,3 @@ components:
           example:
             success: false
             error: Failed to process request
-

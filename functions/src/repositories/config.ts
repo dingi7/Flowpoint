@@ -12,4 +12,7 @@ export enum DatabaseCollection {
   INVITES = "invites",
   API_KEY_HASHES = "api-key-hashes",
   WEBHOOK_SUBSCRIPTIONS = "webhook-subscriptions",
+  ANALYTICS_DAILY = "analyticsDaily",
+  ANALYTICS_INSIGHTS = "analyticsInsights",
+  PRICING_RULES = "pricingRules",
 }

@@ -1,4 +1,5 @@
 import {
+  AnalyticsDashboardResponse,
   ApiKey,
   BookAppointmentPayload,
   BookAppointmentResponse,
@@ -72,6 +73,11 @@ export const functionsService: FunctionsService = {
       {
         start: string;
         end: string;
+        basePrice?: number;
+        finalPrice?: number;
+        discountAmount?: number;
+        pricingRuleId?: string;
+        pricingLabel?: string;
       }[]
     >(
       "getAvailableTimeslots",
@@ -257,5 +263,27 @@ export const functionsService: FunctionsService = {
       "disconnectMyCalendarSync",
       payload,
     );
+  },
+  async getAnalyticsDashboard(payload) {
+    const data = await callFunction<
+      {
+        organizationId: string;
+        startDate?: string;
+        endDate?: string;
+      },
+      AnalyticsDashboardResponse
+    >("getAnalyticsDashboard", payload);
+    return data;
+  },
+  async rebuildAnalytics(payload) {
+    const data = await callFunction<
+      {
+        organizationId: string;
+        startDate?: string;
+        endDate?: string;
+      },
+      AnalyticsDashboardResponse
+    >("rebuildAnalytics", payload);
+    return data;
   },
 };

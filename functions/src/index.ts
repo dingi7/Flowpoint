@@ -15,6 +15,10 @@ export { onClerkUserDeleted } from "./functions/clerk/on-clerk-user-deleted";
 // <-- Available Timeslots -->
 export { getAvailableTimeslots } from "./functions/availability/get-available-timeslots";
 
+// <-- Analytics -->
+export { getAnalyticsDashboard } from "./functions/analytics/get-analytics-dashboard";
+export { rebuildAnalytics } from "./functions/analytics/rebuild-analytics";
+
 // <-- Appointment Booking -->
 export { bookAppointment } from "./functions/appointment/book-appointment";
 export { sendAppointmentReminder } from "./functions/appointment/send-appointment-reminder";

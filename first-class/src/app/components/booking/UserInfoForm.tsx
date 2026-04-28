@@ -11,6 +11,8 @@ import { UserInfo } from '@/stores/types/booking-modal.types';
 import { formatTimeSlot } from '@/lib/utils';
 import { useTranslation } from '@/lib/useTranslation';
 import { useState } from 'react';
+import { formatPrice } from '@/utils/price-format';
+import { TimeSlot } from '@/stores/types/booking-modal.types';
 
 // Constants
 const months = [
@@ -25,6 +27,7 @@ interface UserInfoFormProps {
     currentMonth: number;
     currentYear: number;
     userInfo: UserInfo;
+    selectedTimeSlot?: TimeSlot;
     onUserInfoChange: (info: UserInfo) => void;
     onSubmit: () => void | Promise<void>;
     onBack: () => void;
@@ -38,6 +41,7 @@ export function UserInfoForm({
     currentMonth,
     currentYear,
     userInfo,
+    selectedTimeSlot,
     onUserInfoChange,
     onSubmit,
     onBack,
@@ -132,6 +136,16 @@ export function UserInfoForm({
                                         } ${selectedDate}, ${currentYear} at ${formatTimeSlot(
                                             selectedTime
                                         )}`}
+                                    </p>
+                                )}
+                                {selectedTimeSlot?.finalPrice !== undefined && (
+                                    <p className='text-sm font-medium mt-1'>
+                                        {formatPrice(selectedTimeSlot.finalPrice)}
+                                        {selectedTimeSlot.pricingLabel && (
+                                            <span className='text-muted-foreground font-normal'>
+                                                {` · ${selectedTimeSlot.pricingLabel}`}
+                                            </span>
+                                        )}
                                     </p>
                                 )}
                             </div>

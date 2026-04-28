@@ -105,7 +105,15 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
     timeslotsData?.result?.map((slot) => ({
       start_time: slot.start,
       end_time: slot.end,
+      basePrice: slot.basePrice,
+      finalPrice: slot.finalPrice,
+      discountAmount: slot.discountAmount,
+      pricingRuleId: slot.pricingRuleId,
+      pricingLabel: slot.pricingLabel,
     })) || [];
+  const selectedTimeSlot = availableTimeSlots.find(
+    (slot) => slot.start_time === selectedTime,
+  );
 
   // Use the customer creation hook
   const createCustomerMutation = useCreateCustomer();
@@ -235,7 +243,6 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
           address: "",
           notes: userInfo.notes || "",
         },
-        fee: selectedService.price,
         title: `${selectedService.name} - ${userInfo.name}`,
         description: userInfo.notes || "",
       });
@@ -329,6 +336,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                   currentMonth={currentMonth}
                   currentYear={currentYear}
                   userInfo={userInfo}
+                  selectedTimeSlot={selectedTimeSlot}
                   onUserInfoChange={setUserInfo}
                   onSubmit={handleSubmit}
                   onBack={handleBackToDateTime}
@@ -351,7 +359,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                 currentYear={currentYear}
                 direction={direction}
                 isLoadingTimeSlots={isLoadingTimeSlots}
-                availableTimeSlots={availableTimeSlots}
+                  availableTimeSlots={availableTimeSlots}
                 services={services}
                 handleDateSelect={handleDateSelect}
                 handleTimeSelect={handleTimeSelect}

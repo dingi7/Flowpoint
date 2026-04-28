@@ -90,6 +90,15 @@ export function AppointmentCard({
         );
       case APPOINTMENT_STATUS.CANCELLED:
         return <Badge variant="destructive">{t("appointments.cancelled")}</Badge>;
+      case APPOINTMENT_STATUS.NO_SHOW:
+        return (
+          <Badge
+            variant="outline"
+            className="border-orange-500 text-orange-600"
+          >
+            {t("appointments.noShow")}
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

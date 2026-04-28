@@ -131,7 +131,8 @@ export default function AppointmentsPage() {
     const todayUpcoming = todayAppointments.filter(
       (appointment) =>
         appointment.status !== APPOINTMENT_STATUS.COMPLETED &&
-        appointment.status !== APPOINTMENT_STATUS.CANCELLED,
+        appointment.status !== APPOINTMENT_STATUS.CANCELLED &&
+        appointment.status !== APPOINTMENT_STATUS.NO_SHOW,
     ).length;
 
     // Calculate percentage change from last week
@@ -294,6 +295,9 @@ export default function AppointmentsPage() {
             </SelectItem>
             <SelectItem value={APPOINTMENT_STATUS.CANCELLED}>
               {t("appointments.cancelled")}
+            </SelectItem>
+            <SelectItem value={APPOINTMENT_STATUS.NO_SHOW}>
+              {t("appointments.noShow")}
             </SelectItem>
           </SelectContent>
         </Select>

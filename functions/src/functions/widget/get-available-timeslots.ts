@@ -10,6 +10,8 @@ const loggerService = serviceHost.getLoggerService();
 const calendarRepository =
   repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const pricingRuleRepository =
+  repositoryHost.getPricingRuleRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
 const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
@@ -73,6 +75,7 @@ export const widgetGetAvailableTimeslots = onRequest(
       const timeslots = await getAvailableTimeslotsFn(payload, {
         calendarRepository,
         serviceRepository,
+        pricingRuleRepository,
         loggerService,
         timeOffRepository,
         appointmentRepository,

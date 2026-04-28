@@ -11,6 +11,7 @@ export enum APPOINTMENT_STATUS {
   CONFIRMED = "confirmed",
   COMPLETED = "completed",
   CANCELLED = "cancelled",
+  NO_SHOW = "no_show",
 }
 
 const appointmentDataBaseSchema = z.object({
@@ -24,6 +25,19 @@ const appointmentDataBaseSchema = z.object({
   startTime: z.string(),
   duration: z.number().int().min(0),
   fee: z.number().optional(),
+  baseFee: z.number().optional(),
+  finalFee: z.number().optional(),
+  discountAmount: z.number().optional(),
+  pricingRuleId: z.string().optional(),
+  pricingSnapshot: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      type: z.string(),
+      value: z.number(),
+      priority: z.number(),
+    })
+    .optional(),
   status: z.nativeEnum(APPOINTMENT_STATUS),
 });
 

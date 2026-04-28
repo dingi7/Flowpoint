@@ -24,6 +24,7 @@ import CustomersPage from "./pages/customers/customers-page";
 import DashboardPage from "./pages/dashboard-page";
 import OrganizationPage from "./pages/organization/organization-page";
 import PrivacyPolicyPage from "./pages/privacy-policy-page";
+import PricingRulesPage from "./pages/pricing/pricing-rules-page";
 import ReviewPage from "./pages/review/review-page";
 import ServicesPage from "./pages/services/services-page";
 import TeamPage from "./pages/team/team-page";
@@ -160,6 +161,20 @@ function AppContent() {
                   <FeatureGuard feature={FEATURES.crm}>
                     <AppLayout>
                       <ServicesPage />
+                    </AppLayout>
+                  </FeatureGuard>
+                </BillingGuard>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pricing"
+            element={
+              <ProtectedRoute>
+                <BillingGuard>
+                  <FeatureGuard feature={FEATURES.crm}>
+                    <AppLayout>
+                      <PricingRulesPage />
                     </AppLayout>
                   </FeatureGuard>
                 </BillingGuard>

@@ -18,6 +18,11 @@ export interface UserInfo {
 export interface TimeSlot {
   start_time: string;
   end_time?: string;
+  basePrice?: number;
+  finalPrice?: number;
+  discountAmount?: number;
+  pricingRuleId?: string;
+  pricingLabel?: string;
 }
 
 export type BookingStep = 'barber' | 'datetime' | 'userInfo' | 'success';
@@ -92,4 +97,3 @@ export interface BookingModalActions {
 }
 
 export type BookingModalStore = BookingModalState & BookingModalActions;
-

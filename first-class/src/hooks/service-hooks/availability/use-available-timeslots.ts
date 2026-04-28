@@ -12,6 +12,11 @@ interface UseAvailableTimeslotsProps {
 interface Timeslot {
   start: string;
   end: string;
+  basePrice?: number;
+  finalPrice?: number;
+  discountAmount?: number;
+  pricingRuleId?: string;
+  pricingLabel?: string;
 }
 
 interface AvailableTimeslotsResponse {

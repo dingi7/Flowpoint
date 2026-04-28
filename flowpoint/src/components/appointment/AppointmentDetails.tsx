@@ -19,6 +19,7 @@ import {
   Mail,
   Phone,
   User,
+  UserX,
   Users,
   X,
 } from "lucide-react";
@@ -117,6 +118,15 @@ export function AppointmentDetails({
         );
       case APPOINTMENT_STATUS.CANCELLED:
         return <Badge variant="destructive">{t("appointments.cancelled")}</Badge>;
+      case APPOINTMENT_STATUS.NO_SHOW:
+        return (
+          <Badge
+            variant="outline"
+            className="border-orange-500 text-orange-600"
+          >
+            {t("appointments.noShow")}
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -156,7 +166,8 @@ export function AppointmentDetails({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {appointment.status === APPOINTMENT_STATUS.PENDING && (
+          {(appointment.status === APPOINTMENT_STATUS.PENDING ||
+            appointment.status === APPOINTMENT_STATUS.CONFIRMED) && (
             <Button
               variant="outline"
               size="sm"
@@ -167,6 +178,20 @@ export function AppointmentDetails({
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               {t("appointments.details.complete")}
+            </Button>
+          )}
+          {(appointment.status === APPOINTMENT_STATUS.PENDING ||
+            appointment.status === APPOINTMENT_STATUS.CONFIRMED) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onStatusChange(appointment.id, APPOINTMENT_STATUS.NO_SHOW)
+              }
+              className="bg-transparent"
+            >
+              <UserX className="h-4 w-4 mr-2" />
+              {t("appointments.details.noShow")}
             </Button>
           )}
           {appointment.status === APPOINTMENT_STATUS.PENDING && (

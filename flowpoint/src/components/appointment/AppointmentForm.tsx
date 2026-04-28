@@ -272,16 +272,24 @@ export function AppointmentForm({
     enabled: !!formData.serviceId && !!formData.date && !!assigneeId,
   });
 
-  // Map of display time (HH:mm) to UTC timeslot ISO string
+  // Map of display time (HH:mm) to timeslot data
   const timeSlotMap = useMemo(() => {
-    const map = new Map<string, string>();
+    const map = new Map<
+      string,
+      {
+        start: string;
+        basePrice?: number;
+        finalPrice?: number;
+        pricingLabel?: string;
+      }
+    >();
     timeslotsData?.result?.forEach((slot) => {
       // Convert UTC ISO string to local time for display
       const utcDate = new Date(slot.start);
       const hours = utcDate.getHours().toString().padStart(2, "0");
       const minutes = utcDate.getMinutes().toString().padStart(2, "0");
       const displayTime = `${hours}:${minutes}`;
-      map.set(displayTime, slot.start);
+      map.set(displayTime, slot);
     });
     return map;
   }, [timeslotsData?.result]);
@@ -309,7 +317,7 @@ export function AppointmentForm({
       if (newDate) {
         if (newTime) {
           // Find the UTC timeslot for the selected local time
-          const utcTimeslot = timeSlotMap.get(newTime);
+          const utcTimeslot = timeSlotMap.get(newTime)?.start;
           if (utcTimeslot) {
             // Use the UTC timeslot directly
             setValue("startTime", utcTimeslot, { shouldValidate: true });
@@ -548,6 +556,12 @@ export function AppointmentForm({
                         {t("appointments.cancelled")}
                       </div>
                     </SelectItem>
+                    <SelectItem value={APPOINTMENT_STATUS.NO_SHOW}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        {t("appointments.noShow")}
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -624,14 +638,34 @@ export function AppointmentForm({
                   </SelectTrigger>
                   <SelectContent>
                     {timeSlots.length > 0 ? (
-                      timeSlots.map((time) => (
+                      timeSlots.map((time) => {
+                        const slot = timeSlotMap.get(time);
+                        const servicePrice = selectedService?.price || 0;
+                        const hasDynamicPrice =
+                          typeof slot?.finalPrice === "number" &&
+                          slot.finalPrice !== servicePrice;
+
+                        return (
                         <SelectItem key={time} value={time}>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            {time}
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              {time}
+                            </div>
+                            {typeof slot?.finalPrice === "number" && (
+                              <span className="text-xs text-muted-foreground">
+                                {hasDynamicPrice && (
+                                  <span className="mr-2 line-through">
+                                    {formatPrice(servicePrice)}
+                                  </span>
+                                )}
+                                {formatPrice(slot.finalPrice)}
+                              </span>
+                            )}
                           </div>
                         </SelectItem>
-                      ))
+                        );
+                      })
                     ) : (
                       <div className="px-2 py-4 text-sm text-muted-foreground">
                         {timeslotsError

@@ -9,11 +9,13 @@ import {
   MailgunService,
   MemberRepository,
   OrganizationRepository,
+  PricingRuleRepository,
   Service,
   ServiceRepository,
   TimeOffRepository,
   UserRepository,
 } from "@/core";
+import { calculatePriceQuote } from "@/app/pricing/calculate-price";
 import { sendAppointmentEmailNotificationFn } from "../notification/send-appointment-email-notification";
 import { validateBookingRequest } from "./validation/booking-validation";
 
@@ -39,6 +41,7 @@ interface Payload {
 interface Dependencies {
   appointmentRepository: AppointmentRepository;
   serviceRepository: ServiceRepository;
+  pricingRuleRepository: PricingRuleRepository;
   customerRepository: CustomerRepository;
   calendarRepository: CalendarRepository;
   timeOffRepository: TimeOffRepository;
@@ -136,6 +139,16 @@ export async function bookAppointmentFn(
     assigneeType,
     endTime,
   } = validationResult;
+  const pricingRules = await dependencies.pricingRuleRepository.getAll({
+    queryConstraints: [{ field: "active", operator: "==", value: true }],
+    organizationId: validatedPayload.organizationId,
+  });
+  const priceQuote = calculatePriceQuote({
+    service,
+    startTime,
+    assigneeId: validatedPayload.assigneeId,
+    pricingRules,
+  });
 
   // 2. Create appointment
   const appointmentData: AppointmentData = {
@@ -148,7 +161,12 @@ export async function bookAppointmentFn(
       validatedPayload.description || `Appointment for ${service.name}`,
     startTime: startTime.toISOString(),
     duration: service.duration,
-    fee: validatedPayload.fee ?? service.price,
+    fee: priceQuote.finalPrice,
+    baseFee: priceQuote.basePrice,
+    finalFee: priceQuote.finalPrice,
+    discountAmount: priceQuote.discountAmount,
+    pricingRuleId: priceQuote.pricingRuleId,
+    pricingSnapshot: priceQuote.pricingSnapshot,
     status: APPOINTMENT_STATUS.PENDING,
   };
 
@@ -202,6 +220,7 @@ export async function bookAppointmentFn(
     endTime: endTime.toISOString(),
     duration: service.duration,
     fee: appointmentData.fee,
+    priceQuote,
   };
 
   return {

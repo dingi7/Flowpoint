@@ -1,5 +1,7 @@
 import { DatabaseService, RepositoryHost } from "@/core";
 import { getApiKeyHashRepository } from "./api-key-hash-repository";
+import { getAnalyticsDailyRepository } from "./analytics-daily-repository";
+import { getAnalyticsInsightRepository } from "./analytics-insight-repository";
 import { getAppointmentRepository } from "./appointment-repository";
 import { getCalendarSyncConnectionRepository } from "./calendar-sync-connection-repository";
 import { getCalendarRepository } from "./calendar-repository";
@@ -7,6 +9,7 @@ import { getCustomerRepository } from "./customer-repository";
 import { getInviteRepository } from "./invite-repository";
 import { getMemberRepository } from "./member-repository";
 import { getOrganizationRepository } from "./organization-repository";
+import { getPricingRuleRepository } from "./pricing-rule-repository";
 import { getRoleRepository } from "./role-repository";
 import { getServiceRepository } from "./service-repository";
 import { getTimeOffRepository } from "./time-off-repository";
@@ -40,4 +43,10 @@ export const repositoryHost: RepositoryHost = {
     getApiKeyHashRepository(databaseService),
   getWebhookSubscriptionRepository: (databaseService: DatabaseService) =>
     getWebhookSubscriptionRepository(databaseService),
+  getPricingRuleRepository: (databaseService: DatabaseService) =>
+    getPricingRuleRepository(databaseService),
+  getAnalyticsDailyRepository: (databaseService: DatabaseService) =>
+    getAnalyticsDailyRepository(databaseService),
+  getAnalyticsInsightRepository: (databaseService: DatabaseService) =>
+    getAnalyticsInsightRepository(databaseService),
 };

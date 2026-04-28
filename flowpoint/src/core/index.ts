@@ -1,4 +1,5 @@
 // Entities
+export * from "./entities/analytics";
 export * from "./entities/appointment";
 export * from "./entities/base";
 export * from "./entities/calendar";
@@ -6,6 +7,7 @@ export * from "./entities/customer";
 export * from "./entities/invite";
 export * from "./entities/member";
 export * from "./entities/organization";
+export * from "./entities/pricing-rule";
 export * from "./entities/role";
 export * from "./entities/review";
 export * from "./entities/service";
@@ -21,6 +23,7 @@ export * from "./ports/repositories/generic-repository";
 export * from "./ports/repositories/invite-repository";
 export * from "./ports/repositories/member-repository";
 export * from "./ports/repositories/organization-repository";
+export * from "./ports/repositories/pricing-rule-repository";
 export * from "./ports/repositories/review-repository";
 export * from "./ports/repositories/role-repository";
 export * from "./ports/repositories/service-repository";

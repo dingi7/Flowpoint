@@ -1,5 +1,7 @@
 import {
   ApiKeyHashRepository,
+  AnalyticsDailyRepository,
+  AnalyticsInsightRepository,
   AppointmentRepository,
   CalendarSyncConnectionRepository,
   CalendarRepository,
@@ -8,6 +10,7 @@ import {
   InviteRepository,
   MemberRepository,
   OrganizationRepository,
+  PricingRuleRepository,
   RoleRepository,
   ServiceRepository,
   TimeOffRepository,
@@ -39,4 +42,11 @@ export interface RepositoryHost {
   getWebhookSubscriptionRepository(
     databaseService: DatabaseService,
   ): WebhookSubscriptionRepository;
+  getPricingRuleRepository(databaseService: DatabaseService): PricingRuleRepository;
+  getAnalyticsDailyRepository(
+    databaseService: DatabaseService,
+  ): AnalyticsDailyRepository;
+  getAnalyticsInsightRepository(
+    databaseService: DatabaseService,
+  ): AnalyticsInsightRepository;
 }

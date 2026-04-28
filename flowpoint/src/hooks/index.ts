@@ -5,6 +5,7 @@ export * from "./repository-hooks/customer/use-customer";
 export * from "./repository-hooks/invite/use-invite";
 export * from "./repository-hooks/member/use-member";
 export * from "./repository-hooks/organization/use-organization";
+export * from "./repository-hooks/pricing-rule/use-pricing-rule";
 export * from "./repository-hooks/role/use-role";
 export * from "./repository-hooks/service/use-service";
 export * from "./repository-hooks/time-off/use-time-off";
@@ -21,6 +22,7 @@ export * from "./forms/use-role-form";
 export * from "./forms/use-service-form";
 
 // Service hooks
+export * from "./service-hooks/analytics/use-analytics-dashboard";
 export * from "./service-hooks/auth/use-auth";
 export * from "./service-hooks/availability/use-available-timeslots";
 export * from "./service-hooks/availability/use-book-appointment";

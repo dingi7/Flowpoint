@@ -11,4 +11,5 @@ export enum DatabaseCollection {
   TIME_OFF = "time-off",
   INVITES = "invites",
   WEBHOOK_SUBSCRIPTIONS = "webhook-subscriptions",
+  PRICING_RULES = "pricingRules",
 }

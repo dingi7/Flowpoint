@@ -6,6 +6,7 @@
         "customers": "Клиенти",
         "appointments": "Резервации",
         "services": "Услуги",
+        "pricing": "Цени",
         "organization": "Организация",
         "billing": "Плащане",
         "label": "Навигация"
@@ -396,6 +397,7 @@
         "totalAppointments": "Общо резервации",
         "completed": "завършени",
         "upcoming": "предстоящи",
+        "noShows": "неявявания",
         "totalRevenue": "Общ приход",
         "fromCompleted": "От завършени резервации",
         "activeServices": "Активни услуги",
@@ -416,7 +418,16 @@
         "viewCalendar": "Виж календара",
         "noAppointmentsToday": "Няма насрочени резервации за днес",
         "duration": "Продължителност",
-        "min": "мин"
+        "min": "мин",
+        "insightsTitle": "Умни прозрения",
+        "insightsSubtitle": "Автоматично генерирани от моделите на резервации",
+        "noInsights": "Все още няма прозрения за този период",
+        "analyticsHealth": "Аналитика",
+        "retentionRate": "Задържане",
+        "utilization": "Заетост",
+        "noShowRate": "Неявявания",
+        "averageClv": "Среден CLV",
+        "createDiscount": "Създай отстъпка"
     },
     "appointments": {
         "title": "Управление на резервации",
@@ -438,6 +449,7 @@
         "pending": "Чакащи",
         "completed": "Завършени",
         "cancelled": "Отказани",
+        "noShow": "Не се яви",
         "allTime": "Всички",
         "today": "Днес",
         "tomorrow": "Утре",
@@ -462,6 +474,7 @@
             "viewDetails": "Виж детайли",
             "edit": "Редактирай резервация",
             "markComplete": "Маркирай като завършена",
+            "markNoShow": "Маркирай като неявяване",
             "cancel": "Отмени",
             "delete": "Изтрий резервация"
         },
@@ -513,6 +526,7 @@
             "unknownCustomer": "Неизвестен клиент",
             "bookedOn": "Резервирано на",
             "complete": "Завърши",
+            "noShow": "Не се яви",
             "cancel": "Отмени",
             "customerInformation": "Информация за клиент",
             "customer": "Клиент",

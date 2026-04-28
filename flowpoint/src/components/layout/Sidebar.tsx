@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   NotebookTabs,
   Plus,
+  Tags,
   Settings,
   UserRound,
   Users,
@@ -278,6 +279,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: t("navigation.services"),
       url: "/services",
       icon: NotebookTabs,
+    },
+    {
+      title: t("navigation.pricing"),
+      url: "/pricing",
+      icon: Tags,
     },
     {
       title: t("navigation.organization"),

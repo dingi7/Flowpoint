@@ -6,6 +6,7 @@ import {
   InviteRepository,
   MemberRepository,
   OrganizationRepository,
+  PricingRuleRepository,
   ReviewRepository,
   RoleRepository,
   ServiceRepository,
@@ -33,4 +34,5 @@ export interface RepositoryHost {
   getWebhookSubscriptionRepository(
     databaseService: DatabaseService,
   ): WebhookSubscriptionRepository;
+  getPricingRuleRepository(databaseService: DatabaseService): PricingRuleRepository;
 }

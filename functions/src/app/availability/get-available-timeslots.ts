@@ -2,10 +2,12 @@ import {
   AppointmentRepository,
   CalendarRepository,
   LoggerService,
+  PricingRuleRepository,
   ServiceRepository,
   TimeOffRepository,
 } from "@/core";
 import { generateTimeslotsForDate } from "./generate-timeslots-for-date";
+import { calculatePriceQuote } from "@/app/pricing/calculate-price";
 
 interface Payload {
   serviceId: string;
@@ -16,6 +18,7 @@ interface Payload {
 
 interface Dependencies {
   serviceRepository: ServiceRepository;
+  pricingRuleRepository: PricingRuleRepository;
   calendarRepository: CalendarRepository;
   loggerService: LoggerService;
   timeOffRepository: TimeOffRepository;
@@ -60,6 +63,7 @@ export async function getAvailableTimeslotsFn(
   const { serviceId, date, organizationId, assigneeId } = payload;
   const {
     serviceRepository,
+    pricingRuleRepository,
     calendarRepository,
     loggerService,
     timeOffRepository,
@@ -118,6 +122,11 @@ export async function getAvailableTimeslotsFn(
   loggerService.info("timeOffs", timeOffs);
 
 
+  const pricingRules = await pricingRuleRepository.getAll({
+    queryConstraints: [{ field: "active", operator: "==", value: true }],
+    organizationId,
+  });
+
   const timeslots = generateTimeslotsForDate({
     date: parsedDate,
     calendar,
@@ -130,5 +139,13 @@ export async function getAvailableTimeslotsFn(
 
   loggerService.info("timeslots", timeslots);
 
-  return timeslots;
+  return timeslots.map((timeslot) => ({
+    ...timeslot,
+    ...calculatePriceQuote({
+      service,
+      startTime: new Date(timeslot.start),
+      assigneeId,
+      pricingRules,
+    }),
+  }));
 }

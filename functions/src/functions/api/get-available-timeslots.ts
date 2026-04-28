@@ -21,6 +21,8 @@ const apiKeyHashRepository =
 const calendarRepository =
   repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const pricingRuleRepository =
+  repositoryHost.getPricingRuleRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
 const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
@@ -88,6 +90,7 @@ export const apiGetAvailableTimeslots = onRequest(
           loggerService,
           timeOffRepository,
           appointmentRepository,
+          pricingRuleRepository,
         },
       );
 

@@ -44,6 +44,7 @@ import {
   MoreHorizontal,
   Trash2,
   User,
+  UserX,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -246,6 +247,16 @@ export function AppointmentList({
       case APPOINTMENT_STATUS.CANCELLED: {
         return <Badge variant="destructive">{t("appointments.cancelled")}</Badge>;
       }
+      case APPOINTMENT_STATUS.NO_SHOW: {
+        return (
+          <Badge
+            variant="outline"
+            className="border-orange-500 text-orange-600"
+          >
+            {t("appointments.noShow")}
+          </Badge>
+        );
+      }
       case "confirmed": {
         return (
           <Badge className="bg-accent text-accent-foreground">{t("appointments.status.confirmed")}</Badge>
@@ -418,8 +429,10 @@ export function AppointmentList({
                             {t("appointments.actions.edit")}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {appointment.status ===
-                            APPOINTMENT_STATUS.PENDING && (
+                          {(appointment.status ===
+                            APPOINTMENT_STATUS.PENDING ||
+                            appointment.status ===
+                              APPOINTMENT_STATUS.CONFIRMED) && (
                             <DropdownMenuItem
                               onClick={() =>
                                 handleStatusChange(
@@ -430,6 +443,22 @@ export function AppointmentList({
                             >
                               <CheckCircle className="h-4 w-4 mr-2" />
                               {t("appointments.actions.markComplete")}
+                            </DropdownMenuItem>
+                          )}
+                          {(appointment.status ===
+                            APPOINTMENT_STATUS.PENDING ||
+                            appointment.status ===
+                              APPOINTMENT_STATUS.CONFIRMED) && (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleStatusChange(
+                                  appointment.id,
+                                  APPOINTMENT_STATUS.NO_SHOW,
+                                )
+                              }
+                            >
+                              <UserX className="h-4 w-4 mr-2" />
+                              {t("appointments.actions.markNoShow")}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem

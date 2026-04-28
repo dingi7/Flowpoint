@@ -5,6 +5,7 @@ import { getCustomerRepository } from "./customer-repository";
 import { getInviteRepository } from "./invite-repository";
 import { getMemberRepository } from "./member-repository";
 import { getOrganizationRepository } from "./organization-repository";
+import { getPricingRuleRepository } from "./pricing-rule-repository";
 import { getReviewRepository } from "./review-repository";
 import { getRoleRepository } from "./role-repository";
 import { getServiceRepository } from "./service-repository";
@@ -37,4 +38,6 @@ export const repositoryHost: RepositoryHost = {
     getInviteRepository(databaseService),
   getWebhookSubscriptionRepository: (databaseService: DatabaseService) =>
     getWebhookSubscriptionRepository(databaseService),
+  getPricingRuleRepository: (databaseService: DatabaseService) =>
+    getPricingRuleRepository(databaseService),
 };

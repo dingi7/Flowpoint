@@ -20,6 +20,8 @@ const organizationRepository =
   repositoryHost.getOrganizationRepository(databaseService);
 
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const pricingRuleRepository =
+  repositoryHost.getPricingRuleRepository(databaseService);
 const customerRepository =
   repositoryHost.getCustomerRepository(databaseService);
 const calendarRepository =
@@ -130,6 +132,7 @@ export const widgetBookAppointment = onRequest(
           userRepository,
           appointmentRepository,
           serviceRepository,
+          pricingRuleRepository,
           customerRepository,
           calendarRepository,
           timeOffRepository,

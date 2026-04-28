@@ -38,6 +38,11 @@ export interface FunctionsService {
     result: {
       start: string;
       end: string;
+      basePrice?: number;
+      finalPrice?: number;
+      discountAmount?: number;
+      pricingRuleId?: string;
+      pricingLabel?: string;
     }[];
   }>;
   bookAppointment(

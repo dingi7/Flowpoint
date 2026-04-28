@@ -18,6 +18,8 @@ const mailgunUrlSecret = defineSecret(Secrets.MAILGUN_URL);
 const calendarRepository =
   repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const pricingRuleRepository =
+  repositoryHost.getPricingRuleRepository(databaseService);
 const customerRepository =
   repositoryHost.getCustomerRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
@@ -107,6 +109,7 @@ export const bookAppointment = onCall<Payload>(
           userRepository,
           appointmentRepository,
           serviceRepository,
+          pricingRuleRepository,
           customerRepository,
           calendarRepository,
           timeOffRepository,

@@ -17,8 +17,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { APPOINTMENT_STATUS } from "@/core";
-import { useAppointments, useCustomers, useServices } from "@/hooks";
+import {
+  ANALYTICS_INSIGHT_TYPE,
+  APPOINTMENT_STATUS,
+  PRICING_RULE_TYPE,
+} from "@/core";
+import {
+  useAnalyticsDashboard,
+  useAppointments,
+  useCustomers,
+  useServices,
+} from "@/hooks";
 import { useOrganizations } from "@/stores";
 import { formatPrice } from "@/utils/price-format";
 import { useUser } from "@clerk/clerk-react";
@@ -29,7 +38,9 @@ import {
   CheckCircle,
   Clock,
   DollarSign,
+  Lightbulb,
   Plus,
+  TrendingUp,
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -60,17 +71,24 @@ export default function DashboardPage() {
     pagination: { limit: 200 },
     orderBy: { field: "startTime", direction: "desc" },
   });
+  const analyticsQuery = useAnalyticsDashboard();
+  const analytics = analyticsQuery.data;
 
   const appointments = useMemo(
     () => appointmentsQuery.data?.pages.flatMap((page) => page) || [],
     [appointmentsQuery.data],
   );
 
-  console.log(appointmentsQuery.error);
-  console.log(appointments)
-
   // Calculate top services from completed appointments only
   const topServices = useMemo(() => {
+    if (analytics?.revenueByService.length) {
+      return analytics.revenueByService.slice(0, 5).map((service) => ({
+        name: service.name,
+        bookings: service.bookings,
+        revenue: service.revenue,
+      }));
+    }
+
     if (!appointments.length || !servicesQuery.data) return [];
 
     // Get all services as a map for quick lookup
@@ -111,7 +129,11 @@ export default function DashboardPage() {
     return Array.from(serviceStats.values())
       .sort((a, b) => b.bookings - a.bookings)
       .slice(0, 5);
-  }, [appointments, servicesQuery.data]);
+  }, [analytics?.revenueByService, appointments, servicesQuery.data]);
+
+  const formatPercent = (value?: number) => {
+    return `${Math.round((value || 0) * 100)}%`;
+  };
 
   // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
@@ -180,19 +202,16 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className="text-2xl font-bold">
-                  {appointments.length}
+                  {analytics?.summary.totalBookings ?? appointments.length}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {appointments.filter(
-                    (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED,
-                  ).length}{" "}
+                  {analytics?.summary.completedBookings ??
+                    appointments.filter(
+                      (apt) => apt.status === APPOINTMENT_STATUS.COMPLETED,
+                    ).length}{" "}
                   {t("dashboard.completed")},{" "}
-                  {appointments.filter(
-                    (apt) =>
-                      apt.status !== APPOINTMENT_STATUS.COMPLETED &&
-                      apt.status !== APPOINTMENT_STATUS.CANCELLED,
-                  ).length}{" "}
-                  {t("dashboard.upcoming")}
+                  {analytics?.summary.noShowBookings ?? 0}{" "}
+                  {t("dashboard.noShows")}
                 </p>
               </>
             )}
@@ -217,10 +236,13 @@ export default function DashboardPage() {
               <>
                 <div className="text-2xl font-bold">
                   {formatPrice(
-                    appointments.reduce(
-                      (sum, apt) => sum + (apt.fee || 0),
-                      0,
-                    ),
+                    analytics?.summary.totalRevenue ??
+                      appointments
+                        .filter(
+                          (apt) =>
+                            apt.status === APPOINTMENT_STATUS.COMPLETED,
+                        )
+                        .reduce((sum, apt) => sum + (apt.fee || 0), 0),
                     true,
                   )}
                 </div>
@@ -256,6 +278,112 @@ export default function DashboardPage() {
                 </p>
               </>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="font-sans flex items-center gap-2">
+              <Lightbulb className="h-5 w-5" />
+              {t("dashboard.insightsTitle")}
+            </CardTitle>
+            <CardDescription>
+              {t("dashboard.insightsSubtitle")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {analyticsQuery.isPending ? (
+              <>
+                <Skeleton className="h-12 w-full mb-3" />
+                <Skeleton className="h-12 w-full" />
+              </>
+            ) : analytics?.insights.length ? (
+              <div className="space-y-3">
+                {analytics.insights.slice(0, 3).map((insight) => (
+                  <div key={insight.id} className="border rounded-lg p-3">
+                    <p className="text-sm font-medium">{insight.message}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {insight.recommendation}
+                    </p>
+                    {insight.type ===
+                      ANALYTICS_INSIGHT_TYPE.UNDERBOOKED_PERIOD &&
+                      insight.dayOfWeek &&
+                      insight.startHour !== undefined &&
+                      insight.endHour !== undefined && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-3"
+                          onClick={() => {
+                            const params = new URLSearchParams({
+                              type: PRICING_RULE_TYPE.SLOW_PERIOD_DISCOUNT,
+                              dayOfWeek: insight.dayOfWeek!,
+                              startTime: `${String(insight.startHour).padStart(2, "0")}:00`,
+                              endTime: `${String(insight.endHour).padStart(2, "0")}:00`,
+                              name: insight.message,
+                            });
+                            navigate(`/pricing?${params.toString()}`);
+                          }}
+                        >
+                          {t("dashboard.createDiscount")}
+                        </Button>
+                      )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t("dashboard.noInsights")}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-sans flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              {t("dashboard.analyticsHealth")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {t("dashboard.retentionRate")}
+              </span>
+              <span className="font-semibold">
+                {formatPercent(analytics?.summary.retentionRate)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {t("dashboard.utilization")}
+              </span>
+              <span className="font-semibold">
+                {formatPercent(analytics?.summary.utilizationRate)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {t("dashboard.noShowRate")}
+              </span>
+              <span className="font-semibold">
+                {formatPercent(analytics?.summary.noShowRate)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {t("dashboard.averageClv")}
+              </span>
+              <span className="font-semibold">
+                {formatPrice(
+                  analytics?.summary.averageCustomerLifetimeValue || 0,
+                  true,
+                )}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -337,7 +465,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-sm">
-                        ${formatPrice(service.revenue, true)}
+                        {formatPrice(service.revenue, true)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {t("dashboard.revenue")}

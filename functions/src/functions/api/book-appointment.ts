@@ -26,6 +26,8 @@ const apiKeyHashRepository =
 const calendarRepository =
   repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const pricingRuleRepository =
+  repositoryHost.getPricingRuleRepository(databaseService);
 const customerRepository =
   repositoryHost.getCustomerRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
@@ -128,6 +130,7 @@ export const apiBookAppointment = onRequest(
         {
           appointmentRepository,
           serviceRepository,
+          pricingRuleRepository,
           customerRepository,
           calendarRepository,
           timeOffRepository,

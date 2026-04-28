@@ -317,7 +317,7 @@ Retrieve appointments for the organization with optional filters.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `status` | string | No | Filter by status: `"pending"`, `"completed"`, `"cancelled"` |
+| `status` | string | No | Filter by status: `"pending"`, `"completed"`, `"cancelled"`, `"no_show"` |
 | `customerId` | string | No | Filter by customer ID |
 | `serviceId` | string | No | Filter by service ID |
 | `startDate` | string | No | Filter by start date (ISO 8601 format) |
@@ -450,7 +450,7 @@ Create a new appointment.
 | `startTime` | string | Yes | Start time (ISO 8601 format) |
 | `duration` | number | Yes | Duration in minutes |
 | `fee` | number | No | Appointment fee |
-| `status` | string | Yes | Status: `"pending"`, `"completed"`, `"cancelled"` |
+| `status` | string | Yes | Status: `"pending"`, `"completed"`, `"cancelled"`, `"no_show"` |
 
 **Response:**
 
@@ -1157,4 +1157,3 @@ For API support, please contact your CRM administrator or refer to the CRM docum
 ---
 
 **Last Updated:** January 15, 2024
-

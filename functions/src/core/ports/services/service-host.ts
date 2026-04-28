@@ -6,6 +6,7 @@ import type { GetMailgunServicePayload, MailgunService } from "./mailgun-service
 import type { LoggerService } from "./logger-service";
 import type { PubSubService } from "./pub-sub-service";
 import type { GetSecretManagerServiceDependencies, SecretManagerService } from "./secret-manager-service";
+import type { GenkitService, GetGenkitServicePayload } from "./genkit-service";
 
 export interface ServiceHost {
   getAuthenticationService: () => AuthenticationService;
@@ -19,4 +20,5 @@ export interface ServiceHost {
     queueName?: string,
   ) => CloudTasksService;
   getSecretManagerService: (dependencies: GetSecretManagerServiceDependencies) => SecretManagerService;
+  getGenkitService: (payload: GetGenkitServicePayload) => GenkitService;
 }

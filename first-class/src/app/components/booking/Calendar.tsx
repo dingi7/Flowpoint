@@ -235,6 +235,9 @@ export const Calendar = ({
                   ) : (
                     availableTimeSlots.map((slot, idx) => {
                       const displayTime = formatTimeSlot(slot.start_time);
+                      const hasDynamicPrice =
+                        typeof slot.finalPrice === "number" &&
+                        slot.finalPrice !== selectedService.price;
                       return (
                         <Button
                           key={idx}
@@ -247,6 +250,16 @@ export const Calendar = ({
                           onClick={() => handleTimeSelect(slot.start_time)}
                         >
                           <span className="text-sm">{displayTime}</span>
+                          {typeof slot.finalPrice === "number" && (
+                            <span className="ml-auto text-xs">
+                              {hasDynamicPrice && (
+                                <span className="mr-2 line-through opacity-60">
+                                  {formatPrice(selectedService.price)}
+                                </span>
+                              )}
+                              {formatPrice(slot.finalPrice)}
+                            </span>
+                          )}
                         </Button>
                       );
                     })
@@ -277,6 +290,9 @@ export const Calendar = ({
                   ) : (
                     availableTimeSlots.map((slot, idx) => {
                       const displayTime = formatTimeSlot(slot.start_time);
+                      const hasDynamicPrice =
+                        typeof slot.finalPrice === "number" &&
+                        slot.finalPrice !== selectedService.price;
                       return (
                         <Button
                           key={idx}
@@ -287,7 +303,17 @@ export const Calendar = ({
                           )}
                           onClick={() => handleTimeSelect(slot.start_time)}
                         >
-                          {displayTime}
+                          <span>{displayTime}</span>
+                          {typeof slot.finalPrice === "number" && (
+                            <span className="ml-2 text-xs">
+                              {hasDynamicPrice && (
+                                <span className="mr-1 line-through opacity-60">
+                                  {formatPrice(selectedService.price)}
+                                </span>
+                              )}
+                              {formatPrice(slot.finalPrice)}
+                            </span>
+                          )}
                         </Button>
                       );
                     })

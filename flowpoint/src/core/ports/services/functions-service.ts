@@ -1,4 +1,5 @@
 import { ApiKey, OrganizationSettingsData } from "@/core/entities/organization";
+import { AnalyticsDashboardResponse } from "@/core/entities/analytics";
 import { WebhookSubscription } from "@/core/entities/webhook-subscription";
 
 export interface DeleteResponse {
@@ -40,6 +41,12 @@ export interface CalendarSyncStatusResponse {
   lastError?: string;
 }
 
+export interface AnalyticsDashboardPayload {
+  organizationId: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 export interface FunctionsService {
   getAvailableTimeslots(payload: {
     serviceId: string;
@@ -50,6 +57,11 @@ export interface FunctionsService {
     result: {
       start: string;
       end: string;
+      basePrice?: number;
+      finalPrice?: number;
+      discountAmount?: number;
+      pricingRuleId?: string;
+      pricingLabel?: string;
     }[];
   }>;
   bookAppointment(
@@ -111,4 +123,10 @@ export interface FunctionsService {
   disconnectMyCalendarSync(payload: {
     organizationId: string;
   }): Promise<void>;
+  getAnalyticsDashboard(
+    payload: AnalyticsDashboardPayload,
+  ): Promise<AnalyticsDashboardResponse>;
+  rebuildAnalytics(
+    payload: AnalyticsDashboardPayload,
+  ): Promise<AnalyticsDashboardResponse>;
 }

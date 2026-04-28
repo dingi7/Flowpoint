@@ -6,6 +6,7 @@
         "customers": "Customers",
         "appointments": "Appointments",
         "services": "Services",
+        "pricing": "Pricing",
         "organization": "Organization",
         "billing": "Billing",
         "label": "Navigation"
@@ -396,6 +397,7 @@
         "totalAppointments": "Total Appointments",
         "completed": "completed",
         "upcoming": "upcoming",
+        "noShows": "no-shows",
         "totalRevenue": "Total Revenue",
         "fromCompleted": "From completed appointments",
         "activeServices": "Active Services",
@@ -416,7 +418,16 @@
         "viewCalendar": "View Calendar",
         "noAppointmentsToday": "No appointments scheduled for today",
         "duration": "Duration",
-        "min": "min"
+        "min": "min",
+        "insightsTitle": "Smart Insights",
+        "insightsSubtitle": "Automatically generated from booking patterns",
+        "noInsights": "No insights available for this period yet",
+        "analyticsHealth": "Analytics Health",
+        "retentionRate": "Retention",
+        "utilization": "Utilization",
+        "noShowRate": "No-show rate",
+        "averageClv": "Avg. CLV",
+        "createDiscount": "Create discount"
     },
     "appointments": {
         "title": "Appointment Management",
@@ -438,6 +449,7 @@
         "pending": "Pending",
         "completed": "Completed",
         "cancelled": "Cancelled",
+        "noShow": "No Show",
         "allTime": "All Time",
         "today": "Today",
         "tomorrow": "Tomorrow",
@@ -462,6 +474,7 @@
             "viewDetails": "View Details",
             "edit": "Edit Appointment",
             "markComplete": "Mark Complete",
+            "markNoShow": "Mark No Show",
             "cancel": "Cancel",
             "delete": "Delete Appointment"
         },
@@ -513,6 +526,7 @@
             "unknownCustomer": "Unknown Customer",
             "bookedOn": "Booked on",
             "complete": "Complete",
+            "noShow": "No Show",
             "cancel": "Cancel",
             "customerInformation": "Customer Information",
             "customer": "Customer",

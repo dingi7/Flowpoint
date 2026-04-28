@@ -21,6 +21,8 @@ const clerkSecretKey = defineSecret(Secrets.CLERK_SECRET_KEY);
 const calendarRepository =
   repositoryHost.getCalendarRepository(databaseService);
 const serviceRepository = repositoryHost.getServiceRepository(databaseService);
+const pricingRuleRepository =
+  repositoryHost.getPricingRuleRepository(databaseService);
 const timeOffRepository = repositoryHost.getTimeOffRepository(databaseService);
 const appointmentRepository =
   repositoryHost.getAppointmentRepository(databaseService);
@@ -59,6 +61,7 @@ export const getAvailableTimeslots = onCall<Payload>(
         {
           calendarRepository,
           serviceRepository,
+          pricingRuleRepository,
           loggerService,
           timeOffRepository,
           appointmentRepository,
