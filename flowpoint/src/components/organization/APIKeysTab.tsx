@@ -222,7 +222,7 @@ window.flowpoint.renderForm(config);`}</code>
             <div className="flex items-center gap-2">
               <Button
                 onClick={() =>
-                  window.open("https://docs.flowpoint.services", "_blank")
+                  window.open("https://registry.scalar.com/@default-team-wjwfk/apis/flowpoint-api/latest", "_blank")
                 }
                 className="gap-2"
                 variant="outline"

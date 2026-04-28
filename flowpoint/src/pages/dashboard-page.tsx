@@ -44,19 +44,19 @@ export default function DashboardPage() {
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const { t } = useTranslation();
 
-  const dashboardLookbackDate = useMemo(() => {
-    const date = new Date();
-    date.setDate(date.getDate() - 90);
-    return date;
-  }, []);
+  // const dashboardLookbackDate = useMemo(() => {
+  //   const date = new Date();
+  //   date.setDate(date.getDate() - 90);
+  //   return date;
+  // }, []);
 
   // Fetch dashboard data using existing hooks
   const customersQuery = useCustomers({ pagination: { limit: 200 } });
   const servicesQuery = useServices({ pagination: { limit: 200 } });
   const appointmentsQuery = useAppointments({
-    queryConstraints: [
-      { field: "startTime", operator: ">=", value: dashboardLookbackDate },
-    ],
+    // queryConstraints: [
+    //   { field: "startTime", operator: ">=", value: dashboardLookbackDate },
+    // ],
     pagination: { limit: 200 },
     orderBy: { field: "startTime", direction: "desc" },
   });
@@ -65,6 +65,9 @@ export default function DashboardPage() {
     () => appointmentsQuery.data?.pages.flatMap((page) => page) || [],
     [appointmentsQuery.data],
   );
+
+  console.log(appointmentsQuery.error);
+  console.log(appointments)
 
   // Calculate top services from completed appointments only
   const topServices = useMemo(() => {

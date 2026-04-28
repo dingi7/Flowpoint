@@ -39,9 +39,13 @@ const pageCopy = {
       },
     },
     preview: {
-      livePreview: "Преглед на живо",
+      label: "Продуктово демо",
+      title: "Вижте как се публикува лендинг страница за минути.",
+      description:
+        "Кратък преглед на реалния Flowpoint workflow: настройка на организация, съдържание и пускане на брандиран поддомейн.",
+      hint: "Видео демо",
       liveMessage:
-        "firstclass.flowpoint.services вече е на живо с резервации, услуги и социално доказателство.",
+        "От една административна конфигурация до готова SEO страница с резервации и бранд съдържание.",
     },
     features: [
       {
@@ -116,9 +120,13 @@ const pageCopy = {
       },
     },
     preview: {
-      livePreview: "Live preview",
+      label: "Product demo",
+      title: "See how a landing page ships in minutes.",
+      description:
+        "A quick walkthrough of the real Flowpoint workflow: configure the organization, shape the content, and launch on a branded subdomain.",
+      hint: "Video demo",
       liveMessage:
-        "firstclass.flowpoint.services is now live with bookings, services, and social proof.",
+        "From one admin setup to a live SEO page with bookings and branded content.",
     },
     features: [
       {
@@ -303,25 +311,34 @@ export default async function Home({
           </div>
 
           <div className="flex-1">
-            <div className="relative rounded-3xl border border-white/10 bg-gradient-to-br from-[#141414] via-[#101010] to-[#0b0b0b] p-8 shadow-2xl">
-              <div className="flex items-center justify-between text-xs uppercase text-gray-500">
-                <span>flowpoint.services</span>
-                <span>{copy.preview.livePreview}</span>
-              </div>
-              <div className="mt-6 space-y-4">
-                <div className="h-3 w-24 rounded-full bg-amber-400/60" />
-                <div className="space-y-3">
-                  <div className="h-7 w-3/4 rounded-xl bg-white/10" />
-                  <div className="h-4 w-2/3 rounded-lg bg-white/10" />
-                  <div className="h-4 w-1/2 rounded-lg bg-white/10" />
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#141414] via-[#101010] to-[#0b0b0b] p-4 shadow-2xl sm:p-6">
+              <div className="absolute inset-x-8 top-0 h-24 rounded-full bg-amber-400/15 blur-3xl" />
+              <div className="relative flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.24em] text-amber-200">
+                    {copy.preview.label}
+                  </div>
+                  <h2 className="mt-3 text-2xl font-semibold text-white">{copy.preview.title}</h2>
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-gray-400">
+                    {copy.preview.description}
+                  </p>
                 </div>
-                <div className="mt-6 grid grid-cols-3 gap-3">
-                  <div className="h-16 rounded-2xl bg-white/5" />
-                  <div className="h-16 rounded-2xl bg-white/10" />
-                  <div className="h-16 rounded-2xl bg-white/5" />
-                </div>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-gray-400">
+                  {copy.preview.hint}
+                </span>
               </div>
-              <div className="mt-8 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
+              <div className="relative mt-6 overflow-hidden rounded-[1.75rem] border border-white/10 bg-black">
+                <video
+                  className="aspect-video w-full object-cover"
+                  src="/demo.mp4"
+                  playsInline
+                  controls
+                  preload="metadata"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className="relative mt-5 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
                 {copy.preview.liveMessage}
               </div>
             </div>
