@@ -21,6 +21,7 @@ export { rebuildAnalytics } from "./functions/analytics/rebuild-analytics";
 
 // <-- Appointment Booking -->
 export { bookAppointment } from "./functions/appointment/book-appointment";
+export { getBookingSuggestions } from "./functions/booking-suggestions/get-booking-suggestions";
 export { sendAppointmentReminder } from "./functions/appointment/send-appointment-reminder";
 export { sendAppointmentReviewRequest } from "./functions/appointment/send-appointment-review-request";
 export { sendAppointmentRebookingReminder } from "./functions/appointment/send-appointment-rebooking-reminder";

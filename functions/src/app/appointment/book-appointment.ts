@@ -16,6 +16,10 @@ import {
   UserRepository,
 } from "@/core";
 import { calculatePriceQuote } from "@/app/pricing/calculate-price";
+import {
+  getAddOnTotals,
+  toAppointmentAddOnSnapshot,
+} from "@/app/booking-suggestions/service-add-ons";
 import { sendAppointmentEmailNotificationFn } from "../notification/send-appointment-email-notification";
 import { validateBookingRequest } from "./validation/booking-validation";
 
@@ -25,6 +29,7 @@ interface Payload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
+  addOnServiceIds?: string[];
   fee?: number;
   title?: string;
   description?: string;
@@ -64,6 +69,8 @@ interface BookingResult {
     endTime: string;
     duration: number;
     fee?: number;
+    addOns?: ReturnType<typeof toAppointmentAddOnSnapshot>[];
+    priceQuote?: ReturnType<typeof calculatePriceQuote>;
   };
 }
 
@@ -134,10 +141,12 @@ export async function bookAppointmentFn(
   const {
     validatedPayload,
     service,
+    addOnServices,
     customerId,
     startTime,
     assigneeType,
     endTime,
+    totalDuration,
   } = validationResult;
   const pricingRules = await dependencies.pricingRuleRepository.getAll({
     queryConstraints: [{ field: "active", operator: "==", value: true }],
@@ -149,6 +158,12 @@ export async function bookAppointmentFn(
     assigneeId: validatedPayload.assigneeId,
     pricingRules,
   });
+  const addOns = addOnServices.map((addOnService) =>
+    toAppointmentAddOnSnapshot({ service: addOnService }),
+  );
+  const addOnTotals = getAddOnTotals({ addOns });
+  const baseFee = priceQuote.basePrice + addOnTotals.price;
+  const finalFee = priceQuote.finalPrice + addOnTotals.price;
 
   // 2. Create appointment
   const appointmentData: AppointmentData = {
@@ -158,15 +173,17 @@ export async function bookAppointmentFn(
     serviceId: validatedPayload.serviceId,
     title: validatedPayload.title || service.name,
     description:
-      validatedPayload.description || `Appointment for ${service.name}`,
+      validatedPayload.description ||
+      `Appointment for ${[service.name, ...addOns.map((addOn) => addOn.name)].join(" + ")}`,
     startTime: startTime.toISOString(),
-    duration: service.duration,
-    fee: priceQuote.finalPrice,
-    baseFee: priceQuote.basePrice,
-    finalFee: priceQuote.finalPrice,
+    duration: totalDuration,
+    fee: finalFee,
+    baseFee,
+    finalFee,
     discountAmount: priceQuote.discountAmount,
     pricingRuleId: priceQuote.pricingRuleId,
     pricingSnapshot: priceQuote.pricingSnapshot,
+    addOns,
     status: APPOINTMENT_STATUS.PENDING,
   };
 
@@ -218,8 +235,9 @@ export async function bookAppointmentFn(
     customerId,
     startTime: startTime.toISOString(),
     endTime: endTime.toISOString(),
-    duration: service.duration,
+    duration: totalDuration,
     fee: appointmentData.fee,
+    addOns,
     priceQuote,
   };
 

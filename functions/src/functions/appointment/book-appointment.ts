@@ -42,6 +42,7 @@ interface Payload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
+  addOnServiceIds?: string[];
   fee?: number;
   title?: string;
   description?: string;

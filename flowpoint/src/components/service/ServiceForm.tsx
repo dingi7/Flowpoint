@@ -3,6 +3,7 @@
 import { FREE_LIMITS, PLANS } from "@/billing/config";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { OWNER_TYPE, Service } from "@/core";
 import { useCreateService, useServiceForm, useUpdateService } from "@/hooks";
@@ -56,6 +58,7 @@ export function ServiceForm({
   const isFreePlan =
     !!orgId && (isLoaded ? has({ plan: PLANS.freeOrg }) : false);
   const currentServicesCount = servicesData?.pages.flatMap((page) => page).length ?? 0;
+  const allServices = servicesData?.pages.flatMap((page) => page) ?? [];
 
   const {
     register,
@@ -113,6 +116,34 @@ export function ServiceForm({
 
   const currentImage = watch("image");
   const localisation = watch("localisation");
+  const isAddOn = watch("isAddOn") || false;
+  const compatibleWithServiceIds = watch("compatibleWithServiceIds") || [];
+  const suggestedWithServiceIds = watch("suggestedWithServiceIds") || [];
+  const selectablePrimaryServices = allServices.filter(
+    (item) => item.id !== service?.id && !item.isAddOn,
+  );
+  const selectableAddOnServices = allServices.filter(
+    (item) => item.id !== service?.id && item.isAddOn,
+  );
+
+  const toggleServiceId = (payload: {
+    fieldName: "compatibleWithServiceIds" | "suggestedWithServiceIds";
+    serviceId: string;
+    checked: boolean;
+  }) => {
+    const currentValues =
+      payload.fieldName === "compatibleWithServiceIds"
+        ? compatibleWithServiceIds
+        : suggestedWithServiceIds;
+
+    setValue(
+      payload.fieldName,
+      payload.checked
+        ? Array.from(new Set([...currentValues, payload.serviceId]))
+        : currentValues.filter((id) => id !== payload.serviceId),
+      { shouldDirty: true, shouldValidate: true },
+    );
+  };
 
   // Update form when image upload completes
   useEffect(() => {
@@ -243,6 +274,98 @@ export function ServiceForm({
             disabled={isSubmitting}
             id="service-image"
           />
+        </CardContent>
+      </Card>
+
+      <Card className="border-none">
+        <CardHeader>
+          <CardTitle className="text-lg font-sans">Upsells</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+            <div className="space-y-1">
+              <Label>Add-on service</Label>
+              <p className="text-sm text-muted-foreground">
+                Show this service as an optional upgrade during booking.
+              </p>
+            </div>
+            <Switch
+              checked={isAddOn}
+              onCheckedChange={(checked) => {
+                setValue("isAddOn", checked, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+                if (!checked) {
+                  setValue("compatibleWithServiceIds", [], {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
+              }}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {isAddOn && (
+            <div className="space-y-3">
+              <Label>Compatible services</Label>
+              <div className="grid gap-2 md:grid-cols-2">
+                {selectablePrimaryServices.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Add a primary service first.
+                  </p>
+                ) : (
+                  selectablePrimaryServices.map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex items-center gap-3 rounded-lg border p-3 text-sm"
+                    >
+                      <Checkbox
+                        checked={compatibleWithServiceIds.includes(item.id)}
+                        onCheckedChange={(checked) =>
+                          toggleServiceId({
+                            fieldName: "compatibleWithServiceIds",
+                            serviceId: item.id,
+                            checked: checked === true,
+                          })
+                        }
+                        disabled={isSubmitting}
+                      />
+                      <span>{item.name}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {!isAddOn && selectableAddOnServices.length > 0 && (
+            <div className="space-y-3">
+              <Label>Suggested add-ons</Label>
+              <div className="grid gap-2 md:grid-cols-2">
+                {selectableAddOnServices.map((item) => (
+                  <label
+                    key={item.id}
+                    className="flex items-center gap-3 rounded-lg border p-3 text-sm"
+                  >
+                    <Checkbox
+                      checked={suggestedWithServiceIds.includes(item.id)}
+                      onCheckedChange={(checked) =>
+                        toggleServiceId({
+                          fieldName: "suggestedWithServiceIds",
+                          serviceId: item.id,
+                          checked: checked === true,
+                        })
+                      }
+                      disabled={isSubmitting}
+                    />
+                    <span>{item.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

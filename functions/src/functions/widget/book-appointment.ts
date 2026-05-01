@@ -44,6 +44,7 @@ interface Payload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
+  addOnServiceIds?: string[];
   title?: string;
   description?: string;
   additionalCustomerFields?: Record<string, unknown>;

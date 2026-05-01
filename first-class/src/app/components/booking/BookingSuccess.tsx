@@ -6,11 +6,19 @@ import { Barber } from "@/stores/types/booking-modal.types";
 import { Service } from "@/core";
 import { useTranslation } from "@/lib/useTranslation";
 import { formatTimeSlot } from "@/lib/utils";
+import { formatPrice } from "@/utils/price-format";
+
+interface SelectedAddOn {
+  name: string;
+  price: number;
+  duration: number;
+}
 
 interface BookingSuccessProps {
   selectedBarber: Barber;
   selectedService: Service;
   selectedTime: string;
+  selectedAddOns?: SelectedAddOn[];
   onClose: () => void;
 }
 
@@ -18,6 +26,7 @@ export function BookingSuccess({
   selectedBarber,
   selectedService,
   selectedTime,
+  selectedAddOns = [],
   onClose,
 }: BookingSuccessProps) {
   const { t } = useTranslation();
@@ -51,13 +60,27 @@ export function BookingSuccess({
             
 
             <span className="text-muted-foreground">{t("booking.service")}:</span>
-            <span>{selectedService.name}</span>
+            <span>
+              {[selectedService.name, ...selectedAddOns.map((addOn) => addOn.name)].join(" + ")}
+            </span>
             
             <span className="text-muted-foreground">{t("booking.barber")}:</span>
             <span>{selectedBarber.name}</span>
             
             <span className="text-muted-foreground">{t("booking.duration")}:</span>
-            <span>{selectedService.duration} {t("booking.minutes")}</span>
+            <span>
+              {selectedService.duration +
+                selectedAddOns.reduce((total, addOn) => total + addOn.duration, 0)} {t("booking.minutes")}
+            </span>
+
+            {selectedAddOns.length > 0 && (
+              <>
+                <span className="text-muted-foreground">Add-ons:</span>
+                <span>
+                  {formatPrice(selectedAddOns.reduce((total, addOn) => total + addOn.price, 0))}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>

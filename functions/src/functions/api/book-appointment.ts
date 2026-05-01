@@ -47,6 +47,7 @@ const bookAppointmentRequestSchema = z.object({
   }),
   startTime: z.string().datetime("Invalid start time format"),
   assigneeId: z.string().min(1, "Assignee ID is required"),
+  addOnServiceIds: z.array(z.string().min(1)).optional(),
   title: z.string().optional(),
   description: z.string().optional(),
   additionalCustomerFields: z.record(z.unknown()).optional(),

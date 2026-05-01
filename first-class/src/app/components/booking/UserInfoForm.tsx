@@ -13,6 +13,7 @@ import { useTranslation } from '@/lib/useTranslation';
 import { useState } from 'react';
 import { formatPrice } from '@/utils/price-format';
 import { TimeSlot } from '@/stores/types/booking-modal.types';
+import { BookingSuggestion } from '@/core';
 
 // Constants
 const months = [
@@ -28,7 +29,12 @@ interface UserInfoFormProps {
     currentYear: number;
     userInfo: UserInfo;
     selectedTimeSlot?: TimeSlot;
+    suggestions?: BookingSuggestion[];
+    selectedAddOnIds?: string[];
+    selectedAddOns?: BookingSuggestion[];
+    isLoadingSuggestions?: boolean;
     onUserInfoChange: (info: UserInfo) => void;
+    onToggleAddOn?: (serviceId: string) => void;
     onSubmit: () => void | Promise<void>;
     onBack: () => void;
     isSubmitting?: boolean;
@@ -42,7 +48,12 @@ export function UserInfoForm({
     currentYear,
     userInfo,
     selectedTimeSlot,
+    suggestions = [],
+    selectedAddOnIds = [],
+    selectedAddOns = [],
+    isLoadingSuggestions = false,
     onUserInfoChange,
+    onToggleAddOn,
     onSubmit,
     onBack,
     isSubmitting = false,
@@ -90,6 +101,12 @@ export function UserInfoForm({
     };
 
     const isBusy = isSubmitting || isSubmitLocked;
+    const basePrice = selectedTimeSlot?.finalPrice || 0;
+    const addOnsTotal = selectedAddOns.reduce(
+        (total, addOn) => total + addOn.price,
+        0
+    );
+    const totalPrice = basePrice + addOnsTotal;
 
     return (
         <div className='p-4 md:p-6'>
@@ -140,7 +157,7 @@ export function UserInfoForm({
                                 )}
                                 {selectedTimeSlot?.finalPrice !== undefined && (
                                     <p className='text-sm font-medium mt-1'>
-                                        {formatPrice(selectedTimeSlot.finalPrice)}
+                                        {formatPrice(totalPrice)}
                                         {selectedTimeSlot.pricingLabel && (
                                             <span className='text-muted-foreground font-normal'>
                                                 {` · ${selectedTimeSlot.pricingLabel}`}
@@ -149,6 +166,50 @@ export function UserInfoForm({
                                     </p>
                                 )}
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {(isLoadingSuggestions || suggestions.length > 0) && (
+                    <div className='space-y-2'>
+                        <Label>Add-ons</Label>
+                        <div className='grid gap-2 sm:grid-cols-2'>
+                            {isLoadingSuggestions ? (
+                                <div className='text-sm text-muted-foreground border rounded-lg p-3 sm:col-span-2'>
+                                    Loading suggestions...
+                                </div>
+                            ) : (
+                                suggestions.map((suggestion) => {
+                                    const isSelected = selectedAddOnIds.includes(suggestion.serviceId);
+                                    return (
+                                        <button
+                                            key={suggestion.serviceId}
+                                            type='button'
+                                            onClick={() => onToggleAddOn?.(suggestion.serviceId)}
+                                            className={`text-left border rounded-lg p-3 transition-colors ${
+                                                isSelected
+                                                    ? 'border-primary bg-primary/10'
+                                                    : 'hover:border-primary/50'
+                                            }`}
+                                        >
+                                            <div className='flex items-start justify-between gap-3'>
+                                                <div className='min-w-0'>
+                                                    <p className='font-medium text-sm'>{suggestion.name}</p>
+                                                    <p className='text-xs text-muted-foreground mt-1 line-clamp-2'>
+                                                        {suggestion.reason}
+                                                    </p>
+                                                </div>
+                                                <span className='text-xs font-medium whitespace-nowrap'>
+                                                    {formatPrice(suggestion.price)}
+                                                </span>
+                                            </div>
+                                            <p className='text-xs text-muted-foreground mt-2'>
+                                                {suggestion.duration} min
+                                            </p>
+                                        </button>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
                 )}

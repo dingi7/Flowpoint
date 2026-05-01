@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Barber } from "@/stores/types/booking-modal.types";
 import { UserInfo } from "@/stores/types/booking-modal.types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChooseBarber } from "./ChooseBarber";
 import { Calendar } from "./Calendar";
 import { UserInfoForm } from "./UserInfoForm";
@@ -26,6 +26,7 @@ import {
   useMembers,
   useServices,
   useAvailableTimeslots,
+  useBookingSuggestions,
   useCreateCustomer,
   useCustomerByEmail,
 } from "@/hooks";
@@ -60,6 +61,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   const [selectedService, setSelectedService] = useState<Service | null>(
     initialService
   );
+  const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
 
   // Fetch services and members using hooks
   const { data: servicesData } = useServices({
@@ -73,7 +75,14 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   });
 
   // Flatten the data
-  const services = servicesData?.pages?.flatMap((page) => page) || [];
+  const services = useMemo(
+    () => servicesData?.pages?.flatMap((page) => page) || [],
+    [servicesData],
+  );
+  const primaryServices = useMemo(
+    () => services.filter((service) => !service.isAddOn),
+    [services],
+  );
   const members = membersData?.pages?.flatMap((page) => page) || [];
 
   // Convert members to barbers format for the UI with localized name and description
@@ -115,6 +124,20 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
     (slot) => slot.start_time === selectedTime,
   );
 
+  const { data: bookingSuggestionsData, isLoading: isLoadingSuggestions } =
+    useBookingSuggestions({
+      serviceId: selectedService?.id || "",
+      customerEmail: userInfo.email || undefined,
+      enabled: !!selectedService,
+    });
+  const bookingSuggestions = useMemo(
+    () => bookingSuggestionsData?.suggestions || [],
+    [bookingSuggestionsData],
+  );
+  const selectedAddOns = bookingSuggestions.filter((suggestion) =>
+    selectedAddOnIds.includes(suggestion.serviceId),
+  );
+
   // Use the customer creation hook
   const createCustomerMutation = useCreateCustomer();
 
@@ -147,6 +170,19 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   useEffect(() => {
     setSelectedService(initialService);
   }, [initialService]);
+
+  useEffect(() => {
+    setSelectedAddOnIds([]);
+  }, [selectedService?.id]);
+
+  useEffect(() => {
+    const availableSuggestionIds = new Set(
+      bookingSuggestions.map((suggestion) => suggestion.serviceId),
+    );
+    setSelectedAddOnIds((currentIds) =>
+      currentIds.filter((serviceId) => availableSuggestionIds.has(serviceId)),
+    );
+  }, [bookingSuggestions]);
 
   // Handle initial barber selection
   useEffect(() => {
@@ -184,6 +220,14 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
   const handleBackToBarber = () => {
     setDirection(-1);
     setStep("barber");
+  };
+
+  const handleAddOnToggle = (serviceId: string) => {
+    setSelectedAddOnIds((currentIds) =>
+      currentIds.includes(serviceId)
+        ? currentIds.filter((currentId) => currentId !== serviceId)
+        : [...currentIds, serviceId],
+    );
   };
 
   const handleSubmit = async () => {
@@ -237,6 +281,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
         customerEmail: userInfo.email,
         startTime: selectedTime, // Already in UTC ISO format
         assigneeId: selectedBarber.id,
+        addOnServiceIds: selectedAddOnIds,
         customerData: {
           name: userInfo.name,
           phone: userInfo.phone,
@@ -264,6 +309,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
       setSelectedBarber(initialBarber || null);
       setSelectedDate(null);
       setSelectedTime(null);
+      setSelectedAddOnIds([]);
       setUserInfo({
         name: "",
         email: "",
@@ -301,6 +347,7 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                   selectedBarber={selectedBarber}
                   selectedService={selectedService}
                   selectedTime={selectedTime}
+                  selectedAddOns={selectedAddOns}
                   onClose={handleClose}
                 />
               )}
@@ -337,7 +384,12 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                   currentYear={currentYear}
                   userInfo={userInfo}
                   selectedTimeSlot={selectedTimeSlot}
+                  suggestions={bookingSuggestions}
+                  selectedAddOnIds={selectedAddOnIds}
+                  selectedAddOns={selectedAddOns}
+                  isLoadingSuggestions={isLoadingSuggestions}
                   onUserInfoChange={setUserInfo}
+                  onToggleAddOn={handleAddOnToggle}
                   onSubmit={handleSubmit}
                   onBack={handleBackToDateTime}
                   isSubmitting={
@@ -359,8 +411,8 @@ export function BookingModal({ isOpen, closeModal }: BookingModalProps) {
                 currentYear={currentYear}
                 direction={direction}
                 isLoadingTimeSlots={isLoadingTimeSlots}
-                  availableTimeSlots={availableTimeSlots}
-                services={services}
+                availableTimeSlots={availableTimeSlots}
+                services={primaryServices}
                 handleDateSelect={handleDateSelect}
                 handleTimeSelect={handleTimeSelect}
                 handleBackToBarber={handleBackToBarber}

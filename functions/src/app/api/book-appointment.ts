@@ -12,6 +12,7 @@ interface Payload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
+  addOnServiceIds?: string[];
   title?: string;
   description?: string;
   timezone?: string;
@@ -25,4 +26,3 @@ export async function bookAppointmentApiFn(
 ) {
   return bookAppointmentFn(payload, dependencies);
 }
-

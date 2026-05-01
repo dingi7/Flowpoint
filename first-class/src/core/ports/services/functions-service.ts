@@ -15,6 +15,7 @@ export interface BookAppointmentPayload {
   organizationId: string;
   startTime: string;
   assigneeId: string;
+  addOnServiceIds?: string[];
   fee?: number;
   title?: string;
   description?: string;
@@ -48,4 +49,12 @@ export interface FunctionsService {
   bookAppointment(
     payload: BookAppointmentPayload
   ): Promise<BookAppointmentResponse>;
+  getBookingSuggestions(payload: {
+    organizationId: string;
+    serviceId: string;
+    customerEmail?: string;
+  }): Promise<{
+    success: boolean;
+    suggestions: import("../../entities/booking-suggestion").BookingSuggestion[];
+  }>;
 }

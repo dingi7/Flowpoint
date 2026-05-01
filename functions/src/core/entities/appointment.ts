@@ -34,6 +34,16 @@ export const appointmentDataSchema = z.object({
       priority: z.number(),
     })
     .optional(),
+  addOns: z
+    .array(
+      z.object({
+        serviceId: z.string(),
+        name: z.string(),
+        price: z.number(),
+        duration: z.number(),
+      }),
+    )
+    .optional(),
   status: z.nativeEnum(APPOINTMENT_STATUS),
 });
 

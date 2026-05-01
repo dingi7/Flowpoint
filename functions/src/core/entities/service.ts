@@ -13,6 +13,9 @@ export const serviceDataSchema = z.object({
   duration: z.number(),
   image: z.string().optional(),
   order: z.number().optional(),
+  isAddOn: z.boolean().optional(),
+  compatibleWithServiceIds: z.array(z.string()).optional(),
+  suggestedWithServiceIds: z.array(z.string()).optional(),
   localisation: z.object({
     description: localeSchema,
     name: localeSchema,

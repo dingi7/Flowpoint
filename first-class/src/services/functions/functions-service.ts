@@ -1,4 +1,9 @@
-import { FunctionsService, BookAppointmentPayload, BookAppointmentResponse } from "@/core";
+import {
+  BookingSuggestion,
+  FunctionsService,
+  BookAppointmentPayload,
+  BookAppointmentResponse,
+} from "@/core";
 import { firebase } from "@/infrastructure/firebase";
 import { httpsCallable } from "@firebase/functions";
 
@@ -33,6 +38,23 @@ export const functionsService: FunctionsService = {
     >(
       firebase.functions,
       "bookAppointment",
+    )(payload);
+    return result.data;
+  },
+  async getBookingSuggestions(payload) {
+    const result = await httpsCallable<
+      {
+        organizationId: string;
+        serviceId: string;
+        customerEmail?: string;
+      },
+      {
+        success: boolean;
+        suggestions: BookingSuggestion[];
+      }
+    >(
+      firebase.functions,
+      "getBookingSuggestions",
     )(payload);
     return result.data;
   }

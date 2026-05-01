@@ -1,6 +1,7 @@
 // Entities
 export * from "./entities/appointment";
 export * from "./entities/base";
+export * from "./entities/booking-suggestion";
 export * from "./entities/calendar";
 export * from "./entities/customer";
 export * from "./entities/invite";

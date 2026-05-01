@@ -14,6 +14,10 @@ import {
 } from "@/core";
 import { createCustomerWithFields } from "@/utils/customer-utils";
 import z from "zod";
+import {
+  isCompatibleAddOn,
+  normalizeAddOnServiceIds,
+} from "@/app/booking-suggestions/service-add-ons";
 
 // Validation schemas
 const bookAppointmentPayloadSchema = z.object({
@@ -28,6 +32,7 @@ const bookAppointmentPayloadSchema = z.object({
     message: "Invalid start time format",
   }),
   assigneeId: z.string().min(1, "Assignee ID is required"),
+  addOnServiceIds: z.array(z.string().min(1)).optional(),
   title: z.string().optional(),
   description: z.string().optional(),
   fee: z.number().min(0).optional().nullable(),
@@ -49,11 +54,13 @@ interface Dependencies {
 interface ValidationResult {
   validatedPayload: BookAppointmentPayload;
   service: Service;
+  addOnServices: Service[];
   customerId: string;
   startTime: Date;
   assigneeId: string;
   assigneeType: OWNER_TYPE;
   endTime: Date;
+  totalDuration: number;
 }
 
 /**
@@ -96,6 +103,41 @@ export async function validateBookingRequest(
 
   if (!service) {
     throw new Error(`Service not found: ${validatedPayload.serviceId}`);
+  }
+
+  if (service.isAddOn) {
+    throw new Error("Primary booking service cannot be an add-on");
+  }
+
+  const addOnServiceIds = normalizeAddOnServiceIds({
+    addOnServiceIds: validatedPayload.addOnServiceIds,
+    primaryServiceId: service.id,
+  });
+  const addOnServices = addOnServiceIds.length
+    ? await serviceRepository.getMany({
+        ids: addOnServiceIds,
+        organizationId: validatedPayload.organizationId,
+      })
+    : [];
+
+  if (addOnServices.length !== addOnServiceIds.length) {
+    throw new Error("One or more add-on services could not be found");
+  }
+
+  const invalidAddOns = addOnServices.filter(
+    (addOnService) =>
+      !isCompatibleAddOn({
+        addOnService,
+        primaryServiceId: service.id,
+      }),
+  );
+
+  if (invalidAddOns.length > 0) {
+    throw new Error(
+      `Invalid add-on service selection: ${invalidAddOns
+        .map((addOn) => addOn.name)
+        .join(", ")}`,
+    );
   }
 
   // 3. Customer validation
@@ -173,8 +215,11 @@ export async function validateBookingRequest(
 
   // 5. Time validation
   const startTime = new Date(validatedPayload.startTime);
+  const totalDuration =
+    service.duration +
+    addOnServices.reduce((total, addOn) => total + addOn.duration, 0);
   const endTime = new Date(startTime);
-  endTime.setMinutes(endTime.getMinutes() + service.duration);
+  endTime.setMinutes(endTime.getMinutes() + totalDuration);
 
   // Check if appointment is in the past
   if (startTime <= new Date()) {
@@ -251,10 +296,12 @@ export async function validateBookingRequest(
   return {
     validatedPayload,
     service,
+    addOnServices,
     customerId,
     startTime,
     assigneeId: validatedPayload.assigneeId,
     assigneeType: calendar.ownerType,
     endTime,
+    totalDuration,
   };
 }
