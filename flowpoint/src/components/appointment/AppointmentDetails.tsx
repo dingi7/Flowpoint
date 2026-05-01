@@ -10,6 +10,7 @@ import { useCustomer, useService, useMemberById, useGetOrganizationById } from "
 import { formatUtcDateTime } from "@/utils/date-time";
 import { formatPrice } from "@/utils/price-format";
 import {
+  AlertTriangle,
   Briefcase,
   Calendar,
   CheckCircle,
@@ -27,11 +28,13 @@ import { useTranslation } from "react-i18next";
 
 interface AppointmentDetailsProps {
   appointment: Appointment;
+  priorNoShowCount?: number;
   onStatusChange: (appointmentId: string, newStatus: string) => void;
 }
 
 export function AppointmentDetails({
   appointment,
+  priorNoShowCount = 0,
   onStatusChange,
 }: AppointmentDetailsProps) {
   const { t } = useTranslation();
@@ -235,8 +238,26 @@ export function AppointmentDetails({
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h4 className="font-semibold">{customerData.name}</h4>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h4 className="font-semibold">{customerData.name}</h4>
+                  {priorNoShowCount > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="border-orange-500 bg-orange-50 text-orange-700"
+                    >
+                      <AlertTriangle className="mr-1 h-3 w-3" />
+                      {t("appointments.unreliableClient")}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">{t("appointments.details.customer")}</p>
+                {priorNoShowCount > 0 && (
+                  <p className="text-xs text-orange-700 mt-1">
+                    {t("appointments.noShowHistory", {
+                      count: priorNoShowCount,
+                    })}
+                  </p>
+                )}
               </div>
             </div>
 

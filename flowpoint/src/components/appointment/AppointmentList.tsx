@@ -34,8 +34,10 @@ import {
 } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { formatUtcDateTime } from "@/utils/date-time";
+import { getPriorNoShowCount } from "@/utils/appointment-risk";
 import { formatPrice } from "@/utils/price-format";
 import {
+  AlertTriangle,
   CheckCircle,
   Clock,
   Edit,
@@ -94,6 +96,13 @@ export function AppointmentList({
       orderBy: { field: "startTime", direction: "desc" },
     });
 
+  const { data: noShowAppointmentsData } = useAppointments({
+    queryConstraints: [
+      { field: "status", operator: "==", value: APPOINTMENT_STATUS.NO_SHOW },
+    ],
+    pagination: { limit: 1000 },
+  });
+
   const { data: customersData, isLoading: customersLoading } = useCustomers({
     pagination: { limit: 1000 },
   });
@@ -107,6 +116,9 @@ export function AppointmentList({
 
   const appointments =
     (appointmentsData?.pages.flatMap((page) => page) as Appointment[]) || [];
+  const noShowAppointments =
+    (noShowAppointmentsData?.pages.flatMap((page) => page) as Appointment[]) ||
+    [];
   const customers = customersData?.pages.flatMap((page) => page) || [];
   const services = servicesData?.pages.flatMap((page) => page) || [];
 
@@ -353,6 +365,10 @@ export function AppointmentList({
                 const appointmentTime = appointment.startTime
                   ? formatUtcDateTime(appointment.startTime, "HH:mm")
                   : t("common.notAvailable");
+                const priorNoShowCount = getPriorNoShowCount({
+                  appointment,
+                  noShowAppointments,
+                });
 
                 return (
                   <TableRow key={appointment.id}>
@@ -362,12 +378,31 @@ export function AppointmentList({
                           <User className="h-4 w-4" />
                         </div>
                         <div>
-                          <p className="font-medium">
-                            {customer?.name || t("appointments.unknownCustomer")}
-                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium">
+                              {customer?.name ||
+                                t("appointments.unknownCustomer")}
+                            </p>
+                            {priorNoShowCount > 0 && (
+                              <Badge
+                                variant="outline"
+                                className="border-orange-500 bg-orange-50 text-orange-700"
+                              >
+                                <AlertTriangle className="mr-1 h-3 w-3" />
+                                {t("appointments.unreliableClient")}
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             {customer?.email || t("appointments.noEmail")}
                           </p>
+                          {priorNoShowCount > 0 && (
+                            <p className="text-xs text-orange-700">
+                              {t("appointments.noShowHistory", {
+                                count: priorNoShowCount,
+                              })}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </TableCell>
@@ -536,6 +571,10 @@ export function AppointmentList({
           {selectedAppointment && (
             <AppointmentDetails
               appointment={selectedAppointment}
+              priorNoShowCount={getPriorNoShowCount({
+                appointment: selectedAppointment,
+                noShowAppointments,
+              })}
               onStatusChange={handleStatusChange}
             />
           )}

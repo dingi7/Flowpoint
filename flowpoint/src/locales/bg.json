@@ -460,6 +460,8 @@
         "noResults": "Няма намерени резервации, отговарящи на критериите ви.",
         "unknownCustomer": "Неизвестен клиент",
         "noEmail": "Няма имейл",
+        "unreliableClient": "Ненадежден",
+        "noShowHistory": "{{count}} предишно неявяване",
         "unknownService": "Неизвестна услуга",
         "tableHeaders": {
             "customer": "Клиент",

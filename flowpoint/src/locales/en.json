@@ -460,6 +460,8 @@
         "noResults": "No appointments found matching your criteria.",
         "unknownCustomer": "Unknown Customer",
         "noEmail": "No email",
+        "unreliableClient": "Unreliable",
+        "noShowHistory": "{{count}} previous no-show",
         "unknownService": "Unknown Service",
         "tableHeaders": {
             "customer": "Customer",
