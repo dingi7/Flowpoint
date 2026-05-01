@@ -168,6 +168,21 @@ export const functionsService: FunctionsService = {
     );
     return data;
   },
+  async setAiMirrorGeminiKey(payload) {
+    const data = await callFunction<
+      {
+        organizationId: string;
+        geminiApiKey: string;
+      },
+      {
+        hasGeminiKey: boolean;
+      }
+    >(
+      "setAiMirrorGeminiKey",
+      payload,
+    );
+    return data;
+  },
   async revokeApiKey(payload) {
     await callFunction<
       {

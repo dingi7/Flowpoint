@@ -28,6 +28,49 @@ export interface BookAppointmentResponse {
   confirmationDetails: unknown;
 }
 
+export type AnalyzeHairstyleStatus = "ok" | "needs_better_photo";
+
+export type HairstyleMaintenanceLevel = "low" | "medium" | "high";
+
+export interface HairstyleRecommendation {
+  title: string;
+  matchedServiceId?: string;
+  reason: string;
+  stylingNotes: string;
+  maintenanceLevel: HairstyleMaintenanceLevel;
+  bookingLabel: string;
+  previewImageDataUrl?: string;
+}
+
+export interface AnalyzeHairstylePayload {
+  organizationId: string;
+  imageDataUrl: string;
+  locale: "en" | "bg" | "tr";
+}
+
+export interface AnalyzeHairstyleResponse {
+  success: boolean;
+  status: AnalyzeHairstyleStatus;
+  analysisSummary: {
+    faceShape?: string;
+    visibleHairNotes: string[];
+    imageQualityNotes: string[];
+  };
+  recommendations: HairstyleRecommendation[];
+}
+
+export interface GenerateHairstylePreviewPayload {
+  organizationId: string;
+  imageDataUrl: string;
+  locale: "en" | "bg" | "tr";
+  recommendation: Omit<HairstyleRecommendation, "previewImageDataUrl">;
+}
+
+export interface GenerateHairstylePreviewResponse {
+  success: boolean;
+  previewImageDataUrl?: string;
+}
+
 export interface FunctionsService {
   getAvailableTimeslots(payload: {
     serviceId: string;
@@ -43,4 +86,10 @@ export interface FunctionsService {
   bookAppointment(
     payload: BookAppointmentPayload
   ): Promise<BookAppointmentResponse>;
+  analyzeHairstyle(
+    payload: AnalyzeHairstylePayload
+  ): Promise<AnalyzeHairstyleResponse>;
+  generateHairstylePreview(
+    payload: GenerateHairstylePreviewPayload
+  ): Promise<GenerateHairstylePreviewResponse>;
 }

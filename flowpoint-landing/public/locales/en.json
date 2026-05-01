@@ -146,6 +146,31 @@
         "inPerson": "In-person appointment",
         "submitting": "Submitting..."
     },
+    "aiMirror": {
+        "eyebrow": "AI mirror",
+        "title": "Find a haircut that fits your face",
+        "description": "Upload a clear front-facing photo and we will suggest styles from this shop's services.",
+        "previewAlt": "Uploaded face preview",
+        "uploadTitle": "Upload your photo",
+        "uploadHint": "JPEG, PNG, or WebP under 8MB. Use a clear front-facing photo.",
+        "removeImage": "Remove image",
+        "consent": "I agree to send this photo for a one-time AI hairstyle recommendation. The photo will not be stored by Flowpoint.",
+        "analyze": "Analyze my style",
+        "analyzing": "Analyzing...",
+        "progressLabel": "Generating recommendations and previews",
+        "back": "Back",
+        "skip": "Skip",
+        "resultsTitle": "Your recommendations",
+        "resultsHint": "Choose a style to continue booking with the closest matching service.",
+        "retakeHint": "The photo may need better lighting or a clearer front-facing view.",
+        "faceShape": "Face shape",
+        "emptyState": "Upload a photo to see personalized hairstyle recommendations.",
+        "errors": {
+            "image": "We could not process this image.",
+            "missingImage": "Please upload a photo first.",
+            "consent": "Please confirm consent before analysis."
+        }
+    },
     "location": {
         "title": "SERVICE BEYOND EXPECTATIONS",
         "description": "Our barbershop is a space specially designed for men who value premium quality, time, and impeccable appearance. We will help you look stylish and confident in the most elegant way.",

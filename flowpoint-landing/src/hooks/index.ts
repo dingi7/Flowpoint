@@ -9,4 +9,5 @@ export * from "./repository-hooks/service/use-service";
 // Service hooks
 export * from "./service-hooks/availability/use-available-timeslots";
 export * from "./service-hooks/availability/use-book-appointment";
-
+export * from "./service-hooks/ai-mirror/use-analyze-hairstyle";
+export * from "./service-hooks/ai-mirror/use-generate-hairstyle-preview";

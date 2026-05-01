@@ -12,6 +12,7 @@ export const FREE_ORG_PLAN_SLUG = "free_org";
 
 export const BILLING_FEATURES = {
   crm: "crm",
+  landingPage: "landing_page",
   api: "api",
   webhooks: "webhooks",
 } as const;

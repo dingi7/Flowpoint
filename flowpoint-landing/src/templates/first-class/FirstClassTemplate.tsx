@@ -15,6 +15,9 @@ export function FirstClassTemplate({
   services,
   members,
 }: TemplateProps) {
+  const showAiMirror = Boolean(
+    landingPage.aiMirror?.enabled && landingPage.aiMirror?.hasGeminiKey,
+  );
   const copyOverrides = landingPage.copyOverrides || {};
   const hero = landingPage.hero || {};
   const branding = landingPage.branding || {};
@@ -73,7 +76,7 @@ export function FirstClassTemplate({
         <Location organization={organization} landingPage={landingPage} />
       </main>
       <Footer organization={organization} landingPage={landingPage} />
-      <BookingModalRoot />
+      <BookingModalRoot showAiMirror={showAiMirror} />
       <Script
         id="structured-data"
         type="application/ld+json"

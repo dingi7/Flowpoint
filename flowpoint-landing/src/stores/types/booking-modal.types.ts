@@ -20,7 +20,7 @@ export interface TimeSlot {
   end_time?: string;
 }
 
-export type BookingStep = 'barber' | 'datetime' | 'userInfo' | 'success';
+export type BookingStep = 'aiMirror' | 'barber' | 'datetime' | 'userInfo' | 'success';
 
 export interface BookingModalState {
   // Modal state
@@ -92,4 +92,3 @@ export interface BookingModalActions {
 }
 
 export type BookingModalStore = BookingModalState & BookingModalActions;
-

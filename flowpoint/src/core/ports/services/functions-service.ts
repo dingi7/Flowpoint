@@ -94,6 +94,12 @@ export interface FunctionsService {
     apiKey: string;
     apiKeyMetadata: ApiKey;
   }>;
+  setAiMirrorGeminiKey(payload: {
+    organizationId: string;
+    geminiApiKey: string;
+  }): Promise<{
+    hasGeminiKey: boolean;
+  }>;
   revokeApiKey(payload: {
     organizationId: string;
     secretId: string;

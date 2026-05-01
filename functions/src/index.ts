@@ -22,6 +22,8 @@ export { rebuildAnalytics } from "./functions/analytics/rebuild-analytics";
 // <-- Appointment Booking -->
 export { bookAppointment } from "./functions/appointment/book-appointment";
 export { getBookingSuggestions } from "./functions/booking-suggestions/get-booking-suggestions";
+export { analyzeHairstyle } from "./functions/ai-mirror/analyze-hairstyle";
+export { generateHairstylePreview } from "./functions/ai-mirror/generate-hairstyle-preview";
 export { sendAppointmentReminder } from "./functions/appointment/send-appointment-reminder";
 export { sendAppointmentReviewRequest } from "./functions/appointment/send-appointment-review-request";
 export { sendAppointmentRebookingReminder } from "./functions/appointment/send-appointment-rebooking-reminder";
@@ -47,6 +49,7 @@ export { createOrganization } from "./functions/organization/create-organization
 // <-- API Key Management -->
 export { createApiKey } from "./functions/organization/create-api-key";
 export { revokeApiKey } from "./functions/organization/revoke-api-key";
+export { setAiMirrorGeminiKey } from "./functions/organization/set-ai-mirror-gemini-key";
 
 // <-- Webhook Management -->
 export { createWebhookSubscription } from "./functions/api/webhooks/create-webhook-subscription";
