@@ -19,6 +19,8 @@ const mailgunUrlSecret = defineSecret(Secrets.MAILGUN_URL);
 interface Payload {
   appointmentId: string;
   organizationId: string;
+  suggestedRebookingDate?: string;
+  rebookingReason?: string;
 }
 
 /**

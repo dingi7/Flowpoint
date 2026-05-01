@@ -16,6 +16,7 @@ export const serviceDataSchema = z.object({
   isAddOn: z.boolean().optional(),
   compatibleWithServiceIds: z.array(z.string()).optional(),
   suggestedWithServiceIds: z.array(z.string()).optional(),
+  rebookingIntervalDays: z.number().int().min(1).max(365).optional(),
   localisation: z.object({
     description: localeSchema,
     name: localeSchema,

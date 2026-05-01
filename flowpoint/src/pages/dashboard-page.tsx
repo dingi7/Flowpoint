@@ -135,6 +135,27 @@ export default function DashboardPage() {
     return `${Math.round((value || 0) * 100)}%`;
   };
 
+  const openPricingRecommendation = (payload: {
+    type: PRICING_RULE_TYPE;
+    dayOfWeek: string;
+    startHour: number;
+    endHour: number;
+    name: string;
+  }) => {
+    const isPeak = payload.type === PRICING_RULE_TYPE.PEAK_MULTIPLIER;
+    const params = new URLSearchParams({
+      type: payload.type,
+      dayOfWeek: payload.dayOfWeek,
+      startTime: `${String(payload.startHour).padStart(2, "0")}:00`,
+      endTime: `${String(payload.endHour).padStart(2, "0")}:00`,
+      value: isPeak ? "1.15" : "10",
+      priority: isPeak ? "20" : "10",
+      label: isPeak ? "Peak price" : "Off-peak discount",
+      name: payload.name,
+    });
+    navigate(`/pricing?${params.toString()}`);
+  };
+
   // If no organizations, show the first-time user welcome experience
   if (organizations.length === 0) {
     return <FirstTimeUserWelcome />;
@@ -307,8 +328,9 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground mt-1">
                       {insight.recommendation}
                     </p>
-                    {insight.type ===
-                      ANALYTICS_INSIGHT_TYPE.UNDERBOOKED_PERIOD &&
+                    {(insight.type ===
+                      ANALYTICS_INSIGHT_TYPE.UNDERBOOKED_PERIOD ||
+                      insight.type === ANALYTICS_INSIGHT_TYPE.PEAK_PERIOD) &&
                       insight.dayOfWeek &&
                       insight.startHour !== undefined &&
                       insight.endHour !== undefined && (
@@ -316,18 +338,23 @@ export default function DashboardPage() {
                           variant="outline"
                           size="sm"
                           className="mt-3"
-                          onClick={() => {
-                            const params = new URLSearchParams({
-                              type: PRICING_RULE_TYPE.SLOW_PERIOD_DISCOUNT,
+                          onClick={() =>
+                            openPricingRecommendation({
+                              type:
+                                insight.type ===
+                                ANALYTICS_INSIGHT_TYPE.PEAK_PERIOD
+                                  ? PRICING_RULE_TYPE.PEAK_MULTIPLIER
+                                  : PRICING_RULE_TYPE.SLOW_PERIOD_DISCOUNT,
                               dayOfWeek: insight.dayOfWeek!,
-                              startTime: `${String(insight.startHour).padStart(2, "0")}:00`,
-                              endTime: `${String(insight.endHour).padStart(2, "0")}:00`,
+                              startHour: insight.startHour!,
+                              endHour: insight.endHour!,
                               name: insight.message,
-                            });
-                            navigate(`/pricing?${params.toString()}`);
-                          }}
+                            })
+                          }
                         >
-                          {t("dashboard.createDiscount")}
+                          {insight.type === ANALYTICS_INSIGHT_TYPE.PEAK_PERIOD
+                            ? "Create peak rule"
+                            : t("dashboard.createDiscount")}
                         </Button>
                       )}
                   </div>

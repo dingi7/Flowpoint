@@ -274,6 +274,32 @@ export function ServiceForm({
             disabled={isSubmitting}
             id="service-image"
           />
+
+          <div className="space-y-2">
+            <Label htmlFor="rebookingIntervalDays">
+              Suggested rebooking interval
+            </Label>
+            <Input
+              id="rebookingIntervalDays"
+              type="number"
+              min="1"
+              max="365"
+              {...register("rebookingIntervalDays", {
+                setValueAs: (value) =>
+                  value === "" || value === undefined ? undefined : Number(value),
+              })}
+              placeholder="30"
+            />
+            <p className="text-xs text-muted-foreground">
+              Used as the default cadence for smart rebooking reminders when
+              there is not enough customer history.
+            </p>
+            {errors.rebookingIntervalDays && (
+              <p className="text-sm text-red-500">
+                {errors.rebookingIntervalDays.message}
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 

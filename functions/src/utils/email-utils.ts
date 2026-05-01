@@ -15,6 +15,8 @@ export interface EmailTemplateData {
     email?: string;
   };
   reviewUrl?: string;
+  suggestedRebookingDate?: string;
+  rebookingReason?: string;
 }
 
 const SOFIA_TIMEZONE = "Europe/Sofia";

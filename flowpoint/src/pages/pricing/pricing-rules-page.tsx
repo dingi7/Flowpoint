@@ -11,11 +11,13 @@ import {
 } from "@/components/ui/select";
 import {
   DAY_OF_WEEK,
+  ANALYTICS_INSIGHT_TYPE,
   PRICING_RULE_TYPE,
   PricingRule,
   PricingRuleData,
 } from "@/core";
 import {
+  useAnalyticsDashboard,
   useCreatePricingRule,
   useDeletePricingRule,
   useMembers,
@@ -25,7 +27,7 @@ import {
 } from "@/hooks";
 import { useCurrentOrganizationId } from "@/stores/organization-store";
 import { formatPrice } from "@/utils/price-format";
-import { CalendarClock, Pencil, Plus, Trash2 } from "lucide-react";
+import { CalendarClock, Lightbulb, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -79,6 +81,7 @@ export default function PricingRulesPage() {
     pagination: { limit: 100 },
     orderBy: { field: "name", direction: "asc" },
   });
+  const analyticsQuery = useAnalyticsDashboard();
   const createPricingRule = useCreatePricingRule();
   const updatePricingRule = useUpdatePricingRule();
   const deletePricingRule = useDeletePricingRule();
@@ -99,25 +102,62 @@ export default function PricingRulesPage() {
     const startTime = searchParams.get("startTime");
     const endTime = searchParams.get("endTime");
     const name = searchParams.get("name");
+    const value = Number(searchParams.get("value"));
+    const priority = Number(searchParams.get("priority"));
+    const label = searchParams.get("label");
 
     if (
-      type === PRICING_RULE_TYPE.SLOW_PERIOD_DISCOUNT &&
+      (type === PRICING_RULE_TYPE.SLOW_PERIOD_DISCOUNT ||
+        type === PRICING_RULE_TYPE.PEAK_MULTIPLIER) &&
       dayOfWeek &&
       startTime &&
       endTime
     ) {
+      const isPeak = type === PRICING_RULE_TYPE.PEAK_MULTIPLIER;
       setForm({
         ...DEFAULT_FORM,
-        name: name || "Slow period discount",
+        name: name || (isPeak ? "Peak period price" : "Slow period discount"),
         type,
         daysOfWeek: [dayOfWeek],
         startTime,
         endTime,
-        value: 10,
-        label: "Off-peak discount",
+        value: Number.isFinite(value) && value > 0 ? value : isPeak ? 1.15 : 10,
+        priority:
+          Number.isFinite(priority) && priority >= 0
+            ? priority
+            : isPeak
+              ? 20
+              : 10,
+        label: label || (isPeak ? "Peak price" : "Off-peak discount"),
       });
     }
   }, [searchParams]);
+
+  const applyInsight = (insight: NonNullable<typeof analyticsQuery.data>["insights"][number]) => {
+    if (
+      !insight.dayOfWeek ||
+      insight.startHour === undefined ||
+      insight.endHour === undefined
+    ) {
+      return;
+    }
+
+    const isPeak = insight.type === ANALYTICS_INSIGHT_TYPE.PEAK_PERIOD;
+    setEditingRule(null);
+    setForm({
+      ...DEFAULT_FORM,
+      name: insight.message,
+      type: isPeak
+        ? PRICING_RULE_TYPE.PEAK_MULTIPLIER
+        : PRICING_RULE_TYPE.SLOW_PERIOD_DISCOUNT,
+      daysOfWeek: [insight.dayOfWeek],
+      startTime: `${String(insight.startHour).padStart(2, "0")}:00`,
+      endTime: `${String(insight.endHour).padStart(2, "0")}:00`,
+      value: isPeak ? 1.15 : 10,
+      priority: isPeak ? 20 : 10,
+      label: isPeak ? "Peak price" : "Off-peak discount",
+    });
+  };
 
   const resetForm = () => {
     setEditingRule(null);
@@ -470,6 +510,45 @@ export default function PricingRulesPage() {
           </CardContent>
         </Card>
       </div>
+
+      {analyticsQuery.data?.insights.some(
+        (insight) =>
+          insight.type === ANALYTICS_INSIGHT_TYPE.UNDERBOOKED_PERIOD ||
+          insight.type === ANALYTICS_INSIGHT_TYPE.PEAK_PERIOD,
+      ) && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="font-sans flex items-center gap-2">
+              <Lightbulb className="h-5 w-5" />
+              Pricing Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {analyticsQuery.data.insights
+              .filter(
+                (insight) =>
+                  insight.type === ANALYTICS_INSIGHT_TYPE.UNDERBOOKED_PERIOD ||
+                  insight.type === ANALYTICS_INSIGHT_TYPE.PEAK_PERIOD,
+              )
+              .map((insight) => (
+                <div
+                  key={insight.id}
+                  className="border rounded-lg p-4 flex items-start justify-between gap-4"
+                >
+                  <div>
+                    <p className="font-medium">{insight.message}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {insight.recommendation}
+                    </p>
+                  </div>
+                  <Button variant="outline" onClick={() => applyInsight(insight)}>
+                    Use recommendation
+                  </Button>
+                </div>
+              ))}
+          </CardContent>
+        </Card>
+      )}
     </main>
   );
 }

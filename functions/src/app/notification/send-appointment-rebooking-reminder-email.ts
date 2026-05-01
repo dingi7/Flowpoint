@@ -7,6 +7,7 @@ import {
   OrganizationRepository,
   ServiceRepository,
 } from "@/core";
+import { calculateRebookingSuggestion } from "@/app/rebooking/calculate-rebooking-suggestion";
 import {
   buildAppointmentEmailHtml,
   buildAppointmentEmailSubject,
@@ -20,6 +21,8 @@ import {
 interface Payload {
   appointmentId: string;
   organizationId: string;
+  suggestedRebookingDate?: string;
+  rebookingReason?: string;
 }
 
 interface Dependencies {
@@ -65,6 +68,14 @@ export async function sendAppointmentRebookingReminderEmailFn(
 
   if (appointment.status === APPOINTMENT_STATUS.CANCELLED) {
     loggerService.info("Appointment is cancelled, skipping rebooking reminder", {
+      appointmentId,
+      status: appointment.status,
+    });
+    return;
+  }
+
+  if (appointment.status !== APPOINTMENT_STATUS.COMPLETED) {
+    loggerService.info("Appointment is not completed, skipping rebooking reminder", {
       appointmentId,
       status: appointment.status,
     });
@@ -151,8 +162,23 @@ export async function sendAppointmentRebookingReminderEmailFn(
   }
 
   const customerTimezone = getCustomerTimezone(customer);
+  const rebookingSuggestion =
+    payload.suggestedRebookingDate && payload.rebookingReason
+      ? {
+          suggestedDate: payload.suggestedRebookingDate,
+          reason: payload.rebookingReason,
+        }
+      : await calculateRebookingSuggestion({
+          appointment,
+          customerAppointments: recentAppointments,
+          service,
+        });
   const appointmentDate = formatAppointmentDateTime(
     appointment.startTime,
+    customerTimezone,
+  );
+  const suggestedRebookingDate = formatAppointmentDateTime(
+    rebookingSuggestion.suggestedDate,
     customerTimezone,
   );
   const duration = formatDuration(appointment.duration);
@@ -164,6 +190,8 @@ export async function sendAppointmentRebookingReminderEmailFn(
     appointmentDate,
     duration,
     fee: appointment.fee,
+    suggestedRebookingDate,
+    rebookingReason: rebookingSuggestion.reason,
     organizationName: organization.name,
     organizationContactInfo: organization.settings.contactInfo,
   };

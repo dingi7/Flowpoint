@@ -43,7 +43,6 @@ export async function sendAppointmentEmailNotificationFn(
     loggerService,
     cloudTasksServiceReminder,
     cloudTasksServiceReviewRequest,
-    cloudTasksServiceRebooking,
   } = dependencies;
   const { organizationId, appointmentId } = payload;
 
@@ -93,9 +92,6 @@ export async function sendAppointmentEmailNotificationFn(
   const reviewRequestTime = new Date(appointment.startTime);
   reviewRequestTime.setHours(reviewRequestTime.getHours() + 6);
 
-  const rebookingReminderTime = new Date(appointment.startTime);
-  rebookingReminderTime.setDate(rebookingReminderTime.getDate() + 30);
-
   const now = new Date();
 
   const scheduleEmail = async (
@@ -137,10 +133,5 @@ export async function sendAppointmentEmailNotificationFn(
     cloudTasksServiceReviewRequest,
     reviewRequestTime,
     "Review request",
-  );
-  await scheduleEmail(
-    cloudTasksServiceRebooking,
-    rebookingReminderTime,
-    "Rebooking reminder",
   );
 }

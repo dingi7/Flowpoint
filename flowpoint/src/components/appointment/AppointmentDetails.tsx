@@ -6,9 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Appointment, APPOINTMENT_STATUS, ASSIGNEE_TYPE } from "@/core";
-import { useCustomer, useService, useMemberById, useGetOrganizationById } from "@/hooks";
+import {
+  useCustomer,
+  useGetAppointmentsByCustomer,
+  useService,
+  useMemberById,
+  useGetOrganizationById,
+} from "@/hooks";
 import { formatUtcDateTime } from "@/utils/date-time";
 import { formatPrice } from "@/utils/price-format";
+import { getRebookingSuggestion } from "@/utils/rebooking-suggestion";
 import {
   AlertTriangle,
   Briefcase,
@@ -17,6 +24,7 @@ import {
   Clock,
   DollarSign,
   FileText,
+  RotateCcw,
   Mail,
   Phone,
   User,
@@ -45,6 +53,9 @@ export function AppointmentDetails({
   const { data: service, isLoading: isLoadingService } = useService(
     appointment.serviceId,
   );
+  const { data: customerAppointments = [] } = useGetAppointmentsByCustomer(
+    appointment.customerId,
+  );
 
   // Fetch assignee member if it's a member
   const { data: assigneeMember, isLoading: isLoadingMember } = useMemberById(
@@ -68,6 +79,11 @@ export function AppointmentDetails({
     ? formatUtcDateTime(appointment.startTime, "HH:mm")
     : "10:00";
   const notes = appointment.description || null;
+  const rebookingSuggestion = getRebookingSuggestion({
+    appointment,
+    customerAppointments,
+    service,
+  });
 
   // Loading state
   if (isLoadingCustomer || isLoadingService || isLoadingMember || isLoadingOrganization) {
@@ -443,6 +459,30 @@ export function AppointmentDetails({
           </div>
         </CardContent>
       </Card>
+
+      {rebookingSuggestion && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-sans flex items-center gap-2">
+              <RotateCcw className="h-5 w-5" />
+              Smart Rebooking
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <p className="text-lg font-semibold">
+              {rebookingSuggestion.suggestedDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {rebookingSuggestion.reason}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Notes */}
       {notes && (

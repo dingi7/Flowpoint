@@ -15,6 +15,8 @@ export const EMAIL_TEMPLATE_VARIABLES = {
   organizationPhone: "{{organizationPhone}}",
   organizationEmail: "{{organizationEmail}}",
   reviewUrl: "{{reviewUrl}}",
+  suggestedRebookingDate: "{{suggestedRebookingDate}}",
+  rebookingReason: "{{rebookingReason}}",
 } as const;
 
 export type TemplateVariable = keyof typeof EMAIL_TEMPLATE_VARIABLES;
@@ -54,6 +56,12 @@ export function renderTemplate(
       case "reviewUrl":
         shouldInclude = !!data.reviewUrl;
         break;
+      case "suggestedRebookingDate":
+        shouldInclude = !!data.suggestedRebookingDate;
+        break;
+      case "rebookingReason":
+        shouldInclude = !!data.rebookingReason;
+        break;
       default:
         shouldInclude = false;
     }
@@ -86,6 +94,14 @@ export function renderTemplate(
   rendered = rendered.replace(
     /\{\{reviewUrl\}\}/g,
     data.reviewUrl || "",
+  );
+  rendered = rendered.replace(
+    /\{\{suggestedRebookingDate\}\}/g,
+    data.suggestedRebookingDate || "",
+  );
+  rendered = rendered.replace(
+    /\{\{rebookingReason\}\}/g,
+    data.rebookingReason || "",
   );
 
   return rendered;
@@ -189,6 +205,7 @@ export function getDefaultEmailTemplate(
       {{#if organizationPhone}}
       <p><strong>Phone:</strong> {{organizationPhone}}</p>
       {{/if}}
+      ${type === "rebooking" ? "{{#if suggestedRebookingDate}}<p style=\"margin-top: 20px; padding: 15px; background-color: #f4ecf7; border-left: 4px solid #8e44ad; border-radius: 4px;\"><strong>Suggested next visit:</strong><br>{{suggestedRebookingDate}}{{#if rebookingReason}}<br><span style=\"color: #666; font-size: 13px;\">{{rebookingReason}}</span>{{/if}}</p>{{/if}}" : ""}
       ${type === "info" ? "" : contactHtml}
       ${type === "confirmation" || type === "review" ? "{{#if reviewUrl}}<p style=\"margin-top: 20px; padding: 15px; background-color: #e8f4f8; border-left: 4px solid #4a90e2; border-radius: 4px;\"><strong>Share Your Experience:</strong><br>We'd love to hear about your experience! Please take a moment to <a href=\"{{reviewUrl}}\" style=\"color: #4a90e2; text-decoration: none; font-weight: bold;\">leave a review</a>.</p>{{/if}}" : ""}
     </div>
@@ -212,6 +229,7 @@ ${type === "info" ? "- Customer: {{customerName}}\n" : ""}- Service: {{serviceNa
 {{#if fee}}- Fee: {{fee}}{{/if}}
 {{#if organizationAddress}}- Location: {{organizationAddress}}{{/if}}
 {{#if organizationPhone}}- Phone: {{organizationPhone}}{{/if}}
+${type === "rebooking" ? "{{#if suggestedRebookingDate}}\n\nSuggested next visit: {{suggestedRebookingDate}}{{#if rebookingReason}}\n{{rebookingReason}}{{/if}}{{/if}}" : ""}
 ${type === "info" ? "" : contactText}
 ${type === "confirmation" || type === "review" ? "{{#if reviewUrl}}\n\nShare Your Experience:\nWe'd love to hear about your experience! Please take a moment to leave a review:\n{{reviewUrl}}{{/if}}" : ""}
 

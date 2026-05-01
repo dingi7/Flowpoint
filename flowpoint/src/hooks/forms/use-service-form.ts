@@ -21,6 +21,7 @@ export function useServiceForm({ service, onSubmit }: UseServiceFormProps) {
       isAddOn: service?.isAddOn || false,
       compatibleWithServiceIds: service?.compatibleWithServiceIds || [],
       suggestedWithServiceIds: service?.suggestedWithServiceIds || [],
+      rebookingIntervalDays: service?.rebookingIntervalDays,
       localisation: service?.localisation,
     },
     mode: "onChange",
