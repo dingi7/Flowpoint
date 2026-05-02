@@ -38,13 +38,18 @@ export function AiMirrorStep({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [hasConsent, setHasConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
   const [generatedPreviews, setGeneratedPreviews] = useState<
     Record<string, string>
   >({});
-  const [previewLoadingKeys, setPreviewLoadingKeys] = useState<string[]>([]);
+  const [previewsCompleted, setPreviewsCompleted] = useState(0);
+  const [displayedProgress, setDisplayedProgress] = useState(0);
   const previewBatchKeyRef = useRef<string | null>(null);
   const generatePreviewRef = useRef(generateHairstylePreview.mutateAsync);
+  const progressCeilingRef = useRef(0);
+
+  const ASSUMED_RECOMMENDATION_COUNT = 3;
+  const PROGRESS_TICK_MS = 500;
+  const PROGRESS_TICK_DELTA = 1;
 
   const servicesById = useMemo(
     () => new Map(services.map((service) => [service.id, service])),
@@ -58,41 +63,6 @@ export function AiMirrorStep({
       }
     };
   }, [previewUrl]);
-
-  useEffect(() => {
-    if (!analyzeHairstyle.isPending) {
-      setProgress(0);
-      return;
-    }
-
-    setProgress((current) => (current > 0 ? current : 7));
-
-    const intervalId = window.setInterval(() => {
-      setProgress((current) => {
-        if (current >= 92) {
-          return current;
-        }
-
-        if (current < 30) {
-          return current + 11;
-        }
-
-        if (current < 60) {
-          return current + 7;
-        }
-
-        if (current < 80) {
-          return current + 4;
-        }
-
-        return current + 2;
-      });
-    }, 600);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [analyzeHairstyle.isPending]);
 
   useEffect(() => {
     generatePreviewRef.current = generateHairstylePreview.mutateAsync;
@@ -116,12 +86,13 @@ export function AiMirrorStep({
     ) {
       previewBatchKeyRef.current = null;
       setGeneratedPreviews({});
-      setPreviewLoadingKeys([]);
+      setPreviewsCompleted(0);
       return;
     }
 
+    const imageFingerprint = `${imageDataUrl.length}:${imageDataUrl.slice(0, 64)}:${imageDataUrl.slice(-64)}`;
     const batchKey = JSON.stringify({
-      imageDataUrl,
+      imageFingerprint,
       locale,
       recommendations: recommendations.map((recommendation) => ({
         title: recommendation.title,
@@ -142,51 +113,48 @@ export function AiMirrorStep({
     let isCancelled = false;
 
     setGeneratedPreviews({});
-    setPreviewLoadingKeys([]);
+    setPreviewsCompleted(0);
 
-    const generateSequentially = async () => {
-      for (const recommendation of recommendations) {
-        if (isCancelled) {
-          return;
-        }
+    const generateAllInParallel = async () => {
+      await Promise.allSettled(
+        recommendations.map(async (recommendation) => {
+          const recommendationKey = getRecommendationKey(recommendation);
+          try {
+            const result = await generatePreviewRef.current({
+              imageDataUrl,
+              locale,
+              recommendation: {
+                title: recommendation.title,
+                matchedServiceId: recommendation.matchedServiceId,
+                reason: recommendation.reason,
+                stylingNotes: recommendation.stylingNotes,
+                maintenanceLevel: recommendation.maintenanceLevel,
+                bookingLabel: recommendation.bookingLabel,
+              },
+            });
 
-        const recommendationKey = getRecommendationKey(recommendation);
-        setPreviewLoadingKeys((current) => [...current, recommendationKey]);
-
-        try {
-          const result = await generatePreviewRef.current({
-            imageDataUrl,
-            locale,
-            recommendation: {
+            if (!isCancelled && result.previewImageDataUrl) {
+              const previewImageDataUrl = result.previewImageDataUrl;
+              setGeneratedPreviews((current) => ({
+                ...current,
+                [recommendationKey]: previewImageDataUrl,
+              }));
+            }
+          } catch (previewError) {
+            console.warn("AI mirror preview generation failed", {
               title: recommendation.title,
-              matchedServiceId: recommendation.matchedServiceId,
-              reason: recommendation.reason,
-              stylingNotes: recommendation.stylingNotes,
-              maintenanceLevel: recommendation.maintenanceLevel,
-              bookingLabel: recommendation.bookingLabel,
-            },
-          });
-
-          if (!isCancelled && result.previewImageDataUrl) {
-            const previewImageDataUrl = result.previewImageDataUrl;
-            setGeneratedPreviews((current) => ({
-              ...current,
-              [recommendationKey]: previewImageDataUrl,
-            }));
+              error: previewError,
+            });
+          } finally {
+            if (!isCancelled) {
+              setPreviewsCompleted((current) => current + 1);
+            }
           }
-        } catch {
-          // Keep failed previews local to each card.
-        } finally {
-          if (!isCancelled) {
-            setPreviewLoadingKeys((current) =>
-              current.filter((key) => key !== recommendationKey),
-            );
-          }
-        }
-      }
+        }),
+      );
     };
 
-    void generateSequentially();
+    void generateAllInParallel();
 
     return () => {
       isCancelled = true;
@@ -209,7 +177,7 @@ export function AiMirrorStep({
     setError(null);
     analyzeHairstyle.reset();
     setGeneratedPreviews({});
-    setPreviewLoadingKeys([]);
+    setPreviewsCompleted(0);
     previewBatchKeyRef.current = null;
 
     try {
@@ -239,7 +207,7 @@ export function AiMirrorStep({
     setError(null);
     analyzeHairstyle.reset();
     setGeneratedPreviews({});
-    setPreviewLoadingKeys([]);
+    setPreviewsCompleted(0);
     previewBatchKeyRef.current = null;
   };
 
@@ -255,8 +223,9 @@ export function AiMirrorStep({
     }
 
     setError(null);
-    setProgress(7);
     previewBatchKeyRef.current = null;
+    setGeneratedPreviews({});
+    setPreviewsCompleted(0);
     analyzeHairstyle.mutate({
       imageDataUrl,
       locale,
@@ -265,8 +234,82 @@ export function AiMirrorStep({
 
   const imageQualityNotes = analysis?.analysisSummary.imageQualityNotes || [];
   const visibleHairNotes = analysis?.analysisSummary.visibleHairNotes || [];
+
+  const isAnalyzing = analyzeHairstyle.isPending;
+  const totalPreviews = recommendations.length;
+  const isPreviewing =
+    !!analysis &&
+    analysis.status === "ok" &&
+    totalPreviews > 0 &&
+    previewsCompleted < totalPreviews;
+  const isPreparing = isAnalyzing || isPreviewing;
+
+  const expectedTotalSteps =
+    1 + (analysis ? totalPreviews : ASSUMED_RECOMMENDATION_COUNT);
+  const completedSteps = (analysis ? 1 : 0) + previewsCompleted;
+  const realMilestoneProgress = Math.min(
+    100,
+    Math.round((completedSteps / expectedTotalSteps) * 100),
+  );
+
+  // Per-phase ceiling so the bar can creep through the entire phase, not just
+  // up to the next single milestone (previews land in parallel near the end).
+  const progressCeiling = isAnalyzing
+    ? Math.max(
+        0,
+        Math.round((1 / (1 + ASSUMED_RECOMMENDATION_COUNT)) * 100) - 1,
+      )
+    : isPreviewing
+      ? 99
+      : 100;
+
+  useEffect(() => {
+    progressCeilingRef.current = progressCeiling;
+  }, [progressCeiling]);
+
+  // Reset on idle; snap to 100 the moment everything is done.
+  useEffect(() => {
+    if (!isPreparing) {
+      setDisplayedProgress(analysis ? 100 : 0);
+    }
+  }, [isPreparing, analysis]);
+
+  // Real milestones act as a floor — never let the bar move backward.
+  useEffect(() => {
+    if (!isPreparing) {
+      return;
+    }
+    setDisplayedProgress((current) =>
+      Math.max(current, realMilestoneProgress),
+    );
+  }, [realMilestoneProgress, isPreparing]);
+
+  // Slow tween toward the current phase ceiling.
+  useEffect(() => {
+    if (!isPreparing) {
+      return;
+    }
+    const intervalId = window.setInterval(() => {
+      setDisplayedProgress((current) =>
+        Math.min(progressCeilingRef.current, current + PROGRESS_TICK_DELTA),
+      );
+    }, PROGRESS_TICK_MS);
+    return () => window.clearInterval(intervalId);
+  }, [isPreparing]);
+
+  const progress = displayedProgress;
+
+  const progressLabel = isAnalyzing
+    ? t("aiMirror.progressAnalyzing")
+    : isPreviewing
+      ? t("aiMirror.progressPreviews", {
+          current: previewsCompleted + 1,
+          total: totalPreviews,
+        })
+      : t("aiMirror.progressComplete");
+
   const isAnalyzeDisabled =
-    !imageDataUrl || !hasConsent || analyzeHairstyle.isPending;
+    !imageDataUrl || !hasConsent || isPreparing;
 
   return (
     <motion.div
@@ -315,7 +358,7 @@ export function AiMirrorStep({
                   accept="image/jpeg,image/png,image/webp"
                   className="hidden"
                   onChange={handleFileChange}
-                  disabled={analyzeHairstyle.isPending}
+                  disabled={isPreparing}
                 />
                 <label
                   htmlFor="ai-mirror-image"
@@ -364,7 +407,7 @@ export function AiMirrorStep({
                   variant="outline"
                   className="sm:col-span-2"
                   onClick={handleRemoveImage}
-                  disabled={analyzeHairstyle.isPending}
+                  disabled={isPreparing}
                 >
                   <X className="h-4 w-4" />
                   {t("aiMirror.removeImage")}
@@ -392,10 +435,10 @@ export function AiMirrorStep({
                 onClick={handleAnalyze}
                 disabled={isAnalyzeDisabled}
               >
-                {analyzeHairstyle.isPending && (
+                {isPreparing && (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 )}
-                {analyzeHairstyle.isPending
+                {isPreparing
                   ? t("aiMirror.analyzing")
                   : t("aiMirror.analyze")}
               </Button>
@@ -404,12 +447,10 @@ export function AiMirrorStep({
         </div>
 
         <div className="space-y-4 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:overflow-y-auto lg:pr-2">
-          {analyzeHairstyle.isPending && (
+          {isPreparing && (
             <div className="space-y-2 rounded-lg border border-border/60 bg-background/70 p-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">
-                  {t("aiMirror.progressLabel")}
-                </span>
+                <span className="font-medium">{progressLabel}</span>
                 <span className="tabular-nums text-muted-foreground">
                   {progress}%
                 </span>
@@ -423,29 +464,31 @@ export function AiMirrorStep({
             </div>
           )}
 
-          <div className="rounded-lg border bg-background p-4">
-            <h3 className="font-semibold">{t("aiMirror.resultsTitle")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {analysis?.status === "needs_better_photo"
-                ? t("aiMirror.retakeHint")
-                : t("aiMirror.resultsHint")}
-            </p>
-            {analysis?.analysisSummary.faceShape && (
-              <p className="mt-3 text-sm">
-                <span className="font-medium">{t("aiMirror.faceShape")}:</span>{" "}
-                {analysis.analysisSummary.faceShape}
+          {!isPreparing && analysis && (
+            <div className="rounded-lg border bg-background p-4">
+              <h3 className="font-semibold">{t("aiMirror.resultsTitle")}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {analysis.status === "needs_better_photo"
+                  ? t("aiMirror.retakeHint")
+                  : t("aiMirror.resultsHint")}
               </p>
-            )}
-            {[...visibleHairNotes, ...imageQualityNotes].length > 0 && (
-              <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
-                {[...visibleHairNotes, ...imageQualityNotes].map((note) => (
-                  <li key={note}>- {note}</li>
-                ))}
-              </ul>
-            )}
-          </div>
+              {analysis.analysisSummary.faceShape && (
+                <p className="mt-3 text-sm">
+                  <span className="font-medium">{t("aiMirror.faceShape")}:</span>{" "}
+                  {analysis.analysisSummary.faceShape}
+                </p>
+              )}
+              {[...visibleHairNotes, ...imageQualityNotes].length > 0 && (
+                <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+                  {[...visibleHairNotes, ...imageQualityNotes].map((note) => (
+                    <li key={note}>- {note}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
-          {recommendations.length > 0 ? (
+          {!isPreparing && recommendations.length > 0 && (
             <div className="grid gap-3">
               {recommendations.map((recommendation) => {
                 const recommendationKey = getRecommendationKey(recommendation);
@@ -455,8 +498,6 @@ export function AiMirrorStep({
                 const previewImage =
                   generatedPreviews[recommendationKey] ||
                   recommendation.previewImageDataUrl;
-                const isPreviewLoading =
-                  previewLoadingKeys.includes(recommendationKey);
 
                 return (
                   <button
@@ -465,21 +506,15 @@ export function AiMirrorStep({
                     className="overflow-hidden rounded-lg border bg-background text-left transition-colors hover:bg-muted/60"
                     onClick={() => onRecommendationSelect(recommendation)}
                   >
-                    {(previewImage || isPreviewLoading) && (
+                    {previewImage && (
                       <div className="relative aspect-[4/3] bg-muted">
-                        {previewImage ? (
-                          <Image
-                            src={previewImage}
-                            alt={recommendation.title}
-                            fill
-                            unoptimized
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                          </div>
-                        )}
+                        <Image
+                          src={previewImage}
+                          alt={recommendation.title}
+                          fill
+                          unoptimized
+                          className="object-cover"
+                        />
                       </div>
                     )}
                     <div className="p-4">
@@ -508,7 +543,9 @@ export function AiMirrorStep({
                 );
               })}
             </div>
-          ) : (
+          )}
+
+          {!isPreparing && !analysis && (
             <div className="rounded-lg border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
               {t("aiMirror.emptyState")}
             </div>

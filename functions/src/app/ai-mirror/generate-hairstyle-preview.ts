@@ -1,5 +1,6 @@
 import { GenkitService, LoggerService } from "@/core";
 import {
+  MAX_IMAGE_DATA_URL_LENGTH,
   getImageContentType,
   hairstyleRecommendationSchema,
 } from "./analyze-hairstyle";
@@ -9,7 +10,10 @@ const generateHairstylePreviewPayloadSchema = z.object({
   imageDataUrl: z
     .string()
     .min(1)
-    .refine((value) => /^data:image\/(jpeg|jpg|png|webp);base64,/.test(value), {
+    .max(MAX_IMAGE_DATA_URL_LENGTH, {
+      message: "Image is too large. Please upload an image under 5MB.",
+    })
+    .refine((value) => /^data:image\/(jpeg|png|webp);base64,/.test(value), {
       message: "Image must be a JPEG, PNG, or WebP data URL",
     }),
   locale: z.enum(["en", "bg", "tr"]).default("en"),

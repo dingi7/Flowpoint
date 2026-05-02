@@ -192,7 +192,7 @@ export function BookingModal({
     }
 
     setStep("barber");
-  }, [initialBarber, initialService, isOpen, showAiMirror]);
+  }, [initialBarber, initialService, isOpen]);
 
   const handleDateSelect = async (day: number | null) => {
     if (!day || !selectedBarber) return;
@@ -226,8 +226,12 @@ export function BookingModal({
       )
       : null;
 
-    if (service) {
+    if (service && service.id !== selectedService?.id) {
       setSelectedService(service);
+      setSelectedTime(null);
+      setDirection(-1);
+      setStep("datetime");
+      return;
     }
 
     setDirection(1);

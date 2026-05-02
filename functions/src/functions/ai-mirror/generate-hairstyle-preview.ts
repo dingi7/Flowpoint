@@ -107,11 +107,7 @@ export const generateHairstylePreview = onCall<Payload>(
       }
 
       loggerService.error("Generate hairstyle preview error", error);
-      throw new Error(
-        `Failed to generate hairstyle preview: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-      );
+      throw new HttpsError("internal", "Failed to generate hairstyle preview");
     }
   },
 );

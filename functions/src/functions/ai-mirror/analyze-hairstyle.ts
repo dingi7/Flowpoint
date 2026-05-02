@@ -36,7 +36,7 @@ export const analyzeHairstyle = onCall<Payload>(
     ingressSettings: "ALLOW_ALL",
     secrets: [clerkSecretKey],
     memory: "512MiB",
-    timeoutSeconds: 540,
+    timeoutSeconds: 180,
   },
   async (request) => {
     try {
@@ -104,11 +104,7 @@ export const analyzeHairstyle = onCall<Payload>(
       }
 
       loggerService.error("Analyze hairstyle error", error);
-      throw new Error(
-        `Failed to analyze hairstyle: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-      );
+      throw new HttpsError("internal", "Failed to analyze hairstyle");
     }
   },
 );

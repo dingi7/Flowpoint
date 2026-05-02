@@ -6,12 +6,17 @@ import {
 } from "@/core";
 import z from "zod";
 
+const MAX_IMAGE_DATA_URL_LENGTH = 7_500_000;
+
 const analyzeHairstylePayloadSchema = z.object({
   organizationId: z.string().min(1),
   imageDataUrl: z
     .string()
     .min(1)
-    .refine((value) => /^data:image\/(jpeg|jpg|png|webp);base64,/.test(value), {
+    .max(MAX_IMAGE_DATA_URL_LENGTH, {
+      message: "Image is too large. Please upload an image under 5MB.",
+    })
+    .refine((value) => /^data:image\/(jpeg|png|webp);base64,/.test(value), {
       message: "Image must be a JPEG, PNG, or WebP data URL",
     }),
   locale: z.enum(["en", "bg", "tr"]).default("en"),
@@ -69,8 +74,11 @@ function extractJsonObject(payload: { text: string }): unknown {
 }
 
 function getImageContentType(dataUrl: string): string {
-  const match = dataUrl.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,/);
-  return match?.[1] === "image/jpg" ? "image/jpeg" : match?.[1] || "image/jpeg";
+  const match = dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,/);
+  if (!match) {
+    throw new Error("Unsupported image data URL");
+  }
+  return match[1];
 }
 
 function buildFallbackResponse(services: Service[]): AnalyzeHairstyleResponse {
@@ -133,9 +141,6 @@ function buildPrompt(payload: {
       payload.services.map((service) => ({
         id: service.id,
         name: service.name,
-        description: service.description || "",
-        duration: service.duration,
-        price: service.price,
       })),
     )}`,
   ].join("\n");
@@ -184,4 +189,8 @@ export async function analyzeHairstyleFn(
   }
 }
 
-export { hairstyleRecommendationSchema, getImageContentType };
+export {
+  hairstyleRecommendationSchema,
+  getImageContentType,
+  MAX_IMAGE_DATA_URL_LENGTH,
+};

@@ -34,7 +34,7 @@ export const setAiMirrorGeminiKey = onCall<Payload>(
   },
   async (request: CallableRequest<Payload>) => {
     if (!request.auth) {
-      throw new Error("Unauthorized request");
+      throw new HttpsError("unauthenticated", "Authentication required");
     }
 
     try {
@@ -66,11 +66,7 @@ export const setAiMirrorGeminiKey = onCall<Payload>(
       }
 
       loggerService.error("Set AI mirror Gemini key error", error);
-      throw new Error(
-        `Failed to save AI mirror Gemini key: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-      );
+      throw new HttpsError("internal", "Failed to save AI mirror Gemini key");
     }
   },
 );
