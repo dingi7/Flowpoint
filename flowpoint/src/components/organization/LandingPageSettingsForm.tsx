@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { isReservedOrganizationSlug, LandingPageSettings, Organization } from "@/core";
+import { useSetAiMirrorGeminiKey } from "@/hooks";
 import { serviceHost } from "@/services";
 import { Plus, Trash2, Pipette, Settings, Palette, ImageIcon, Share2, LayoutTemplate, Star, MessageSquareQuote, Info } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -63,6 +64,10 @@ const buildLandingDefaults = (
   const defaults: LandingPageSettings = {
     enabled: landingPage?.enabled ?? false,
     templateId: landingPage?.templateId ?? "first-class",
+    aiMirror: {
+      enabled: landingPage?.aiMirror?.enabled ?? false,
+      hasGeminiKey: landingPage?.aiMirror?.hasGeminiKey ?? false,
+    },
     seo: {
       title: landingPage?.seo?.title ?? organization.name,
       description:
@@ -219,6 +224,7 @@ export function LandingPageSettingsForm({
 }: LandingPageSettingsFormProps) {
   const { t } = useTranslation();
   const databaseService = serviceHost.getDatabaseService();
+  const setAiMirrorGeminiKeyMutation = useSetAiMirrorGeminiKey();
 
   const defaultValues = useMemo(
     () => buildLandingDefaults(organization),
@@ -240,10 +246,13 @@ export function LandingPageSettingsForm({
   const imageUrls = watch("landingPage.gallery.imageUrls") || [];
   const primaryColor = watch("landingPage.branding.primaryColor") || "#0f766e";
   const templateId = watch("landingPage.templateId");
+  const aiMirrorEnabled = watch("landingPage.aiMirror.enabled") ?? false;
+  const aiMirrorHasGeminiKey = watch("landingPage.aiMirror.hasGeminiKey") ?? false;
   const aboutUsBullets = watch("landingPage.aboutUs.bullets") || [];
   const testimonialItems = watch("landingPage.testimonials.items") || [];
 
   const [slugStatus, setSlugStatus] = useState<SlugStatus>("idle");
+  const [geminiApiKey, setGeminiApiKey] = useState("");
 
   useEffect(() => {
     const trimmed = slug.trim().toLowerCase();
@@ -292,6 +301,10 @@ export function LandingPageSettingsForm({
 
     return () => clearTimeout(timeout);
   }, [slug, organization.id, databaseService]);
+
+  useEffect(() => {
+    setGeminiApiKey("");
+  }, [organization.id]);
 
   const handleSlugChange = (value: string) => {
     const normalized = normalizeSlug(value);
@@ -372,7 +385,9 @@ export function LandingPageSettingsForm({
 
   const previewUrl = `http://localhost:3000/${slug}`;
 
-  const fieldsDisabled = isLoading || !landingEnabled;
+  const isBusy = isLoading || setAiMirrorGeminiKeyMutation.isPending;
+  const fieldsDisabled = isBusy || !landingEnabled;
+  const aiMirrorAvailable = templateId === "first-class";
 
   const submitHandler = handleSubmit(async (values) => {
     const normalizedSlug = values.slug.trim().toLowerCase();
@@ -395,10 +410,30 @@ export function LandingPageSettingsForm({
       return;
     }
 
+    let hasGeminiKey = values.landingPage.aiMirror?.hasGeminiKey ?? false;
+
+    if (geminiApiKey.trim()) {
+      const result = await setAiMirrorGeminiKeyMutation.mutateAsync({
+        organizationId: organization.id,
+        geminiApiKey: geminiApiKey.trim(),
+      });
+      hasGeminiKey = result.hasGeminiKey;
+      setValue("landingPage.aiMirror.hasGeminiKey", hasGeminiKey);
+    }
+
+    if (values.landingPage.aiMirror?.enabled && !hasGeminiKey) {
+      toast.error(t("organization.landingPageForm.aiMirrorKeyRequired"));
+      return;
+    }
+
     const payload: Partial<Organization> = {
       slug: normalizedSlug ? normalizedSlug : undefined,
       landingPage: {
         ...values.landingPage,
+        aiMirror: {
+          enabled: values.landingPage.aiMirror?.enabled ?? false,
+          hasGeminiKey,
+        },
         gallery: {
           ...values.landingPage.gallery,
           imageUrls: cleanedGallery,
@@ -407,6 +442,7 @@ export function LandingPageSettingsForm({
     };
 
     await onSubmit(payload);
+    setGeminiApiKey("");
   });
 
   return (
@@ -462,7 +498,7 @@ export function LandingPageSettingsForm({
                   onCheckedChange={(value) =>
                     setValue("landingPage.enabled", value, { shouldDirty: true })
                   }
-                  disabled={isLoading}
+                  disabled={isBusy}
                 />
               </div>
 
@@ -511,6 +547,68 @@ export function LandingPageSettingsForm({
                       {t("organization.landingPageForm.slugRequired") || "Slug is required when enabled"}
                     </span>
                   )}
+                </div>
+              </div>
+
+              <div className={`space-y-4 rounded-lg border border-border/50 bg-muted/20 p-4 transition-opacity ${landingEnabled ? "" : "opacity-50 pointer-events-none"}`}>
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <Label className="text-base text-foreground">
+                      {t("organization.landingPageForm.aiMirrorEnabled")}
+                    </Label>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("organization.landingPageForm.aiMirrorEnabledDescription")}
+                    </p>
+                    {!aiMirrorAvailable && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {t("organization.landingPageForm.aiMirrorTemplateHint")}
+                      </p>
+                    )}
+                  </div>
+                  <Switch
+                    checked={aiMirrorEnabled}
+                    onCheckedChange={(value) =>
+                      setValue("landingPage.aiMirror.enabled", value, {
+                        shouldDirty: true,
+                      })
+                    }
+                    disabled={isBusy || !landingEnabled}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <Label htmlFor="aiMirrorGeminiKey">
+                      {t("organization.landingPageForm.aiMirrorKeyLabel")}
+                    </Label>
+                    <Badge
+                      className={
+                        aiMirrorHasGeminiKey
+                          ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-700"
+                          : "border-border bg-muted text-muted-foreground"
+                      }
+                    >
+                      {aiMirrorHasGeminiKey
+                        ? t("organization.landingPageForm.aiMirrorKeySaved")
+                        : t("organization.landingPageForm.aiMirrorKeyMissing")}
+                    </Badge>
+                  </div>
+                  <Input
+                    id="aiMirrorGeminiKey"
+                    type="password"
+                    autoComplete="off"
+                    value={geminiApiKey}
+                    onChange={(event) => setGeminiApiKey(event.target.value)}
+                    disabled={isBusy || !landingEnabled}
+                    placeholder={
+                      aiMirrorHasGeminiKey
+                        ? t("organization.landingPageForm.aiMirrorKeyPlaceholderExisting")
+                        : t("organization.landingPageForm.aiMirrorKeyPlaceholder")
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("organization.landingPageForm.aiMirrorKeyDescription")}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -1275,11 +1373,11 @@ export function LandingPageSettingsForm({
               type="submit"
               className="min-w-32 shadow-sm transition-all active:scale-[0.98]"
               disabled={
-                isLoading ||
+                isBusy ||
                 (landingEnabled && (slugStatus === "taken" || slugStatus === "invalid"))
               }
             >
-              {isLoading
+              {isBusy
                 ? t("organization.landingPageForm.saving")
                 : landingEnabled
                   ? "Publish Changes"

@@ -1,4 +1,12 @@
-import { FunctionsService, BookAppointmentPayload, BookAppointmentResponse } from "@/core";
+import {
+  AnalyzeHairstylePayload,
+  AnalyzeHairstyleResponse,
+  BookAppointmentPayload,
+  BookAppointmentResponse,
+  FunctionsService,
+  GenerateHairstylePreviewPayload,
+  GenerateHairstylePreviewResponse,
+} from "@/core";
 import { firebase } from "@/infrastructure/firebase";
 import { httpsCallable } from "@firebase/functions";
 
@@ -30,5 +38,25 @@ export const functionsService: FunctionsService = {
       "bookAppointment",
     )(payload);
     return result.data;
-  }
+  },
+  async analyzeHairstyle(payload) {
+    const result = await httpsCallable<
+      AnalyzeHairstylePayload,
+      AnalyzeHairstyleResponse
+    >(
+      firebase.functions,
+      "analyzeHairstyle",
+    )(payload);
+    return result.data;
+  },
+  async generateHairstylePreview(payload) {
+    const result = await httpsCallable<
+      GenerateHairstylePreviewPayload,
+      GenerateHairstylePreviewResponse
+    >(
+      firebase.functions,
+      "generateHairstylePreview",
+    )(payload);
+    return result.data;
+  },
 };

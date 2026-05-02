@@ -146,6 +146,34 @@
         "inPerson": "Yüz yüze randevu",
         "submitting": "Gönderiliyor..."
     },
+    "aiMirror": {
+        "eyebrow": "AI ayna",
+        "title": "Yüzünüze uygun saç modelini bulun",
+        "description": "Net, önden çekilmiş bir fotoğraf yükleyin; salonun hizmetlerinden uygun stiller önerelim.",
+        "previewAlt": "Yüklenen yüz fotoğrafı önizlemesi",
+        "uploadTitle": "Fotoğrafınızı yükleyin",
+        "uploadHint": "8MB altında JPEG, PNG veya WebP. Net, önden çekilmiş bir fotoğraf kullanın.",
+        "removeImage": "Fotoğrafı kaldır",
+        "consent": "Bu fotoğrafın tek seferlik AI saç modeli önerisi için gönderilmesini kabul ediyorum. Fotoğraf Flowpoint tarafından saklanmayacak.",
+        "analyze": "Stilimi analiz et",
+        "analyzing": "Analiz ediliyor...",
+        "progressLabel": "Oneriler ve gorseller hazirlaniyor",
+        "progressAnalyzing": "Fotoğrafınız analiz ediliyor",
+        "progressPreviews": "Önizlemeler oluşturuluyor ({{current}} / {{total}})",
+        "progressComplete": "Tamamlandı",
+        "back": "Geri",
+        "skip": "Atla",
+        "resultsTitle": "Önerileriniz",
+        "resultsHint": "En yakın hizmetle rezervasyona devam etmek için bir stil seçin.",
+        "retakeHint": "Fotoğraf için daha iyi ışık veya daha net bir ön görünüm gerekebilir.",
+        "faceShape": "Yüz şekli",
+        "emptyState": "Kişisel saç modeli önerilerini görmek için fotoğraf yükleyin.",
+        "errors": {
+            "image": "Bu fotoğrafı işleyemedik.",
+            "missingImage": "Lütfen önce bir fotoğraf yükleyin.",
+            "consent": "Lütfen analizden önce onayı kabul edin."
+        }
+    },
     "location": {
         "title": "BEKLENTİLERİN ÖTESİNDE HİZMET",
         "description": "Berber salonumuz, premium kaliteye, zamana ve kusursuz görünüme değer veren erkekler için özel olarak tasarlanmış bir mekandır. Size en zarif şekilde şık ve kendinden emin görünmeniz için yardımcı olacağız.",

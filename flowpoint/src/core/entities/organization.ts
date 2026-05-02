@@ -42,6 +42,12 @@ const optionalSlugSchema = z.preprocess(
 export const LandingPageSettingsSchema = z.object({
   enabled: z.boolean().default(false),
   templateId: z.enum(["first-class", "clinic"]).default("first-class"),
+  aiMirror: z
+    .object({
+      enabled: z.boolean().default(false),
+      hasGeminiKey: z.boolean().default(false),
+    })
+    .default({}),
   seo: z
     .object({
       title: z.string().optional(),

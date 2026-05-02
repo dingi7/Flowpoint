@@ -7,9 +7,13 @@ import {
 } from "../ui/dialog";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { Barber } from "@/stores/types/booking-modal.types";
-import { UserInfo } from "@/stores/types/booking-modal.types";
+import {
+  Barber,
+  BookingStep,
+  UserInfo,
+} from "@/stores/types/booking-modal.types";
 import { CSSProperties, useState, useEffect } from "react";
+import { AiMirrorStep } from "./AiMirrorStep";
 import { ChooseBarber } from "./ChooseBarber";
 import { Calendar } from "./Calendar";
 import { UserInfoForm } from "./UserInfoForm";
@@ -17,7 +21,12 @@ import { BookingSuccess } from "./BookingSuccess";
 import { useBookingModalStore } from "@/stores/booking-modal-store";
 import { TimeSlot } from "@/app/types/Timeslot";
 import { useBookAppointment } from "@/hooks/service-hooks/availability/use-book-appointment";
-import { Member, Service, CustomerData } from "@/core";
+import {
+  CustomerData,
+  HairstyleRecommendation,
+  Member,
+  Service,
+} from "@/core";
 import { userInfoAnimation } from "./animations";
 import {
   useMembers,
@@ -34,6 +43,7 @@ export interface BookingModalProps {
   isOpen: boolean;
   closeModal: () => void;
   theme?: "default" | "light";
+  showAiMirror?: boolean;
 }
 
 const lightThemeVariables: CSSProperties = {
@@ -57,18 +67,27 @@ const lightThemeVariables: CSSProperties = {
   ["--ring" as string]: "oklch(0.708 0 0)",
 };
 
-export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingModalProps) {
+export function BookingModal({
+  isOpen,
+  closeModal,
+  theme = "default",
+  showAiMirror = false,
+}: BookingModalProps) {
   const { locale } = useTranslation();
   const { organizationId } = useTenant();
+  const {
+    initialService,
+    initialBarber,
+    setInitialService,
+    setInitialBarber,
+  } = useBookingModalStore();
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
-  const [step, setStep] = useState<
-    "barber" | "datetime" | "userInfo" | "success"
-  >("barber");
+  const [step, setStep] = useState<BookingStep>("barber");
   const [direction, setDirection] = useState(0);
   const [isFormProcessing, setIsFormProcessing] = useState(false);
 
@@ -78,7 +97,6 @@ export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingM
     phone: "",
     notes: "",
   });
-  const { initialService, initialBarber } = useBookingModalStore();
   const [selectedService, setSelectedService] = useState<Service | null>(
     initialService
   );
@@ -157,13 +175,24 @@ export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingM
     setSelectedService(initialService);
   }, [initialService]);
 
-  // Handle initial barber selection
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
     if (initialBarber) {
       setSelectedBarber(initialBarber);
       setStep("datetime");
+      return;
     }
-  }, [initialBarber]);
+
+    if (initialService) {
+      setStep("barber");
+      return;
+    }
+
+    setStep("barber");
+  }, [initialBarber, initialService, isOpen]);
 
   const handleDateSelect = async (day: number | null) => {
     if (!day || !selectedBarber) return;
@@ -175,7 +204,7 @@ export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingM
     setSelectedTime(time);
     if (selectedDate && selectedService) {
       setDirection(1);
-      setStep("userInfo");
+      setStep(showAiMirror ? "aiMirror" : "userInfo");
     }
   };
 
@@ -185,7 +214,36 @@ export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingM
     setStep("datetime");
   };
 
+  const handleAiMirrorSkip = () => {
+    setDirection(1);
+    setStep("userInfo");
+  };
+
+  const handleRecommendationSelect = (recommendation: HairstyleRecommendation) => {
+    const service = recommendation.matchedServiceId
+      ? services.find(
+        (currentService) => currentService.id === recommendation.matchedServiceId,
+      )
+      : null;
+
+    if (service && service.id !== selectedService?.id) {
+      setSelectedService(service);
+      setSelectedTime(null);
+      setDirection(-1);
+      setStep("datetime");
+      return;
+    }
+
+    setDirection(1);
+    setStep("userInfo");
+  };
+
   const handleBackToDateTime = () => {
+    setDirection(-1);
+    setStep(showAiMirror ? "aiMirror" : "datetime");
+  };
+
+  const handleBackFromAiMirror = () => {
     setDirection(-1);
     setStep("datetime");
   };
@@ -272,6 +330,8 @@ export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingM
         phone: "",
         notes: "",
       });
+      setInitialService(null);
+      setInitialBarber(null);
     }, 300);
   };
   return (
@@ -282,6 +342,8 @@ export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingM
           "bg-background text-foreground",
           step === "success"
             ? "w-[90%] max-w-[600px] h-fit"
+            : step === "aiMirror"
+              ? "h-[90vh] w-[95%] max-w-5xl overflow-hidden lg:h-[85vh]"
             : step === "userInfo"
               ? "w-[95%] max-w-[700px] h-fit"
               : step === "barber"
@@ -306,6 +368,16 @@ export function BookingModal({ isOpen, closeModal, theme = "default" }: BookingM
                 onClose={handleClose}
               />
             )}
+
+          {step === "aiMirror" && (
+            <AiMirrorStep
+              direction={direction}
+              services={services}
+              onSkip={handleAiMirrorSkip}
+              onBack={handleBackFromAiMirror}
+              onRecommendationSelect={handleRecommendationSelect}
+            />
+          )}
 
           {step === "barber" && (
             <ChooseBarber

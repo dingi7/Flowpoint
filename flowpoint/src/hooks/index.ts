@@ -33,6 +33,7 @@ export * from "./service-hooks/organization/use-create-api-key";
 export * from "./service-hooks/organization/use-create-webhook-subscription";
 export * from "./service-hooks/organization/use-remove-webhook-subscription";
 export * from "./service-hooks/organization/use-revoke-api-key";
+export * from "./service-hooks/organization/use-set-ai-mirror-gemini-key";
 export * from "./service-hooks/calendar-sync/use-calendar-sync-status";
 export * from "./service-hooks/calendar-sync/use-start-google-connect";
 export * from "./service-hooks/calendar-sync/use-toggle-calendar-sync";
